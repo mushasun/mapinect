@@ -16,6 +16,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/surface/convex_hull.h>
+#include <pcl/octree/octree.h>
 
 #define KINECT_WIDTH 640
 #define KINECT_HEIGHT 480
@@ -42,10 +43,17 @@ class testApp : public ofBaseApp {
 
 		void saveCloud();
 		void savePartialCloud(ofPoint min, ofPoint max, int id);
+
 		void captureBlobsClouds();
 		void detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud);
 		void processBlobsClouds();
-		pcl::PointCloud<pcl::PointXYZ>::Ptr getPartialCloud(ofPoint min, ofPoint max);
+		PointCloud<PointXYZ>::Ptr getPartialCloud(ofPoint min, ofPoint max);
+		PointCloud<PointXYZ>::Ptr getCloud();
+		PointCloud<PointXYZRGB>::Ptr getColorCloud();
+		PointCloud<PointXYZRGB>::Ptr getPartialColorCloud();
+		void setInitialPointCloud();
+		PointCloud<PointXYZ>::Ptr getDifferenceIdx(const PointCloud<PointXYZ>::Ptr &cloud, int noise_filter = 7);
+		void processDiferencesClouds();
 
 		ofxKinect kinect;
 
@@ -74,6 +82,7 @@ class testApp : public ofBaseApp {
 
 
 		pcl::PointCloud<pcl::PointXYZ>::Ptr	cloud;
+		octree::OctreePointCloudChangeDetector<PointXYZ> *myoctree; //Valor de resolucion sacado del ejemplo
 };
 
 #endif
