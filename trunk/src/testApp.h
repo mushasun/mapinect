@@ -17,10 +17,14 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/surface/convex_hull.h>
 #include <pcl/octree/octree.h>
+#include <time.h>
 
 #define KINECT_WIDTH 640
 #define KINECT_HEIGHT 480
 #define CLOUD_POINTS 307200 //640x480
+#define OCTREE_RES 64 
+#define MAX_PLANES 10
+#define MIN_DIFF_TO_PROCESS 300
 
 using namespace pcl;
 
@@ -50,10 +54,11 @@ class testApp : public ofBaseApp {
 		PointCloud<PointXYZ>::Ptr getPartialCloud(ofPoint min, ofPoint max);
 		PointCloud<PointXYZ>::Ptr getCloud();
 		PointCloud<PointXYZRGB>::Ptr getColorCloud();
-		PointCloud<PointXYZRGB>::Ptr getPartialColorCloud();
+		PointCloud<PointXYZRGB>::Ptr getPartialColorCloud(ofPoint min, ofPoint max);
 		void setInitialPointCloud();
-		PointCloud<PointXYZ>::Ptr getDifferenceIdx(const PointCloud<PointXYZ>::Ptr &cloud, int noise_filter = 7);
+		PointCloud<PointXYZ>::Ptr getDifferenceIdx(bool &dif, int noise_filter = 7);
 		void processDiferencesClouds();
+		void printTime();
 
 		ofxKinect kinect;
 
@@ -79,10 +84,14 @@ class testApp : public ofBaseApp {
 		int					angle;
 		
 		int 				pointCloudRotationY;
-
+		clock_t				start, end;
 
 		pcl::PointCloud<pcl::PointXYZ>::Ptr	cloud;
-		octree::OctreePointCloudChangeDetector<PointXYZ> *myoctree; //Valor de resolucion sacado del ejemplo
+		octree::OctreePointCloudChangeDetector<PointXYZ> *octree;
+		PointCloud<PointXYZ>::Ptr planes[MAX_PLANES];
+
+		bool				baseCloudSetted;
+		float				timer;
 };
 
 #endif
