@@ -22,7 +22,7 @@ void testApp::setup() {
 	ofSetFrameRate(60);
 
 	// zero the tilt on startup
-	angle = 0;
+	angle = -12;
 	kinect.setCameraTiltAngle(angle);
 	
 	// start from the front
@@ -41,7 +41,10 @@ void testApp::setup() {
 	cloud->points.resize (CLOUD_POINTS);
 
 	// Inicializo octree
-	myoctree = new octree::OctreePointCloudChangeDetector<PointXYZ>(0.01); //Valor de resolucion sacado del ejemplo
+	octree = new octree::OctreePointCloudChangeDetector<PointXYZ>(OCTREE_RES); //Valor de resolucion sacado del ejemplo
+
+	timer = 0;
+	baseCloudSetted = false;
 }
 
 //--------------------------------------------------------------
@@ -98,6 +101,17 @@ void testApp::update() {
 		//	cout << "min: (" << contourFinder.blobs[i].boundingRect.x << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y << ")" << endl;
 		//	cout << "max: (" << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.width << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y + contourFinder.blobs[i].boundingRect.height<< ")" << endl;
 		//}
+
+		if(!baseCloudSetted)
+		{
+			setInitialPointCloud();
+			baseCloudSetted = true;
+			cout << "Base cloud setted..." << endl;
+		}else if(ofGetElapsedTimef() - timer > 5){
+			cout << "Process diferences" << endl;
+			processDiferencesClouds();
+			timer = ofGetElapsedTimef();
+		}
 	}
 }
 
@@ -156,7 +170,7 @@ void testApp::drawPointCloud() {
 
 //--------------------------------------------------------------
 void testApp::exit() {
-	kinect.setCameraTiltAngle(0); // zero the tilt on exit
+	//kinect.setCameraTiltAngle(0); // zero the tilt on exit
 	kinect.close();
 }
 
@@ -210,6 +224,11 @@ PointCloud<PointXYZ>::Ptr testApp::getCloud(){
 	return getPartialCloud(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT));
 }
 
+PointCloud<PointXYZRGB>::Ptr testApp::getColorCloud(){
+	return getPartialColorCloud(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT));
+}
+
+//No encaró
 PointCloud<PointXYZ>::Ptr testApp::getPartialCloud(ofPoint min, ofPoint max){
 	//Calcular tamaño de la nube
 	PointCloud<PointXYZ>::Ptr partialColud (new pcl::PointCloud<pcl::PointXYZ>);
@@ -259,6 +278,61 @@ PointCloud<PointXYZ>::Ptr testApp::getPartialCloud(ofPoint min, ofPoint max){
 	return partialColud;	
 }
 
+//No encaró
+PointCloud<PointXYZRGB>::Ptr testApp::getPartialColorCloud(ofPoint min, ofPoint max){
+	//Calcular tamaño de la nube
+	PointCloud<PointXYZRGB>::Ptr partialColud (new pcl::PointCloud<pcl::PointXYZRGB>);
+	partialColud->width    = max.x - min.x;
+	partialColud->height   = max.y - min.y;
+	partialColud->is_dense = false;
+	partialColud->points.resize (partialColud->width*partialColud->height);
+
+	//Recorrer el mapa de distancias obteniendo sólo los que estén dentro del rectángulo
+
+	register int centerX = (cloud->width >> 1);
+	int centerY = (cloud->height >> 1);
+	float bad_point = std::numeric_limits<float>::quiet_NaN();
+
+	register float* depth_map = kinect.getDistancePixels();
+	unsigned char* color_map = kinect.getCalibratedRGBPixels();
+	float constant = 0.5f; //CAlculado segun lo que hay en la libreria de PCL
+	int step = 1;
+	register int depth_idx = 0;
+	int absV, absU, cloud_idx = 0;
+	for(int v = -centerY; v < centerY; ++v) {
+		for(register int u = -centerX; u < centerX; ++u, ++depth_idx) {
+			absV = v + centerY;
+			absU = u + centerX;
+			if( absV > min.y && absV < max.y && absU > min.x && absU < max.x)
+			{
+				pcl::PointXYZRGB& pt = partialColud->points[cloud_idx];
+
+				// Check for invalid measurements o puntos que estan fuera del nearthreshold/farthreshold
+				// TODO: limitar que depth_map[depth_idx] caiga dentro de nearThreshold/farThreshold
+				// Lo intente hacer pero parece que esos valores no corresponden con lo que lee el kinect
+				if(/*depth_map[depth_idx] > 100 || */depth_map[depth_idx] == 0){
+					pt.x = pt.y = pt.z = bad_point;
+					//continue;
+				}
+				else{
+					pt.z = depth_map[depth_idx];
+					pt.x = u * constant;
+					pt.y = v * constant;
+					ofColor c = kinect.getColorAt(absU,absV);
+					pt.r = c.r*255;
+					pt.g = c.g*255;
+					pt.b = c.b*255;
+				}
+
+
+				cloud_idx++;
+			}
+		}
+	}
+	//pcl::io::savePCDFileASCII ("test_pacial_pcd.pcd", *partialColud);
+	return partialColud;	
+}
+
 void testApp::captureBlobsClouds(){
 	for (int i = 0; i < contourFinder.nBlobs; i ++){
 		ofxCvBlob blob = contourFinder.blobs[i];
@@ -282,36 +356,34 @@ void testApp::processBlobsClouds(){
 
 void testApp::setInitialPointCloud(){
 	
-	PointCloud<PointXYZ>::Ptr capturedCloud = getCloud();
+	cloud = getCloud();
 
-	//// assign point cloud to octree
- //   octree.setInputCloud(capturedCloud);
+	////// assign point cloud to octree
+ //   octree->setInputCloud(capturedCloud);
 
  //   // add points from cloud to octree
- //   octree.addPointsFromInputCloud();
+ //   octree->addPointsFromInputCloud();
 
-	//octree.switchBuffers();
+	//octree->switchBuffers();
 }
 
-PointCloud<PointXYZ>::Ptr testApp::getDifferenceIdx(const PointCloud<PointXYZ>::Ptr &cloud, int noise_filter){
+PointCloud<PointXYZ>::Ptr testApp::getDifferenceIdx(bool &dif, int noise_filter){
 	
-	// Octree resolution - side length of octree voxels
-	double resolution = 64;
-
 	// Instantiate octree-based point cloud change detection class
-	octree::OctreePointCloudChangeDetector<PointXYZ> octree (resolution);
+	octree::OctreePointCloudChangeDetector<PointXYZ> octree (OCTREE_RES);
 	std::vector<int> newPointIdxVector;
 
-	octree.setInputCloud(getCloud());
+	octree.setInputCloud(cloud);
 	octree.addPointsFromInputCloud();
 	
 	octree.switchBuffers();
 
-	std::cerr<<"Cambio!"<< endl;
+	/*std::cerr<<"Cambio!"<< endl;
 	getchar();
-	this->update();
+	this->update();*/
 
-	octree.setInputCloud(getCloud());
+	PointCloud<PointXYZ>::Ptr secondCloud =  getCloud();
+	octree.setInputCloud(secondCloud);
 	octree.addPointsFromInputCloud();
 	
 	octree.getPointIndicesFromNewVoxels (newPointIdxVector);
@@ -319,26 +391,42 @@ PointCloud<PointXYZ>::Ptr testApp::getDifferenceIdx(const PointCloud<PointXYZ>::
 	std::cerr << newPointIdxVector.size() << std::endl;
 	PointCloud<PointXYZ>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZ>);
 
+	if(newPointIdxVector.size() > MIN_DIFF_TO_PROCESS)
+	{
+		filteredCloud->points.reserve(newPointIdxVector.size());
 
-	filteredCloud->points.reserve(newPointIdxVector.size());
+		for (std::vector<int>::iterator it = newPointIdxVector.begin(); it != newPointIdxVector.end(); it++)
+			filteredCloud->points.push_back(secondCloud->points[*it]);
 
-	for (std::vector<int>::iterator it = newPointIdxVector.begin(); it != newPointIdxVector.end(); it++)
-		filteredCloud->points.push_back(cloud->points[*it]);
+		std::stringstream ss;
+		ss << "difference.pcd";
+		pcl::io::savePCDFileASCII (ss.str(), *filteredCloud);
 
-	std::stringstream ss;
-	ss << "difference.pcd";
-	pcl::io::savePCDFileASCII (ss.str(), *filteredCloud);
-
-	//myoctree->switchBuffers();
+		dif = true;
+		//myoctree->switchBuffers();
+	}
+	else
+		dif = false;
 
 	return filteredCloud;
 }
 
 void testApp::processDiferencesClouds(){
-	PointCloud<PointXYZ>::Ptr currentCloud = getCloud();
-	PointCloud<PointXYZ>::Ptr filteredCloud = getDifferenceIdx(currentCloud);
+	//PointCloud<PointXYZ>::Ptr currentCloud = getCloud();
+	start = clock();
+	bool dif;
+	PointCloud<PointXYZ>::Ptr filteredCloud = getDifferenceIdx(dif);
+	if(dif)
+		detectPlanes(filteredCloud);
+	else
+		cout << "No differences founded.";
+	end = clock();
 
-	detectPlanes(filteredCloud);
+	printTime();
+}
+
+void testApp::printTime(){
+	cout <<"elapsed: "<< ( (end - start)/CLOCKS_PER_SEC ) << endl;
 }
 //--------------------------------------------------------------
 void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
@@ -347,24 +435,30 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>), cloud_p (new pcl::PointCloud<pcl::PointXYZ>);
 
 
-	pcl::toROSMsg<pcl::PointXYZ>(*currentCloud, *cloud_blob);
+	///Comentada la parte de downsampling porque no habia gran diferencia
+	//pcl::toROSMsg<pcl::PointXYZ>(*currentCloud, *cloud_blob);
 
-	std::cerr << "PointCloud before filtering: " << cloud_blob->width * cloud_blob->height << " data points." << std::endl;
+	//std::cerr << "PointCloud before filtering: " << cloud_blob->width * cloud_blob->height << " data points." << std::endl;
 
-	// Create the filtering object: downsample the dataset using a leaf size of 1cm
-	pcl::VoxelGrid<sensor_msgs::PointCloud2> sor;
-	sor.setInputCloud (cloud_blob);
-	sor.setLeafSize (0.01, 0.01, 0.01);
-	sor.filter (*cloud_filtered_blob);
+	//// Create the filtering object: downsample the dataset using a leaf size of 1cm
+	//pcl::VoxelGrid<sensor_msgs::PointCloud2> sor;
+	//sor.setInputCloud (cloud_blob);
+	//sor.setLeafSize (0.01, 0.01, 0.01);
+	//sor.filter (*cloud_filtered_blob);
 
-	// Convert to the templated PointCloud
-	pcl::fromROSMsg (*cloud_filtered_blob, *cloud_filtered);
+	//// Convert to the templated PointCloud
+	//pcl::fromROSMsg (*cloud_filtered_blob, *cloud_filtered);
 
-	std::cerr << "PointCloud after filtering: " << cloud_filtered->width * cloud_filtered->height << " data points." << std::endl;
+	//std::cerr << "PointCloud after filtering: " << cloud_filtered->width * cloud_filtered->height << " data points." << std::endl;
+	///
 
+	////Esto es si esta comentado lo de downsampling
+	cloud_filtered = currentCloud;
+	///////////
+	
 	// Write the downsampled version to disk
 	pcl::PCDWriter writer;
-	writer.write<pcl::PointXYZ> ("box_downsampled.pcd", *cloud_filtered, false);
+	/*writer.write<pcl::PointXYZ> ("box_downsampled.pcd", *cloud_filtered, false);*/
 
 	pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
 	pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
@@ -383,7 +477,8 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 
 	int i = 0, nr_points = cloud_filtered->points.size ();
 	// While 30% of the original cloud is still there
-	while (cloud_filtered->points.size () > 0.3 * nr_points)
+	int j = 0;
+	while (cloud_filtered->points.size () > 0.1 * nr_points && j < MAX_PLANES)
 	{
 		// Segment the largest planar component from the remaining cloud
 		seg.setInputCloud (cloud_filtered);
@@ -403,18 +498,23 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 
 		
 		// Create a Convex Hull representation of the projected inliers
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
+		//Comento convexHull para ver si mejora los tiempos
+		/*pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
 		pcl::ConvexHull<pcl::PointXYZ> chull;
 		chull.setInputCloud (cloud_p);
-		chull.reconstruct (*cloud_hull);
+		chull.reconstruct (*cloud_hull);*/
 
-		std::stringstream ss;
+		/**/
+		/*std::stringstream ss;
 		ss << "box_plane_" << i << ".pcd";
-		writer.write<pcl::PointXYZ> (ss.str (), *cloud_p, false);
-
+		writer.write<pcl::PointXYZ> (ss.str (), *cloud_p, false);*/
+		//Salvo a memoria en lugar de escribir en archivo
+		planes[j++] = (cloud_p);
+		/*
 		std::stringstream ss2;
 		ss2 << "box_plane_hull_" << i << ".pcd";
-		writer.write<pcl::PointXYZ> (ss2.str (), *cloud_hull, false);
+		writer.write<pcl::PointXYZ> (ss2.str (), *cloud_hull, false);*/
+
 		//viewer.showCloud(cloud_p);
 		// Create the filtering object
 		extract.setNegative (true);
@@ -426,6 +526,8 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 
 		i++;
 	}
+
+	cout<<"Detected planes: "<<j<<endl;
 }
 
 //--------------------------------------------------------------
