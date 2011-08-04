@@ -19,6 +19,8 @@
 #include <pcl/octree/octree.h>
 #include <time.h>
 
+#include "Quad3D.h"
+
 #define KINECT_WIDTH 640
 #define KINECT_HEIGHT 480
 #define CLOUD_POINTS 307200 //640x480
@@ -45,8 +47,9 @@ class testApp : public ofBaseApp {
 		void mouseReleased(int x, int y, int button);
 		void windowResized(int w, int h);
 
-		void saveCloud();
-		void savePartialCloud(ofPoint min, ofPoint max, int id);
+		void saveCloud(const string& name);
+		void savePartialCloud(ofPoint min, ofPoint max, int id, const string& name);
+		PointCloud<PointXYZ>* loadCloud(const string& name);
 
 		void captureBlobsClouds();
 		void detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud);
@@ -89,6 +92,9 @@ class testApp : public ofBaseApp {
 		pcl::PointCloud<pcl::PointXYZ>::Ptr	cloud;
 		octree::OctreePointCloudChangeDetector<PointXYZ> *octree;
 		PointCloud<PointXYZ>::Ptr planes[MAX_PLANES];
+
+		mapinect::Quad3D		detectedPlane;
+		std::vector<ofxVec3f>	vCloudHull;
 
 		bool				baseCloudSetted;
 		float				timer;
