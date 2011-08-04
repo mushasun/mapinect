@@ -1,5 +1,11 @@
 #include "testApp.h"
+#include "pointUtils.h"
+#include "ofxVecUtils.h"
+#include "Line2D.h"
+#include "Triangle2D.h"
 
+#define DEFAULT_NAME		"test"
+#define PCD_EXTENSION		".pcd"
 
 //--------------------------------------------------------------
 void testApp::setup() {
@@ -22,7 +28,7 @@ void testApp::setup() {
 	ofSetFrameRate(60);
 
 	// zero the tilt on startup
-	angle = -12;
+	angle = 0;
 	kinect.setCameraTiltAngle(angle);
 	
 	// start from the front
@@ -107,7 +113,8 @@ void testApp::update() {
 			setInitialPointCloud();
 			baseCloudSetted = true;
 			cout << "Base cloud setted..." << endl;
-		}else if(ofGetElapsedTimef() - timer > 5){
+		}
+		else if(ofGetElapsedTimef() - timer > 5){
 			cout << "Process diferences" << endl;
 			processDiferencesClouds();
 			timer = ofGetElapsedTimef();
@@ -127,6 +134,34 @@ void testApp::draw() {
 	}else{
 		kinect.drawDepth(10, 10, 400, 300);
 		kinect.draw(420, 10, 400, 300);
+		ofPushMatrix();
+			ofTranslate(420 + 200, 10 + 150);
+			glColor3f(0.0, 1.0, 0.0);
+			glBegin(GL_TRIANGLES);
+				glVertex3f(detectedPlane.getVA().x, detectedPlane.getVA().y, 3);
+				glVertex3f(detectedPlane.getVB().x, detectedPlane.getVB().y, 3);
+				glVertex3f(detectedPlane.getVC().x, detectedPlane.getVC().y, 3);
+				glVertex3f(detectedPlane.getVA().x, detectedPlane.getVA().y, 3);
+				glVertex3f(detectedPlane.getVB().x, detectedPlane.getVB().y, 3);
+				glVertex3f(detectedPlane.getVD().x, detectedPlane.getVD().y, 3);
+			glEnd();
+
+			glBegin(GL_POLYGON);
+				ofCircle(detectedPlane.getVA().x, detectedPlane.getVA().y, 4);
+				ofCircle(detectedPlane.getVB().x, detectedPlane.getVB().y, 4);
+				ofCircle(detectedPlane.getVC().x, detectedPlane.getVC().y, 4);
+				ofCircle(detectedPlane.getVD().x, detectedPlane.getVD().y, 4);
+			glEnd();
+
+			glColor3f(1.0, 0.0, 0.0);
+			glBegin(GL_POINTS);
+				for (int i = 0; i < vCloudHull.size(); i++) {
+					glVertex3f(vCloudHull[i].x, vCloudHull[i].y, 5);
+				}
+			glEnd();
+
+			glColor3f(1.0, 1.0, 1.0);
+		ofPopMatrix();
 
 		grayImage.draw(10, 320, 400, 300);
 		//grayDiff.draw(420, 10, 400, 300);
@@ -153,8 +188,20 @@ void testApp::drawPointCloud() {
 	ofScale(400, 400, 400);
 	int w = 640;
 	int h = 480;
+	
 	ofRotateY(pointCloudRotationY);
 	float* distancePixels = kinect.getDistancePixels();
+	
+
+	for (int j = 0; j < 800; j++) {
+		glBegin(GL_QUADS);
+			glVertex3f(detectedPlane.getVA().x, detectedPlane.getVA().y, 400 - j);
+			glVertex3f(detectedPlane.getVB().x, detectedPlane.getVB().y, 400 - j);
+			glVertex3f(detectedPlane.getVC().x, detectedPlane.getVC().y, 400 - j);
+			glVertex3f(detectedPlane.getVD().x, detectedPlane.getVD().y, 400 - j);
+		glEnd();
+	}
+	
 	glBegin(GL_POINTS);
 	int step = 2;
 	for(int y = 0; y < h; y += step) {
@@ -166,6 +213,7 @@ void testApp::drawPointCloud() {
 		}
 	}
 	glEnd();
+	
 }
 
 //--------------------------------------------------------------
@@ -175,7 +223,7 @@ void testApp::exit() {
 }
 
 //--------------------------------------------------------------
-void testApp::saveCloud(){
+void testApp::saveCloud(const string& name){
 	register int centerX = (cloud->width >> 1);
 	int centerY = (cloud->height >> 1);
 	float bad_point = std::numeric_limits<float>::quiet_NaN();
@@ -207,17 +255,25 @@ void testApp::saveCloud(){
 	cloud_source_ptr = cloud->makeShared(); */
 	//viewer.showCloud (cloud);
 
-	pcl::io::savePCDFileASCII ("test_pcd.pcd", *cloud);
-	std::cerr << "Saved " << cloud->points.size () << " data points to test_pcd.pcd." << std::endl;
+	string filename = name + PCD_EXTENSION;
+	pcl::io::savePCDFileASCII (filename, *cloud);
+	std::cerr << "Saved " << cloud->points.size () << " data points to " << filename << std::endl;
 }
 
-void testApp::savePartialCloud(ofPoint min, ofPoint max, int id){
+void testApp::savePartialCloud(ofPoint min, ofPoint max, int id, const string& name){
 	//Calcular tamaño de la nube
 	PointCloud<PointXYZ>::Ptr partialColud = getPartialCloud(min,max);
 	std::stringstream ss;
-	ss << "test_pcd-" << id << ".pcd";
+	ss << name << "-" << id << PCD_EXTENSION;
 	pcl::io::savePCDFileASCII (ss.str(), *partialColud);
-	std::cerr << "Saved " << partialColud->points.size () << " data points to test_pcd.pcd." << std::endl;
+	std::cerr << "Saved " << partialColud->points.size () << " data points to " << ss.str() << std::endl;
+}
+
+PointCloud<PointXYZ>* testApp::loadCloud(const string& name) {
+	pcl::PointCloud<pcl::PointXYZ>* tmpCloud = new pcl::PointCloud<PointXYZ>();
+	string filename = name + PCD_EXTENSION;
+	pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *tmpCloud);
+	return tmpCloud;
 }
 
 PointCloud<PointXYZ>::Ptr testApp::getCloud(){
@@ -319,9 +375,9 @@ PointCloud<PointXYZRGB>::Ptr testApp::getPartialColorCloud(ofPoint min, ofPoint 
 					pt.x = u * constant;
 					pt.y = v * constant;
 					ofColor c = kinect.getColorAt(absU,absV);
-					pt.r = c.r*255;
-					pt.g = c.g*255;
-					pt.b = c.b*255;
+					//pt.r = c.r*255;
+					//pt.g = c.g*255;
+					//pt.b = c.b*255;
 				}
 
 
@@ -339,7 +395,7 @@ void testApp::captureBlobsClouds(){
 		ofPoint min (blob.boundingRect.x,blob.boundingRect.y);
 		ofPoint max (blob.boundingRect.x + blob.boundingRect.width ,blob.boundingRect.y + blob.boundingRect.height);
 
-		savePartialCloud(min,max,i);
+		savePartialCloud(min,max,i,DEFAULT_NAME);
 	}
 }
 
@@ -356,7 +412,10 @@ void testApp::processBlobsClouds(){
 
 void testApp::setInitialPointCloud(){
 	
-	cloud = getCloud();
+	//cloud = getCloud();
+	//saveCloud(DEFAULT_NAME);
+	cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(loadCloud(DEFAULT_NAME));
+	
 
 	////// assign point cloud to octree
  //   octree->setInputCloud(capturedCloud);
@@ -399,8 +458,8 @@ PointCloud<PointXYZ>::Ptr testApp::getDifferenceIdx(bool &dif, int noise_filter)
 			filteredCloud->points.push_back(secondCloud->points[*it]);
 
 		std::stringstream ss;
-		ss << "difference.pcd";
-		pcl::io::savePCDFileASCII (ss.str(), *filteredCloud);
+		ss << "difference" << PCD_EXTENSION;
+		//pcl::io::savePCDFileASCII (ss.str(), *filteredCloud);
 
 		dif = true;
 		//myoctree->switchBuffers();
@@ -499,10 +558,10 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 		
 		// Create a Convex Hull representation of the projected inliers
 		//Comento convexHull para ver si mejora los tiempos
-		/*pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
 		pcl::ConvexHull<pcl::PointXYZ> chull;
 		chull.setInputCloud (cloud_p);
-		chull.reconstruct (*cloud_hull);*/
+		chull.reconstruct (*cloud_hull);
 
 		/**/
 		/*std::stringstream ss;
@@ -510,10 +569,14 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 		writer.write<pcl::PointXYZ> (ss.str (), *cloud_p, false);*/
 		//Salvo a memoria en lugar de escribir en archivo
 		planes[j++] = (cloud_p);
-		/*
+		
+		if (cloud_hull->size() == 0) {
+			continue;
+		}
+		
 		std::stringstream ss2;
-		ss2 << "box_plane_hull_" << i << ".pcd";
-		writer.write<pcl::PointXYZ> (ss2.str (), *cloud_hull, false);*/
+		ss2 << "box_plane_hull_" << i << PCD_EXTENSION;
+		writer.write<pcl::PointXYZ> (ss2.str (), *cloud_hull, false);
 
 		//viewer.showCloud(cloud_p);
 		// Create the filtering object
@@ -524,10 +587,23 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 		extract.filter (*cloud_filtered_temp);
 		cloud_filtered = cloud_filtered_temp;
 
+		time_t now = time(NULL);
+
+		vCloudHull.clear();
+		for (int k = 0; k < cloud_hull->size(); k++) {
+			vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_hull->at(k)));
+		}
+
+		detectedPlane.findQuad(vCloudHull);
+
+		cout << time(NULL) - now << endl;
+
 		i++;
 	}
 
 	cout<<"Detected planes: "<<j<<endl;
+
+
 }
 
 //--------------------------------------------------------------
@@ -585,7 +661,7 @@ void testApp::keyPressed (int key) {
 			break;
 
 		case 's':
-			saveCloud();
+			saveCloud(DEFAULT_NAME);
 			break;
 		case 'b':
 			processBlobsClouds();
