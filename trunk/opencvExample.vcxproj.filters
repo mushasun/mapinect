@@ -45,6 +45,11 @@
     <ClCompile Include="..\..\..\addons\ofxVectorMath\src\ofxQuaternion.cpp">
       <Filter>addons\ofxVectorMath</Filter>
     </ClCompile>
+    <ClCompile Include="src\Line2D.cpp" />
+    <ClCompile Include="src\Triangle2D.cpp" />
+    <ClCompile Include="src\Quad3D.cpp" />
+    <ClCompile Include="src\ofxVecUtils.cpp" />
+    <ClCompile Include="src\pointUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\testApp.h" />
@@ -129,6 +134,12 @@
     <ClInclude Include="..\..\..\addons\ofxVectorMath\src\ofxVec4f.h">
       <Filter>addons\ofxVectorMath</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils.h" />
+    <ClInclude Include="src\pointUtils.h" />
+    <ClInclude Include="src\Line2D.h" />
+    <ClInclude Include="src\ofxVecUtils.h" />
+    <ClInclude Include="src\Triangle2D.h" />
+    <ClInclude Include="src\Quad3D.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
