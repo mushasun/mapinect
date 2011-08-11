@@ -2,6 +2,7 @@
 #define _TEST_APP
 #define EIGEN_DONT_VECTORIZE
 #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
+#define OF_ADDON_USING_OFXXMLSETTINGS
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
@@ -18,6 +19,10 @@
 #include <pcl/surface/convex_hull.h>
 #include <pcl/octree/octree.h>
 #include <time.h>
+#include "ofxXmlSettings.h"
+
+#include "ball.h"
+#include "quad.h"
 
 #include "Quad3D.h"
 
@@ -62,6 +67,7 @@ class testApp : public ofBaseApp {
 		PointCloud<PointXYZ>::Ptr getDifferenceIdx(bool &dif, int noise_filter = 7);
 		void processDiferencesClouds();
 		void printTime();
+		void cargar_lpmt();
 
 		ofxKinect kinect;
 
@@ -80,6 +86,7 @@ class testApp : public ofBaseApp {
 		
 		bool				bThreshWithOpenCV;
 		bool				drawPC;
+		bool				lpmt;
 
 		int 				nearThreshold;
 		int					farThreshold;
@@ -98,6 +105,44 @@ class testApp : public ofBaseApp {
 
 		bool				baseCloudSetted;
 		float				timer;
+		
+		
+		//agregando lo de LPMT
+
+		int whichCorner;
+		ofTrueTypeFont ttf;
+
+		quad quads[36];
+		int layers[36];
+
+		int activeQuad;
+		int nOfQuads;
+		int borderColor;
+
+		bool isSetup;
+		bool bFullscreen;
+		bool bGui;
+		bool snapshotOn;
+		bool showlpmt;
+
+		// gui elements
+		bool showGui;
+
+		// camera grabber
+		ofVideoGrabber camGrabber;
+		ofTexture camTexture;
+		ofTexture snapshotTexture;
+
+		int camWidth;
+		int camHeight;
+
+		vector<string> imgFiles;
+		vector<string> videoFiles;
+		vector<string> slideshowFolders;
+
+		ofxXmlSettings XML;
+		void setXml();
+		void getXml();
 };
 
 #endif
