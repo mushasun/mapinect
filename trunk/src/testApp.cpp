@@ -43,37 +43,67 @@ void testApp::cargar_lpmt()
     ofSetVerticalSync(true);
 
     // we scan the img dir for images
-	string imgDir = string("../data/img");
+	string imgDir = string("./data/img");
     imgFiles = vector<string>();
     //getdir(imgDir,imgFiles);
 	show_files(imgDir,imgFiles);
 	int size = imgFiles.size();
     string *images = new string[size];
     for (unsigned int i = 0;i < imgFiles.size();i++) {
-        images[i]= imgFiles[i];
+        string currImg = imgFiles[i];
+		/*	if (currImg.find(".") != -1) {
+			currImg.replace(currImg.find("."), 1, ""); 
+		} */
+		while (currImg.find("/") != -1) {
+			currImg.replace(currImg.find("/"), 1, "\\");	
+		}	
+		if (currImg.find_last_of("\\") != -1) {
+			imgFiles[i] = currImg.substr(currImg.find_last_of("\\")+1,currImg.size());
+		}
+		images[i]= imgFiles[i];
     }
 
 
     // we scan the video dir for videos
-	string videoDir = string("../data/video");
+	string videoDir = string("./data/video");
     videoFiles = vector<string>();
     //getdir(videoDir,videoFiles);
     show_files(videoDir,videoFiles);
 	size = videoFiles.size();
     string *videos = new string[size];
     for (unsigned int i = 0;i < videoFiles.size();i++) {
-        videos[i]= videoFiles[i];
+		string currVideo = videoFiles[i];
+		/* if (currVideo.find(".") != -1) {
+			currVideo.replace(currVideo.find("."), 1, ""); 
+		} */
+		while (currVideo.find("/") != -1) {
+			currVideo.replace(currVideo.find("/"), 1, "\\");	
+		}	
+		if (currVideo.find_last_of("\\") != -1) {
+			videoFiles[i] = currVideo.substr(currVideo.find_last_of("\\")+1,currVideo.size());
+		}
+		videos[i]= videoFiles[i];
     }
 
     // we scan the slideshow dir for videos
-	string slideshowDir = string("../data/slideshow");
+	string slideshowDir = string("./data/slideshow");
     slideshowFolders = vector<string>();
     //getdir(slideshowDir,slideshowFolders);
     show_files(slideshowDir,slideshowFolders);
 	size = slideshowFolders.size();
 	string *slideshows = new string[size];
     for (unsigned int i = 0;i < slideshowFolders.size();i++) {
-        slideshows[i]= slideshowFolders[i];
+		string currSlideShow = slideshowFolders[i];
+		/* if (currSlideShow.find(".") != -1) {
+			currSlideShow.replace(currSlideShow.find("."), 1, ""); 
+		} */
+		while (currSlideShow.find("/") != -1) {
+			currSlideShow.replace(currSlideShow.find("/"), 1, "\\");	
+		}	
+		if (currSlideShow.find_last_of("\\") != -1) {
+			slideshowFolders[i] = currSlideShow.substr(currSlideShow.find_last_of("\\")+1,currSlideShow.size());
+		}
+		slideshows[i]= slideshowFolders[i];
     }
 
 
