@@ -13,6 +13,7 @@ namespace mapinect {
 		virtual ~Quad3D() { };
 
 		bool findQuad(const std::vector<ofxVec3f>& vCloud);
+		bool findQuad2(const std::vector<ofxVec3f>& vCloud);
 
 		inline const ofxVec3f& getVA() { return pVA; }
 		inline const ofxVec3f& getVB() { return pVB; }

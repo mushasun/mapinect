@@ -20,6 +20,8 @@
 #include <pcl/octree/octree.h>
 #include <time.h>
 #include "ofxXmlSettings.h"
+#include <pcl/registration/icp.h>
+#include <pcl/filters/passthrough.h>
 
 #include "ball.h"
 #include "quad.h"
@@ -68,6 +70,7 @@ class testApp : public ofBaseApp {
 		void processDiferencesClouds();
 		void printTime();
 		void cargar_lpmt();
+		void icp();
 
 		ofxKinect kinect;
 
@@ -87,6 +90,7 @@ class testApp : public ofBaseApp {
 		bool				bThreshWithOpenCV;
 		bool				drawPC;
 		bool				lpmt;
+		bool				drawCalibration;
 
 		int 				nearThreshold;
 		int					farThreshold;
@@ -97,14 +101,19 @@ class testApp : public ofBaseApp {
 		clock_t				start, end;
 
 		pcl::PointCloud<pcl::PointXYZ>::Ptr	cloud;
+		pcl::PointCloud<pcl::PointXYZ>::Ptr	diffCloud;
 		octree::OctreePointCloudChangeDetector<PointXYZ> *octree;
-		PointCloud<PointXYZ>::Ptr planes[MAX_PLANES];
+		PointCloud<PointXYZ> planes[MAX_PLANES];
+		int						detectedPlanes;
 
 		mapinect::Quad3D		detectedPlane;
 		std::vector<ofxVec3f>	vCloudHull;
 
 		bool				baseCloudSetted;
 		float				timer;
+
+
+		bool				drawDepth;
 		
 		
 		//agregando lo de LPMT

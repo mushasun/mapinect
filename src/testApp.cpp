@@ -43,7 +43,7 @@ void testApp::cargar_lpmt()
     ofSetVerticalSync(true);
 
     // we scan the img dir for images
-	string imgDir = string("./data/img");
+	string imgDir = string("../data/img");
     imgFiles = vector<string>();
     //getdir(imgDir,imgFiles);
 	show_files(imgDir,imgFiles);
@@ -55,7 +55,7 @@ void testApp::cargar_lpmt()
 
 
     // we scan the video dir for videos
-	string videoDir = string("./data/video");
+	string videoDir = string("../data/video");
     videoFiles = vector<string>();
     //getdir(videoDir,videoFiles);
     show_files(videoDir,videoFiles);
@@ -66,7 +66,7 @@ void testApp::cargar_lpmt()
     }
 
     // we scan the slideshow dir for videos
-	string slideshowDir = string("./data/slideshow");
+	string slideshowDir = string("../data/slideshow");
     slideshowFolders = vector<string>();
     //getdir(slideshowDir,slideshowFolders);
     show_files(slideshowDir,slideshowFolders);
@@ -77,7 +77,7 @@ void testApp::cargar_lpmt()
     }
 
 
-    ttf.loadFont("type/frabk.ttf", 11);
+    ttf.loadFont("../type/frabk.ttf", 11);
     // set border color for quads in setup mode
     borderColor = 0x666666;
     // starts in quads setup mode
@@ -252,6 +252,7 @@ void testApp::setup() {
 
 	timer = 0;
 	baseCloudSetted = false;
+	drawCalibration = true;
 
 	//agregando lo LPMT
 	cargar_lpmt();
@@ -333,20 +334,12 @@ void testApp::update() {
 				}
 			}
 
-			//if (bLearnBakground == true){
-			//	grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg (operator overloading)
-			//	bLearnBakground = false;
-			//}
-			//// take the abs value of the difference between background and incoming and then threshold:
-			//grayDiff.absDiff(grayBg, grayImage);
-			//grayDiff.threshold(threshold);
-
 			//update the cv image
 			grayImage.flagImageChanged();
 	
-			// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
-    		// also, find holes is set to true so we will get interior contours as well....
-    		contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
+		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
+    	// also, find holes is set to true so we will get interior contours as well....
+    	//contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
 
 			//for(int i = 0 ; i < contourFinder.nBlobs; i++)
 			//{
@@ -366,6 +359,13 @@ void testApp::update() {
 				timer = ofGetElapsedTimef();
 			}
 		}
+		/*
+		Se procesa la diferencia apretando el espacio.
+		else if(ofGetElapsedTimef() - timer > 5){
+			cout << "Process diferences" << endl;
+			processDiferencesClouds();
+			timer = ofGetElapsedTimef();
+		}*/
 	}
 }
 
@@ -374,42 +374,41 @@ void testApp::draw() {
 	if (showlpmt)
 	{
 		// in setup mode sets active quad border to be white
-    if (isSetup)
-    {
-        quads[activeQuad].borderColor = 0xFFFFFF;
-        // if snapshot is on draws it as window background
-        if (snapshotOn) {
-        ofEnableAlphaBlending();
-	    ofSetColor(0xFFFFFF);
-	    snapshotTexture.draw(0,0,ofGetWidth(),ofGetHeight());
-	    ofDisableAlphaBlending();
-        }
-    }
-
-    // loops through initialized quads and calls their draw function
-    for(int j = 0; j < 36; j++)
-    {
-        int i = layers[j];
-		if ((i != -1) && (quads[i].initialized))
-        {
-            quads[i].draw();
-        }
-    }
-
+		if (isSetup)
+		{
+			quads[activeQuad].borderColor = 0xFFFFFF;
+			// if snapshot is on draws it as window background
+			if (snapshotOn) {
+			ofEnableAlphaBlending();
+			ofSetColor(0xFFFFFF);
+			snapshotTexture.draw(0,0,ofGetWidth(),ofGetHeight());
+			ofDisableAlphaBlending();
+			}
+		}
+		// loops through initialized quads and calls their draw function
+		for(int j = 0; j < 36; j++)
+		{
+			int i = layers[j];
+			if ((i != -1) && (quads[i].initialized))
+			{
+				quads[i].draw();
+			}
+		}
 
 
-    // in setup mode writes the number of active quad at the bottom of the window
-    if (isSetup)
-    {
-        ofSetColor(0xFFFFFF);
-        ttf.drawString("active quad: "+ofToString(activeQuad), 30, ofGetHeight()-25);
-    }
 
-   // draws gui
-   if (isSetup)
-   {
-   gui.draw();
-   }
+		// in setup mode writes the number of active quad at the bottom of the window
+		if (isSetup)
+		{
+			ofSetColor(0xFFFFFF);
+			ttf.drawString("active quad: "+ofToString(activeQuad), 30, ofGetHeight()-25);
+		}
+
+	   // draws gui
+	   if (isSetup)
+	   {
+			gui.draw();
+	   }
 	}
 	else
 	{
@@ -420,7 +419,63 @@ void testApp::draw() {
 			// we need a proper camera class
 			drawPointCloud();
 			ofPopMatrix();
-		}else{
+		}
+		else if(drawCalibration)
+		{
+			if(drawDepth)
+				kinect.drawDepth(0,0,640,480);
+
+			//Dibujo nube de diferencia
+			//int points = diffCloud->size();
+			//cout << "diff_size = " << points << endl;
+			//glBegin(GL_POINTS);
+			//	for(int j = 0; j < points; j ++) {
+			//		ofPoint cur (diffCloud->at(j).x, diffCloud->at(j).y, 0);
+			//		cur += ofPoint(320,240,0);
+			//		ofColor color = kinect.getCalibratedColorAt(cur);
+			//		//ofSetColor(color.r,color.g,color.b);
+			//		ofSetColor(0,255,0);
+			//		glVertex3f(cur.x, cur.y, cur.z);
+			//	}
+			//glEnd();
+
+			////Dibujo Hull
+			//points = vCloudHull.size();
+			//glPointSize(2.0);
+			//glBegin(GL_POINTS);
+			//for(int j = 0; j < points; j ++) {
+			//		ofPoint cur (vCloudHull.at(j).x, vCloudHull.at(j).y, 0);
+			//		glColor3ub(255,0,0);
+			//		glVertex3f(cur.x + 320, cur.y + 240, cur.z);
+			//}
+			//glEnd();
+
+
+			ofEnableAlphaBlending();
+		
+			ofSetColor(10,200,0,200);
+			ofPushMatrix();
+			ofTranslate(320,240,0);
+			for(int i = 0; i < detectedPlanes; i++){
+				//Dibujo plano
+				PointCloud<PointXYZ> plane = planes[i];
+				int points = plane.size();
+				glBegin(GL_POINTS);
+					for(int j = 0; j < points; j ++) {
+						ofPoint cur (plane.at(j).x, plane.at(j).y, 0);
+						//cur += ofPoint(320,240,0);
+						//ofColor color = kinect.getCalibratedColorAt(cur);
+						//ofSetColor(color.r,color.g,color.b);
+						ofSetColor(255,i*100,0);
+						glVertex3f(cur.x, cur.y, cur.z);
+					}
+				glEnd();
+			}
+			ofPopMatrix();
+		
+			ofDisableAlphaBlending();
+		}
+		else{
 			kinect.drawDepth(10, 10, 400, 300);
 			kinect.draw(420, 10, 400, 300);
 			ofPushMatrix();
@@ -456,8 +511,7 @@ void testApp::draw() {
 			//grayDiff.draw(420, 10, 400, 300);
 			contourFinder.draw(10, 320, 400, 300);
 		}
-	
-
+		
 		ofSetColor(255, 255, 255);
 		stringstream reportStream;
 		reportStream << "accel is: " << ofToString(kinect.getMksAccel().x, 2) << " / "
@@ -514,6 +568,8 @@ void testApp::exit() {
 
 //--------------------------------------------------------------
 void testApp::saveCloud(const string& name){
+	cout << "saving: " << name << "..." << endl;
+
 	register int centerX = (cloud->width >> 1);
 	int centerY = (cloud->height >> 1);
 	float bad_point = std::numeric_limits<float>::quiet_NaN();
@@ -552,6 +608,7 @@ void testApp::saveCloud(const string& name){
 
 void testApp::savePartialCloud(ofPoint min, ofPoint max, int id, const string& name){
 	//Calcular tamaño de la nube
+	cout << "saving: " << name << "..." << endl;
 	PointCloud<PointXYZ>::Ptr partialColud = getPartialCloud(min,max);
 	std::stringstream ss;
 	ss << name << "-" << id << PCD_EXTENSION;
@@ -560,9 +617,11 @@ void testApp::savePartialCloud(ofPoint min, ofPoint max, int id, const string& n
 }
 
 PointCloud<PointXYZ>* testApp::loadCloud(const string& name) {
+	cout << "loading: "<< name << "..."<<endl;
 	pcl::PointCloud<pcl::PointXYZ>* tmpCloud = new pcl::PointCloud<PointXYZ>();
 	string filename = name + PCD_EXTENSION;
 	pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *tmpCloud);
+	cout << name << " loaded!"<<endl;
 	return tmpCloud;
 }
 
@@ -574,7 +633,7 @@ PointCloud<PointXYZRGB>::Ptr testApp::getColorCloud(){
 	return getPartialColorCloud(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT));
 }
 
-//No encaró
+
 PointCloud<PointXYZ>::Ptr testApp::getPartialCloud(ofPoint min, ofPoint max){
 	//Calcular tamaño de la nube
 	PointCloud<PointXYZ>::Ptr partialColud (new pcl::PointCloud<pcl::PointXYZ>);
@@ -590,7 +649,7 @@ PointCloud<PointXYZ>::Ptr testApp::getPartialCloud(ofPoint min, ofPoint max){
 	float bad_point = std::numeric_limits<float>::quiet_NaN();
 
 	register float* depth_map = kinect.getDistancePixels();
-	float constant = 0.5f; //CAlculado segun lo que hay en la libreria de PCL
+	
 	int step = 1;
 	register int depth_idx = 0;
 	int absV, absU, cloud_idx = 0;
@@ -610,12 +669,11 @@ PointCloud<PointXYZ>::Ptr testApp::getPartialCloud(ofPoint min, ofPoint max){
 					//continue;
 				}
 				else{
+					//ofxVec3f point = kinect.getWorldCoordinateFor(u,v);
 					pt.z = depth_map[depth_idx];
-					pt.x = u * constant;
-					pt.y = v * constant;
+					pt.x = u;
+					pt.y = v;
 				}
-
-
 				cloud_idx++;
 			}
 		}
@@ -702,11 +760,12 @@ void testApp::processBlobsClouds(){
 
 void testApp::setInitialPointCloud(){
 	
-	//cloud = getCloud();
+	cloud = getCloud();
 	//saveCloud(DEFAULT_NAME);
-	cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(loadCloud(DEFAULT_NAME));
 	
-
+	//cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(loadCloud(DEFAULT_NAME));
+	
+	//pcl::io::savePCDFileASCII ("test_inicial.pcd", *cloud);
 	////// assign point cloud to octree
  //   octree->setInputCloud(capturedCloud);
 
@@ -714,10 +773,10 @@ void testApp::setInitialPointCloud(){
  //   octree->addPointsFromInputCloud();
 
 	//octree->switchBuffers();
+
 }
 
 PointCloud<PointXYZ>::Ptr testApp::getDifferenceIdx(bool &dif, int noise_filter){
-	
 	// Instantiate octree-based point cloud change detection class
 	octree::OctreePointCloudChangeDetector<PointXYZ> octree (OCTREE_RES);
 	std::vector<int> newPointIdxVector;
@@ -727,14 +786,14 @@ PointCloud<PointXYZ>::Ptr testApp::getDifferenceIdx(bool &dif, int noise_filter)
 	
 	octree.switchBuffers();
 
-	/*std::cerr<<"Cambio!"<< endl;
-	getchar();
-	this->update();*/
-
 	PointCloud<PointXYZ>::Ptr secondCloud =  getCloud();
+
+	//pcl::io::savePCDFileASCII ("initial.pcd", *cloud);
+	//pcl::io::savePCDFileASCII ("second.pcd", *secondCloud);
+
 	octree.setInputCloud(secondCloud);
 	octree.addPointsFromInputCloud();
-	
+
 	octree.getPointIndicesFromNewVoxels (newPointIdxVector);
 	
 	std::cerr << newPointIdxVector.size() << std::endl;
@@ -761,7 +820,6 @@ PointCloud<PointXYZ>::Ptr testApp::getDifferenceIdx(bool &dif, int noise_filter)
 }
 
 void testApp::processDiferencesClouds(){
-	//PointCloud<PointXYZ>::Ptr currentCloud = getCloud();
 	start = clock();
 	bool dif;
 	PointCloud<PointXYZ>::Ptr filteredCloud = getDifferenceIdx(dif);
@@ -776,6 +834,58 @@ void testApp::processDiferencesClouds(){
 
 void testApp::printTime(){
 	cout <<"elapsed: "<< ( (end - start)/CLOCKS_PER_SEC ) << endl;
+}
+
+void testApp::icp(){
+	kinect.setCameraTiltAngle(0);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr initial_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr initial = getCloud();
+	std::stringstream ss;
+	//ss << "icp_initial.pcd";
+	//pcl::io::savePCDFileASCII (ss.str(), *initial);
+
+	std::cerr<<"Cambio!"<< endl;
+	//getchar();
+	kinect.setCameraTiltAngle(0);
+	ofSleepMillis(1000);
+	this->update();
+
+	pcl::PointCloud<pcl::PointXYZ>::Ptr second_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr second = getCloud();
+	//ss << "icp_second.pcd";
+	//pcl::io::savePCDFileASCII (ss.str(), *second);
+
+	//filtrado
+	pcl::PassThrough<pcl::PointXYZ> pass;
+	pass.setInputCloud (initial);
+	pass.setFilterFieldName ("z");
+	pass.setFilterLimits (1.0, 1000.0);
+	pass.filter (*initial_filtered);
+
+	pass.setInputCloud (second);
+	pass.setFilterFieldName ("z");
+	pass.setFilterLimits (1.0, 1000.0);
+	pass.filter (*second_filtered);
+
+	pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+	
+	cout << "Initial: " << initial_filtered.get()->size() << endl;
+	cout << "Second: " << second_filtered.get()->size() << endl;
+
+	icp.setMaximumIterations(50);
+	//icp.setMaxCorrespondenceDistance(4);
+	icp.setInputCloud(initial_filtered);
+	icp.setInputTarget(second_filtered);
+
+	pcl::PointCloud<pcl::PointXYZ> Final;
+	icp.align(Final);
+	std::cout << "has converged:" << icp.hasConverged() << " score: " <<
+	icp.getFitnessScore() << std::endl;
+	std::cout << icp.getFinalTransformation() << std::endl;
+
+	ss << "icp.pcd";
+	pcl::io::savePCDFileASCII (ss.str(), Final);
+	kinect.setCameraTiltAngle(0);
 }
 //--------------------------------------------------------------
 void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
@@ -825,9 +935,9 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 	pcl::ExtractIndices<pcl::PointXYZ> extract;
 
 	int i = 0, nr_points = cloud_filtered->points.size ();
-	// While 30% of the original cloud is still there
-	int j = 0;
-	while (cloud_filtered->points.size () > 0.1 * nr_points && j < MAX_PLANES)
+	// mientras 10% de la nube no se haya procesado
+	detectedPlanes = 0;
+	while (cloud_filtered->points.size () > 0.1 * nr_points && detectedPlanes < MAX_PLANES)
 	{
 		// Segment the largest planar component from the remaining cloud
 		seg.setInputCloud (cloud_filtered);
@@ -858,17 +968,18 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 		ss << "box_plane_" << i << ".pcd";
 		writer.write<pcl::PointXYZ> (ss.str (), *cloud_p, false);*/
 		//Salvo a memoria en lugar de escribir en archivo
-		planes[j++] = (cloud_p);
+		planes[detectedPlanes] = PointCloud<pcl::PointXYZ>(*cloud_p);
+		detectedPlanes++;
 		
 		if (cloud_hull->size() == 0) {
 			continue;
 		}
 		
-		std::stringstream ss2;
-		ss2 << "box_plane_hull_" << i << PCD_EXTENSION;
-		writer.write<pcl::PointXYZ> (ss2.str (), *cloud_hull, false);
+		//Comento para que no grabe a disco
+		//std::stringstream ss2;
+		//ss2 << "box_plane_hull_" << i << PCD_EXTENSION;
+		//writer.write<pcl::PointXYZ> (ss2.str (), *cloud_hull, false);
 
-		//viewer.showCloud(cloud_p);
 		// Create the filtering object
 		extract.setNegative (true);
 
@@ -891,7 +1002,7 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 		i++;
 	}
 
-	cout<<"Detected planes: "<<j<<endl;
+	cout << "Detected planes: " << detectedPlanes << endl;
 
 
 }
@@ -903,7 +1014,7 @@ void testApp::keyPressed (int key) {
 	int screenH = ofGetScreenHeight();
 	switch (key) {
 		case ' ':
-			bThreshWithOpenCV = !bThreshWithOpenCV;
+			processDiferencesClouds();
 		break;
 		case'p':
 			drawPC = !drawPC;
@@ -939,8 +1050,9 @@ void testApp::keyPressed (int key) {
 			kinect.open();
 			break;
 		case 'c':
-			kinect.setCameraTiltAngle(0);		// zero the tilt
-			kinect.close();
+			//kinect.setCameraTiltAngle(0);		// zero the tilt
+			//kinect.close();
+			icp();
 			break;
 
 		case OF_KEY_UP:
@@ -954,7 +1066,12 @@ void testApp::keyPressed (int key) {
 			if(angle<-30) angle=-30;
 			kinect.setCameraTiltAngle(angle);
 			break;
-
+		//case OF_KEY_LEFT:
+		//	drawDepth = true;
+		//	break;
+		//case OF_KEY_RIGHT:
+		//	drawDepth = false;
+			break;
 		case 's':
 			saveCloud(DEFAULT_NAME);
 			break;
