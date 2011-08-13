@@ -18,8 +18,8 @@ namespace mapinect {
 
 		inline const ofxVec2f &getOrigin() { return pOrigin; }
 
-		float distance(const ofxVec2f &v);
-		float calculateValue(const ofxVec2f &v);
+		double distance(const ofxVec2f &v);
+		double calculateValue(const ofxVec2f &v);
 		ofxVec2f projectTo(const ofxVec2f &v);
 		PositionToLine positionTo(const ofxVec2f &f);
 
@@ -27,7 +27,7 @@ namespace mapinect {
 		ofxVec2f pOrigin;
 		ofxVec2f pDirection;
 
-		float pA, pB, pC;
+		double pA, pB, pC, pSqrtA2B2;
 	};
 }
 

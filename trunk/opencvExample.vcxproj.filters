@@ -45,11 +45,6 @@
     <ClCompile Include="..\..\..\addons\ofxVectorMath\src\ofxQuaternion.cpp">
       <Filter>addons\ofxVectorMath</Filter>
     </ClCompile>
-    <ClCompile Include="src\Line2D.cpp" />
-    <ClCompile Include="src\Triangle2D.cpp" />
-    <ClCompile Include="src\Quad3D.cpp" />
-    <ClCompile Include="src\ofxVecUtils.cpp" />
-    <ClCompile Include="src\pointUtils.cpp" />
     <ClCompile Include="src\quad.cpp" />
     <ClCompile Include="..\..\..\addons\ofxMSAInteractiveObject\src\ofxMSAInteractiveObject.cpp">
       <Filter>addons\ofxMSAInteractiveObjects\src</Filter>
@@ -111,6 +106,11 @@
     <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiValueControl.cpp">
       <Filter>addons\ofxSimpleGuiToo\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Line2D.cpp" />
+    <ClCompile Include="src\ofxVecUtils.cpp" />
+    <ClCompile Include="src\pointUtils.cpp" />
+    <ClCompile Include="src\Quad3D.cpp" />
+    <ClCompile Include="src\Triangle2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\testApp.h" />
@@ -195,12 +195,6 @@
     <ClInclude Include="..\..\..\addons\ofxVectorMath\src\ofxVec4f.h">
       <Filter>addons\ofxVectorMath</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils.h" />
-    <ClInclude Include="src\pointUtils.h" />
-    <ClInclude Include="src\Line2D.h" />
-    <ClInclude Include="src\ofxVecUtils.h" />
-    <ClInclude Include="src\Triangle2D.h" />
-    <ClInclude Include="src\Quad3D.h" />
     <ClInclude Include="src\ball.h" />
     <ClInclude Include="src\quad.h" />
     <ClInclude Include="..\..\..\addons\ofxMSAInteractiveObject\src\ofxMSAInteractiveObject.h">
@@ -269,6 +263,13 @@
     <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiValueControl.h">
       <Filter>addons\ofxSimpleGuiToo\src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Line2D.h" />
+    <ClInclude Include="src\ofGraphicsUtils.h" />
+    <ClInclude Include="src\ofxVecUtils.h" />
+    <ClInclude Include="src\pointUtils.h" />
+    <ClInclude Include="src\Quad3D.h" />
+    <ClInclude Include="src\Triangle2D.h" />
+    <ClInclude Include="src\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">

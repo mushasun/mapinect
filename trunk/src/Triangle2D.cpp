@@ -4,9 +4,11 @@ namespace mapinect {
 	Triangle2D::Triangle2D(const ofxVec2f &vA, const ofxVec2f &vB, const ofxVec2f &vC)
 		: pAB(vA, vB), pBC(vB, vC), pCA(vC, vA) {
 		pSign = pAB.positionTo(vC);
+		pSign = pBC.positionTo(vA);
+		pSign = pCA.positionTo(vB);
 	}
 
-	float Triangle2D::distance(const ofxVec2f &v) {
+	double Triangle2D::distance(const ofxVec2f &v) {
 		int sameHalfPlanes = 0;
 		Line2D *line;
 		ofxVec2f end;
@@ -32,11 +34,11 @@ namespace mapinect {
 			end = pAB.getOrigin();
 		}
 
-		switch (sameHalfPlanes) {
-		case 3:
+		if (sameHalfPlanes == 3) {
 			// point is inside the triangle
 			return 0;
-		case 2:
+		}
+		else if (sameHalfPlanes == 2) {
 			// point could have a projection on a side
 			ofxVec2f vProjected = line->projectTo(v);
 			bool vProjectedInSegment =
@@ -45,6 +47,7 @@ namespace mapinect {
 				&&
 				((line->getOrigin().y <= vProjected.y && vProjected.y <= end.y)
 				|| (line->getOrigin().y >= vProjected.y && vProjected.y >= end.y));
+
 			if (vProjectedInSegment) {
 				return line->distance(v);
 			}

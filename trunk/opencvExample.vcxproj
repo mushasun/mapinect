@@ -201,6 +201,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="include\libfreenect.h" />
     <ClInclude Include="src\ball.h" />
     <ClInclude Include="src\Line2D.h" />
+    <ClInclude Include="src\ofGraphicsUtils.h" />
     <ClInclude Include="src\ofxVecUtils.h" />
     <ClInclude Include="src\pointUtils.h" />
     <ClInclude Include="src\quad.h" />
