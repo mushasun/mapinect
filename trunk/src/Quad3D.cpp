@@ -42,29 +42,36 @@ namespace mapinect {
 		mapinect::Line2D lineAB(v2A, v2B);
 		int ixC = 0;
 		ofxVec2f v2C(v2A);
+		double distanceC = 0;
 		for (int k = 0; k < vCloud.size(); k++) {
 			ofxVec3f v(vCloud.at(k));
 			ofxVec2f v2 = discardCoordinateOfxVec3f(v, discard);
-			if (lineAB.distance(v2) > lineAB.distance(v2C) && lineAB.calculateValue(v2) > 0) {
+			double distance = lineAB.distance(v2);
+			if (distance > distanceC) {
+				distanceC = distance;
 				ixC = k;
 				v2C = v2;
 			}
 		}
 		
+		cout << "max distance to line: " << distanceC << endl;
+
 		int ixD = ixC;
 		ofxVec2f v2D(v2C);
 		mapinect::Triangle2D triangleABC(v2A, v2B, v2C);
-		float distanceD = 0;
+		double distanceD = 0;
 		for (int k = 0; k < vCloud.size(); k++) {
 			ofxVec3f v(vCloud.at(k));
 			ofxVec2f v2 = discardCoordinateOfxVec3f(v, discard);
-			float distance = triangleABC.distance(v2);
+			double distance = triangleABC.distance(v2);
 			if (distance > distanceD) {
 				distanceD = distance;
 				ixD = k;
 				v2D = v2;
 			}
 		}
+
+		cout << "max distance to triangle: " << distanceD << endl;
 
 		pVA = vCloud.at(ixA);
 		pVB = vCloud.at(ixB);
