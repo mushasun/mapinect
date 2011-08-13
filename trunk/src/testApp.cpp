@@ -240,6 +240,7 @@ void testApp::cargar_lpmt()
 	gui.setPage((activeQuad*3)+2);
 	gui.show();
 }
+
 void testApp::setup() {
 	//kinect.init(true);  //shows infrared image
 
@@ -291,10 +292,10 @@ void testApp::setup() {
 }
 
 //--------------------------------------------------------------
-void testApp::update() {
-	if (showlpmt)
-	{
-		// grabs video frame from camera and passes pixels to quads
+
+void testApp::fensterUpdate()
+{
+	// grabs video frame from camera and passes pixels to quads
 		camGrabber.grabFrame();
 		if (camGrabber.isFrameNew()){
 			int totalPixels = camWidth*camHeight*3;
@@ -330,10 +331,9 @@ void testApp::update() {
 				quads[i].borderColor = borderColor;
 			}
 		}
+}
+void testApp::update() {
 
-	}
-	else
-	{
 		ofBackground(100, 100, 100);
 
 		kinect.update();
@@ -399,14 +399,14 @@ void testApp::update() {
 		processDiferencesClouds();
 		timer = ofGetElapsedTimef();
 		}*/
-	}
+
 }
 
 //--------------------------------------------------------------
-void testApp::draw() {
-	if (showlpmt)
-	{
-		// in setup mode sets active quad border to be white
+
+void testApp::fensterDraw()
+{
+	// in setup mode sets active quad border to be white
 		if (isSetup)
 		{
 			quads[activeQuad].borderColor = 0xFFFFFF;
@@ -446,8 +446,9 @@ void testApp::draw() {
 		if (isSetup) {
 			gui.draw();
 		}
-	}
-	else {
+}
+
+void testApp::draw() {
 		ofResetColor();
 
 		if(drawPC) {
@@ -518,7 +519,7 @@ void testApp::draw() {
 			ofDrawBitmapString(reportStream.str(),20,666);
 
 		}
-	}
+
 }
 
 void testApp::drawPointCloud() {
