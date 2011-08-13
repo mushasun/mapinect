@@ -106,6 +106,9 @@
     <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiValueControl.cpp">
       <Filter>addons\ofxSimpleGuiToo\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxFenster\src\ofxFenster.cpp">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClCompile>
     <ClCompile Include="src\Line2D.cpp" />
     <ClCompile Include="src\ofxVecUtils.cpp" />
     <ClCompile Include="src\pointUtils.cpp" />
@@ -269,6 +272,9 @@
     <ClInclude Include="src\pointUtils.h" />
     <ClInclude Include="src\Quad3D.h" />
     <ClInclude Include="src\Triangle2D.h" />
+    <ClInclude Include="..\..\..\addons\ofxFenster\src\ofxFenster.h">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClInclude>
     <ClInclude Include="src\utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -316,6 +322,12 @@
     </Filter>
     <Filter Include="addons\ofxXmlSettings\libs">
       <UniqueIdentifier>{e9dd2ef2-4215-46f5-87ce-3dc7ade75d35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxFenster">
+      <UniqueIdentifier>{2ac87dc0-593d-4400-a07b-e0d3453c463c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxFenster\src">
+      <UniqueIdentifier>{5f35bdcd-cad8-4e51-8264-1dea04c3daff}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
