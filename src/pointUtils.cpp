@@ -11,7 +11,7 @@ void findPointCloudBoundingBox(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::P
 	setPointXYZ(min, MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
 	setPointXYZ(max, -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT);
 
-	for (int k = 0; k < cloud->size(); k++) {
+	for (size_t k = 0; k < cloud->size(); k++) {
 		pcl::PointXYZ p = cloud->at(k);
 		if (p.x < min.x) {
 			min.x = p.x;

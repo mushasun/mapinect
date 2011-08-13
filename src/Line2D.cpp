@@ -1,4 +1,5 @@
 #include "Line2D.h"
+#include "utils.h"
 
 namespace mapinect {
 
@@ -6,29 +7,30 @@ namespace mapinect {
 		pOrigin = origin;
 		pDirection = destination - origin;
 		pDirection.normalize();
-		pA = pDirection.y - pOrigin.y;
-		pB = pOrigin.x - pDirection.y;
-		pC = pOrigin.y * pB - pOrigin.x * pA;
+		pA = - pDirection.y;
+		pB = pDirection.x;
+		pC = origin.x * pDirection.y - origin.y * pDirection.x;
+		pSqrtA2B2 = sqrt(pA * pA + pB * pB);
 	}
 
-	float Line2D::distance(const ofxVec2f &v) {
-		float denom = sqrt(pA * pA + pB * pB);
-		float num = fabsf(calculateValue(v));
-		return num / denom;
+	double Line2D::distance(const ofxVec2f &v) {
+		double num = dabsd(calculateValue(v));
+		return num / pSqrtA2B2;
 	}
 
-	float Line2D::calculateValue(const ofxVec2f &v) {
+	double Line2D::calculateValue(const ofxVec2f &v) {
 		return pA * v.x + pB * v.y + pC;
 	}
 
 	ofxVec2f Line2D::projectTo(const ofxVec2f &v) {
-		float u = v.x - pOrigin.x + v.y - pOrigin.y;
+		ofxVec2f vA = v - pOrigin;
+		double u = vA.dot(pDirection);
 		return ofxVec2f(pOrigin.x + u * pDirection.x, pOrigin.y + u * pDirection.y);
 	}
 
 	PositionToLine Line2D::positionTo(const ofxVec2f &v) {
-		float value = calculateValue(v);
-		if (value == 0) {
+		double value = calculateValue(v);
+		if (dabsd(value) < DBL_EPSILON) {
 			return kPositionedInLine;
 		}
 		else if (value < 0) {

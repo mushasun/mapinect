@@ -10,7 +10,7 @@ namespace mapinect {
 		Triangle2D(const ofxVec2f &vA, const ofxVec2f &vB, const ofxVec2f &vC);
 		virtual ~Triangle2D() { };
 
-		float distance(const ofxVec2f& v);
+		double distance(const ofxVec2f& v);
 
 	private:
 		Line2D			pAB, pBC, pCA;

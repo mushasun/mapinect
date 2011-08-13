@@ -3,6 +3,7 @@
 #include "ofxVecUtils.h"
 #include "Line2D.h"
 #include "Triangle2D.h"
+#include "ofGraphicsUtils.h"
 #include "ofxSimpleGuiToo.h"
 
 #define DEFAULT_NAME		"test"
@@ -39,20 +40,20 @@ void show_files( const path directory, vector<string> &files)
 
 void testApp::cargar_lpmt()
 {
-//we run at 60 fps!
-    ofSetVerticalSync(true);
+	//we run at 60 fps!
+	ofSetVerticalSync(true);
 
-    // we scan the img dir for images
+	// we scan the img dir for images
 	string imgDir = string("./data/img");
-    imgFiles = vector<string>();
-    //getdir(imgDir,imgFiles);
+	imgFiles = vector<string>();
+	//getdir(imgDir,imgFiles);
 	show_files(imgDir,imgFiles);
 	int size = imgFiles.size();
-    string *images = new string[size];
-    for (unsigned int i = 0;i < imgFiles.size();i++) {
-        string currImg = imgFiles[i];
+	string *images = new string[size];
+	for (unsigned int i = 0;i < imgFiles.size();i++) {
+		string currImg = imgFiles[i];
 		/*	if (currImg.find(".") != -1) {
-			currImg.replace(currImg.find("."), 1, ""); 
+		currImg.replace(currImg.find("."), 1, ""); 
 		} */
 		while (currImg.find("/") != -1) {
 			currImg.replace(currImg.find("/"), 1, "\\");	
@@ -61,20 +62,20 @@ void testApp::cargar_lpmt()
 			imgFiles[i] = currImg.substr(currImg.find_last_of("\\")+1,currImg.size());
 		}
 		images[i]= imgFiles[i];
-    }
+	}
 
 
-    // we scan the video dir for videos
+	// we scan the video dir for videos
 	string videoDir = string("./data/video");
-    videoFiles = vector<string>();
-    //getdir(videoDir,videoFiles);
-    show_files(videoDir,videoFiles);
+	videoFiles = vector<string>();
+	//getdir(videoDir,videoFiles);
+	show_files(videoDir,videoFiles);
 	size = videoFiles.size();
-    string *videos = new string[size];
-    for (unsigned int i = 0;i < videoFiles.size();i++) {
+	string *videos = new string[size];
+	for (unsigned int i = 0;i < videoFiles.size();i++) {
 		string currVideo = videoFiles[i];
 		/* if (currVideo.find(".") != -1) {
-			currVideo.replace(currVideo.find("."), 1, ""); 
+		currVideo.replace(currVideo.find("."), 1, ""); 
 		} */
 		while (currVideo.find("/") != -1) {
 			currVideo.replace(currVideo.find("/"), 1, "\\");	
@@ -83,19 +84,19 @@ void testApp::cargar_lpmt()
 			videoFiles[i] = currVideo.substr(currVideo.find_last_of("\\")+1,currVideo.size());
 		}
 		videos[i]= videoFiles[i];
-    }
+	}
 
-    // we scan the slideshow dir for videos
+	// we scan the slideshow dir for videos
 	string slideshowDir = string("./data/slideshow");
-    slideshowFolders = vector<string>();
-    //getdir(slideshowDir,slideshowFolders);
-    show_files(slideshowDir,slideshowFolders);
+	slideshowFolders = vector<string>();
+	//getdir(slideshowDir,slideshowFolders);
+	show_files(slideshowDir,slideshowFolders);
 	size = slideshowFolders.size();
 	string *slideshows = new string[size];
-    for (unsigned int i = 0;i < slideshowFolders.size();i++) {
+	for (unsigned int i = 0;i < slideshowFolders.size();i++) {
 		string currSlideShow = slideshowFolders[i];
 		/* if (currSlideShow.find(".") != -1) {
-			currSlideShow.replace(currSlideShow.find("."), 1, ""); 
+		currSlideShow.replace(currSlideShow.find("."), 1, ""); 
 		} */
 		while (currSlideShow.find("/") != -1) {
 			currSlideShow.replace(currSlideShow.find("/"), 1, "\\");	
@@ -104,80 +105,80 @@ void testApp::cargar_lpmt()
 			slideshowFolders[i] = currSlideShow.substr(currSlideShow.find_last_of("\\")+1,currSlideShow.size());
 		}
 		slideshows[i]= slideshowFolders[i];
-    }
+	}
 
 
-    ttf.loadFont("../type/frabk.ttf", 11);
-    // set border color for quads in setup mode
-    borderColor = 0x666666;
-    // starts in quads setup mode
-    isSetup = true;
-    // starts in windowed mode
-    bFullscreen	= 0;
-    // gui is on at start
-    bGui = 1;
-    ofSetWindowShape(800, 600);
+	ttf.loadFont("../type/frabk.ttf", 11);
+	// set border color for quads in setup mode
+	borderColor = 0x666666;
+	// starts in quads setup mode
+	isSetup = true;
+	// starts in windowed mode
+	bFullscreen	= 0;
+	// gui is on at start
+	bGui = 1;
+	ofSetWindowShape(800, 600);
 
-    // camera stuff
-    camWidth = 640;	// try to grab at this size.
-    camHeight = 480;
-	
-    camGrabber.setVerbose(true);
-    camGrabber.initGrabber(camWidth,camHeight);
+	// camera stuff
+	camWidth = 640;	// try to grab at this size.
+	camHeight = 480;
 
-    // texture for snapshot background
-    snapshotTexture.allocate(camWidth,camHeight, GL_RGB);
-    snapshotOn = 0;
+	camGrabber.setVerbose(true);
+	//camGrabber.initGrabber(camWidth,camHeight);
 
-    // initializes layers array
-    for(int i = 0; i < 36; i++) {
-    layers[i] = -1;
-    }
+	// texture for snapshot background
+	snapshotTexture.allocate(camWidth,camHeight, GL_RGB);
+	snapshotOn = 0;
 
-
-    // defines the first 4 default quads
-    quads[0].setup(0.0,0.0,0.5,0.0,0.5,0.5,0.0,0.5,imgFiles, videoFiles, slideshowFolders);
-    quads[0].quadNumber = 0;
-    quads[1].setup(0.5,0.0,1.0,0.0,1.0,0.5,0.5,0.5,imgFiles, videoFiles, slideshowFolders);
-    quads[1].quadNumber = 1;
-    quads[2].setup(0.0,0.5,0.5,0.5,0.5,1.0,0.0,1.0,imgFiles, videoFiles, slideshowFolders);
-    quads[2].quadNumber = 2;
-    quads[3].setup(0.5,0.5,1.0,0.5,1.0,1.0,0.5,1.0,imgFiles, videoFiles, slideshowFolders);
-    quads[3].quadNumber = 3;
-    // define last one as active quad
-    activeQuad = 3;
-    // number of total quads, to be modified later at each quad insertion
-    nOfQuads = 4;
-    layers[0] = 0;
-    quads[0].layer = 0;
-    layers[1] = 1;
-    quads[1].layer = 1;
-    layers[2] = 2;
-    quads[2].layer = 2;
-    layers[3] = 3;
-    quads[3].layer = 3;
+	// initializes layers array
+	for(int i = 0; i < 36; i++) {
+		layers[i] = -1;
+	}
 
 
+	// defines the first 4 default quads
+	quads[0].setup(0.0,0.0,0.5,0.0,0.5,0.5,0.0,0.5,imgFiles, videoFiles, slideshowFolders);
+	quads[0].quadNumber = 0;
+	quads[1].setup(0.5,0.0,1.0,0.0,1.0,0.5,0.5,0.5,imgFiles, videoFiles, slideshowFolders);
+	quads[1].quadNumber = 1;
+	quads[2].setup(0.0,0.5,0.5,0.5,0.5,1.0,0.0,1.0,imgFiles, videoFiles, slideshowFolders);
+	quads[2].quadNumber = 2;
+	quads[3].setup(0.5,0.5,1.0,0.5,1.0,1.0,0.5,1.0,imgFiles, videoFiles, slideshowFolders);
+	quads[3].quadNumber = 3;
+	// define last one as active quad
+	activeQuad = 3;
+	// number of total quads, to be modified later at each quad insertion
+	nOfQuads = 4;
+	layers[0] = 0;
+	quads[0].layer = 0;
+	layers[1] = 1;
+	quads[1].layer = 1;
+	layers[2] = 2;
+	quads[2].layer = 2;
+	layers[3] = 3;
+	quads[3].layer = 3;
 
-    // GUI STUFF ---------------------------------------------------
 
-    gui.addTitle("show/hide quads");
-    // overriding default theme
-    gui.config->toggleHeight = 18;
-    gui.config->sliderTextHeight = 22;
-    gui.config->titleHeight = 18;
-    gui.config->fullActiveColor = 0x6B404B;
 
-    // adding controls
-    // first a general page for toggling layers on/off
-    for(int i = 0; i < 36; i++)
-    {
-    gui.addToggle("quad "+ofToString(i), quads[i].isOn);
-    }
+	// GUI STUFF ---------------------------------------------------
 
-    // then two pages of settings for each instantiable layer
-    for(int i = 0; i < 36; i++)
-    {
+	gui.addTitle("show/hide quads");
+	// overriding default theme
+	gui.config->toggleHeight = 18;
+	gui.config->sliderTextHeight = 22;
+	gui.config->titleHeight = 18;
+	gui.config->fullActiveColor = 0x6B404B;
+
+	// adding controls
+	// first a general page for toggling layers on/off
+	for(int i = 0; i < 36; i++)
+	{
+		gui.addToggle("quad "+ofToString(i), quads[i].isOn);
+	}
+
+	// then two pages of settings for each instantiable layer
+	for(int i = 0; i < 36; i++)
+	{
 		gui.addPage("quad "+ofToString(i)+" - 1/3");
 		gui.addTitle("quad n. "+ofToString(i));
 		gui.addToggle("show/hide", quads[i].isOn);
@@ -233,14 +234,15 @@ void testApp::cargar_lpmt()
 		gui.addTitle("Corner 2");
 		gui.addSlider("X", quads[i].corners[2].x, -1.0, 2.0);
 		gui.addSlider("Y", quads[i].corners[2].y, -1.0, 2.0);
-    }
+	}
 
-    // then we set displayed gui page to the one corresponding to active quad and show the gui
-    gui.setPage((activeQuad*3)+2);
-    gui.show();
+	// then we set displayed gui page to the one corresponding to active quad and show the gui
+	gui.setPage((activeQuad*3)+2);
+	gui.show();
 }
 void testApp::setup() {
 	//kinect.init(true);  //shows infrared image
+
 	kinect.init();
 	kinect.setVerbose(true);
 	kinect.open();
@@ -255,23 +257,23 @@ void testApp::setup() {
 	nearThreshold = 233;
 	farThreshold  = 208;
 	bThreshWithOpenCV = true;
-	
+
 	ofSetFrameRate(60);
 
 	// zero the tilt on startup
 	angle = 0;
 	kinect.setCameraTiltAngle(angle);
-	
+
 	// start from the front
 	pointCloudRotationY = 180;
-	
+
 	drawPC = false;
 	bLearnBakground = true;
 	threshold = 80;
 
 	// Initialize point cloud
 	cloud = boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ> > 
-                (new pcl::PointCloud<pcl::PointXYZ>()); 
+		(new pcl::PointCloud<pcl::PointXYZ>()); 
 	cloud->width    = KINECT_WIDTH;
 	cloud->height   = KINECT_HEIGHT;
 	cloud->is_dense = false;
@@ -301,9 +303,9 @@ void testApp::update() {
 				int i = layers[j];
 				if ((i != -1) && (quads[i].initialized)) {
 					if (quads[i].camBg) {
-					quads[i].camPixels = pixels;
-					quads[i].camWidth = camWidth;
-					quads[i].camHeight = camHeight;
+						quads[i].camPixels = pixels;
+						quads[i].camWidth = camWidth;
+						quads[i].camHeight = camHeight;
 					}
 				}
 			}
@@ -312,10 +314,10 @@ void testApp::update() {
 
 		// sets default window background, grey in setup mode and black in projection mode
 		if (isSetup) {
-		ofBackground(20, 20, 20);
+			ofBackground(20, 20, 20);
 		}
 		else {
-		ofBackground(0, 0, 0);
+			ofBackground(0, 0, 0);
 		}
 		//ofSetWindowShape(800, 600);
 		// loops through initialized quads and runs update, setting the border color as well
@@ -328,30 +330,31 @@ void testApp::update() {
 				quads[i].borderColor = borderColor;
 			}
 		}
-	
+
 	}
 	else
 	{
 		ofBackground(100, 100, 100);
-	
+
 		kinect.update();
 		if(kinect.isFrameNew())	// there is a new frame and we are connected
 		{
 
 			grayImage.setFromPixels(kinect.getDepthPixels(), kinect.width, kinect.height);
-			
+
 			//we do two thresholds - one for the far plane and one for the near plane
 			//we then do a cvAnd to get the pixels which are a union of the two thresholds.	
-			if( bThreshWithOpenCV ){
+			if( bThreshWithOpenCV ) {
 				grayThreshFar = grayImage;
 				grayThresh = grayImage;
 				grayThresh.threshold(nearThreshold, true);
 				grayThreshFar.threshold(farThreshold);
 				cvAnd(grayThresh.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
-			}else{
-		
+			}
+			else{
+
 				//or we do it ourselves - show people how they can work with the pixels
-		
+
 				unsigned char * pix = grayImage.getPixels();
 				int numPixels = grayImage.getWidth() * grayImage.getHeight();
 
@@ -366,10 +369,10 @@ void testApp::update() {
 
 			//update the cv image
 			grayImage.flagImageChanged();
-	
-		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
-    	// also, find holes is set to true so we will get interior contours as well....
-    	//contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
+
+			// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
+			// also, find holes is set to true so we will get interior contours as well....
+			//contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
 
 			//for(int i = 0 ; i < contourFinder.nBlobs; i++)
 			//{
@@ -392,9 +395,9 @@ void testApp::update() {
 		/*
 		Se procesa la diferencia apretando el espacio.
 		else if(ofGetElapsedTimef() - timer > 5){
-			cout << "Process diferences" << endl;
-			processDiferencesClouds();
-			timer = ofGetElapsedTimef();
+		cout << "Process diferences" << endl;
+		processDiferencesClouds();
+		timer = ofGetElapsedTimef();
 		}*/
 	}
 }
@@ -409,10 +412,10 @@ void testApp::draw() {
 			quads[activeQuad].borderColor = 0xFFFFFF;
 			// if snapshot is on draws it as window background
 			if (snapshotOn) {
-			ofEnableAlphaBlending();
-			ofSetColor(0xFFFFFF);
-			snapshotTexture.draw(0,0,ofGetWidth(),ofGetHeight());
-			ofDisableAlphaBlending();
+				ofEnableAlphaBlending();
+				ofSetColor(0xFFFFFF);
+				snapshotTexture.draw(0,0,ofGetWidth(),ofGetHeight());
+				ofDisableAlphaBlending();
 			}
 		}
 		// loops through initialized quads and calls their draw function
@@ -425,7 +428,12 @@ void testApp::draw() {
 			}
 		}
 
-
+		// in setup mode writes the number of active quad at the bottom of the window
+		if (isSetup)
+		{
+			ofSetColor(0xFFFFFF);
+			ttf.drawString("active quad: "+ofToString(activeQuad), 30, ofGetHeight()-25);
+		}
 
 		// in setup mode writes the number of active quad at the bottom of the window
 		if (isSetup)
@@ -434,127 +442,82 @@ void testApp::draw() {
 			ttf.drawString("active quad: "+ofToString(activeQuad), 30, ofGetHeight()-25);
 		}
 
-	   // draws gui
-	   if (isSetup)
-	   {
+		// draws gui
+		if (isSetup) {
 			gui.draw();
-	   }
+		}
 	}
-	else
-	{
-		ofSetColor(255, 255, 255);
-		if(drawPC){
+	else {
+		ofResetColor();
+
+		if(drawPC) {
 			ofPushMatrix();
 			ofTranslate(420, 320);
 			// we need a proper camera class
 			drawPointCloud();
 			ofPopMatrix();
 		}
-		else if(drawCalibration)
-		{
-			if(drawDepth)
-				kinect.drawDepth(0,0,640,480);
-
-			//Dibujo nube de diferencia
-			//int points = diffCloud->size();
-			//cout << "diff_size = " << points << endl;
-			//glBegin(GL_POINTS);
-			//	for(int j = 0; j < points; j ++) {
-			//		ofPoint cur (diffCloud->at(j).x, diffCloud->at(j).y, 0);
-			//		cur += ofPoint(320,240,0);
-			//		ofColor color = kinect.getCalibratedColorAt(cur);
-			//		//ofSetColor(color.r,color.g,color.b);
-			//		ofSetColor(0,255,0);
-			//		glVertex3f(cur.x, cur.y, cur.z);
-			//	}
-			//glEnd();
-
-			////Dibujo Hull
-			//points = vCloudHull.size();
-			//glPointSize(2.0);
-			//glBegin(GL_POINTS);
-			//for(int j = 0; j < points; j ++) {
-			//		ofPoint cur (vCloudHull.at(j).x, vCloudHull.at(j).y, 0);
-			//		glColor3ub(255,0,0);
-			//		glVertex3f(cur.x + 320, cur.y + 240, cur.z);
-			//}
-			//glEnd();
-
+		else {
+			kinect.drawDepth(10, 10, 400, 300);
+			ofResetColor();
+			ofPushMatrix();
+			int w_2 = 640 / 2;
+			int h_2 = 480 / 2;
+			ofTranslate(420 + w_2, 10 + h_2);
+			kinect.draw(-w_2, -h_2);
 
 			ofEnableAlphaBlending();
-		
-			ofSetColor(10,200,0,200);
-			ofPushMatrix();
-			ofTranslate(320,240,0);
-			for(int i = 0; i < detectedPlanes; i++){
-				//Dibujo plano
-				PointCloud<PointXYZ> plane = planes[i];
-				int points = plane.size();
-				glBegin(GL_POINTS);
-					for(int j = 0; j < points; j ++) {
-						ofPoint cur (plane.at(j).x, plane.at(j).y, 0);
-						//cur += ofPoint(320,240,0);
-						//ofColor color = kinect.getCalibratedColorAt(cur);
-						//ofSetColor(color.r,color.g,color.b);
-						ofSetColor(255,i*100,0);
-						glVertex3f(cur.x, cur.y, cur.z);
-					}
-				glEnd();
-			}
-			ofPopMatrix();
-		
+			ofSetColor(255,255,255,128);
+			kinect.drawDepth(-w_2, -h_2);
 			ofDisableAlphaBlending();
-		}
-		else{
-			kinect.drawDepth(10, 10, 400, 300);
-			kinect.draw(420, 10, 400, 300);
-			ofPushMatrix();
-				ofTranslate(420 + 200, 10 + 150);
-				glColor3f(0.0, 1.0, 0.0);
-				glBegin(GL_TRIANGLES);
-					glVertex3f(detectedPlane.getVA().x, detectedPlane.getVA().y, 3);
-					glVertex3f(detectedPlane.getVB().x, detectedPlane.getVB().y, 3);
-					glVertex3f(detectedPlane.getVC().x, detectedPlane.getVC().y, 3);
-					glVertex3f(detectedPlane.getVA().x, detectedPlane.getVA().y, 3);
-					glVertex3f(detectedPlane.getVB().x, detectedPlane.getVB().y, 3);
-					glVertex3f(detectedPlane.getVD().x, detectedPlane.getVD().y, 3);
-				glEnd();
 
-				glBegin(GL_POLYGON);
-					ofCircle(detectedPlane.getVA().x, detectedPlane.getVA().y, 4);
-					ofCircle(detectedPlane.getVB().x, detectedPlane.getVB().y, 4);
-					ofCircle(detectedPlane.getVC().x, detectedPlane.getVC().y, 4);
-					ofCircle(detectedPlane.getVD().x, detectedPlane.getVD().y, 4);
-				glEnd();
+			ofSetColor(kRGBGreen);
+			ofTriangle(detectedPlane.getVA().x, detectedPlane.getVA().y,
+				detectedPlane.getVB().x, detectedPlane.getVB().y,
+				detectedPlane.getVC().x, detectedPlane.getVC().y);
+			ofTriangle(detectedPlane.getVA().x, detectedPlane.getVA().y,
+				detectedPlane.getVB().x, detectedPlane.getVB().y,
+				detectedPlane.getVD().x, detectedPlane.getVD().y);
 
-				glColor3f(1.0, 0.0, 0.0);
-				glBegin(GL_POINTS);
-					for (int i = 0; i < vCloudHull.size(); i++) {
-						glVertex3f(vCloudHull[i].x, vCloudHull[i].y, 5);
-					}
-				glEnd();
+			ofSetColor(kRGBBlue);
+			ofCircle(detectedPlane.getVA().x, detectedPlane.getVA().y, 5);
+			ofSetColor(0,0,192);
+			ofCircle(detectedPlane.getVB().x, detectedPlane.getVB().y, 5);
+			ofSetColor(0,0,128);
+			ofCircle(detectedPlane.getVC().x, detectedPlane.getVC().y, 5);
+			ofSetColor(0,0,64);
+			ofCircle(detectedPlane.getVD().x, detectedPlane.getVD().y, 5);
 
-				glColor3f(1.0, 1.0, 1.0);
+			ofSetColor(kRGBRed);
+			glBegin(GL_POINTS);
+			for (int i = 0; i < vCloudHull.size(); i += 1) {
+				glVertex3f(vCloudHull[i].x, vCloudHull[i].y, 0);
+			}
+			glEnd();
+
 			ofPopMatrix();
 
+			ofResetColor();
 			grayImage.draw(10, 320, 400, 300);
+
 			//grayDiff.draw(420, 10, 400, 300);
 			contourFinder.draw(10, 320, 400, 300);
+
+			ofResetColor();
+			stringstream reportStream;
+			reportStream << "accel is: " << ofToString(kinect.getMksAccel().x, 2) << " / "
+				<< ofToString(kinect.getMksAccel().y, 2) << " / " 
+				<< ofToString(kinect.getMksAccel().z, 2) << endl
+				<< "press p to switch between images and point cloud, rotate the point cloud with the mouse" << endl
+				<< "using opencv threshold = " << bThreshWithOpenCV <<" (press spacebar)" << endl
+				<< "set near threshold " << nearThreshold << " (press: + -)" << endl
+				<< "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
+				<< ", fps: " << ofGetFrameRate() << endl
+				<< "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl
+				<< "press UP and DOWN to change the tilt angle: " << angle << " degrees";
+			ofDrawBitmapString(reportStream.str(),20,666);
+
 		}
-		
-		ofSetColor(255, 255, 255);
-		stringstream reportStream;
-		reportStream << "accel is: " << ofToString(kinect.getMksAccel().x, 2) << " / "
-									 << ofToString(kinect.getMksAccel().y, 2) << " / " 
-									 << ofToString(kinect.getMksAccel().z, 2) << endl
-					 << "press p to switch between images and point cloud, rotate the point cloud with the mouse" << endl
-					 << "using opencv threshold = " << bThreshWithOpenCV <<" (press spacebar)" << endl
-					 << "set near threshold " << nearThreshold << " (press: + -)" << endl
-					 << "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
-				 		<< ", fps: " << ofGetFrameRate() << endl
-					 << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl
-					 << "press UP and DOWN to change the tilt angle: " << angle << " degrees";
-		ofDrawBitmapString(reportStream.str(),20,666);
 	}
 }
 
@@ -562,20 +525,20 @@ void testApp::drawPointCloud() {
 	ofScale(400, 400, 400);
 	int w = 640;
 	int h = 480;
-	
+
 	ofRotateY(pointCloudRotationY);
 	float* distancePixels = kinect.getDistancePixels();
-	
+
 
 	for (int j = 0; j < 800; j++) {
 		glBegin(GL_QUADS);
-			glVertex3f(detectedPlane.getVA().x, detectedPlane.getVA().y, 400 - j);
-			glVertex3f(detectedPlane.getVB().x, detectedPlane.getVB().y, 400 - j);
-			glVertex3f(detectedPlane.getVC().x, detectedPlane.getVC().y, 400 - j);
-			glVertex3f(detectedPlane.getVD().x, detectedPlane.getVD().y, 400 - j);
+		glVertex3f(detectedPlane.getVA().x, detectedPlane.getVA().y, 400 - j);
+		glVertex3f(detectedPlane.getVB().x, detectedPlane.getVB().y, 400 - j);
+		glVertex3f(detectedPlane.getVC().x, detectedPlane.getVC().y, 400 - j);
+		glVertex3f(detectedPlane.getVD().x, detectedPlane.getVD().y, 400 - j);
 		glEnd();
 	}
-	
+
 	glBegin(GL_POINTS);
 	int step = 2;
 	for(int y = 0; y < h; y += step) {
@@ -587,7 +550,7 @@ void testApp::drawPointCloud() {
 		}
 	}
 	glEnd();
-	
+
 }
 
 //--------------------------------------------------------------
@@ -627,7 +590,7 @@ void testApp::saveCloud(const string& name){
 	}
 	//pcl::visualization::CloudViewer viewer ("Simple Cloud Viewer");
 	/*PointCloud<PointXYZ>::Ptr cloud_source_ptr; 
-	
+
 	cloud_source_ptr = cloud->makeShared(); */
 	//viewer.showCloud (cloud);
 
@@ -679,7 +642,7 @@ PointCloud<PointXYZ>::Ptr testApp::getPartialCloud(ofPoint min, ofPoint max){
 	float bad_point = std::numeric_limits<float>::quiet_NaN();
 
 	register float* depth_map = kinect.getDistancePixels();
-	
+
 	int step = 1;
 	register int depth_idx = 0;
 	int absV, absU, cloud_idx = 0;
@@ -789,18 +752,19 @@ void testApp::processBlobsClouds(){
 }
 
 void testApp::setInitialPointCloud(){
-	
+
 	cloud = getCloud();
 	//saveCloud(DEFAULT_NAME);
-	
 	//cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(loadCloud(DEFAULT_NAME));
-	
+
+	//cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(loadCloud(DEFAULT_NAME));
+
 	//pcl::io::savePCDFileASCII ("test_inicial.pcd", *cloud);
 	////// assign point cloud to octree
- //   octree->setInputCloud(capturedCloud);
+	//   octree->setInputCloud(capturedCloud);
 
- //   // add points from cloud to octree
- //   octree->addPointsFromInputCloud();
+	//   // add points from cloud to octree
+	//   octree->addPointsFromInputCloud();
 
 	//octree->switchBuffers();
 
@@ -813,7 +777,7 @@ PointCloud<PointXYZ>::Ptr testApp::getDifferenceIdx(bool &dif, int noise_filter)
 
 	octree.setInputCloud(cloud);
 	octree.addPointsFromInputCloud();
-	
+
 	octree.switchBuffers();
 
 	PointCloud<PointXYZ>::Ptr secondCloud =  getCloud();
@@ -825,7 +789,7 @@ PointCloud<PointXYZ>::Ptr testApp::getDifferenceIdx(bool &dif, int noise_filter)
 	octree.addPointsFromInputCloud();
 
 	octree.getPointIndicesFromNewVoxels (newPointIdxVector);
-	
+
 	std::cerr << newPointIdxVector.size() << std::endl;
 	PointCloud<PointXYZ>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZ>);
 
@@ -898,7 +862,7 @@ void testApp::icp(){
 	pass.filter (*second_filtered);
 
 	pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
-	
+
 	cout << "Initial: " << initial_filtered.get()->size() << endl;
 	cout << "Second: " << second_filtered.get()->size() << endl;
 
@@ -910,7 +874,7 @@ void testApp::icp(){
 	pcl::PointCloud<pcl::PointXYZ> Final;
 	icp.align(Final);
 	std::cout << "has converged:" << icp.hasConverged() << " score: " <<
-	icp.getFitnessScore() << std::endl;
+		icp.getFitnessScore() << std::endl;
 	std::cout << icp.getFinalTransformation() << std::endl;
 
 	ss << "icp.pcd";
@@ -922,6 +886,7 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 	sensor_msgs::PointCloud2::Ptr cloud_blob (new sensor_msgs::PointCloud2());
 	sensor_msgs::PointCloud2::Ptr cloud_filtered_blob (new sensor_msgs::PointCloud2);
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>), cloud_p (new pcl::PointCloud<pcl::PointXYZ>);
+
 
 
 	///Comentada la parte de downsampling porque no habia gran diferencia
@@ -944,7 +909,7 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 	////Esto es si esta comentado lo de downsampling
 	cloud_filtered = currentCloud;
 	///////////
-	
+
 	// Write the downsampled version to disk
 	pcl::PCDWriter writer;
 	/*writer.write<pcl::PointXYZ> ("box_downsampled.pcd", *cloud_filtered, false);*/
@@ -985,7 +950,7 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 		extract.filter (*cloud_p);
 		std::cerr << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height << " data points." << std::endl;
 
-		
+
 		// Create a Convex Hull representation of the projected inliers
 		//Comento convexHull para ver si mejora los tiempos
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
@@ -1000,11 +965,11 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 		//Salvo a memoria en lugar de escribir en archivo
 		planes[detectedPlanes] = PointCloud<pcl::PointXYZ>(*cloud_p);
 		detectedPlanes++;
-		
+
 		if (cloud_hull->size() == 0) {
 			continue;
 		}
-		
+
 		//Comento para que no grabe a disco
 		//std::stringstream ss2;
 		//ss2 << "box_plane_hull_" << i << PCD_EXTENSION;
@@ -1021,8 +986,9 @@ void testApp::detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud){
 		time_t now = time(NULL);
 
 		vCloudHull.clear();
-		for (int k = 0; k < cloud_hull->size(); k++) {
-			vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_hull->at(k)));
+
+		for (int k = 0; k < cloud_p->size(); k++) {
+			vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_p->at(k)));
 		}
 
 		detectedPlane.findQuad(vCloudHull);
@@ -1043,177 +1009,177 @@ void testApp::keyPressed (int key) {
 	int screenW = ofGetScreenWidth();
 	int screenH = ofGetScreenHeight();
 	switch (key) {
-		case ' ':
-			processDiferencesClouds();
+	case ' ':
+		processDiferencesClouds();
 		break;
-		case'p':
-			drawPC = !drawPC;
-			break;
-		case't':
-			showlpmt = !showlpmt;
-			break;
-		case '>':
-		case '.':
-			farThreshold ++;
-			if (farThreshold > 255) farThreshold = 255;
-			break;
-		case '<':		
-		case ',':		
-			farThreshold --;
-			if (farThreshold < 0) farThreshold = 0;
-			break;
-			
-		case '+':
-		case '=':
-			nearThreshold ++;
-			if (nearThreshold > 255) nearThreshold = 255;
-			break;
-		case '-':		
-			nearThreshold --;
-			if (nearThreshold < 0) nearThreshold = 0;
-			break;
-		case 'w':
-			kinect.enableDepthNearValueWhite(!kinect.isDepthNearValueWhite());
-			break;
-		case 'o':
-			kinect.setCameraTiltAngle(angle);	// go back to prev tilt
-			kinect.open();
-			break;
-		case 'c':
-			//kinect.setCameraTiltAngle(0);		// zero the tilt
-			//kinect.close();
-			icp();
-			break;
+	case'p':
+		drawPC = !drawPC;
+		break;
+	case't':
+		showlpmt = !showlpmt;
+		break;
+	case '>':
+	case '.':
+		farThreshold ++;
+		if (farThreshold > 255) farThreshold = 255;
+		break;
+	case '<':		
+	case ',':		
+		farThreshold --;
+		if (farThreshold < 0) farThreshold = 0;
+		break;
 
-		case OF_KEY_UP:
-			angle++;
-			if(angle>30) angle=30;
-			kinect.setCameraTiltAngle(angle);
-			break;
+	case '+':
+	case '=':
+		nearThreshold ++;
+		if (nearThreshold > 255) nearThreshold = 255;
+		break;
+	case '-':		
+		nearThreshold --;
+		if (nearThreshold < 0) nearThreshold = 0;
+		break;
+	case 'w':
+		kinect.enableDepthNearValueWhite(!kinect.isDepthNearValueWhite());
+		break;
+	case 'o':
+		kinect.setCameraTiltAngle(angle);	// go back to prev tilt
+		kinect.open();
+		break;
+	case 'c':
+		//kinect.setCameraTiltAngle(0);		// zero the tilt
+		//kinect.close();
+		icp();
+		break;
 
-		case OF_KEY_DOWN:
-			angle--;
-			if(angle<-30) angle=-30;
-			kinect.setCameraTiltAngle(angle);
-			break;
+	case OF_KEY_UP:
+		angle++;
+		if(angle>30) angle=30;
+		kinect.setCameraTiltAngle(angle);
+		break;
+
+	case OF_KEY_DOWN:
+		angle--;
+		if(angle<-30) angle=-30;
+		kinect.setCameraTiltAngle(angle);
+		break;
 		//case OF_KEY_LEFT:
 		//	drawDepth = true;
 		//	break;
 		//case OF_KEY_RIGHT:
 		//	drawDepth = false;
-			break;
-		case 's':
-			saveCloud(DEFAULT_NAME);
-			break;
-		case 'b':
-			processBlobsClouds();
-			break;
-		case 'i':
-			setInitialPointCloud();
-			break;
-		case 'd':
-			processDiferencesClouds();
-			break;
-		case '1':
-			gui.setPage(1);
-			break;
+		break;
+	case 's':
+		saveCloud(DEFAULT_NAME);
+		break;
+	case 'b':
+		processBlobsClouds();
+		break;
+	case 'i':
+		setInitialPointCloud();
+		break;
+	case 'd':
+		processDiferencesClouds();
+		break;
+	case '1':
+		gui.setPage(1);
+		break;
 		// toggles gui
-		case 'g':
-			gui.toggleDraw();
-			bGui = !bGui;
-			break;
-		case '[':
-			gui.prevPage();
-			break;
-		case ']':
-			gui.nextPage();
-			break;
-		case 'f':
-			bFullscreen = !bFullscreen;
-			if(!bFullscreen)
+	case 'g':
+		gui.toggleDraw();
+		bGui = !bGui;
+		break;
+	case '[':
+		gui.prevPage();
+		break;
+	case ']':
+		gui.nextPage();
+		break;
+	case 'f':
+		bFullscreen = !bFullscreen;
+		if(!bFullscreen)
+		{
+			ofSetWindowShape(800, 600);
+			ofSetFullscreen(false);
+			ofSetWindowPosition(screenW/2-800/2, screenH/2-600/2);
+		}
+		else if(bFullscreen == 1)
+		{
+			ofSetFullscreen(true);
+		}
+		break;
+	case '/' :
+		if (isSetup)
+		{
+			isSetup = false;
+			for(int i = 0; i < 36; i++)
 			{
-				ofSetWindowShape(800, 600);
-				ofSetFullscreen(false);
-				ofSetWindowPosition(screenW/2-800/2, screenH/2-600/2);
-			}
-			else if(bFullscreen == 1)
-			{
-				ofSetFullscreen(true);
-			}
-			break;
-		case '/' :
-			if (isSetup)
-			{
-				isSetup = false;
-				for(int i = 0; i < 36; i++)
+				if ((i != -1) && (quads[i].initialized))
 				{
-					if ((i != -1) && (quads[i].initialized))
-					{
-						quads[i].isSetup = false;
-					}
+					quads[i].isSetup = false;
 				}
-			}
-			else
-			{
-				isSetup = true;
-				for(int i = 0; i < 36; i++)
-				{
-					if ((i != -1) && (quads[i].initialized))
-					{
-						quads[i].isSetup = true;
-					}
-				}
-			}
-			break;
-		case 'a':// adds a new quad in the middle of the screen
-			if (isSetup)
-			{
-				if (nOfQuads < 36)
-				{
-					quads[nOfQuads].setup(0.25,0.25,0.75,0.25,0.75,0.75,0.25,0.75, imgFiles, videoFiles, slideshowFolders);
-					quads[nOfQuads].quadNumber = nOfQuads;
-					layers[nOfQuads] = nOfQuads;
-					quads[nOfQuads].layer = nOfQuads;
-					activeQuad = nOfQuads;
-					++nOfQuads;
-					gui.setPage((activeQuad*3)+2);
-				}
-			}
-			break;
-		
-		case OF_KEY_RIGHT:
-			if (isSetup)
-			{
-				activeQuad += 1;
-				if (activeQuad > nOfQuads-1)
-				{
-					activeQuad = 0;
-				}
-			}
-			gui.setPage((activeQuad*3)+2);
-			break;
-		case OF_KEY_LEFT:
-			if (isSetup)
-			{
-				activeQuad -= 1;
-				if (activeQuad < 0)
-				{
-					activeQuad = nOfQuads-1;
-				}
-			}
-			gui.setPage((activeQuad*3)+2);
-			break;
-		case 'k':
-			snapshotOn = !snapshotOn;
-			if (snapshotOn == 1) {
-				//camGrabber.grabFrame();
-				int totalPixels = camWidth*camHeight*3;
-				//unsigned char * pixels = camGrabber.getPixels();
-				kinect.update();
-				unsigned char * pixels = kinect.getPixels();
-				snapshotTexture.loadData(pixels, camWidth,camHeight, GL_RGB);
 			}
 		}
+		else
+		{
+			isSetup = true;
+			for(int i = 0; i < 36; i++)
+			{
+				if ((i != -1) && (quads[i].initialized))
+				{
+					quads[i].isSetup = true;
+				}
+			}
+		}
+		break;
+	case 'a':// adds a new quad in the middle of the screen
+		if (isSetup)
+		{
+			if (nOfQuads < 36)
+			{
+				quads[nOfQuads].setup(0.25,0.25,0.75,0.25,0.75,0.75,0.25,0.75, imgFiles, videoFiles, slideshowFolders);
+				quads[nOfQuads].quadNumber = nOfQuads;
+				layers[nOfQuads] = nOfQuads;
+				quads[nOfQuads].layer = nOfQuads;
+				activeQuad = nOfQuads;
+				++nOfQuads;
+				gui.setPage((activeQuad*3)+2);
+			}
+		}
+		break;
+
+	case OF_KEY_RIGHT:
+		if (isSetup)
+		{
+			activeQuad += 1;
+			if (activeQuad > nOfQuads-1)
+			{
+				activeQuad = 0;
+			}
+		}
+		gui.setPage((activeQuad*3)+2);
+		break;
+	case OF_KEY_LEFT:
+		if (isSetup)
+		{
+			activeQuad -= 1;
+			if (activeQuad < 0)
+			{
+				activeQuad = nOfQuads-1;
+			}
+		}
+		gui.setPage((activeQuad*3)+2);
+		break;
+	case 'k':
+		snapshotOn = !snapshotOn;
+		if (snapshotOn == 1) {
+			//camGrabber.grabFrame();
+			int totalPixels = camWidth*camHeight*3;
+			//unsigned char * pixels = camGrabber.getPixels();
+			kinect.update();
+			unsigned char * pixels = kinect.getPixels();
+			snapshotTexture.loadData(pixels, camWidth,camHeight, GL_RGB);
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -1242,7 +1208,7 @@ void testApp::mouseDragged(int x, int y, int button)
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button)
 {
-if (isSetup && !bGui)
+	if (isSetup && !bGui)
 	{
 		float smallestDist = 1.0;
 		whichCorner = -1;
