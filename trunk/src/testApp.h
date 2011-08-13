@@ -20,6 +20,7 @@
 #include <pcl/octree/octree.h>
 #include <time.h>
 #include "ofxXmlSettings.h"
+#include "ofxFenster.h"
 #include <pcl/registration/icp.h>
 #include <pcl/filters/passthrough.h>
 
@@ -37,13 +38,16 @@
 
 using namespace pcl;
 
-class testApp : public ofBaseApp {
+class testApp : public ofBaseApp, public ofxFensterListener {
 	public:
 
 		void setup();
 		void update();
 		void draw();
 		void exit();
+
+		void fensterDraw();
+		void fensterUpdate();
 	
 		void drawPointCloud();
 
