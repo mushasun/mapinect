@@ -114,6 +114,10 @@
     <ClCompile Include="src\pointUtils.cpp" />
     <ClCompile Include="src\Quad3D.cpp" />
     <ClCompile Include="src\Triangle2D.cpp" />
+    <ClCompile Include="src\LPMT.cpp" />
+    <ClCompile Include="src\PCM.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
+    <ClCompile Include="src\OpenCV.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\testApp.h" />
@@ -276,6 +280,10 @@
       <Filter>addons\ofxFenster\src</Filter>
     </ClInclude>
     <ClInclude Include="src\utils.h" />
+    <ClInclude Include="src\LPMT.h" />
+    <ClInclude Include="src\PCM.h" />
+    <ClInclude Include="src\Timer.h" />
+    <ClInclude Include="src\OpenCV.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
