@@ -1,6 +1,8 @@
 #ifndef POINT_UTILS_H__
 #define POINT_UTILS_H__
 
+#define PCD_EXTENSION		".pcd"
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
