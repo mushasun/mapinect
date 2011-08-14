@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ofTypes.h"
+#include "ofGraphics.h"
+
 //stupid ball class
 class ball
 {
