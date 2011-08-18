@@ -4,6 +4,8 @@
 #include "ofMain.h"
 #include "ofxFenster.h"
 #include "ofxKinect.h"
+#include "monitor.h"
+#include "winUtils.h"
 
 #include "OpenCV.h"
 #include "PCM.h"

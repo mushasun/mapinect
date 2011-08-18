@@ -1,6 +1,8 @@
 #include "lpmt.h"
 #include "ofGraphicsUtils.h"
 #include "ofxSimpleGuiToo.h"
+#include "monitor.h"
+#include "winUtils.h"
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -237,6 +239,8 @@ void LPMT::setup(ofxKinect *kinect)
 
 //--------------------------------------------------------------
 void LPMT::update() {
+
+	ofSetWindowTitle("mapinect");
 	// grabs video frame from camera and passes pixels to quads
 	camGrabber.grabFrame();
 	if (camGrabber.isFrameNew()){
@@ -398,6 +402,12 @@ void LPMT::keyPressed (int key) {
 			unsigned char * pixels = kinect->getPixels();
 			snapshotTexture.loadData(pixels, camWidth,camHeight, GL_RGB);
 		}
+		break;
+	case 'y':
+		ofBeginCustomFullscreen(1280, 0, 1280, 768);
+		break;
+	case 'l':
+		monitor::SetDisplayDefaults();
 	}
 }
 
