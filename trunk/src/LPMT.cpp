@@ -104,7 +104,7 @@ void LPMT::setup(ofxKinect *kinect)
 	}
 
 
-	ttf.loadFont("../type/frabk.ttf", 11);
+	ttf.loadFont("./type/frabk.ttf", 11);
 	// set border color for quads in setup mode
 	borderColor = 0x666666;
 	// starts in quads setup mode

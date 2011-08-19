@@ -27,6 +27,7 @@ void PCM::setup(ofxKinect *kinect) {
 
 	timer = 0;
 	baseCloudSetted = false;
+	drawPC = false;
 }
 
 //--------------------------------------------------------------
