@@ -17,7 +17,7 @@ static void ofBeginCustomFullscreen(int x, int y, int width, int height){
 
 	#ifdef TARGET_WIN32
 	   
-	    HWND vWnd  = FindWindow(NULL,  L"mapinect");
+	    HWND vWnd  = FindWindow(NULL,  L"mapinect_aux");
 	    
 		if(!bCustomFullscreen){
 			
