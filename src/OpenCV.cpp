@@ -72,13 +72,14 @@ void OpenCV::update(bool isKinectFrameNew) {
 
 //--------------------------------------------------------------
 void OpenCV::draw() {
+	/*
 	ofResetColor();
 
 	grayImage.draw(10, 320, 400, 300);
 
 	//grayDiff.draw(420, 10, 400, 300);
 	contourFinder.draw(10, 320, 400, 300);
-
+	*/
 	ofResetColor();
 	stringstream reportStream;
 	reportStream << "accel is: "

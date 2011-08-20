@@ -7,6 +7,9 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 
+#define		SLASH_STRING		"/"
+#define		BACKSLASH_STRING	"\\"
+
 using namespace boost::filesystem;
 //--------------------------------------------------------------
 
@@ -51,11 +54,11 @@ void LPMT::setup(ofxKinect *kinect)
 		/*	if (currImg.find(".") != -1) {
 		currImg.replace(currImg.find("."), 1, ""); 
 		} */
-		while (currImg.find("/") != -1) {
-			currImg.replace(currImg.find("/"), 1, "\\");	
+		while (currImg.find(SLASH_STRING) != -1) {
+			currImg.replace(currImg.find(SLASH_STRING), 1, BACKSLASH_STRING);	
 		}	
-		if (currImg.find_last_of("\\") != -1) {
-			imgFiles[i] = currImg.substr(currImg.find_last_of("\\")+1,currImg.size());
+		if (currImg.find_last_of(BACKSLASH_STRING) != -1) {
+			imgFiles[i] = currImg.substr(currImg.find_last_of(BACKSLASH_STRING)+1,currImg.size());
 		}
 		images[i]= imgFiles[i];
 	}
@@ -73,11 +76,11 @@ void LPMT::setup(ofxKinect *kinect)
 		/* if (currVideo.find(".") != -1) {
 		currVideo.replace(currVideo.find("."), 1, ""); 
 		} */
-		while (currVideo.find("/") != -1) {
-			currVideo.replace(currVideo.find("/"), 1, "\\");	
+		while (currVideo.find(SLASH_STRING) != -1) {
+			currVideo.replace(currVideo.find(SLASH_STRING), 1, BACKSLASH_STRING);	
 		}	
-		if (currVideo.find_last_of("\\") != -1) {
-			videoFiles[i] = currVideo.substr(currVideo.find_last_of("\\")+1,currVideo.size());
+		if (currVideo.find_last_of(BACKSLASH_STRING) != -1) {
+			videoFiles[i] = currVideo.substr(currVideo.find_last_of(BACKSLASH_STRING)+1,currVideo.size());
 		}
 		videos[i]= videoFiles[i];
 	}
@@ -94,16 +97,17 @@ void LPMT::setup(ofxKinect *kinect)
 		/* if (currSlideShow.find(".") != -1) {
 		currSlideShow.replace(currSlideShow.find("."), 1, ""); 
 		} */
-		while (currSlideShow.find("/") != -1) {
-			currSlideShow.replace(currSlideShow.find("/"), 1, "\\");	
+		while (currSlideShow.find(SLASH_STRING) != -1) {
+			currSlideShow.replace(currSlideShow.find(SLASH_STRING), 1, BACKSLASH_STRING);	
 		}	
-		if (currSlideShow.find_last_of("\\") != -1) {
-			slideshowFolders[i] = currSlideShow.substr(currSlideShow.find_last_of("\\")+1,currSlideShow.size());
+		if (currSlideShow.find_last_of(BACKSLASH_STRING) != -1) {
+			slideshowFolders[i] = currSlideShow.substr(currSlideShow.find_last_of(BACKSLASH_STRING)+1,currSlideShow.size());
 		}
 		slideshows[i]= slideshowFolders[i];
 	}
 
 
+	ofSetLogLevel(OF_LOG_ERROR);
 	ttf.loadFont("./type/frabk.ttf", 11);
 	// set border color for quads in setup mode
 	borderColor = 0x666666;
