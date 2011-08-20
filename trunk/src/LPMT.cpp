@@ -37,7 +37,7 @@ void LPMT::setup(ofxKinect *kinect)
 	this->kinect = kinect;
 
 	//we run at 60 fps!
-	ofSetVerticalSync(true);
+	//ofSetVerticalSync(true);
 
 	// we scan the img dir for images
 	string imgDir = string("./data/img");
@@ -240,7 +240,6 @@ void LPMT::setup(ofxKinect *kinect)
 //--------------------------------------------------------------
 void LPMT::update() {
 
-	ofSetWindowTitle("mapinect");
 	// grabs video frame from camera and passes pixels to quads
 	camGrabber.grabFrame();
 	if (camGrabber.isFrameNew()){
