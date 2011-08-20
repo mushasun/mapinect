@@ -14,7 +14,7 @@ int main( ){
 	testApp* app = new testApp;
 	
 	ofxFenster fenster;
-	fenster.init(app);
+	fenster.init(app, "mapinect_aux");
 
 	// this kicks off the running of my app
 	// can be OF_WINDOW or OF_FULLSCREEN

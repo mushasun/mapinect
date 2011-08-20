@@ -9,14 +9,15 @@ void testApp::setup() {
 	// zero the tilt on startup
 	angle = 0;
 	kinect.setCameraTiltAngle(angle);
-
+	
+	ofSetWindowTitle("mapinect");
 	cv.setup(&kinect);
 	pcm.setup(&kinect);
 	lpmt.setup(&kinect);
 }
 
 //--------------------------------------------------------------
-void testApp::fensterUpdate() {
+void testApp::update() {
 	kinect.update();
 	bool isKinectFrameNew = kinect.isFrameNew();
 	cv.update(isKinectFrameNew);
@@ -24,7 +25,7 @@ void testApp::fensterUpdate() {
 }
 
 //--------------------------------------------------------------
-void testApp::fensterDraw()
+void testApp::draw()
 {
 	cv.draw();
 	pcm.draw();
@@ -37,7 +38,7 @@ void testApp::exit() {
 }
 
 //--------------------------------------------------------------
-void testApp::fensterKeyPressed (int key) {
+void testApp::keyPressed (int key) {
 	switch (key) {
 	case 'w':
 		kinect.enableDepthNearValueWhite(!kinect.isDepthNearValueWhite());
@@ -62,84 +63,84 @@ void testApp::fensterKeyPressed (int key) {
 }
 
 //--------------------------------------------------------------
-void testApp::fensterMouseMoved(int x, int y)
+void testApp::mouseMoved(int x, int y)
 {
 	cv.mouseMoved(x, y);
 	pcm.mouseMoved(x, y);
 }
 
 //--------------------------------------------------------------
-void testApp::fensterMouseDragged(int x, int y, int button)
+void testApp::mouseDragged(int x, int y, int button)
 {
 	cv.mouseDragged(x, y, button);
 	pcm.mouseDragged(x, y, button);
 }
 
 //--------------------------------------------------------------
-void testApp::fensterMousePressed(int x, int y, int button)
+void testApp::mousePressed(int x, int y, int button)
 {
 	cv.mousePressed(x, y, button);
 	pcm.mousePressed(x, y, button);
 }
 
 //--------------------------------------------------------------
-void testApp::fensterWindowResized(int w, int h)
+void testApp::windowResized(int w, int h)
 {
 	cv.windowResized(w, h);
 	pcm.windowResized(w, h);
 }
 
 //--------------------------------------------------------------
-void testApp::fensterMouseReleased(int x, int y, int button)
+void testApp::mouseReleased(int x, int y, int button)
 {
 	cv.mouseReleased(x, y, button);
 	pcm.mouseReleased(x, y, button);
 }
 
 //--------------------------------------------------------------
-void testApp::draw()
+void testApp::fensterDraw()
 {
 	lpmt.draw();
 }
 
 //--------------------------------------------------------------
-void testApp::update()
+void testApp::fensterUpdate()
 {
 	lpmt.update();
 }
 
 //--------------------------------------------------------------
-void testApp::keyPressed(int key)
+void testApp::fensterKeyPressed(int key)
 {
 	lpmt.keyPressed(key);
 }
 
 //--------------------------------------------------------------
-void testApp::mouseMoved(int x, int y)
+void testApp::fensterMouseMoved(int x, int y)
 {
 	lpmt.mouseMoved(x, y);
 }
 
 //--------------------------------------------------------------
-void testApp::mouseDragged(int x, int y, int button)
+void testApp::fensterMouseDragged(int x, int y, int button)
 {
 	lpmt.mouseDragged(x, y, button);
 }
 
 //--------------------------------------------------------------
-void testApp::mousePressed(int x, int y, int button)
+void testApp::fensterMousePressed(int x, int y, int button)
 {
 	lpmt.mousePressed(x, y, button);
 }
 
 //--------------------------------------------------------------
-void testApp::mouseReleased(int x, int y, int button)
+void testApp::fensterMouseReleased(int x, int y, int button)
 {
 	lpmt.mouseReleased(x, y, button);
 }
 
 //--------------------------------------------------------------
-void testApp::windowResized(int w, int h)
+void testApp::fensterWindowResized(int w, int h)
 {
 	lpmt.windowResized(w, h);
 }
