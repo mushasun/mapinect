@@ -149,6 +149,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\LPMT.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\monitor.cpp" />
+    <ClCompile Include="src\Object3D.cpp" />
     <ClCompile Include="src\ofxVecUtils.cpp" />
     <ClCompile Include="src\OpenCV.cpp" />
     <ClCompile Include="src\PCM.cpp" />
@@ -210,6 +211,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\Line2D.h" />
     <ClInclude Include="src\LPMT.h" />
     <ClInclude Include="src\monitor.h" />
+    <ClInclude Include="src\Object3D.h" />
     <ClInclude Include="src\ofGraphicsUtils.h" />
     <ClInclude Include="src\ofxVecUtils.h" />
     <ClInclude Include="src\OpenCV.h" />
