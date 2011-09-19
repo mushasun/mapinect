@@ -12,7 +12,7 @@ void testApp::setup() {
 	
 	ofSetWindowTitle("mapinect");
 	cv.setup(&kinect);
-	pcm.setup(&kinect);
+	pcm.setup(&kinect,&cv);
 	lpmt.setup(&kinect);
 }
 

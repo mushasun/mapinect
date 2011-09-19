@@ -119,6 +119,7 @@
     <ClCompile Include="src\PCM.cpp" />
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\OpenCV.cpp" />
+    <ClCompile Include="src\Object3D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\testApp.h" />
@@ -287,6 +288,7 @@
     <ClInclude Include="src\PCM.h" />
     <ClInclude Include="src\Timer.h" />
     <ClInclude Include="src\OpenCV.h" />
+    <ClInclude Include="src\Object3D.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
