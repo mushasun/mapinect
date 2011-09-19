@@ -5,13 +5,26 @@
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include "ofxVec3f.h"
+#include <pcl/segmentation/segment_differences.h>
+
 
 #define DECLARE_POINTXYZ_OFXVEC3F(v, p)	ofxVec3f v = POINTXYZ_OFXVEC3F(p)
 #define POINTXYZ_OFXVEC3F(p)			ofxVec3f(p.x, p.y, p.z)
+#define PCLNORMAL_OFXVEC3F(p)			ofxVec3f(p.normal_x, p.normal_y, p.normal_z)
 #define OFXVEC3F_POINTXYZ(v)			pcl::PointXYZ(v.x, v.y, v.z)
 
 void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z);
 
 void findPointCloudBoundingBox(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointXYZ& min, pcl::PointXYZ& max);
+void findPointCloudBoundingBox(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, ofxVec3f& min, ofxVec3f& max);
 
+//Obtiene el punto con menor Z
+float getNearestPoint(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud);
+
+//Devuelve la cantidad de diferencias entre la nuve cloud1 y cloud2 y devuelve las diferencias en diff
+int getDifferencesCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud1, 
+						pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud2, 
+						pcl::PointCloud<pcl::PointXYZ>::Ptr &diff,
+						float distThreshold);
 #endif // POINT_UTILS_H__

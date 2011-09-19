@@ -10,7 +10,7 @@ namespace mapinect {
 		: pVA(vA), pVB(vB), pVC(vC), pVD(vD) { }
 
 	bool Quad3D::findQuad(const std::vector<ofxVec3f>& vCloud) {
-		ofxVec3f vMin, vMax;
+		//ofxVec3f vMin, vMax;
 		findOfxVec3fBoundingBox(vCloud, vMin, vMax);
 		ofxVec3f center = vMin + vMax;
 		center *= 0.5f;
@@ -54,7 +54,7 @@ namespace mapinect {
 			}
 		}
 		
-		cout << "max distance to line: " << distanceC << endl;
+		//cout << "max distance to line: " << distanceC << endl;
 
 		int ixD = ixC;
 		ofxVec2f v2D(v2C);
@@ -71,13 +71,24 @@ namespace mapinect {
 			}
 		}
 
-		cout << "max distance to triangle: " << distanceD << endl;
+		//cout << "max distance to triangle: " << distanceD << endl;
 
 		pVA = vCloud.at(ixA);
 		pVB = vCloud.at(ixB);
 		pVC = vCloud.at(ixC);
 		pVD = vCloud.at(ixD);
 
+		std::vector<int> indices (4);
+		indices[0] = ixA;
+		indices[1] = ixB;
+		indices[2] = ixC;
+		indices[3] = ixD;
+		pcl::PointIndices::Ptr v (new pcl::PointIndices ());
+		vertexIdxs = v;
+		vertexIdxs->indices = indices;
+
+
+		//cout << "x: " << pVA.x << " y: " << pVA.y << " z: " << pVA.z << endl;
 		return true;
 	}
 
