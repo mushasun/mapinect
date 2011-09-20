@@ -58,22 +58,33 @@ void Object3D::detectFaces(){
 			break;
 		}
 
-		// Extract the inliers
-		extract.setInputCloud (cloudTemp);
-		extract.setIndices (inliers);
-		extract.setNegative (false);
-		extract.filter (*cloud_p);
+		//FIX
+		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_inliers (new pcl::PointCloud<pcl::PointXYZ>());
+		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_outliers (new pcl::PointCloud<pcl::PointXYZ>());
+		if(inliers->indices.size() != cloudTemp->size())
+		{
+			// Extract the inliers
+			extract.setInputCloud (cloudTemp);
+			extract.setIndices (inliers);
+			extract.setNegative (false);
+			extract.filter (*cloud_filtered_temp_inliers);
+			cloud_p = cloud_filtered_temp_inliers;
+		}
+		else
+			cloud_p = cloudTemp;
+		
 		// Create the filtering object
 		extract.setInputCloud (cloudTemp);
 		extract.setIndices (inliers);
 		extract.setNegative (true);
 
-		//FIX
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp (new pcl::PointCloud<pcl::PointXYZ>());
-		if(cloud_p->size() != cloudTemp->size())
-			extract.filter (*cloud_filtered_temp);
 		
-		cloudTemp = cloud_filtered_temp;
+		if(cloud_p->size() != cloudTemp->size())
+			extract.filter (*cloud_filtered_temp_outliers);
+
+		cloudTemp = cloud_filtered_temp_outliers;
+
+
 		
 		
 		vCloudHull.clear();
