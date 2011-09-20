@@ -60,7 +60,7 @@ public:
 	void detectPlanes(PointCloud<PointXYZ>::Ptr currentCloud);
 	void processBlobsClouds();
 	PointCloud<PointXYZ>::Ptr getPartialCloud(ofPoint min, ofPoint max);
-	PointCloud<PointXYZ>::Ptr getPartialCloudRealCoords(ofPoint min, ofPoint max, int density = 5);
+	PointCloud<PointXYZ>::Ptr getPartialCloudRealCoords(ofPoint min, ofPoint max, int density = 4);
 	PointCloud<PointXYZ>::Ptr getCloud();
 	PointCloud<PointXYZRGB>::Ptr getColorCloud();
 	

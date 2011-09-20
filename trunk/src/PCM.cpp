@@ -60,12 +60,12 @@ void PCM::update(bool isKinectFrameNew) {
 			baseCloudSetted = true;
 			cout << "Base cloud setted..." << endl;
 		}
-		//else if(ofGetElapsedTimef() - timer > 0.2) {
+		else if(ofGetElapsedTimef() - timer > 0.2) {
 			//cout << "Process diferences" << endl;
 			if(detectMode)
 				processDiferencesClouds();
 			timer = ofGetElapsedTimef();
-		//}
+		}
 	}
 }
 
