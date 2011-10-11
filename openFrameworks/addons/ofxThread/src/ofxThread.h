@@ -2,6 +2,7 @@
 #define _OFX_THREAD_H_
 
 #include "ofConstants.h"
+#include "ofxMutex.h"
 
 #ifdef TARGET_WIN32
 	#include <process.h>
@@ -9,7 +10,7 @@
     #include <pthread.h>
 #endif
 
-class ofxThread{
+class ofxThread {
 
 	public:
 		ofxThread();
@@ -17,7 +18,7 @@ class ofxThread{
 		bool isThreadRunning();
 		void startThread(bool _blocking = true, bool _verbose = true);
 		bool lock();
-		bool unlock();
+		void unlock();
 		void stopThread(bool close = true);
 		void waitForThread(bool stop = true);
 
@@ -25,8 +26,9 @@ class ofxThread{
 
 		//-------------------------------------------------
 		//you need to overide this with the function you want to thread
-		virtual void threadedFunction(){
-			if(verbose)printf("ofxThread: overide threadedFunction with your own\n");
+		virtual void threadedFunction() {
+			if(verbose)
+				printf("ofxThread: overide threadedFunction with your own\n");
 		}
 
 		//-------------------------------------------------
@@ -51,16 +53,15 @@ class ofxThread{
 
 
 	#ifdef TARGET_WIN32
-			HANDLE            myThread;
-			CRITICAL_SECTION  critSec;  	//same as a mutex
+		HANDLE				myThread;
 	#else
-			pthread_t        myThread;
-			pthread_mutex_t  myMutex;
+		pthread_t			myThread;
 	#endif
+	ofxMutex				myMutex;
 
-	bool threadRunning;
-	bool blocking;
-	bool verbose;
+	bool					threadRunning;
+	bool					blocking;
+	bool					verbose;
 };
 
 #endif
