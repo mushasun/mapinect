@@ -1,13 +1,13 @@
 #include "Object3D.h"
 #include "pointUtils.h"
+#include "utils.h"
 
 
 Object3D::Object3D(){};
-Object3D::Object3D(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, ofxKinect *kinect)
+Object3D::Object3D(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud)
 {
 	this->cloud = PointCloud<PointXYZ>(*cloud);
 	this->extendedcloud = PointCloud<PointXYZ>(*extendedCloud);
-	this->kinect = kinect;
 	//PointCloud<pcl::PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(*cloud));
 	findPointCloudBoundingBox(cloud, vMin, vMax);
 	transformation.setIdentity();
@@ -109,20 +109,20 @@ void Object3D::draw(){
 		ofxVec3f v;
 		glBegin(GL_POINTS);
 		for(int j = 0; j < face.cloudQuad->size(); j++){
-			v = kinect->getScreenCoordsFromWorldCoords(POINTXYZ_OFXVEC3F(face.cloudQuad->at(j)));
+			v = gKinect->getScreenCoordsFromWorldCoords(POINTXYZ_OFXVEC3F(face.cloudQuad->at(j)));
 			glVertex3f(v.x, v.y, 0);
 		}
 		glEnd();
 
 		ofxVec3f v1,v2,v3,v4;
 		v1 = POINTXYZ_OFXVEC3F(face.cloudQuad->at(face.getVertexIdxs()->indices.at(0)));
-		v1 = kinect->getScreenCoordsFromWorldCoords(v1);
+		v1 = gKinect->getScreenCoordsFromWorldCoords(v1);
 		v2 = POINTXYZ_OFXVEC3F(face.cloudQuad->at(face.getVertexIdxs()->indices.at(1)));
-		v2 = kinect->getScreenCoordsFromWorldCoords(v2);
+		v2 = gKinect->getScreenCoordsFromWorldCoords(v2);
 		v3 = POINTXYZ_OFXVEC3F(face.cloudQuad->at(face.getVertexIdxs()->indices.at(2)));
-		v3 = kinect->getScreenCoordsFromWorldCoords(v3);
+		v3 = gKinect->getScreenCoordsFromWorldCoords(v3);
 		v4 = POINTXYZ_OFXVEC3F(face.cloudQuad->at(face.getVertexIdxs()->indices.at(3)));
-		v4 = kinect->getScreenCoordsFromWorldCoords(v4);
+		v4 = gKinect->getScreenCoordsFromWorldCoords(v4);
 
 		ofSetColor(0,255,25*i);
 		ofCircle(v1.x,v1.y, 5);

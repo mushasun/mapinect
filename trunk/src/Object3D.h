@@ -22,7 +22,7 @@ class Object3D
 {
 	public:
 		Object3D();
-		Object3D(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, ofxKinect *kinect);
+		Object3D(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud);
 		void draw();
 		inline PointCloud<PointXYZ> getCloud() { return cloud; }
 		void updateCloud (PointCloud<PointXYZ>::Ptr nuCloud);
@@ -35,7 +35,6 @@ class Object3D
 		int							numFaces;
 		PointCloud<PointXYZ>		cloud;
 		PointCloud<PointXYZ>		extendedcloud;
-		ofxKinect					*kinect;
 		
 		
 		void detectFaces();
