@@ -120,6 +120,13 @@
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\OpenCV.cpp" />
     <ClCompile Include="src\Object3D.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxThread\src\ofxMutex.cpp">
+      <Filter>addons\ofxThread</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PCMThread.cpp" />
+    <ClCompile Include="src\Model3D.cpp" />
+    <ClCompile Include="src\TrackedCloud.cpp" />
+    <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\testApp.h" />
@@ -289,6 +296,12 @@
     <ClInclude Include="src\Timer.h" />
     <ClInclude Include="src\OpenCV.h" />
     <ClInclude Include="src\Object3D.h" />
+    <ClInclude Include="..\..\..\addons\ofxThread\src\ofxMutex.h">
+      <Filter>addons\ofxThread</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PCMThread.h" />
+    <ClInclude Include="src\Model3D.h" />
+    <ClInclude Include="src\TrackedCloud.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">

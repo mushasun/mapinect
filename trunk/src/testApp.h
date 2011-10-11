@@ -3,7 +3,6 @@
 
 #include "ofMain.h"
 #include "ofxFenster.h"
-#include "ofxKinect.h"
 #include "monitor.h"
 #include "winUtils.h"
 
@@ -34,8 +33,6 @@ public:
 	virtual void fensterMousePressed(int x, int y, int button);
 	virtual void fensterMouseReleased(int x, int y, int button);
 	virtual void fensterWindowResized(int w, int h);
-
-	ofxKinect kinect;
 
 	int					angle;
 

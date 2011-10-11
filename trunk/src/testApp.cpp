@@ -1,25 +1,30 @@
 #include "testApp.h"
+#include "utils.h"
+#include "Model3D.h"
 
 //--------------------------------------------------------------
 void testApp::setup() {
-	kinect.init();
-	kinect.setVerbose(true);
-	kinect.open();
+	gKinect = new ofxKinect();
+	gKinect->init();
+	gKinect->setVerbose(true);
+	gKinect->open();
 
 	// zero the tilt on startup
 	angle = 0;
-	kinect.setCameraTiltAngle(angle);
+	gKinect->setCameraTiltAngle(angle);
+
+	gModel3D = new mapinect::Model3D();
 	
 	ofSetWindowTitle("mapinect");
-	cv.setup(&kinect);
-	pcm.setup(&kinect,&cv);
-	lpmt.setup(&kinect);
+	cv.setup(gKinect);
+	pcm.setup();
+	lpmt.setup(gKinect);
 }
 
 //--------------------------------------------------------------
 void testApp::update() {
-	kinect.update();
-	bool isKinectFrameNew = kinect.isFrameNew();
+	gKinect->update();
+	bool isKinectFrameNew = gKinect->isFrameNew();
 	cv.update(isKinectFrameNew);
 	pcm.update(isKinectFrameNew);
 }
@@ -33,29 +38,29 @@ void testApp::draw()
 
 //--------------------------------------------------------------
 void testApp::exit() {
-	//kinect.setCameraTiltAngle(0); // zero the tilt on exit
-	kinect.close();
+	//gKinect->setCameraTiltAngle(0); // zero the tilt on exit
+	gKinect->close();
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed (int key) {
 	switch (key) {
 	case 'w':
-		kinect.enableDepthNearValueWhite(!kinect.isDepthNearValueWhite());
+		gKinect->enableDepthNearValueWhite(!gKinect->isDepthNearValueWhite());
 		break;
 	case 'o':
-		kinect.setCameraTiltAngle(angle);	// go back to prev tilt
-		kinect.open();
+		gKinect->setCameraTiltAngle(angle);	// go back to prev tilt
+		gKinect->open();
 		break;
 	case OF_KEY_UP:
 		angle++;
 		if(angle>30) angle=30;
-		kinect.setCameraTiltAngle(angle);
+		gKinect->setCameraTiltAngle(angle);
 		break;
 	case OF_KEY_DOWN:
 		angle--;
 		if(angle<-30) angle=-30;
-		kinect.setCameraTiltAngle(angle);
+		gKinect->setCameraTiltAngle(angle);
 		break;
 	}
 	cv.keyPressed(key);
