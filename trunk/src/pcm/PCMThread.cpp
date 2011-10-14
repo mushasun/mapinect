@@ -10,7 +10,7 @@
 using namespace std;
 
 #define DEFAULT_NAME		"test"
-#define WAIT_TIME_MS	200
+#define WAIT_TIME_MS		40
 
 void PCMThread::setup() {
 	//Cargo archivo de config.

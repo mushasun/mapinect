@@ -1,8 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\testApp.cpp" />
-    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvColorImage.cpp">
       <Filter>addons\ofxOpenCv\src</Filter>
     </ClCompile>
@@ -45,7 +43,6 @@
     <ClCompile Include="..\..\..\addons\ofxVectorMath\src\ofxQuaternion.cpp">
       <Filter>addons\ofxVectorMath</Filter>
     </ClCompile>
-    <ClCompile Include="src\quad.cpp" />
     <ClCompile Include="..\..\..\addons\ofxMSAInteractiveObject\src\ofxMSAInteractiveObject.cpp">
       <Filter>addons\ofxMSAInteractiveObjects\src</Filter>
     </ClCompile>
@@ -109,27 +106,64 @@
     <ClCompile Include="..\..\..\addons\ofxFenster\src\ofxFenster.cpp">
       <Filter>addons\ofxFenster\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Line2D.cpp" />
-    <ClCompile Include="src\ofxVecUtils.cpp" />
-    <ClCompile Include="src\pointUtils.cpp" />
-    <ClCompile Include="src\Quad3D.cpp" />
-    <ClCompile Include="src\Triangle2D.cpp" />
-    <ClCompile Include="src\monitor.cpp" />
-    <ClCompile Include="src\LPMT.cpp" />
-    <ClCompile Include="src\PCM.cpp" />
-    <ClCompile Include="src\Timer.cpp" />
-    <ClCompile Include="src\OpenCV.cpp" />
-    <ClCompile Include="src\Object3D.cpp" />
     <ClCompile Include="..\..\..\addons\ofxThread\src\ofxMutex.cpp">
       <Filter>addons\ofxThread</Filter>
     </ClCompile>
-    <ClCompile Include="src\PCMThread.cpp" />
-    <ClCompile Include="src\Model3D.cpp" />
-    <ClCompile Include="src\TrackedCloud.cpp" />
-    <ClCompile Include="src\utils.cpp" />
+    <ClCompile Include="src\math\Line2D.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\Triangle2D.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lpmt\LPMT.cpp">
+      <Filter>lpmt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lpmt\quad.cpp">
+      <Filter>lpmt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\BoundingBox3D.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Model3D.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Object3D.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Quad3D.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\ofxVecUtils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\pointUtils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\Timer.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pcm\PCM.cpp">
+      <Filter>pcm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pcm\PCMThread.cpp">
+      <Filter>pcm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pcm\TrackedCloud.cpp">
+      <Filter>pcm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\open-cv\OpenCV.cpp">
+      <Filter>open-cv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lpmt\monitor.cpp">
+      <Filter>lpmt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\testApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\testApp.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
       <Filter>addons\ofxOpenCv\src</Filter>
     </ClInclude>
@@ -211,8 +245,6 @@
     <ClInclude Include="..\..\..\addons\ofxVectorMath\src\ofxVec4f.h">
       <Filter>addons\ofxVectorMath</Filter>
     </ClInclude>
-    <ClInclude Include="src\ball.h" />
-    <ClInclude Include="src\quad.h" />
     <ClInclude Include="..\..\..\addons\ofxMSAInteractiveObject\src\ofxMSAInteractiveObject.h">
       <Filter>addons\ofxMSAInteractiveObjects\src</Filter>
     </ClInclude>
@@ -279,29 +311,73 @@
     <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiValueControl.h">
       <Filter>addons\ofxSimpleGuiToo\src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Line2D.h" />
-    <ClInclude Include="src\ofGraphicsUtils.h" />
-    <ClInclude Include="src\ofxVecUtils.h" />
-    <ClInclude Include="src\pointUtils.h" />
-    <ClInclude Include="src\Quad3D.h" />
-    <ClInclude Include="src\Triangle2D.h" />
     <ClInclude Include="..\..\..\addons\ofxFenster\src\ofxFenster.h">
       <Filter>addons\ofxFenster\src</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils.h" />
-    <ClInclude Include="src\monitor.h" />
-    <ClInclude Include="src\winUtils.h" />
-    <ClInclude Include="src\LPMT.h" />
-    <ClInclude Include="src\PCM.h" />
-    <ClInclude Include="src\Timer.h" />
-    <ClInclude Include="src\OpenCV.h" />
-    <ClInclude Include="src\Object3D.h" />
     <ClInclude Include="..\..\..\addons\ofxThread\src\ofxMutex.h">
       <Filter>addons\ofxThread</Filter>
     </ClInclude>
-    <ClInclude Include="src\PCMThread.h" />
-    <ClInclude Include="src\Model3D.h" />
-    <ClInclude Include="src\TrackedCloud.h" />
+    <ClInclude Include="src\math\Line2D.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Triangle2D.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lpmt\ball.h">
+      <Filter>lpmt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lpmt\LPMT.h">
+      <Filter>lpmt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lpmt\quad.h">
+      <Filter>lpmt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\BoundingBox3D.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Model3D.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Object3D.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Quad3D.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ofGraphicsUtils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ofxVecUtils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\pointUtils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Timer.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\winUtils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pcm\PCM.h">
+      <Filter>pcm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pcm\PCMThread.h">
+      <Filter>pcm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pcm\TrackedCloud.h">
+      <Filter>pcm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\open-cv\OpenCV.h">
+      <Filter>open-cv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lpmt\monitor.h">
+      <Filter>lpmt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\testApp.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -354,6 +430,24 @@
     </Filter>
     <Filter Include="addons\ofxFenster\src">
       <UniqueIdentifier>{5f35bdcd-cad8-4e51-8264-1dea04c3daff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-cv">
+      <UniqueIdentifier>{50efb8e2-dd99-485b-82e5-b7971af593f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{0bf778b9-4834-4812-b354-0785ba61bc9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pcm">
+      <UniqueIdentifier>{67b6a74c-f901-4bd8-9a5b-b31c145357ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lpmt">
+      <UniqueIdentifier>{087d0a5a-0661-4f2d-a12e-a79fcdc89cdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model">
+      <UniqueIdentifier>{122a32e6-cf85-4619-8880-c6122cba6b2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{954b758c-e7fc-490b-b7cd-a4f889ca4a31}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

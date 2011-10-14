@@ -25,7 +25,7 @@ namespace mapinect {
 			}
 		}
 		else if(counter == TIMES_TO_CREATE_OBJ && !hasObject()) {
-			counter = TIMES_TO_CREATE_OBJ * 2;
+			counter = TIMES_TO_CREATE_OBJ + 2;
 				
 			gModel3D->objectsMutex.lock();
 				objectInModel = new Object3D(cloud, cloud);
