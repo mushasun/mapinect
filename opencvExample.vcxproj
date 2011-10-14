@@ -51,7 +51,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>include;..\..\..\libs\openFrameworks;..\..\..\libs\openFrameworks\graphics;..\..\..\libs\openFrameworks\app;..\..\..\libs\openFrameworks\sound;..\..\..\libs\openFrameworks\utils;..\..\..\libs\openFrameworks\communication;..\..\..\addons\ofxMSAInteractiveObject\src;..\..\..\addons\ofxFenster\src;..\..\..\addons\ofxSimpleGuiToo\src\Controls;..\..\..\addons\ofxSimpleGuiToo\src;..\..\..\libs\openFrameworks\video;..\..\..\libs\openFrameworks\events;..\..\..\libs\glut\include;..\..\..\addons\ofxXmlSettings\libs;..\..\..\addons\ofxXmlSettings\src;..\..\..\libs\rtAudio\include;..\..\..\libs\quicktime\include;..\..\..\libs\freetype\include;..\..\..\libs\freetype\include\freetype2;..\..\..\libs\freeImage\include;..\..\..\libs\fmodex\include;..\..\..\libs\videoInput\include;..\..\..\libs\glee\include;..\..\..\libs\glu\include;..\..\..\libs\poco\include;..\..\..\addons;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxDirList\src;..\..\..\addons\ofxObjLoader\src;..\..\..\addons\ofxOpenCv\src;..\..\..\addons\ofxOpenCv\libs\opencv\include;..\..\..\addons\ofxOsc\src;..\..\..\addons\ofxOsc\libs\oscpack\include\ip;..\..\..\addons\ofxOsc\libs\oscpack\include\osc;..\..\..\addons\ofxThread\src;..\..\..\addons\ofxVectorGraphics\src;..\..\..\addons\ofxVectorGraphics\libs;..\..\..\addons\ofxVectorMath\src;..\..\..\addons\ofxXMLSettings\libs;..\..\..\addons\ofxXMLSettings\src;..\..\..\addons\ofx3DModelLoader\src;..\..\..\addons\ofxKinect\src;..\..\..\..\PCL\VTK 5.6\include\vtk-5.6;..\..\..\..\PCL\CMINPACK 1.1.3\include\cminpack-1;..\..\..\..\PCL\Eigen 3.0.0\include\eigen3;..\..\..\..\PCL\OpenNI\Include;..\..\..\..\PCL\PCL-Boost\include;..\..\..\..\PCL\PCL\include\pcl-1.0;..\..\..\..\PCL\flann 1.6.9\include;..\..\..\..\PCL\qhull 6.2.0.1373\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;src\lpmt;src\math;src\model;src\open-cv;src\pcm;src\utils;..\..\..\libs\openFrameworks;..\..\..\libs\openFrameworks\graphics;..\..\..\libs\openFrameworks\app;..\..\..\libs\openFrameworks\sound;..\..\..\libs\openFrameworks\utils;..\..\..\libs\openFrameworks\communication;..\..\..\addons\ofxMSAInteractiveObject\src;..\..\..\addons\ofxFenster\src;..\..\..\addons\ofxSimpleGuiToo\src\Controls;..\..\..\addons\ofxSimpleGuiToo\src;..\..\..\libs\openFrameworks\video;..\..\..\libs\openFrameworks\events;..\..\..\libs\glut\include;..\..\..\addons\ofxXmlSettings\libs;..\..\..\addons\ofxXmlSettings\src;..\..\..\libs\rtAudio\include;..\..\..\libs\quicktime\include;..\..\..\libs\freetype\include;..\..\..\libs\freetype\include\freetype2;..\..\..\libs\freeImage\include;..\..\..\libs\fmodex\include;..\..\..\libs\videoInput\include;..\..\..\libs\glee\include;..\..\..\libs\glu\include;..\..\..\libs\poco\include;..\..\..\addons;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxDirList\src;..\..\..\addons\ofxObjLoader\src;..\..\..\addons\ofxOpenCv\src;..\..\..\addons\ofxOpenCv\libs\opencv\include;..\..\..\addons\ofxOsc\src;..\..\..\addons\ofxOsc\libs\oscpack\include\ip;..\..\..\addons\ofxOsc\libs\oscpack\include\osc;..\..\..\addons\ofxThread\src;..\..\..\addons\ofxVectorGraphics\src;..\..\..\addons\ofxVectorGraphics\libs;..\..\..\addons\ofxVectorMath\src;..\..\..\addons\ofxXMLSettings\libs;..\..\..\addons\ofxXMLSettings\src;..\..\..\addons\ofx3DModelLoader\src;..\..\..\addons\ofxKinect\src;..\..\..\..\PCL\VTK 5.6\include\vtk-5.6;..\..\..\..\PCL\CMINPACK 1.1.3\include\cminpack-1;..\..\..\..\PCL\Eigen 3.0.0\include\eigen3;..\..\..\..\PCL\OpenNI\Include;..\..\..\..\PCL\PCL-Boost\include;..\..\..\..\PCL\PCL\include\pcl-1.0;..\..\..\..\PCL\flann 1.6.9\include;..\..\..\..\PCL\qhull 6.2.0.1373\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;POCO_STATIC;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -84,7 +84,7 @@ if not exist "$(ProjectDir)bin\data" mkdir  "$(ProjectDir)bin\data"
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>include;..\..\..\libs\openFrameworks;..\..\..\libs\openFrameworks\graphics;..\..\..\libs\openFrameworks\app;..\..\..\libs\openFrameworks\sound;..\..\..\libs\openFrameworks\utils;..\..\..\libs\openFrameworks\communication;..\..\..\libs\openFrameworks\video;..\..\..\libs\openFrameworks\events;..\..\..\libs\glut\include;..\..\..\libs\rtAudio\include;..\..\..\libs\quicktime\include;..\..\..\libs\freetype\include;..\..\..\libs\freetype\include\freetype2;..\..\..\libs\freeImage\include;..\..\..\libs\fmodex\include;..\..\..\libs\videoInput\include;..\..\..\libs\glee\include;..\..\..\libs\glu\include;..\..\..\libs\poco\include;..\..\..\addons;..\..\..\addons\ofxFenster\src;..\..\..\addons\ofxMSAInteractiveObject\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxDirList\src;..\..\..\addons\ofxObjLoader\src;..\..\..\addons\ofxOpenCv\src;..\..\..\addons\ofxOpenCv\libs\opencv\include;..\..\..\addons\ofxOsc\src;..\..\..\addons\ofxOsc\libs\oscpack\include\ip;..\..\..\addons\ofxOsc\libs\oscpack\include\osc;..\..\..\addons\ofxThread\src;..\..\..\addons\ofxVectorGraphics\src;..\..\..\addons\ofxVectorGraphics\libs;..\..\..\addons\ofxVectorMath\src;..\..\..\addons\ofxXMLSettings\libs;..\..\..\addons\ofxXMLSettings\src;..\..\..\addons\ofx3DModelLoader\src;..\..\..\addons\ofxKinect\src;..\..\..\addons\ofxSimpleGuiToo\src;..\..\..\addons\ofxSimpleGuiToo\src\Controls;..\..\..\..\PCL\VTK 5.6\include\vtk-5.6;..\..\..\..\PCL\CMINPACK 1.1.3\include\cminpack-1;..\..\..\..\PCL\Eigen 3.0.0\include\eigen3;..\..\..\..\PCL\OpenNI\Include;..\..\..\..\PCL\PCL-Boost\include;..\..\..\..\PCL\PCL\include\pcl-1.0;..\..\..\..\PCL\flann 1.6.9\include;..\..\..\..\PCL\qhull 6.2.0.1373\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;src\lpmt;src\math;src\model;src\open-cv;src\pcm;src\utils;..\..\..\libs\openFrameworks;..\..\..\libs\openFrameworks\graphics;..\..\..\libs\openFrameworks\app;..\..\..\libs\openFrameworks\sound;..\..\..\libs\openFrameworks\utils;..\..\..\libs\openFrameworks\communication;..\..\..\libs\openFrameworks\video;..\..\..\libs\openFrameworks\events;..\..\..\libs\glut\include;..\..\..\libs\rtAudio\include;..\..\..\libs\quicktime\include;..\..\..\libs\freetype\include;..\..\..\libs\freetype\include\freetype2;..\..\..\libs\freeImage\include;..\..\..\libs\fmodex\include;..\..\..\libs\videoInput\include;..\..\..\libs\glee\include;..\..\..\libs\glu\include;..\..\..\libs\poco\include;..\..\..\addons;..\..\..\addons\ofxFenster\src;..\..\..\addons\ofxMSAInteractiveObject\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxDirList\src;..\..\..\addons\ofxObjLoader\src;..\..\..\addons\ofxOpenCv\src;..\..\..\addons\ofxOpenCv\libs\opencv\include;..\..\..\addons\ofxOsc\src;..\..\..\addons\ofxOsc\libs\oscpack\include\ip;..\..\..\addons\ofxOsc\libs\oscpack\include\osc;..\..\..\addons\ofxThread\src;..\..\..\addons\ofxVectorGraphics\src;..\..\..\addons\ofxVectorGraphics\libs;..\..\..\addons\ofxVectorMath\src;..\..\..\addons\ofxXMLSettings\libs;..\..\..\addons\ofxXMLSettings\src;..\..\..\addons\ofx3DModelLoader\src;..\..\..\addons\ofxKinect\src;..\..\..\addons\ofxSimpleGuiToo\src;..\..\..\addons\ofxSimpleGuiToo\src\Controls;..\..\..\..\PCL\VTK 5.6\include\vtk-5.6;..\..\..\..\PCL\CMINPACK 1.1.3\include\cminpack-1;..\..\..\..\PCL\Eigen 3.0.0\include\eigen3;..\..\..\..\PCL\OpenNI\Include;..\..\..\..\PCL\PCL-Boost\include;..\..\..\..\PCL\PCL\include\pcl-1.0;..\..\..\..\PCL\flann 1.6.9\include;..\..\..\..\PCL\qhull 6.2.0.1373\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;POCO_STATIC;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -146,30 +146,31 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlerror.cpp" />
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp" />
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.cpp" />
-    <ClCompile Include="src\Line2D.cpp" />
-    <ClCompile Include="src\LPMT.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Model3D.cpp" />
-    <ClCompile Include="src\monitor.cpp" />
-    <ClCompile Include="src\Object3D.cpp" />
-    <ClCompile Include="src\ofxVecUtils.cpp" />
-    <ClCompile Include="src\OpenCV.cpp" />
-    <ClCompile Include="src\PCM.cpp" />
-    <ClCompile Include="src\PCMThread.cpp" />
-    <ClCompile Include="src\pointUtils.cpp" />
-    <ClCompile Include="src\quad.cpp" />
-    <ClCompile Include="src\Quad3D.cpp" />
-    <ClCompile Include="src\testApp.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvColorImage.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvContourFinder.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvFloatImage.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvGrayscaleImage.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvImage.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.cpp" />
-    <ClCompile Include="src\Timer.cpp" />
-    <ClCompile Include="src\TrackedCloud.cpp" />
-    <ClCompile Include="src\Triangle2D.cpp" />
-    <ClCompile Include="src\utils.cpp" />
+    <ClCompile Include="src\lpmt\LPMT.cpp" />
+    <ClCompile Include="src\lpmt\monitor.cpp" />
+    <ClCompile Include="src\lpmt\quad.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\math\Line2D.cpp" />
+    <ClCompile Include="src\math\Triangle2D.cpp" />
+    <ClCompile Include="src\model\BoundingBox3D.cpp" />
+    <ClCompile Include="src\model\Model3D.cpp" />
+    <ClCompile Include="src\model\Object3D.cpp" />
+    <ClCompile Include="src\model\Quad3D.cpp" />
+    <ClCompile Include="src\open-cv\OpenCV.cpp" />
+    <ClCompile Include="src\pcm\PCM.cpp" />
+    <ClCompile Include="src\pcm\PCMThread.cpp" />
+    <ClCompile Include="src\pcm\TrackedCloud.cpp" />
+    <ClCompile Include="src\testApp.cpp" />
+    <ClCompile Include="src\utils\ofxVecUtils.cpp" />
+    <ClCompile Include="src\utils\pointUtils.cpp" />
+    <ClCompile Include="src\utils\Timer.cpp" />
+    <ClCompile Include="src\utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxFenster\src\ofxFenster.h" />
@@ -213,21 +214,6 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h" />
     <ClInclude Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.h" />
     <ClInclude Include="include\libfreenect.h" />
-    <ClInclude Include="src\ball.h" />
-    <ClInclude Include="src\Line2D.h" />
-    <ClInclude Include="src\LPMT.h" />
-    <ClInclude Include="src\Model3D.h" />
-    <ClInclude Include="src\monitor.h" />
-    <ClInclude Include="src\Object3D.h" />
-    <ClInclude Include="src\ofGraphicsUtils.h" />
-    <ClInclude Include="src\ofxVecUtils.h" />
-    <ClInclude Include="src\OpenCV.h" />
-    <ClInclude Include="src\PCM.h" />
-    <ClInclude Include="src\PCMThread.h" />
-    <ClInclude Include="src\pointUtils.h" />
-    <ClInclude Include="src\quad.h" />
-    <ClInclude Include="src\Quad3D.h" />
-    <ClInclude Include="src\testApp.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvColorImage.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvConstants.h" />
@@ -238,11 +224,27 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvMain.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxOpenCv.h" />
-    <ClInclude Include="src\Timer.h" />
-    <ClInclude Include="src\TrackedCloud.h" />
-    <ClInclude Include="src\Triangle2D.h" />
-    <ClInclude Include="src\utils.h" />
-    <ClInclude Include="src\winUtils.h" />
+    <ClInclude Include="src\lpmt\ball.h" />
+    <ClInclude Include="src\lpmt\LPMT.h" />
+    <ClInclude Include="src\lpmt\monitor.h" />
+    <ClInclude Include="src\lpmt\quad.h" />
+    <ClInclude Include="src\math\Line2D.h" />
+    <ClInclude Include="src\math\Triangle2D.h" />
+    <ClInclude Include="src\model\BoundingBox3D.h" />
+    <ClInclude Include="src\model\Model3D.h" />
+    <ClInclude Include="src\model\Object3D.h" />
+    <ClInclude Include="src\model\Quad3D.h" />
+    <ClInclude Include="src\open-cv\OpenCV.h" />
+    <ClInclude Include="src\pcm\PCM.h" />
+    <ClInclude Include="src\pcm\PCMThread.h" />
+    <ClInclude Include="src\pcm\TrackedCloud.h" />
+    <ClInclude Include="src\testApp.h" />
+    <ClInclude Include="src\utils\ofGraphicsUtils.h" />
+    <ClInclude Include="src\utils\ofxVecUtils.h" />
+    <ClInclude Include="src\utils\pointUtils.h" />
+    <ClInclude Include="src\utils\Timer.h" />
+    <ClInclude Include="src\utils\utils.h" />
+    <ClInclude Include="src\utils\winUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\libs\openFrameworksCompiled\project\vs2010\openframeworksLib.vcxproj">
