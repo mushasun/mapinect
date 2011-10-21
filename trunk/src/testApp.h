@@ -34,11 +34,11 @@ public:
 	virtual void fensterMouseReleased(int x, int y, int button);
 	virtual void fensterWindowResized(int w, int h);
 
-	int					angle;
+	int						angle;
 
-	OpenCV				cv;
-	PCM					pcm;
-	LPMT				lpmt;
+	mapinect::OpenCV		cv;
+	mapinect::PCM			pcm;
+	mapinect::LPMT			lpmt;
 };
 
 #endif	// TEST_APP_H__

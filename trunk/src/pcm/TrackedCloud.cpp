@@ -1,6 +1,7 @@
 #include "TrackedCloud.h"
 
 #include "utils.h"
+#include "PCPolyhedron.h"
 
 namespace mapinect {
 	TrackedCloud::TrackedCloud(PointCloud<PointXYZ>::Ptr cloud) {
@@ -17,20 +18,21 @@ namespace mapinect {
 		counter += diff;
 		if (counter == 0) {
 			if (hasObject()) {
-				gModel3D->objectsMutex.lock();
-					gModel3D->objects.remove(objectInModel);
+				gModel->objectsMutex.lock();
+					gModel->objects.remove(objectInModel);
 					delete objectInModel;
 					objectInModel = NULL;
-				gModel3D->objectsMutex.unlock();
+				gModel->objectsMutex.unlock();
 			}
 		}
 		else if(counter == TIMES_TO_CREATE_OBJ && !hasObject()) {
 			counter = TIMES_TO_CREATE_OBJ + 2;
 				
-			gModel3D->objectsMutex.lock();
-				objectInModel = new Object3D(cloud, cloud);
-				gModel3D->objects.push_back(objectInModel);
-			gModel3D->objectsMutex.unlock();
+			gModel->objectsMutex.lock();
+				objectInModel = new PCPolyhedron(cloud, cloud);
+				objectInModel->detectPrimitives();
+				gModel->objects.push_back(objectInModel);
+			gModel->objectsMutex.unlock();
 		}
 	}
 

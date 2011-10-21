@@ -5,10 +5,10 @@
 #define KINECT_HEIGHT 480
 
 #include "ofxKinect.h"
-#include "Model3D.h"
+#include "Model.h"
 
 extern ofxKinect			*gKinect;
-extern mapinect::Model3D	*gModel3D;
+extern mapinect::Model	*gModel;
 
 extern float				OCTREE_RES;
 extern int					MIN_DIFF_TO_PROCESS;

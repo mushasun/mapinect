@@ -1,7 +1,7 @@
 #include "utils.h"
 
 ofxKinect			*gKinect = 0;
-mapinect::Model3D	*gModel3D = 0;
+mapinect::Model	*gModel = 0;
 
 float				OCTREE_RES;
 int					MIN_DIFF_TO_PROCESS;
