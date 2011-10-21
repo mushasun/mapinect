@@ -1,15 +1,11 @@
-#include "Quad3D.h"
+#include "PCQuadrilateral.h"
+
 #include "Triangle2D.h"
 #include "ofxVecUtils.h"
 
 namespace mapinect {
 
-	Quad3D::Quad3D() { }
-
-	Quad3D::Quad3D(const ofxVec3f &vA, const ofxVec3f &vB, const ofxVec3f &vC, const ofxVec3f &vD)
-		: pVA(vA), pVB(vB), pVC(vC), pVD(vD) { }
-
-	bool Quad3D::findQuad(const std::vector<ofxVec3f>& vCloud) {
+	bool PCQuadrilateral::detectPolygon(const std::vector<ofxVec3f>& vCloud) {
 		//ofxVec3f vMin, vMax;
 		findOfxVec3fBoundingBox(vCloud, vMin, vMax);
 		ofxVec3f center = vMin + vMax;
@@ -73,10 +69,11 @@ namespace mapinect {
 
 		//cout << "max distance to triangle: " << distanceD << endl;
 
-		pVA = vCloud.at(ixA);
-		pVB = vCloud.at(ixB);
-		pVC = vCloud.at(ixC);
-		pVD = vCloud.at(ixD);
+		getPolygonModelObject()->addVertex(vCloud.at(ixA));
+		getPolygonModelObject()->addVertex(vCloud.at(ixB));
+		getPolygonModelObject()->addVertex(vCloud.at(ixC));
+		getPolygonModelObject()->addVertex(vCloud.at(ixD));
+		getPolygonModelObject()->sortVertexs();
 
 		std::vector<int> indices (4);
 		indices[0] = ixA;
@@ -92,7 +89,7 @@ namespace mapinect {
 		return true;
 	}
 
-	bool Quad3D::findQuad2(const std::vector<ofxVec3f>& vCloud) {
+	bool PCQuadrilateral::detectPolygon2(const std::vector<ofxVec3f>& vCloud) {
 		ofxVec3f vMinMin = ofxVec3f(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
 		ofxVec3f vMaxMax = ofxVec3f(-MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT);
 		
@@ -146,10 +143,10 @@ namespace mapinect {
 	
 		if (pMaxMax != pMinMin != pMaxMin != pMinMax != -1)
 		{
-			pVA = vCloud.at(pMinMin);
-			pVB = vCloud.at(pMaxMin);
-			pVC = vCloud.at(pMaxMax);
-			pVD = vCloud.at(pMinMax);
+			getPolygonModelObject()->addVertex(vCloud.at(pMinMin));
+			getPolygonModelObject()->addVertex(vCloud.at(pMaxMin));
+			getPolygonModelObject()->addVertex(vCloud.at(pMaxMax));
+			getPolygonModelObject()->addVertex(vCloud.at(pMinMax));
 
 			//cout << "MinMin: " << pVA.x << ", " << pVA.y << endl;
 			//cout << "MaxMin: " << pVB.x << ", " << pVB.y << endl;

@@ -121,18 +121,6 @@
     <ClCompile Include="src\lpmt\quad.cpp">
       <Filter>lpmt</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\BoundingBox3D.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\model\Model3D.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\model\Object3D.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\model\Quad3D.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\ofxVecUtils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -162,6 +150,39 @@
     </ClCompile>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\testApp.cpp" />
+    <ClCompile Include="src\model\Box.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Cylinder.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Model.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\ModelObject.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Polygon.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Polyhedron.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Sphere.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\PCModelObject.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\PCPolyhedron.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\PCQuadrilateral.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\PCPolygon.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -332,18 +353,6 @@
     <ClInclude Include="src\lpmt\quad.h">
       <Filter>lpmt</Filter>
     </ClInclude>
-    <ClInclude Include="src\model\BoundingBox3D.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\model\Model3D.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\model\Object3D.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\model\Quad3D.h">
-      <Filter>model</Filter>
-    </ClInclude>
     <ClInclude Include="src\utils\ofGraphicsUtils.h">
       <Filter>utils</Filter>
     </ClInclude>
@@ -378,6 +387,39 @@
       <Filter>lpmt</Filter>
     </ClInclude>
     <ClInclude Include="src\testApp.h" />
+    <ClInclude Include="src\model\Box.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Cylinder.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Model.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\ModelObject.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Polygon.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Polyhedron.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Sphere.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\PCModelObject.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\PCPolyhedron.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\PCQuadrilateral.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\PCPolygon.h">
+      <Filter>model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">

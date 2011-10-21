@@ -1,6 +1,6 @@
 #include "testApp.h"
 #include "utils.h"
-#include "Model3D.h"
+#include "Model.h"
 
 //--------------------------------------------------------------
 void testApp::setup() {
@@ -13,12 +13,12 @@ void testApp::setup() {
 	angle = 0;
 	gKinect->setCameraTiltAngle(angle);
 
-	gModel3D = new mapinect::Model3D();
+	gModel = new mapinect::Model();
 	
 	ofSetWindowTitle("mapinect");
-	cv.setup(gKinect);
+	cv.setup();
 	pcm.setup();
-	lpmt.setup(gKinect);
+	lpmt.setup();
 }
 
 //--------------------------------------------------------------
