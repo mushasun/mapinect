@@ -5,6 +5,7 @@
 #include "ofTypes.h"
 #include "ofxVec3f.h"
 #include "TrackedCloud.h"
+#include <list>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/cloud_viewer.h>
@@ -28,42 +29,44 @@ using namespace pcl;
 #define CLOUD_POINTS KINECT_WIDTH * KINECT_HEIGHT
 #define MAX_OBJECTS 10
 
-class PCMThread : ofxThread {
-public:
-	void						setup();
-	virtual void				threadedFunction();
+namespace mapinect {
+	class PCMThread : ofxThread {
+	public:
+		void						setup();
+		virtual void				threadedFunction();
 
-	void						saveCloud(const string& name);
-	void						savePartialCloud(ofPoint min, ofPoint max, int id, const string& name);
-	PointCloud<PointXYZ>*		loadCloud(const string& name);
+		void						saveCloud(const string& name);
+		void						savePartialCloud(ofPoint min, ofPoint max, int id, const string& name);
+		PointCloud<PointXYZ>*		loadCloud(const string& name);
 
-	PointCloud<PointXYZ>::Ptr	getPartialCloud(ofPoint min, ofPoint max);
-	PointCloud<PointXYZ>::Ptr	getPartialCloudRealCoords(ofPoint min, ofPoint max, int density = 4);
-	PointCloud<PointXYZ>::Ptr	getCloud();
+		PointCloud<PointXYZ>::Ptr	getPartialCloud(ofPoint min, ofPoint max);
+		PointCloud<PointXYZ>::Ptr	getPartialCloudRealCoords(ofPoint min, ofPoint max, int density = 4);
+		PointCloud<PointXYZ>::Ptr	getCloud();
 	
-	PointCloud<PointXYZ>::Ptr	cloud;
-	PointCloud<PointXYZ>::Ptr	currentDiffcloud;
-	octree::OctreePointCloudChangeDetector<PointXYZ>	*octree;
+		PointCloud<PointXYZ>::Ptr	cloud;
+		PointCloud<PointXYZ>::Ptr	currentDiffcloud;
+		octree::OctreePointCloudChangeDetector<PointXYZ>	*octree;
 
-	void						setInitialPointCloud();
-	PointCloud<PointXYZ>::Ptr	getDifferenceIdx(bool &dif, int noise_filter = 7);
-	void						processDiferencesClouds();
+		void						setInitialPointCloud();
+		PointCloud<PointXYZ>::Ptr	getDifferenceIdx(bool &dif, int noise_filter = 7);
+		void						processDiferencesClouds();
 
-	bool						baseCloudSetted;
-	float						timer;
+		bool						baseCloudSetted;
+		float						timer;
 
-	bool						updateDetectedObject(PointCloud<PointXYZ>::Ptr cloud_cluster);
+		bool						updateDetectedObject(PointCloud<PointXYZ>::Ptr cloud_cluster);
 
-	bool						detectMode;
+		bool						detectMode;
 
-private:
-	ofxVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane);
-	ofxVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr);
-	int							getSlotForTempObj();
-	int							noDifferencesCount;
+	private:
+		ofxVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane);
+		ofxVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr);
+		int							getSlotForTempObj();
+		int							noDifferencesCount;
 
-	list<TrackedCloud>			trackedClouds;
+		std::list<TrackedCloud>		trackedClouds;
 
-};
+	};
+}
 
 #endif	// PCM_THREAD_H__
