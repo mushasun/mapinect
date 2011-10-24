@@ -43,7 +43,7 @@ namespace mapinect {
 			ofPushMatrix();
 			gModel->objectsMutex.lock();
 				glTranslatef(320, 240, 0);
-				glScalef(640, 640, -320);
+				glScalef(1, 1, 1);
 				for (list<ModelObject*>::iterator iter = gModel->objects.begin();
 						iter != gModel->objects.end(); iter++) {
 					(*iter)->drawObject();

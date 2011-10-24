@@ -18,7 +18,7 @@ void testApp::setup() {
 	ofSetWindowTitle("mapinect");
 	cv.setup();
 	pcm.setup();
-	lpmt.setup();
+//	lpmt.setup();
 }
 
 //--------------------------------------------------------------
@@ -105,13 +105,13 @@ void testApp::mouseReleased(int x, int y, int button)
 //--------------------------------------------------------------
 void testApp::fensterDraw()
 {
-	lpmt.draw();
+	//lpmt.draw();
 }
 
 //--------------------------------------------------------------
 void testApp::fensterUpdate()
 {
-	lpmt.update();
+	//lpmt.update();
 }
 
 //--------------------------------------------------------------

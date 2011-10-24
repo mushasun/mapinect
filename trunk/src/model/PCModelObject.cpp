@@ -1,6 +1,7 @@
 #include "PCModelObject.h"
 
 #include "pointUtils.h"
+#include "utils.h"
 
 namespace mapinect {
 	PCModelObject::PCModelObject() {
@@ -33,8 +34,9 @@ namespace mapinect {
 		if (drawPointCloud) {
 			glBegin(GL_POINTS);
 			for (size_t i = 0; i < cloud.size(); i++) {
-				PointXYZ p = cloud.at(i);
-				glVertex3f(p.x, p.y, p.z);
+				ofxVec3f v = POINTXYZ_OFXVEC3F(cloud.at(i));
+				ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(v);
+				glVertex3f(w.x, w.y, 5);
 			}
 			glEnd();
 		}
