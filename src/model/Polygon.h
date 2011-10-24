@@ -19,10 +19,13 @@ namespace mapinect {
 
 			void				sortVertexs();
 
+			float				calculateArea();
+
 			virtual void draw();
 		
 		private:
 			vector<ofxVec3f>	vertexs;
+			ofxVec3f			normal;
 	};
 }
 

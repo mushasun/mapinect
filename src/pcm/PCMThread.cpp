@@ -5,6 +5,7 @@
 #include "ofxVecUtils.h"
 #include "ofGraphicsUtils.h"
 #include "ofxXmlSettings.h"
+#include "Timer.h"
 #include "utils.h"
 
 using namespace std;
@@ -12,7 +13,7 @@ using namespace std;
 namespace mapinect {
 
 	#define DEFAULT_NAME		"test"
-	#define WAIT_TIME_MS		40
+	#define WAIT_TIME_MS		5
 
 	void PCMThread::setup() {
 		//Cargo archivo de config.
@@ -59,7 +60,13 @@ namespace mapinect {
 				}
 
 				if(detectMode)
+				{
+					Timer t;
+					t.start();
 					processDiferencesClouds();
+					t.end();
+					t.print();
+				}
 
 				unlock();
 				ofSleepMillis(WAIT_TIME_MS);
@@ -68,7 +75,7 @@ namespace mapinect {
 	}
 
 	PointCloud<PointXYZ>::Ptr PCMThread::getCloud(){
-		return getPartialCloudRealCoords(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT));
+		return getPartialCloudRealCoords(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),10);
 	}
 
 	PointCloud<PointXYZ>::Ptr PCMThread::getPartialCloud(ofPoint min, ofPoint max){
