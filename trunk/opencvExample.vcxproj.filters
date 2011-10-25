@@ -183,6 +183,9 @@
     <ClCompile Include="src\model\PCPolygon.cpp">
       <Filter>model</Filter>
     </ClCompile>
+    <ClCompile Include="src\arduino\Arduino.cpp">
+      <Filter>arduino</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -420,6 +423,9 @@
     <ClInclude Include="src\model\PCPolygon.h">
       <Filter>model</Filter>
     </ClInclude>
+    <ClInclude Include="src\arduino\Arduino.h">
+      <Filter>arduino</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -490,6 +496,9 @@
     </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{954b758c-e7fc-490b-b7cd-a4f889ca4a31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arduino">
+      <UniqueIdentifier>{9605fff1-8eeb-4d38-bef1-e2f58f931ec9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
