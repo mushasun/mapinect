@@ -1,12 +1,10 @@
 #include "OpenCV.h"
-
 #include "utils.h"
 #include "ofGraphicsUtils.h"
-
 namespace mapinect {
-
 	//--------------------------------------------------------------
 	void OpenCV::setup() {
+
 		colorImg.allocate(gKinect->width, gKinect->height);
 		grayImage.allocate(gKinect->width, gKinect->height);
 		grayThresh.allocate(gKinect->width, gKinect->height);
@@ -22,53 +20,53 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	void OpenCV::update(bool isKinectFrameNew) {
+	void OpenCV::update(bool isgKinectFrameNew) {
 
-		if(isKinectFrameNew)
-		{
-			ofBackground(100, 100, 100);
+		//if(isgKinectFrameNew)
+		//{
+		//	ofBackground(100, 100, 100);
 
-			grayImage.setFromPixels(gKinect->getDepthPixels(), gKinect->width, gKinect->height);
+		//	grayImage.setFromPixels(gKinect->getDepthPixels(), gKinect->width, gKinect->height);
 
-			//we do two thresholds - one for the far plane and one for the near plane
-			//we then do a cvAnd to get the pixels which are a union of the two thresholds.	
-			if( bThreshWithOpenCV ) {
-				grayThreshFar = grayImage;
-				grayThresh = grayImage;
-				grayThresh.threshold(nearThreshold, true);
-				grayThreshFar.threshold(farThreshold);
-				cvAnd(grayThresh.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
-			}
-			else{
+		//	//we do two thresholds - one for the far plane and one for the near plane
+		//	//we then do a cvAnd to get the pixels which are a union of the two thresholds.	
+		//	if( bThreshWithOpenCV ) {
+		//		grayThreshFar = grayImage;
+		//		grayThresh = grayImage;
+		//		grayThresh.threshold(nearThreshold, true);
+		//		grayThreshFar.threshold(farThreshold);
+		//		cvAnd(grayThresh.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
+		//	}
+		//	else{
 
-				//or we do it ourselves - show people how they can work with the pixels
+		//		//or we do it ourselves - show people how they can work with the pixels
 
-				unsigned char * pix = grayImage.getPixels();
-				int numPixels = grayImage.getWidth() * grayImage.getHeight();
+		//		unsigned char * pix = grayImage.getPixels();
+		//		int numPixels = grayImage.getWidth() * grayImage.getHeight();
 
-				for(int i = 0; i < numPixels; i++){
-					if( pix[i] < nearThreshold && pix[i] > farThreshold ){
-						pix[i] = 255;
-					}else{
-						pix[i] = 0;
-					}
-				}
-			}
+		//		for(int i = 0; i < numPixels; i++){
+		//			if( pix[i] < nearThreshold && pix[i] > farThreshold ){
+		//				pix[i] = 255;
+		//			}else{
+		//				pix[i] = 0;
+		//			}
+		//		}
+		//	}
 
-			//update the cv image
-			grayImage.flagImageChanged();
+		//	//update the cv image
+		//	grayImage.flagImageChanged();
 
-			// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
-			// also, find holes is set to true so we will get interior contours as well....
-			contourFinder.findContours(grayImage, 10, (gKinect->width*gKinect->height)/2, 20, false);
+		//	// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
+		//	// also, find holes is set to true so we will get interior contours as well....
+		//	contourFinder.findContours(grayImage, 10, (gKinect->width*gKinect->height)/2, 20, false);
 
-			//for(int i = 0 ; i < contourFinder.nBlobs; i++)
-			//{
-			//	cout << "min: (" << contourFinder.blobs[i].boundingRect.x << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y << ")" << endl;
-			//	cout << "max: (" << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.width << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y + contourFinder.blobs[i].boundingRect.height<< ")" << endl;
-			//}
+		//	//for(int i = 0 ; i < contourFinder.nBlobs; i++)
+		//	//{
+		//	//	cout << "min: (" << contourFinder.blobs[i].boundingRect.x << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y << ")" << endl;
+		//	//	cout << "max: (" << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.width << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y + contourFinder.blobs[i].boundingRect.height<< ")" << endl;
+		//	//}
 
-		}
+		//}
 	}
 
 	//--------------------------------------------------------------

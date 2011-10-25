@@ -23,7 +23,7 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void PCM::update(bool isKinectFrameNew) {
-	
+
 	}
 
 	//--------------------------------------------------------------
@@ -42,14 +42,14 @@ namespace mapinect {
 			ofResetColor();
 			ofPushMatrix();
 			gModel->objectsMutex.lock();
-				glTranslatef(320, 240, 0);
-				glScalef(1, 1, 1);
-				for (list<ModelObject*>::iterator iter = gModel->objects.begin();
-						iter != gModel->objects.end(); iter++) {
+			/*glTranslatef(320, 240, 0);
+			glScalef(1, 1, 1);*/
+			for (list<ModelObject*>::iterator iter = gModel->objects.begin();
+				iter != gModel->objects.end(); iter++) {
 					(*iter)->drawObject();
-				}
+			}
 			gModel->objectsMutex.unlock();
-	
+
 			ofPopMatrix();
 		}
 	}
@@ -86,22 +86,22 @@ namespace mapinect {
 		case'p':
 			drawPC = !drawPC;
 			break;
-		//case 's':
-		//	saveCloud(DEFAULT_NAME);
-		//	break;
-		//case 'd':
-		//	processDiferencesClouds();
-		//	break;
+			//case 's':
+			//	saveCloud(DEFAULT_NAME);
+			//	break;
+		case 'd':
+			pcmThread.processDiferencesClouds();
+			break;
+		case 'r':
+			pcmThread.reset();
+			gModel->objectsMutex.lock();
+			gModel->objects.clear();	
+			gModel->objectsMutex.unlock();
+			break;
+		}
 		//case 't':
 		//	setTransformation();
 		//	break;
-		}
-	}
-
-	//--------------------------------------------------------------
-	void PCM::mouseMoved(int x, int y)
-	{
-		pointCloudRotationY = x;
 	}
 
 	//--------------------------------------------------------------
@@ -126,5 +126,10 @@ namespace mapinect {
 	void PCM::mouseReleased(int x, int y, int button)
 	{
 
+	}
+
+	void PCM::mouseMoved(int x, int y)
+	{
+	
 	}
 }

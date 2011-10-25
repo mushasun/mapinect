@@ -134,3 +134,92 @@ int getDifferencesCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr src,
 
 	//return diff->size();
 }
+
+int getDifferencesCount(pcl::PointCloud<pcl::PointXYZ>::Ptr src, 
+						pcl::PointCloud<pcl::PointXYZ>::Ptr tgt, 
+						float distanceThreshold)
+{
+	pcl::PointCloud<pcl::PointXYZ>::Ptr small, big;
+	if(src->size() < tgt->size())
+	{
+		small = src;
+		big = tgt;
+	}
+	else
+	{
+		small = tgt;
+		big = src;
+	}
+
+	//Seteo el kdtree con la segunda nube
+	pcl::ExtractIndices<pcl::PointXYZ> extract;
+	pcl::PointIndices::Ptr repeatedPoints (new pcl::PointIndices ());
+	pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr kdTree (new pcl::KdTreeFLANN<pcl::PointXYZ> (false));
+	std::vector<int> k_indices (1);
+	std::vector<float> k_distances (1);
+	std::vector<int> indicesToRemove;
+	int foundedPoints = 0;
+
+	kdTree->setInputCloud(big);
+
+	for (size_t i = 0; i < small->points.size (); ++i){
+		foundedPoints = kdTree->nearestKSearch(small->at(i),1,k_indices,k_distances);
+		if(foundedPoints > 0)
+		{
+			if(k_distances.at(0) < distanceThreshold)
+				indicesToRemove.push_back(k_indices.at(0));
+		}
+	}
+
+	return big->size() - indicesToRemove.size();
+}
+
+ofxVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane)
+{
+	//Calculo de normales
+		//Random indices
+	int sampleSize = floor (plane->points.size() * NORMAL_ESTIMATION_PERCENT);
+	std::vector<int> indices (sampleSize);
+	for (size_t i = 0; i < sampleSize; i++) 
+		indices[i] = rand() % plane->points.size();
+
+	pcl::PointIndices::Ptr indicesptr (new pcl::PointIndices ());
+	indicesptr->indices = indices;
+
+
+	return normalEstimation(plane, indicesptr);
+}
+
+ofxVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr)
+{
+	//Calculo de normales
+	int sampleSize = indicesptr->indices.size();
+	// Create the normal estimation class, and pass the input dataset to it
+	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+	ne.setInputCloud (plane);
+	pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ> ());
+	ne.setSearchMethod (tree);
+	
+	ne.setIndices(indicesptr);
+	// Output datasets
+	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+
+	// Use all neighbors in a sphere of radius 3cm
+	ne.setRadiusSearch (0.3);
+
+	// Compute the features
+	ne.compute (*cloud_normals);
+
+	ofxVec3f result(0,0,0);
+	//Promedio las normales
+	float bad_point = std::numeric_limits<float>::quiet_NaN();
+	for(int i = 0; i < sampleSize ; i++){
+		pcl::Normal normal = cloud_normals->at(i);
+		if (normal.normal_z != bad_point && normal.normal_z == normal.normal_z)
+			result += PCLNORMAL_OFXVEC3F(cloud_normals->at(i));
+	}
+	
+	result /= sampleSize;
+	result = result.normalize();
+	return result;
+}

@@ -11,7 +11,7 @@ void testApp::setup() {
 
 	// zero the tilt on startup
 	angle = 0;
-	gKinect->setCameraTiltAngle(angle);
+	//gKinect->setCameraTiltAngle(angle);
 
 	gModel = new mapinect::Model();
 	

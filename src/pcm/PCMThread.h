@@ -42,7 +42,7 @@ namespace mapinect {
 		PointCloud<PointXYZ>::Ptr	getPartialCloud(ofPoint min, ofPoint max);
 		PointCloud<PointXYZ>::Ptr	getPartialCloudRealCoords(ofPoint min, ofPoint max, int density = 4);
 		PointCloud<PointXYZ>::Ptr	getCloud();
-	
+
 		PointCloud<PointXYZ>::Ptr	cloud;
 		PointCloud<PointXYZ>::Ptr	currentDiffcloud;
 		octree::OctreePointCloudChangeDetector<PointXYZ>	*octree;
@@ -50,11 +50,12 @@ namespace mapinect {
 		void						setInitialPointCloud();
 		PointCloud<PointXYZ>::Ptr	getDifferenceIdx(bool &dif, int noise_filter = 7);
 		void						processDiferencesClouds();
+		void						reset();
 
 		bool						baseCloudSetted;
 		float						timer;
 
-		bool						updateDetectedObject(PointCloud<PointXYZ>::Ptr cloud_cluster);
+		void						updateDetectedObjects();
 
 		bool						detectMode;
 
@@ -62,8 +63,9 @@ namespace mapinect {
 		ofxVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane);
 		ofxVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr);
 		int							getSlotForTempObj();
+		PointCloud<PointXYZ>::Ptr	getTableCluster();
 		int							noDifferencesCount;
-
+		bool						findBestFit(TrackedCloud* trackedCloud, TrackedCloud*& removedCloud, bool &removed);
 		std::list<TrackedCloud>		trackedClouds;
 
 	};

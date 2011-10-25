@@ -12,15 +12,16 @@ namespace mapinect {
 		public:
 			PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud)
 				: PCModelObject(cloud, extendedCloud) { }
-
+			PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId)
+				: PCModelObject(cloud, extendedCloud, objId) { }
 			virtual void		draw();
 			virtual void		detectPrimitives();
-
+			virtual void		applyTransformation();
 		protected:
-			virtual PCPolygon*	createPCPolygon();
+			//virtual PCPolygon*	createPCPolygon();
 
 		private:
-			vector<PCPolygon*>	pcpolygons;
+			list<PCPolygon*>	pcpolygons;
 	};
 }
 

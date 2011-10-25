@@ -1,4 +1,5 @@
 #include "PCPolygon.h"
+#include <pcl/registration/transformation_estimation.h>
 
 namespace mapinect {
 
@@ -18,6 +19,11 @@ namespace mapinect {
 		// No existing algorithm for a generic poligon detection.
 
 		return false;
+	}
+
+	void PCPolygon::applyTransformation(Eigen::Affine3f* transformation)
+	{
+		pcl::transformPointCloud(cloud,cloud,*transformation);
 	}
 
 }
