@@ -7,7 +7,7 @@
 #include <pcl/point_types.h>
 #include "ofxVec3f.h"
 #include <pcl/segmentation/segment_differences.h>
-
+#include <pcl/features/normal_3d.h>
 
 #define DECLARE_POINTXYZ_OFXVEC3F(v, p)	ofxVec3f v = POINTXYZ_OFXVEC3F(p)
 #define POINTXYZ_OFXVEC3F(p)			ofxVec3f(p.x, p.y, p.z)
@@ -27,4 +27,14 @@ int getDifferencesCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud1,
 						pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud2, 
 						pcl::PointCloud<pcl::PointXYZ>::Ptr &diff,
 						float distThreshold);
+
+int getDifferencesCount(pcl::PointCloud<pcl::PointXYZ>::Ptr src, 
+						pcl::PointCloud<pcl::PointXYZ>::Ptr tgt, 
+						float distanceThreshold);
+
+//Estima la normal utilizando un conjunto aleatorio de puntos, la cantidad tomada es especificada por plane->points.size() / NORMAL_ESTIMATION_PERCENT
+ofxVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane);
+
+//Estima la normal utilizando el conjunto de puntos especificado en indicesptr
+ofxVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr);
 #endif // POINT_UTILS_H__

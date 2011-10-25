@@ -48,6 +48,10 @@ namespace mapinect {
 		int i = 0, nr_points = cloudTemp->points.size ();
 		// mientras 10% de la nube no se haya procesado
 		int numFaces = 0;
+		for (list<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
+			delete *iter;
+		}
+		pcpolygons.clear();
 		while (cloudTemp->points.size () > 0.1 * nr_points && numFaces < MAX_FACES)
 		{
 			// Segment the largest planar component from the remaining cloud
@@ -88,7 +92,7 @@ namespace mapinect {
 			for (int k = 0; k < cloud_p->size(); k++) {
 				vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_p->at(k)));
 			}
-			PCPolygon* pcp = createPCPolygon();
+			PCPolygon* pcp = new PCQuadrilateral();
 			pcp->detectPolygon(vCloudHull);
 			//detectedPlane.avgNormal = normalEstimation(cloud_p);
 			PointCloud<PointXYZ>::Ptr cloud_pTemp (new PointCloud<PointXYZ>(*cloud_p));
@@ -100,13 +104,21 @@ namespace mapinect {
 		}
 	}
 
-	PCPolygon* PCPolyhedron::createPCPolygon() {
-		return new PCQuadrilateral();
-	}
+	//PCPolygon* PCPolyhedron::createPCPolygon() {
+	//	return new PCQuadrilateral();
+	//}
 
 	void PCPolyhedron::draw() {
-		for (vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
+		for (list<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
 			(*iter)->draw();
+		}
+	}
+
+	void PCPolyhedron::applyTransformation()
+	{
+		PCModelObject::applyTransformation();
+		for(list<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
+			(*iter)->applyTransformation(&transformation);
 		}
 	}
 }

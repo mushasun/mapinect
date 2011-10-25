@@ -15,7 +15,7 @@ namespace mapinect {
 			Polygon*			getPolygonModelObject();
 			
 			virtual bool		detectPolygon(const std::vector<ofxVec3f>& cloud);
-
+			void				applyTransformation(Eigen::Affine3f* transformation);
 	};
 }
 
