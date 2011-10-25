@@ -10,23 +10,34 @@
 
 using namespace std;
 
+#define DEFAULT_NAME		"test"
+#define WAIT_TIME_MS		5
 namespace mapinect {
-
-	#define DEFAULT_NAME		"test"
-	#define WAIT_TIME_MS		5
 
 	void PCMThread::setup() {
 		//Cargo archivo de config.
 		ofxXmlSettings XML;
 		if(XML.loadFile("PCM_Config.xml")){
-	
+
 			OCTREE_RES = XML.getValue("PCMConfig:OCTREE_RES", 0.1);
 			MIN_DIFF_TO_PROCESS = XML.getValue("PCMConfig:MIN_DIFF_TO_PROCESS", 40);
 			QUAD_HALO = XML.getValue("PCMConfig:QUAD_HALO", 10);
 			DIFF_THRESHOLD = XML.getValue("PCMConfig:DIFF_THRESHOLD", 20);
 			RES_IN_OBJ = XML.getValue("PCMConfig:RES_IN_OBJ", 0.001);
+			RES_IN_OBJ2 = XML.getValue("PCMConfig:RES_IN_OBJ2", 0.001);
 			DIFF_IN_OBJ = XML.getValue("PCMConfig:DIFF_IN_OBJ", 20);
 			TIMES_TO_CREATE_OBJ = XML.getValue("PCMConfig:TIMES_TO_CREATE_OBJ", 5);
+			MIN_DIF_PERCENT = XML.getValue("PCMConfig:MIN_DIF_PERCENT", 0.1);
+			TIMES_TO_STABILIZE = XML.getValue("PCMConfig:TIMES_TO_STABILIZE", 10);
+			MAX_Z = XML.getValue("PCMConfig:MAX_Z", 40.0);
+			NORMAL_ESTIMATION_PERCENT = XML.getValue("PCMConfig:NORMAL_ESTIMATION_PERCENT", 0.01);
+			MAX_CLUSTER_SIZE = XML.getValue("PCMConfig:MAX_CLUSTER_SIZE", 10000);
+			MIN_CLUSTER_SIZE = XML.getValue("PCMConfig:MIN_CLUSTER_SIZE", 100);
+			MAX_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_CLUSTER_TOLERANCE", 0.02);
+			MAX_TABLE_CLUSTER_SIZE = XML.getValue("PCMConfig:MAX_TABLE_CLUSTER_SIZE", 2000);
+			MIN_TABLE_CLUSTER_SIZE = XML.getValue("PCMConfig:MIN_TABLE_CLUSTER_SIZE", 1000);
+			MAX_TABLE_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_TABLE_CLUSTER_TOLERANCE", 0.05);
+			CLOUD_RES = XML.getValue("PCMConfig:CLOUD_RES", 10);
 		}
 
 		// Initialize point cloud
@@ -44,7 +55,7 @@ namespace mapinect {
 		baseCloudSetted = false;
 		noDifferencesCount = 0;
 		detectMode = false;
-
+		objId = 0;
 		startThread(true, false);
 
 	}
@@ -75,7 +86,7 @@ namespace mapinect {
 	}
 
 	PointCloud<PointXYZ>::Ptr PCMThread::getCloud(){
-		return getPartialCloudRealCoords(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),10);
+		return getPartialCloudRealCoords(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),CLOUD_RES);
 	}
 
 	PointCloud<PointXYZ>::Ptr PCMThread::getPartialCloud(ofPoint min, ofPoint max){
@@ -114,7 +125,7 @@ namespace mapinect {
 					}
 					else{
 						//ofxVec3f point = kinect->getWorldCoordinateFor(u,v);
-					
+
 						pt.z = depth_map[depth_idx];
 						pt.x = u;
 						pt.y = v;
@@ -134,7 +145,7 @@ namespace mapinect {
 		{
 			PCL_ERROR ("Error en parametros de entrada para obtener la nube \n");
 		}
-	
+
 		//Calcular tamaño de la nube
 		PointCloud<PointXYZ>::Ptr partialColud (new pcl::PointCloud<pcl::PointXYZ>);
 		partialColud->width    = ceil((max.x - min.x)/density);
@@ -149,23 +160,31 @@ namespace mapinect {
 			for(register int u = min.x; u < max.x; u += density) {
 				pcl::PointXYZ& pt = partialColud->points[cloud_idx];
 				cloud_idx++;
-			
+
 				// Check for invalid measurements
 				if(depth_map[depth_idx] == 0){
 					pt.x = pt.y = pt.z = 0;
 				}
-				else{
+				else
+				{
 					ofxVec3f pto = gKinect->getWorldCoordinateFor(u,v);
-					pt.x = pto.x;
-					pt.y = pto.y;
-					pt.z = pto.z;
+
+					if(pto.z > MAX_Z)
+						pt.x = pt.y = pt.z = 0;
+					else
+					{
+						pt.x = pto.x;
+						pt.y = pto.y;
+						pt.z = pto.z;
+					}
 				}
 
 				depth_idx += density;
 			}
+			//pcl::io::savePCDFileASCII ("partial_real.pcd", *partialColud);
 		}
-		//pcl::io::savePCDFileASCII ("partial_real.pcd", *partialColud);
 		return partialColud;	
+
 	}
 
 	//--------------------------------------------------------------
@@ -178,40 +197,137 @@ namespace mapinect {
 		PointCloud<PointXYZ>::Ptr difCloud (new PointCloud<PointXYZ>());
 		PointCloud<PointXYZ>::Ptr secondCloud = getCloud();
 		isDif = false;
+		int dif;
 
 		/*pcl::PCDWriter writer;
 		writer.write<pcl::PointXYZ> ("base.pcd", *currentDiffcloud, false);
 		writer.write<pcl::PointXYZ> ("dif.pcd", *secondCloud, false);
-	*/
-
-		int dif = getDifferencesCloud(currentDiffcloud,secondCloud,difCloud,OCTREE_RES);
-		if(dif > DIFF_THRESHOLD || noDifferencesCount < 25){
-			//cout << dif << endl;
-			if(dif < DIFF_THRESHOLD)
-				noDifferencesCount++;
-			else
-				noDifferencesCount = 0;
-
-			currentDiffcloud = secondCloud;
-			dif = getDifferencesCloud(cloud,secondCloud,difCloud,OCTREE_RES);
-			if(dif  > MIN_DIFF_TO_PROCESS){
-				isDif = true;
-			}
+		*/
+		dif = getDifferencesCloud(cloud,secondCloud,difCloud,OCTREE_RES);
+		if(dif  > MIN_DIFF_TO_PROCESS){
+			isDif = true;
 		}
-
 		return difCloud;
 	}
 
-	bool countIsZero(const TrackedCloud &trackedCloud) {
-		return ((TrackedCloud)trackedCloud).getCounter() == 0;
-	}
 
-	void PCMThread::processDiferencesClouds() {
-		bool dif;
-		//nDetectedObjects = openCVService->contourFinder.blobs.size();
-		PointCloud<PointXYZ>::Ptr filteredCloud = getDifferenceIdx(dif);
-		if (dif) {
-		
+		bool countIsZero(const TrackedCloud &trackedCloud) {
+			return ((TrackedCloud)trackedCloud).getCounter() == 0;
+		}
+
+		PointCloud<PointXYZ>::Ptr PCMThread::getTableCluster(){
+			PCDWriter writer;
+			PointCloud<PointXYZ>::Ptr cloud = getCloud();
+			PointCloud<PointXYZ>::Ptr filteredCloud (new PointCloud<PointXYZ>());
+
+
+			// Quito los puntos que sean 0
+			PassThrough<PointXYZ> pass;
+			pass.setInputCloud (cloud);
+			pass.setFilterFieldName ("z");
+			pass.setFilterLimits (0.001, 4.0);
+			//pass.setFilterLimitsNegative (true);
+			pass.filter (*filteredCloud);
+			//writer.write<pcl::PointXYZ> ("filteredCloud.pcd", *filteredCloud, false);
+
+
+			//Separo en clusters
+			PointCloud<PointXYZ>::Ptr tableCluster (new pcl::PointCloud<pcl::PointXYZ>);
+
+			pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
+			tree->setInputCloud (filteredCloud);
+
+			std::vector<pcl::PointIndices> cluster_indices;
+			pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+			ec.setClusterTolerance (MAX_TABLE_CLUSTER_TOLERANCE);
+			ec.setMinClusterSize (MIN_TABLE_CLUSTER_SIZE);
+			ec.setMaxClusterSize (MAX_TABLE_CLUSTER_SIZE);
+			ec.setSearchMethod (tree);
+			ec.setInputCloud(filteredCloud);
+			ec.extract (cluster_indices);
+
+
+			//Busco el cluster más cercano
+			int count = 1;
+			float min_dist = numeric_limits<float>::max();
+			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+			{
+				pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZ>);
+				for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++)
+					cloud_cluster->points.push_back (filteredCloud->points[*pit]); //*
+				//writer.write<pcl::PointXYZ> ("cluster" + ofToString(++count) + ".pcd", *cloud_cluster, false);
+
+				Eigen::Vector4f clusterCentroid;
+				compute3DCentroid(*cloud_cluster,clusterCentroid);
+
+				if(clusterCentroid.norm() < min_dist)
+				{
+					min_dist = clusterCentroid.norm();
+					tableCluster = cloud_cluster;
+				}
+			}
+
+			
+			//writer.write<pcl::PointXYZ> ("table.pcd", *tableCluster, false);
+
+			//Quito el plano más grande
+			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>);
+			pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
+			pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
+			pcl::SACSegmentation<pcl::PointXYZ> seg;
+			pcl::ExtractIndices<pcl::PointXYZ> extract;
+			std::vector<ofxVec3f> vCloudHull;
+
+			//Remover outliers
+			PointCloud<PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(*tableCluster));
+			// Optional
+			seg.setOptimizeCoefficients (true);
+			// Mandatory
+			seg.setModelType (pcl::SACMODEL_PLANE);
+			seg.setMethodType (pcl::SAC_RANSAC);
+			seg.setMaxIterations (50);
+			seg.setDistanceThreshold (0.009); //original: 0.01
+
+			// Create the filtering object
+			int i = 0, nr_points = cloudTemp->points.size ();
+			seg.setInputCloud (cloudTemp);
+			seg.segment (*inliers, *coefficients);
+			if (inliers->indices.size () == 0)
+			{
+				std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+				PointCloud<PointXYZ>::Ptr empty (new PointCloud<PointXYZ>());
+				return empty;
+			}
+
+			//FIX
+			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_inliers (new pcl::PointCloud<pcl::PointXYZ>());
+			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_outliers (new pcl::PointCloud<pcl::PointXYZ>());
+
+			// Create the filtering object
+			extract.setInputCloud (cloudTemp);
+			extract.setIndices (inliers);
+			extract.setNegative (true);
+
+
+			if(cloud_p->size() != cloudTemp->size())
+				extract.filter (*cloud_filtered_temp_outliers);
+
+			cloudTemp = cloud_filtered_temp_outliers;
+
+			return cloudTemp;
+		}
+
+		void PCMThread::processDiferencesClouds() {
+			bool dif;
+			//nDetectedObjects = openCVService->contourFinder.blobs.size();
+			PointCloud<PointXYZ>::Ptr filteredCloud = getTableCluster();
+
+			if(filteredCloud->empty())
+			{
+				cout << "cluster vacio!" << endl;
+				return;
+			}
+
 			//Subdivido la nube de diferencias en clusters
 			// Creating the KdTree object for the search method of the extraction
 			pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
@@ -219,16 +335,16 @@ namespace mapinect {
 
 			std::vector<pcl::PointIndices> cluster_indices;
 			pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-			ec.setClusterTolerance (0.02); // 2cm
-			ec.setMinClusterSize (100);
-			ec.setMaxClusterSize (25000);
+			ec.setClusterTolerance (MAX_CLUSTER_TOLERANCE); 
+			ec.setMinClusterSize (MIN_CLUSTER_SIZE);
+			ec.setMaxClusterSize (MAX_CLUSTER_SIZE);
 			ec.setSearchMethod (tree);
 			ec.setInputCloud(filteredCloud);
 			ec.extract (cluster_indices);
 
 			/*nDetectedObjects = cluster_indices.size();
 			int j = 0;
-	*/
+			*/
 
 			//Actualizo las detecciones temporales
 			for (list<TrackedCloud>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
@@ -236,113 +352,173 @@ namespace mapinect {
 			}
 			trackedClouds.remove_if(countIsZero);
 
-			//separo en clusters y valido si existen nuevos objetos o actualizo ya detectados
+			list<TrackedCloud*> nuevosClouds;
+
+			//PCDWriter writer;
+			//writer.write<pcl::PointXYZ> ("tableTop.pcd", *filteredCloud, false);
+
+			//separo en clusters
+			int debugCounter = 0;
 			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 			{
 				pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZ>);
 				for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++)
 					cloud_cluster->points.push_back (filteredCloud->points[*pit]); //*
 
-				if(!updateDetectedObject(cloud_cluster)) {
-					trackedClouds.push_back(TrackedCloud(cloud_cluster));
+
+				//writer.write<pcl::PointXYZ> ("cluster" + ofToString(debugCounter) + ".pcd", *cloud_cluster, false);
+
+				nuevosClouds.push_back(new TrackedCloud(cloud_cluster));
+				debugCounter++;
+			}
+
+			//Itero en todas las nuves encontradas buscando el mejor ajuste con un objeto encontrado
+			list<TrackedCloud*> aProcesarClouds;
+			list<TrackedCloud*> aAgregarClouds;
+
+			debugCounter = 0;
+			int max_iter = 10;
+			do{
+				for (list<TrackedCloud*>::iterator iter = nuevosClouds.begin(); iter != nuevosClouds.end(); iter++) {
+					/*PCDWriter writer;
+					writer.write<pcl::PointXYZ> ("vector" + ofToString(debugCounter) + ".pcd", *iter->getCloud(), false);*/
+					TrackedCloud *removedCloud;
+					bool removed = false;
+					//Busco el mejor ajuste
+					bool fitted = findBestFit(*iter, removedCloud, removed);
+
+					if(removed)										// El objeto que ajusto ya tenia una nube que ajustaba
+						aProcesarClouds.push_back(removedCloud);	// Agrego la nube que ajustaba para volver a iterar
+					if(!fitted)										// Si no encuentra objeto que ajuste, la agrega como una nueva nube
+						aAgregarClouds.push_back(*iter);
+					debugCounter++;
 				}
-				/*detectedObjects[j] = ModelObject(cloud_cluster,cloud_cluster,kinect);
-				j++;*/
+				nuevosClouds = aProcesarClouds;
+				aProcesarClouds.clear();
+				max_iter--;
+			}
+			while (nuevosClouds.size() > 0 && max_iter > 0);
+
+			//Actualizo los objetos con las nubes de mejor ajuste
+			updateDetectedObjects();
+
+			for (list<TrackedCloud*>::iterator iter = aAgregarClouds.begin(); iter != aAgregarClouds.end(); iter++) {
+				trackedClouds.push_back(TrackedCloud(**iter));
+				delete(*iter);
 			}
 		}
-	}
 
-	//--------------------------------------------------------------
-	void PCMThread::saveCloud(const string& name){
-		cout << "saving: " << name << "..." << endl;
+		//--------------------------------------------------------------
+		void PCMThread::saveCloud(const string& name){
+			cout << "saving: " << name << "..." << endl;
 
-		register int centerX = (cloud->width >> 1);
-		int centerY = (cloud->height >> 1);
-		float bad_point = std::numeric_limits<float>::quiet_NaN();
+			register int centerX = (cloud->width >> 1);
+			int centerY = (cloud->height >> 1);
+			float bad_point = std::numeric_limits<float>::quiet_NaN();
 
-		register float* depth_map = gKinect->getDistancePixels();
-		float constant = 0.5f; //CAlculado segun lo que hay en la libreria de PCL
-		int step = 1;
-		register int depth_idx = 0;
-		for(int v = -centerY; v < centerY; ++v) {
-			for(register int u = -centerX; u < centerX; ++u, ++depth_idx) {
-				pcl::PointXYZ& pt = cloud->points[depth_idx];
-				// Check for invalid measurements
-				if (depth_map[depth_idx] == 0)
+			register float* depth_map = gKinect->getDistancePixels();
+			float constant = 0.5f; //CAlculado segun lo que hay en la libreria de PCL
+			int step = 1;
+			register int depth_idx = 0;
+			for(int v = -centerY; v < centerY; ++v) {
+				for(register int u = -centerX; u < centerX; ++u, ++depth_idx) {
+					pcl::PointXYZ& pt = cloud->points[depth_idx];
+					// Check for invalid measurements
+					if (depth_map[depth_idx] == 0)
+					{
+						// not valid
+						pt.x = pt.y = pt.z = bad_point;
+						continue;
+					}
+					pt.z = depth_map[depth_idx];
+					pt.x = u * constant;
+					pt.y = v * constant;
+					//pt.x = u * pt.z * constant;
+					//pt.y = v * pt.z * constant;
+				}
+			}
+			//pcl::visualization::CloudViewer viewer ("Simple Cloud Viewer");
+			/*PointCloud<PointXYZ>::Ptr cloud_source_ptr; 
+
+			cloud_source_ptr = cloud->makeShared(); */
+			//viewer.showCloud (cloud);
+
+			string filename = name + PCD_EXTENSION;
+			pcl::io::savePCDFileASCII (filename, *cloud);
+			std::cerr << "Saved " << cloud->points.size () << " data points to " << filename << std::endl;
+		}
+
+		void PCMThread::savePartialCloud(ofPoint min, ofPoint max, int id, const string& name){
+			//Calcular tamaño de la nube
+			cout << "saving: " << name << "..." << endl;
+			PointCloud<PointXYZ>::Ptr partialColud = getPartialCloud(min,max);
+			std::stringstream ss;
+			ss << name << "-" << id << PCD_EXTENSION;
+			pcl::io::savePCDFileASCII (ss.str(), *partialColud);
+			std::cerr << "Saved " << partialColud->points.size () << " data points to " << ss.str() << std::endl;
+		}
+
+		PointCloud<PointXYZ>* PCMThread::loadCloud(const string& name) {
+			cout << "loading: " << name << "..." << endl;
+			pcl::PointCloud<pcl::PointXYZ>* tmpCloud = new pcl::PointCloud<PointXYZ>();
+			string filename = name + PCD_EXTENSION;
+			pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *tmpCloud);
+			cout << name << " loaded!" << endl;
+			return tmpCloud;
+		}
+
+		bool PCMThread::findBestFit(TrackedCloud* trackedCloud, TrackedCloud*& removedCloud, bool &removed) {
+			for (list<TrackedCloud>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
+				if (iter->matches(trackedCloud, removedCloud, removed))
 				{
-					// not valid
-					pt.x = pt.y = pt.z = bad_point;
-					continue;
+					return true;
 				}
-				pt.z = depth_map[depth_idx];
-				pt.x = u * constant;
-				pt.y = v * constant;
-				//pt.x = u * pt.z * constant;
-				//pt.y = v * pt.z * constant;
 			}
+			return false;
 		}
-		//pcl::visualization::CloudViewer viewer ("Simple Cloud Viewer");
-		/*PointCloud<PointXYZ>::Ptr cloud_source_ptr; 
 
-		cloud_source_ptr = cloud->makeShared(); */
-		//viewer.showCloud (cloud);
-
-		string filename = name + PCD_EXTENSION;
-		pcl::io::savePCDFileASCII (filename, *cloud);
-		std::cerr << "Saved " << cloud->points.size () << " data points to " << filename << std::endl;
-	}
-
-	void PCMThread::savePartialCloud(ofPoint min, ofPoint max, int id, const string& name){
-		//Calcular tamaño de la nube
-		cout << "saving: " << name << "..." << endl;
-		PointCloud<PointXYZ>::Ptr partialColud = getPartialCloud(min,max);
-		std::stringstream ss;
-		ss << name << "-" << id << PCD_EXTENSION;
-		pcl::io::savePCDFileASCII (ss.str(), *partialColud);
-		std::cerr << "Saved " << partialColud->points.size () << " data points to " << ss.str() << std::endl;
-	}
-
-	PointCloud<PointXYZ>* PCMThread::loadCloud(const string& name) {
-		cout << "loading: " << name << "..." << endl;
-		pcl::PointCloud<pcl::PointXYZ>* tmpCloud = new pcl::PointCloud<PointXYZ>();
-		string filename = name + PCD_EXTENSION;
-		pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *tmpCloud);
-		cout << name << " loaded!" << endl;
-		return tmpCloud;
-	}
-
-	bool PCMThread::updateDetectedObject(PointCloud<PointXYZ>::Ptr cloud_cluster) {
-		for (list<TrackedCloud>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			if (iter->matches(cloud_cluster))
-			{
-				if (!(iter->hasObject())) {
-					iter->addCounter(2);
+		void PCMThread::updateDetectedObjects() {
+			for (list<TrackedCloud>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
+				if (iter->hasMatching())
+				{
+					iter->updateMatching();
+					if (!(iter->hasObject())) {
+						iter->addCounter(2);
+					}
+					iter->removeMatching();
 				}
-				else {
-					iter->addCounter(1);
-				}
-				return true;
 			}
 		}
 
-		return false;
-	}
+		void PCMThread::reset()
+		{
+			ofxXmlSettings XML;
+			if(XML.loadFile("PCM_Config.xml")){
 
-	//--------------------------------------------------------------
-	ofxVec3f PCMThread::normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane){
-		//Calculo de normales
-			//Random indices
-		int sampleSize = floor (plane->points.size() / 10.0f);
-		std::vector<int> indices (sampleSize);
-		for (size_t i = 0; i < sampleSize; i++) 
-			indices[i] = rand() % plane->points.size();
+				OCTREE_RES = XML.getValue("PCMConfig:OCTREE_RES", 0.1);
+				MIN_DIFF_TO_PROCESS = XML.getValue("PCMConfig:MIN_DIFF_TO_PROCESS", 40);
+				QUAD_HALO = XML.getValue("PCMConfig:QUAD_HALO", 10);
+				DIFF_THRESHOLD = XML.getValue("PCMConfig:DIFF_THRESHOLD", 20);
+				RES_IN_OBJ = XML.getValue("PCMConfig:RES_IN_OBJ", 0.001);
+				RES_IN_OBJ2 = XML.getValue("PCMConfig:RES_IN_OBJ2", 0.001);
+				DIFF_IN_OBJ = XML.getValue("PCMConfig:DIFF_IN_OBJ", 20);
+				TIMES_TO_CREATE_OBJ = XML.getValue("PCMConfig:TIMES_TO_CREATE_OBJ", 5);
+				MIN_DIF_PERCENT = XML.getValue("PCMConfig:MIN_DIF_PERCENT", 0.1);
+				TIMES_TO_STABILIZE = XML.getValue("PCMConfig:TIMES_TO_STABILIZE", 10);
+				MAX_Z = XML.getValue("PCMConfig:MAX_Z", 100);
+				NORMAL_ESTIMATION_PERCENT = XML.getValue("PCMConfig:NORMAL_ESTIMATION_PERCENT", 0.01);
+				MAX_CLUSTER_SIZE = XML.getValue("PCMConfig:MAX_CLUSTER_SIZE", 10000);
+				MIN_CLUSTER_SIZE = XML.getValue("PCMConfig:MIN_CLUSTER_SIZE", 100);
+				MAX_TABLE_CLUSTER_SIZE = XML.getValue("PCMConfig:MAX_TABLE_CLUSTER_SIZE", 2000);
+				MIN_TABLE_CLUSTER_SIZE = XML.getValue("PCMConfig:MIN_TABLE_CLUSTER_SIZE", 1000);
+				MAX_TABLE_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_TABLE_CLUSTER_TOLERANCE", 0.05);
+				MAX_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_CLUSTER_TOLERANCE", 0.02);
+				CLOUD_RES = XML.getValue("PCMConfig:CLOUD_RES", 10);
+			}
 
-		pcl::PointIndices::Ptr indicesptr (new pcl::PointIndices ());
-		indicesptr->indices = indices;
-
-
-		return normalEstimation(plane, indicesptr);
-	}
+			trackedClouds.clear();
+		}
+		
 
 	//--------------------------------------------------------------
 	ofxVec3f PCMThread::normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr){
@@ -353,7 +529,7 @@ namespace mapinect {
 		ne.setInputCloud (plane);
 		pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ> ());
 		ne.setSearchMethod (tree);
-	
+
 		ne.setIndices(indicesptr);
 		// Output datasets
 		pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
@@ -372,7 +548,7 @@ namespace mapinect {
 			if (normal.normal_z != bad_point && normal.normal_z == normal.normal_z)
 				result += PCLNORMAL_OFXVEC3F(cloud_normals->at(i));
 		}
-	
+
 		result /= sampleSize;
 		result = result.normalize();
 		return result;

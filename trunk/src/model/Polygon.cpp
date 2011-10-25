@@ -1,5 +1,6 @@
 #include "Polygon.h"
 #include <algorithm>
+#include "utils.h"
 
 namespace mapinect {
 
@@ -102,12 +103,14 @@ namespace mapinect {
 	}
 
 	void Polygon::draw() {
-		cout << calculateArea() << endl;
+		//cout << calculateArea() << endl;
+		/*ofSetColor(0,255,0);
 		glBegin(GL_POLYGON);
 			for (vector<ofxVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
-				glVertex3f(iter->x, iter->y, iter->z);
+				ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
+				glVertex3f(w.x, w.y, 4);
 			}
-		glEnd();
+		glEnd();*/
 	}
 
 }
