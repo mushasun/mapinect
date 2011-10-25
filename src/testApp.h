@@ -9,6 +9,7 @@
 #include "OpenCV.h"
 #include "PCM.h"
 #include "LPMT.h"
+#include "Arduino.h"
 
 class testApp : public ofBaseApp, public ofxFensterListener {
 public:
@@ -39,6 +40,12 @@ public:
 	mapinect::OpenCV		cv;
 	mapinect::PCM			pcm;
 	mapinect::LPMT			lpmt;
+
+	signed int valorArduino1;
+	signed int valorArduino2;
+	signed int valorArduino4;
+	signed int valorArduino8;
+	Arduino* ard;
 };
 
 #endif	// TEST_APP_H__
