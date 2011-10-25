@@ -19,6 +19,17 @@ void testApp::setup() {
 	cv.setup();
 	pcm.setup();
 //	lpmt.setup();
+
+	ard = new Arduino();
+	ard->connect("COM3", 9600);
+
+	valorArduino1 = 128;
+	ard->sendMotor((char) valorArduino1, 1);
+	valorArduino2 = 128;
+	ard->sendMotor((char) valorArduino2, 2);
+	valorArduino4 = 128;
+	ard->sendMotor((char) valorArduino4, 4);
+	
 }
 
 //--------------------------------------------------------------
@@ -26,24 +37,28 @@ void testApp::update() {
 	gKinect->update();
 	bool isKinectFrameNew = gKinect->isFrameNew();
 	cv.update(isKinectFrameNew);
-	pcm.update(isKinectFrameNew);
+	//pcm.update(isKinectFrameNew);
 }
 
 //--------------------------------------------------------------
 void testApp::draw()
 {
 	cv.draw();
-	pcm.draw();
+	//pcm.draw();
 }
 
 //--------------------------------------------------------------
 void testApp::exit() {
 	//gKinect->setCameraTiltAngle(0); // zero the tilt on exit
 	gKinect->close();
+	ard->disconnect();
+	delete ard;
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed (int key) {
+	char* x;
+	char b = 127;
 	switch (key) {
 	case 'w':
 		gKinect->enableDepthNearValueWhite(!gKinect->isDepthNearValueWhite());
@@ -62,9 +77,112 @@ void testApp::keyPressed (int key) {
 		if(angle<-30) angle=-30;
 		gKinect->setCameraTiltAngle(angle);
 		break;
+	case 't':
+		valorArduino2+=10;
+		cout << valorArduino2 << endl;
+		//if(valorArduino2%10==0){
+			ard->sendMotor((char) valorArduino2, 2);
+			ard->update();
+			x = ard->read(); 
+			cout << x << endl;
+			x = ard->read(); 
+			cout << x << endl;
+		//}
+		break;
+	case 'g':
+		valorArduino2-=10;
+		cout << valorArduino2 << endl;
+		//if(valorArduino2%10==0){
+			ard->sendMotor((char) valorArduino2, 2);
+			ard->update();
+			x = ard->read(); 
+			cout << x << endl;
+			x = ard->read(); 
+			cout << x << endl;
+		//}
+		break;
+	case 'y':
+		valorArduino4+=10;
+		cout << valorArduino4 << endl;
+		//if(valorArduino4%10==0){
+			ard->sendMotor((char) valorArduino4, 4);
+			ard->update();
+			x = ard->read(); 
+			cout << x << endl;
+			x = ard->read(); 
+			cout << x << endl;
+		//}
+		break;
+	case 'h':
+		valorArduino4-=10;
+		cout << valorArduino4 << endl;
+		//if(valorArduino4%10==0){
+			ard->sendMotor((char) valorArduino4, 4);
+			ard->update();
+			x = ard->read(); 
+			cout << x << endl;
+			x = ard->read(); 
+			cout << x << endl;
+		//}
+		break;
+	case 'u':
+		valorArduino1-=10;
+		cout << valorArduino1 << endl;
+		//if(valorArduino2%10==0){
+			ard->sendMotor((char) valorArduino1, 1);
+			ard->update();
+			x = ard->read(); 
+			cout << x << endl;
+			x = ard->read(); 
+			cout << x << endl;
+		//}
+		break;
+	case 'j':
+		valorArduino1+=10;
+		cout << valorArduino1 << endl;
+		//if(valorArduino4%10==0){
+			ard->sendMotor((char) valorArduino1, 1);
+			ard->update();
+			x = ard->read(); 
+			cout << x << endl;
+			x = ard->read(); 
+			cout << x << endl;
+		//}
+		break;
+	case 'i':
+		valorArduino8-=10;
+		cout << valorArduino8 << endl;
+		//if(valorArduino2%10==0){
+			ard->sendMotor((char) valorArduino8, 8);
+			ard->update();
+			x = ard->read(); 
+			cout << x << endl;
+			x = ard->read(); 
+			cout << x << endl;
+		//}
+		break;
+	case 'k':
+		valorArduino8+=10;
+		cout << valorArduino1 << endl;
+		//if(valorArduino4%10==0){
+			ard->sendMotor((char) valorArduino8, 8);
+			ard->update();
+			x = ard->read(); 
+			cout << x << endl;
+			x = ard->read(); 
+			cout << x << endl;
+		//}
+		break;
+	case 'p':
+		valorArduino1 = 128;
+		ard->sendMotor((char) valorArduino1, 1);
+		valorArduino2 = 128;
+		ard->sendMotor((char) valorArduino2, 2);
+		valorArduino4 = 128;
+		ard->sendMotor((char) valorArduino4, 4);
 	}
-	cv.keyPressed(key);
-	pcm.keyPressed(key);
+	//cv.keyPressed(key);
+	//pcm.keyPressed(key);
 }
 
 //--------------------------------------------------------------
