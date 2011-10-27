@@ -485,6 +485,8 @@ namespace mapinect {
 					if (!(iter->hasObject())) {
 						iter->addCounter(2);
 					}
+					else
+						iter->addCounter(1);
 					iter->removeMatching();
 				}
 			}
