@@ -129,6 +129,7 @@ namespace mapinect {
 
 	void TrackedCloud::updateMatching()
 	{
+		gModel->objectsMutex.lock();
 		if(objectInModel != NULL)
 		{
 			objectInModel->setCloud(cloud);
@@ -139,6 +140,7 @@ namespace mapinect {
 		}
 		if(hasMatching())
 			cloud = matchingCloud->getCloud();
+		gModel->objectsMutex.unlock();
 	}
 
 	bool TrackedCloud::operator==(const TrackedCloud &other) const {
