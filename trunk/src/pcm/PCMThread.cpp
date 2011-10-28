@@ -76,7 +76,6 @@ namespace mapinect {
 					t.start();
 					processDiferencesClouds();
 					t.end();
-					t.print();
 				}
 
 				unlock();
@@ -381,6 +380,7 @@ namespace mapinect {
 			do{
 				for (list<TrackedCloud*>::iterator iter = nuevosClouds.begin(); iter != nuevosClouds.end(); iter++) {
 					/*PCDWriter writer;
+
 					writer.write<pcl::PointXYZ> ("vector" + ofToString(debugCounter) + ".pcd", *iter->getCloud(), false);*/
 					TrackedCloud *removedCloud;
 					bool removed = false;
