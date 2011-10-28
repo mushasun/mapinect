@@ -4,7 +4,7 @@
 #include "ofArduino.h"
 #include "ofSerial.h"
 
-class Arduino: public ofArduino{
+class Arduino{
 	
 public:
 	Arduino();
@@ -13,7 +13,9 @@ public:
 
 	void sendMotor(char value, int id);
 
-	char* read();
+	unsigned char* read();
+
+	ofSerial	serial;
 
 };
 #endif
