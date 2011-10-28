@@ -43,12 +43,11 @@ void testApp::update() {
 void testApp::draw()
 {
 	cv.draw();
-	//pcm.draw();
+	pcm.draw();
 }
 
 //--------------------------------------------------------------
 void testApp::exit() {
-	//gKinect->setCameraTiltAngle(0); // zero the tilt on exit
 	gKinect->close();
 	delete ard;
 }
@@ -143,7 +142,7 @@ void testApp::keyPressed (int key) {
 	}
 		
 	//cv.keyPressed(key);
-	//pcm.keyPressed(key);
+	pcm.keyPressed(key);
 }
 
 //--------------------------------------------------------------
