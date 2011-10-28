@@ -1,13 +1,14 @@
 #include "Arduino.h"
 
-Arduino::Arduino() : ofArduino()
+Arduino::Arduino()
 {
-	int a;//ejecuta el método padre
+	serial.enumerateDevices();
+	serial.setup("COM3", 9600); 
 }
 
 Arduino::~Arduino()
 {
-	_port.close();
+	serial.close();
 }
 
 const char *my_byte_to_binary(int x)
@@ -29,15 +30,25 @@ void Arduino::sendMotor(char value, int id)
 {
 	cout << my_byte_to_binary((int)value) <<endl;
 	char id_char = (char) id;
-	sendByte(id_char);
-	sendByte(value);
+	serial.writeByte(id_char);
+	serial.writeByte(value);
 }
 
-char* Arduino::read()
+unsigned char* Arduino::read()
 {
-	char* text = new char[_charHistory.size()];
-	for (int i = 0; i < _charHistory.size(); i++){
-		text[i] = _port.readByte();
+	int cantidad_bytes = serial.available();
+	if (cantidad_bytes){
+		unsigned char* lectura = new unsigned char[cantidad_bytes];
+		memset(lectura, 0, cantidad_bytes);
+
+		int i = 0;
+	
+		while(serial.readBytes(&lectura[i], 1) > 0){
+			i++;
+		};
+
+		cout << lectura;
+
+		return lectura;
 	}
-	return text;
 }
