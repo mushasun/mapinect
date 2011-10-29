@@ -27,12 +27,14 @@ namespace mapinect {
 
 		virtual void draw();
 
-		inline void setTransformation (Eigen::Affine3f *_transformation) { transformation = *_transformation ;}
-		inline void setCloud (PointCloud<PointXYZ>::Ptr nuCloud) { cloud = *nuCloud ;}
-		virtual void applyTransformation();
-		inline void						setDrawPointCloud(bool draw)		{ drawPointCloud = draw; }
-		inline PointCloud<PointXYZ>		getCloud()							{ return cloud; }
-		void							updateCloud(PointCloud<PointXYZ>::Ptr nuCloud);
+		inline void					setTransformation (Eigen::Affine3f *_transformation) { transformation = *_transformation ;}
+		inline void					setCloud (PointCloud<PointXYZ>::Ptr nuCloud) { cloud = *nuCloud ;}
+		inline void					setDrawPointCloud(bool draw)		{ drawPointCloud = draw; }
+		inline PointCloud<PointXYZ>	getCloud()							{ return cloud; }
+		inline void					setId(int id)						{ this->id = id; }
+
+		virtual void				applyTransformation();
+		void						updateCloud(PointCloud<PointXYZ>::Ptr nuCloud);
 
 		virtual void				detectPrimitives();
 

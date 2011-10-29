@@ -38,6 +38,7 @@ namespace mapinect {
 			MIN_TABLE_CLUSTER_SIZE = XML.getValue("PCMConfig:MIN_TABLE_CLUSTER_SIZE", 1000);
 			MAX_TABLE_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_TABLE_CLUSTER_TOLERANCE", 0.05);
 			CLOUD_RES = XML.getValue("PCMConfig:CLOUD_RES", 10);
+			TRANSLATION_DISTANCE_TOLERANCE = XML.getValue("PCMConfig:TRANSLATION_DISTANCE_TOLERANCE", 0.01);
 		}
 
 		// Initialize point cloud
@@ -353,7 +354,7 @@ namespace mapinect {
 
 			list<TrackedCloud*> nuevosClouds;
 
-			//PCDWriter writer;
+			PCDWriter writer;
 			//writer.write<pcl::PointXYZ> ("tableTop.pcd", *filteredCloud, false);
 
 			//separo en clusters
@@ -399,13 +400,14 @@ namespace mapinect {
 			}
 			while (nuevosClouds.size() > 0 && max_iter > 0);
 
-			//Actualizo los objetos con las nubes de mejor ajuste
+			////Actualizo los objetos con las nubes de mejor ajuste
 			updateDetectedObjects();
 
 			for (list<TrackedCloud*>::iterator iter = aAgregarClouds.begin(); iter != aAgregarClouds.end(); iter++) {
 				trackedClouds.push_back(TrackedCloud(**iter));
-				delete(*iter);
 			}
+			////Los TrackedCloud* de aAgregarClouds quedan colgados?
+			aAgregarClouds.clear();
 		}
 
 		//--------------------------------------------------------------
@@ -516,6 +518,7 @@ namespace mapinect {
 				MAX_TABLE_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_TABLE_CLUSTER_TOLERANCE", 0.05);
 				MAX_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_CLUSTER_TOLERANCE", 0.02);
 				CLOUD_RES = XML.getValue("PCMConfig:CLOUD_RES", 10);
+				TRANSLATION_DISTANCE_TOLERANCE = XML.getValue("PCMConfig:TRANSLATION_DISTANCE_TOLERANCE", 0.01);
 			}
 
 			trackedClouds.clear();

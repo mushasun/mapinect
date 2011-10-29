@@ -28,6 +28,7 @@ extern float				MAX_CLUSTER_TOLERANCE;
 extern int					MAX_TABLE_CLUSTER_SIZE;
 extern int					MIN_TABLE_CLUSTER_SIZE;
 extern float				MAX_TABLE_CLUSTER_TOLERANCE;
+extern float				TRANSLATION_DISTANCE_TOLERANCE;
 extern int					CLOUD_RES;
 
 extern int					objId;
