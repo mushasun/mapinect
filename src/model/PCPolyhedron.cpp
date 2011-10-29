@@ -93,6 +93,7 @@ namespace mapinect {
 				vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_p->at(k)));
 			}
 			PCPolygon* pcp = new PCQuadrilateral();
+			pcp->setId(id);
 			pcp->detectPolygon(vCloudHull);
 			//detectedPlane.avgNormal = normalEstimation(cloud_p);
 			PointCloud<PointXYZ>::Ptr cloud_pTemp (new PointCloud<PointXYZ>(*cloud_p));

@@ -95,7 +95,6 @@ namespace mapinect {
 			Eigen::Affine3f transformation;
 			if(matchingTrackedObjects(*trackedCloud,transformation))
 			{
-				needApplyTransformation = true;
 				objectInModel->setTransformation(&transformation);
 				
 				if(matchingCloud != NULL)
@@ -111,36 +110,57 @@ namespace mapinect {
 		else
 		{
 			PointCloud<PointXYZ>::Ptr difCloud (new PointCloud<PointXYZ>);
-			int dif = getDifferencesCloud(cloud, trackedCloud->getCloud(), difCloud, OCTREE_RES);
-			if(dif < DIFF_IN_OBJ)
+			Eigen::Vector4f clusterCentroid;
+			Eigen::Vector4f objCentroid;
+			compute3DCentroid(*trackedCloud->getCloud(),clusterCentroid);
+			compute3DCentroid(*cloud,objCentroid);
+			Eigen::Vector4f translationVector = clusterCentroid - objCentroid;
+			if(translationVector.norm() > this->nearest)
+				return false;
+			this->nearest = translationVector.norm();
+			if(matchingCloud != NULL)
 			{
-				if(matchingCloud != NULL)
-				{
-					removedCloud = matchingCloud;
-					removed = true;
-				}
-
-				matchingCloud = trackedCloud;
-				return true;
+				removedCloud = matchingCloud;
+				removed = true;
 			}
+			matchingCloud = trackedCloud;
+			return true;
+			//getDifferencesCloud -> tiene problemas!!!
+			//int dif = getDifferencesCloud(cloud, trackedCloud->getCloud(), difCloud, OCTREE_RES);
+			
+			//if(dif < DIFF_IN_OBJ)
+			//{
+			//	if(matchingCloud != NULL)
+			//	{
+			//		removedCloud = matchingCloud;
+			//		removed = true;
+			//	}
+			//	//debug
+			//	//matchingCloud = trackedCloud;
+			//	return true;
+			//}
 		}
 		return false;
 	}
 
 	void TrackedCloud::updateMatching()
 	{
-		gModel->objectsMutex.lock();
-		if(objectInModel != NULL)
+		
+		if(needApplyTransformation || needRecalculateFaces)
 		{
-			objectInModel->setCloud(cloud);
-			if(needApplyTransformation)
-				objectInModel->applyTransformation();
-			if(needRecalculateFaces)
-				objectInModel->detectPrimitives();
+			gModel->objectsMutex.lock();
+			if(objectInModel != NULL)
+			{
+				objectInModel->setCloud(cloud);
+				if(needApplyTransformation)
+					objectInModel->applyTransformation();
+				if(needRecalculateFaces)
+					objectInModel->detectPrimitives();
+			}
+			gModel->objectsMutex.unlock();
+			if(hasMatching())
+				cloud = matchingCloud->getCloud();
 		}
-		if(hasMatching())
-			cloud = matchingCloud->getCloud();
-		gModel->objectsMutex.unlock();
 	}
 
 	bool TrackedCloud::operator==(const TrackedCloud &other) const {
@@ -165,7 +185,7 @@ namespace mapinect {
 
 		Eigen::Vector4f translationVector = clusterCentroid - objCentroid;
 
-		if(translationVector.norm() > this->nearest)
+		if(translationVector.norm() > nearest)
 			return false;
 
 		Eigen::Affine3f traslation;
@@ -208,11 +228,16 @@ namespace mapinect {
 		int maxDif = obj_cloud->points.size() * MIN_DIF_PERCENT;
 
 		if(difCount > maxDif)
-		{
 			needRecalculateFaces = true;
-		}
+		else
+			needRecalculateFaces = false;
 		////////////////////////////////////////////////////////
-		this->nearest = translationVector.norm();
+		nearest = translationVector.norm();
+		if(nearest > TRANSLATION_DISTANCE_TOLERANCE)
+			needApplyTransformation = true;
+		else
+			needApplyTransformation = false;
+
 		return true;
 		////////////////////////////////////////////////////////
 	}

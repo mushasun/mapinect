@@ -44,14 +44,18 @@ namespace mapinect {
 			modelObject->draw();
 		}*/
 		if (drawPointCloud) {
-			ofSetColor(255,0,0);
+			ofSetColor(0,0,255);
+			ofxVec3f w;
 			glBegin(GL_POINTS);
 			for (size_t i = 0; i < cloud.size(); i++) {
 				ofxVec3f v = POINTXYZ_OFXVEC3F(cloud.at(i));
-				ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(v);
+				w = gKinect->getScreenCoordsFromWorldCoords(v);
 				glVertex3f(w.x, w.y, 5);
 			}
 			glEnd();
+
+			ofSetColor(255,0,0);
+			ofDrawBitmapString(ofToString(id),w.x,w.y);
 		}
 	}
 
