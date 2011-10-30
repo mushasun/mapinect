@@ -1,9 +1,11 @@
 #include "Arduino.h"
 
+#include "utils.h"
+
 Arduino::Arduino()
 {
 	serial.enumerateDevices();
-	serial.setup("COM3", 9600); 
+	serial.setup(ARDUINO_COM_PORT, 9600); 
 }
 
 Arduino::~Arduino()

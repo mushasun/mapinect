@@ -39,6 +39,8 @@ namespace mapinect {
 			MAX_TABLE_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_TABLE_CLUSTER_TOLERANCE", 0.05);
 			CLOUD_RES = XML.getValue("PCMConfig:CLOUD_RES", 10);
 			TRANSLATION_DISTANCE_TOLERANCE = XML.getValue("PCMConfig:TRANSLATION_DISTANCE_TOLERANCE", 0.01);
+
+			ARDUINO_COM_PORT = XML.getValue("PCMConfig:ARDUINO_COM_PORT", "COM3");
 		}
 
 		// Initialize point cloud

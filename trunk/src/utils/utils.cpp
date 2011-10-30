@@ -24,3 +24,5 @@ float				MAX_TABLE_CLUSTER_TOLERANCE;
 int					CLOUD_RES;
 float				TRANSLATION_DISTANCE_TOLERANCE;
 int					objId;
+
+string				ARDUINO_COM_PORT;
