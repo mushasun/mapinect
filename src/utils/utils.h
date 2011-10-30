@@ -31,6 +31,8 @@ extern float				MAX_TABLE_CLUSTER_TOLERANCE;
 extern float				TRANSLATION_DISTANCE_TOLERANCE;
 extern int					CLOUD_RES;
 
+extern string				ARDUINO_COM_PORT;
+
 extern int					objId;
 
 #define MAX_FLOAT		FLT_MAX
