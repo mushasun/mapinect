@@ -223,3 +223,76 @@ ofxVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointI
 	result = result.normalize();
 	return result;
 }
+
+PointCloud<PointXYZ>::Ptr getPartialCloudRealCoords(ofPoint min, ofPoint max, int density){
+		//Chequeo
+		if (min.x < 0 || min.y < 0 || max.x > KINECT_WIDTH || max.y > KINECT_HEIGHT || min.x > max.x || min.y > max.y) //* load the file
+		{
+			PCL_ERROR ("Error en parametros de entrada para obtener la nube \n");
+		}
+
+		//Calcular tamaño de la nube
+		PointCloud<PointXYZ>::Ptr partialColud (new pcl::PointCloud<pcl::PointXYZ>);
+		partialColud->width    = ceil((max.x - min.x)/density);
+		partialColud->height   = ceil((max.y - min.y)/density);
+		partialColud->is_dense = false;
+		partialColud->points.resize (partialColud->width*partialColud->height);
+		register float* depth_map = gKinect->getDistancePixels();
+		//Recorrer el mapa de distancias obteniendo sólo los que estén dentro del rectángulo
+		register int depth_idx = 0;
+		int cloud_idx = 0;
+		for(int v = min.y; v < max.y; v += density) {
+			for(register int u = min.x; u < max.x; u += density) {
+				pcl::PointXYZ& pt = partialColud->points[cloud_idx];
+				cloud_idx++;
+
+				// Check for invalid measurements
+				if(depth_map[depth_idx] == 0){
+					pt.x = pt.y = pt.z = 0;
+				}
+				else
+				{
+					ofxVec3f pto = gKinect->getWorldCoordinateFor(u,v);
+
+					if(pto.z > MAX_Z)
+						pt.x = pt.y = pt.z = 0;
+					else
+					{
+						pt.x = pto.x;
+						pt.y = pto.y;
+						pt.z = pto.z;
+					}
+				}
+
+				depth_idx += density;
+			}
+			//pcl::io::savePCDFileASCII ("partial_real.pcd", *partialColud);
+		}
+		return partialColud;	
+
+	}
+
+PointCloud<PointXYZ>::Ptr getCloud(int density){
+		return getPartialCloudRealCoords(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),density);
+	}
+
+PointCloud<PointXYZ>::Ptr getCloud(){
+	return getPartialCloudRealCoords(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),CLOUD_RES);
+}
+
+PointIndices::Ptr adjustPlane(ModelCoefficients coefficients, PointCloud<PointXYZ>::Ptr cloudToAdjust)
+{
+	float PLANE_THRESHOLD = 0.009;
+	pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
+	for (int k = 0; k < cloudToAdjust->size(); k++) {
+		PointXYZ pto = cloudToAdjust->at(k);
+		float val = coefficients.values[0] * pto.x + 
+					coefficients.values[1] * pto.y + 
+					coefficients.values[2] * pto.z + 
+					coefficients.values[3]; 
+
+		if(abs(val) < PLANE_THRESHOLD)
+			inliers->indices.push_back(k);
+	}
+	return inliers;
+}

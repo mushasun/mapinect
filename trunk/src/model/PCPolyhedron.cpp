@@ -8,6 +8,7 @@
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/extract_indices.h>
 
+
 #include "PCQuadrilateral.h"
 #include "pointUtils.h"
 
@@ -21,14 +22,19 @@ namespace mapinect {
 		//pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>)
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>);
 		pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
-		pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
+		
 		pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
 		pcl::SACSegmentation<pcl::PointXYZ> seg;
 		pcl::ExtractIndices<pcl::PointXYZ> extract;
 		std::vector<ofxVec3f> vCloudHull;
 
+
+		//PCDWriter writer;
+		//writer.write<pcl::PointXYZ> ("cloud_p.pcd", cloud, false);
+
 		//Remover outliers
 		PointCloud<pcl::PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(cloud));
+		
 		//sor.setInputCloud (cloudTemp);
 		//sor.setMeanK (10); //Cantidad de vecinos a analizar
 		//sor.setStddevMulThresh (1.0);
@@ -54,6 +60,7 @@ namespace mapinect {
 		pcpolygons.clear();
 		while (cloudTemp->points.size () > 0.1 * nr_points && numFaces < MAX_FACES)
 		{
+			pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
 			// Segment the largest planar component from the remaining cloud
 			seg.setInputCloud (cloudTemp);
 			seg.segment (*inliers, *coefficients);
@@ -92,14 +99,15 @@ namespace mapinect {
 			for (int k = 0; k < cloud_p->size(); k++) {
 				vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_p->at(k)));
 			}
-			PCPolygon* pcp = new PCQuadrilateral();
+			PCPolygon* pcp = new PCQuadrilateral(*coefficients);
 			pcp->setId(id);
 			pcp->detectPolygon(vCloudHull);
 			//detectedPlane.avgNormal = normalEstimation(cloud_p);
 			PointCloud<PointXYZ>::Ptr cloud_pTemp (new PointCloud<PointXYZ>(*cloud_p));
-			pcp->updateCloud(cloud_pTemp);
+			pcp->setCloud(cloud_pTemp);
 			pcpolygons.push_back(pcp);
-	
+			
+			//writer.write<pcl::PointXYZ> ("cloud_pTemp" + ofToString(i) + ".pcd", *cloud_pTemp, false);
 			i++;
 			numFaces++;
 		}
@@ -120,6 +128,15 @@ namespace mapinect {
 		PCModelObject::applyTransformation();
 		for(list<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
 			(*iter)->applyTransformation(&transformation);
+		}
+	}
+
+	void PCPolyhedron::increaseLod()
+	{
+		PCModelObject::increaseLod();
+		for(list<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
+			PointCloud<PointXYZ>::Ptr nuCloud (new PointCloud<PointXYZ>(cloud));
+			(*iter)->increaseLodOfPolygon(nuCloud);
 		}
 	}
 }

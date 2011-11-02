@@ -16,6 +16,9 @@ namespace mapinect {
 			
 			virtual bool		detectPolygon(const std::vector<ofxVec3f>& cloud);
 			void				applyTransformation(Eigen::Affine3f* transformation);
+			virtual void		increaseLodOfPolygon(PointCloud<PointXYZ>::Ptr nuCloud);
+		protected:
+			pcl::ModelCoefficients coefficients;
 	};
 }
 

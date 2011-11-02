@@ -32,12 +32,16 @@ namespace mapinect {
 		inline void					setDrawPointCloud(bool draw)		{ drawPointCloud = draw; }
 		inline PointCloud<PointXYZ>	getCloud()							{ return cloud; }
 		inline void					setId(int id)						{ this->id = id; }
+		inline int					getLod()							{ return lod; }
+		inline void					resetLod()							{ lod = 1; }
+		inline ofxVec3f				getvMin()							{ return vMin; }
+		inline ofxVec3f				getvMax()							{ return vMax; }
 
 		virtual void				applyTransformation();
 		void						updateCloud(PointCloud<PointXYZ>::Ptr nuCloud);
 
 		virtual void				detectPrimitives();
-
+		virtual void				increaseLod();
 	protected:
 		bool						drawPointCloud;
 
@@ -47,7 +51,8 @@ namespace mapinect {
 		PointCloud<PointXYZ>		cloud;
 		PointCloud<PointXYZ>		extendedcloud;
 		ModelObject*				modelObject;
-		int id;
+		int							id;
+		int							lod;
 	};
 }
 #endif	// MAPINECT_PC_MODEL_OBJECT_H__

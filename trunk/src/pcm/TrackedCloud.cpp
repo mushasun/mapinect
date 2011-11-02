@@ -4,6 +4,8 @@
 #include "PCPolyhedron.h"
 #include "pointUtils.h"
 #include <pcl/registration/transformation_estimation.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/passthrough.h>
 
 namespace mapinect {
 	TrackedCloud::TrackedCloud(PointCloud<PointXYZ>::Ptr cloud) {
@@ -112,7 +114,7 @@ namespace mapinect {
 			PointCloud<PointXYZ>::Ptr difCloud (new PointCloud<PointXYZ>);
 			Eigen::Vector4f clusterCentroid;
 			Eigen::Vector4f objCentroid;
-			compute3DCentroid(*trackedCloud->getCloud(),clusterCentroid);
+			compute3DCentroid(*trackedCloud->getTrackedCloud(),clusterCentroid);
 			compute3DCentroid(*cloud,objCentroid);
 			Eigen::Vector4f translationVector = clusterCentroid - objCentroid;
 			if(translationVector.norm() > this->nearest)
@@ -145,21 +147,68 @@ namespace mapinect {
 
 	void TrackedCloud::updateMatching()
 	{
-		
-		if(needApplyTransformation || needRecalculateFaces)
-		{
+		if(needApplyTransformation || needRecalculateFaces)		//Necesito recalcular algo
+		{ 
+
+			if(needApplyTransformation)
+				cout << "applyTransform!" << endl;
+			if(needRecalculateFaces)
+				cout << "recalculate!" << endl;
+
+
+
+			if(hasMatching())
+				cloud = matchingCloud->getTrackedCloud();
 			gModel->objectsMutex.lock();
 			if(objectInModel != NULL)
 			{
 				objectInModel->setCloud(cloud);
-				if(needApplyTransformation)
-					objectInModel->applyTransformation();
-				if(needRecalculateFaces)
+				objectInModel->resetLod();
+				/*if(needApplyTransformation)
+					objectInModel->applyTransformation();*/
+				//if(needRecalculateFaces)
 					objectInModel->detectPrimitives();
 			}
 			gModel->objectsMutex.unlock();
-			if(hasMatching())
-				cloud = matchingCloud->getCloud();
+			
+		}
+		else if(objectInModel != NULL && objectInModel->getLod() < MAX_OBJ_LOD)								//Si no llegue al nivel maximo de detalle, aumento el detalle
+		{
+			ofxVec3f vMax,vMin;
+			PointCloud<PointXYZ>::Ptr oldCloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
+			findPointCloudBoundingBox(oldCloud, vMin, vMax);
+			Eigen::Vector4f eMax,eMin;
+			eMax[0] = vMax.x;
+			eMax[1] = vMax.y;
+			eMax[2] = vMax.z;
+			eMin[0] = vMin.x;
+			eMin[1] = vMin.y;
+			eMin[2] = vMin.z;
+
+			vector<int> indices;
+
+			PointCloud<PointXYZ>::Ptr cloud = getCloud(CLOUD_RES - objectInModel->getLod());
+			pcl::getPointsInBox(*cloud,eMin,eMax,indices);
+			PointCloud<PointXYZ>::Ptr nuCloud (new PointCloud<PointXYZ>());
+			PointCloud<PointXYZ>::Ptr nuCloudFiltered (new PointCloud<PointXYZ>());
+			nuCloud->resize(indices.size());
+			
+			for(int i = 0; i < indices.size(); i++)
+				nuCloud->push_back(cloud->at(indices.at(i)));
+			
+			PassThrough<PointXYZ> pass;
+			pass.setInputCloud (nuCloud);
+			pass.setFilterFieldName ("z");
+			pass.setFilterLimits (0.001, 4.0);
+			//pass.setFilterLimitsNegative (true);
+			pass.filter (*nuCloudFiltered);
+
+			gModel->objectsMutex.lock();
+			objectInModel->updateCloud(nuCloudFiltered);
+			gModel->objectsMutex.unlock();
+
+			/*PCDWriter writer;
+			writer.write<pcl::PointXYZ> ("nuobj.pcd", *nuCloud, false);*/
 		}
 	}
 
@@ -173,8 +222,9 @@ namespace mapinect {
 		//writer.write<pcl::PointXYZ> ("obj.pcd", *obj_cloud, false);
 		/*writer.write<pcl::PointXYZ> ("cluster.pcd", *cluster, false);
 		*/
-		PointCloud<PointXYZ>::Ptr cluster = tracked_temp.getCloud();
-		PointCloud<PointXYZ>::Ptr obj_cloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
+		PointCloud<PointXYZ>::Ptr cluster = tracked_temp.getTrackedCloud();
+		//PointCloud<PointXYZ>::Ptr obj_cloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
+		PointCloud<PointXYZ>::Ptr obj_cloud (new PointCloud<PointXYZ>(*cloud));
 
 		//Hallo la traslación 
 

@@ -20,7 +20,7 @@ namespace mapinect {
 			void				sortVertexs();
 
 			float				calculateArea();
-
+			void				resetVertex();
 			virtual void draw();
 		
 		private:
