@@ -39,6 +39,7 @@ namespace mapinect {
 			MAX_TABLE_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_TABLE_CLUSTER_TOLERANCE", 0.05);
 			CLOUD_RES = XML.getValue("PCMConfig:CLOUD_RES", 10);
 			TRANSLATION_DISTANCE_TOLERANCE = XML.getValue("PCMConfig:TRANSLATION_DISTANCE_TOLERANCE", 0.01);
+			MAX_OBJ_LOD = XML.getValue("PCMConfig:MAX_OBJ_LOD", 2);
 
 			ARDUINO_COM_PORT = XML.getValue("PCMConfig:ARDUINO_COM_PORT", "COM3");
 		}
@@ -87,9 +88,7 @@ namespace mapinect {
 		}
 	}
 
-	PointCloud<PointXYZ>::Ptr PCMThread::getCloud(){
-		return getPartialCloudRealCoords(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),CLOUD_RES);
-	}
+	
 
 	PointCloud<PointXYZ>::Ptr PCMThread::getPartialCloud(ofPoint min, ofPoint max){
 		//Calcular tamaño de la nube
@@ -141,53 +140,7 @@ namespace mapinect {
 		return partialColud;	
 	}
 
-	PointCloud<PointXYZ>::Ptr PCMThread::getPartialCloudRealCoords(ofPoint min, ofPoint max, int density){
-		//Chequeo
-		if (min.x < 0 || min.y < 0 || max.x > KINECT_WIDTH || max.y > KINECT_HEIGHT || min.x > max.x || min.y > max.y) //* load the file
-		{
-			PCL_ERROR ("Error en parametros de entrada para obtener la nube \n");
-		}
-
-		//Calcular tamaño de la nube
-		PointCloud<PointXYZ>::Ptr partialColud (new pcl::PointCloud<pcl::PointXYZ>);
-		partialColud->width    = ceil((max.x - min.x)/density);
-		partialColud->height   = ceil((max.y - min.y)/density);
-		partialColud->is_dense = false;
-		partialColud->points.resize (partialColud->width*partialColud->height);
-		register float* depth_map = gKinect->getDistancePixels();
-		//Recorrer el mapa de distancias obteniendo sólo los que estén dentro del rectángulo
-		register int depth_idx = 0;
-		int cloud_idx = 0;
-		for(int v = min.y; v < max.y; v += density) {
-			for(register int u = min.x; u < max.x; u += density) {
-				pcl::PointXYZ& pt = partialColud->points[cloud_idx];
-				cloud_idx++;
-
-				// Check for invalid measurements
-				if(depth_map[depth_idx] == 0){
-					pt.x = pt.y = pt.z = 0;
-				}
-				else
-				{
-					ofxVec3f pto = gKinect->getWorldCoordinateFor(u,v);
-
-					if(pto.z > MAX_Z)
-						pt.x = pt.y = pt.z = 0;
-					else
-					{
-						pt.x = pto.x;
-						pt.y = pto.y;
-						pt.z = pto.z;
-					}
-				}
-
-				depth_idx += density;
-			}
-			//pcl::io::savePCDFileASCII ("partial_real.pcd", *partialColud);
-		}
-		return partialColud;	
-
-	}
+	
 
 	//--------------------------------------------------------------
 	void PCMThread::setInitialPointCloud() {
@@ -521,6 +474,7 @@ namespace mapinect {
 				MAX_CLUSTER_TOLERANCE = XML.getValue("PCMConfig:MAX_CLUSTER_TOLERANCE", 0.02);
 				CLOUD_RES = XML.getValue("PCMConfig:CLOUD_RES", 10);
 				TRANSLATION_DISTANCE_TOLERANCE = XML.getValue("PCMConfig:TRANSLATION_DISTANCE_TOLERANCE", 0.01);
+				MAX_OBJ_LOD = XML.getValue("PCMConfig:MAX_OBJ_LOD", 2);
 			}
 
 			trackedClouds.clear();

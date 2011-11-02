@@ -2,15 +2,22 @@
 
 #include "Triangle2D.h"
 #include "ofxVecUtils.h"
+#include "PointUtils.h"
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/project_inliers.h>
 
 namespace mapinect {
+
+	PCQuadrilateral::PCQuadrilateral(pcl::ModelCoefficients coefficients){
+		this->coefficients = coefficients;
+	}
 
 	bool PCQuadrilateral::detectPolygon(const std::vector<ofxVec3f>& vCloud) {
 		//ofxVec3f vMin, vMax;
 		findOfxVec3fBoundingBox(vCloud, vMin, vMax);
 		ofxVec3f center = vMin + vMax;
 		center *= 0.5f;
-		
+
 		int ixA = 0;
 		ofxVec3f vA(vCloud.at(ixA));
 		for (int k = 1; k < vCloud.size(); k++) {
@@ -49,7 +56,7 @@ namespace mapinect {
 				v2C = v2;
 			}
 		}
-		
+
 		//cout << "max distance to line: " << distanceC << endl;
 
 		int ixD = ixC;
@@ -68,7 +75,7 @@ namespace mapinect {
 		}
 
 		//cout << "max distance to triangle: " << distanceD << endl;
-
+		getPolygonModelObject()->resetVertex();
 		getPolygonModelObject()->addVertex(vCloud.at(ixA));
 		getPolygonModelObject()->addVertex(vCloud.at(ixB));
 		getPolygonModelObject()->addVertex(vCloud.at(ixC));
@@ -92,7 +99,7 @@ namespace mapinect {
 	bool PCQuadrilateral::detectPolygon2(const std::vector<ofxVec3f>& vCloud) {
 		ofxVec3f vMinMin = ofxVec3f(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
 		ofxVec3f vMaxMax = ofxVec3f(-MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT);
-		
+
 		ofxVec3f vMinMax = ofxVec3f(MAX_FLOAT, -MAX_FLOAT, MAX_FLOAT);
 		ofxVec3f vMaxMin = ofxVec3f(-MAX_FLOAT, MAX_FLOAT, -MAX_FLOAT);
 
@@ -140,7 +147,7 @@ namespace mapinect {
 				pMinMax = k;
 			}
 		}
-	
+
 		if (pMaxMax != pMinMin != pMaxMin != pMinMax != -1)
 		{
 			getPolygonModelObject()->addVertex(vCloud.at(pMinMin));
@@ -157,5 +164,47 @@ namespace mapinect {
 		else 
 			return false;
 	}
+
+	void PCQuadrilateral::increaseLodOfPolygon(PointCloud<PointXYZ>::Ptr nuCloud)
+	{
+		//PCDWriter writer;
+		//writer.write<pcl::PointXYZ> ("nuCloud.pcd", *nuCloud, false);
+		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
+		PCDWriter writer;
+		//writer.write<pcl::PointXYZ> ("nuCloud.pcd", *nuCloud, false);
+
+		PointCloud<pcl::PointXYZ>::Ptr nuPointsOfFace (new PointCloud<PointXYZ>());
+		pcl::PointIndices::Ptr inliers = adjustPlane(coefficients,nuCloud);
+
+		if (inliers->indices.size () == 0) {
+			std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+			return;
+		}
+
+		//FIX
+		pcl::ExtractIndices<pcl::PointXYZ> extract;
+		if(inliers->indices.size() != nuCloud->size())
+		{
+			// Extract the inliers
+			extract.setInputCloud (nuCloud);
+			extract.setIndices (inliers);
+			extract.filter (*nuPointsOfFace);
+		}
+		else
+			nuPointsOfFace = nuCloud;
+
+		//writer.write<pcl::PointXYZ> ("nuPointsOfFace.pcd", *nuPointsOfFace, false);
+		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
+
+		this->cloud += *nuPointsOfFace;
+
+		//writer.write<pcl::PointXYZ> ("nucloudOfFace.pcd", cloud, false);
+		std::vector<ofxVec3f> vCloudHull;
+		for (int k = 0; k < cloud.size(); k++) {
+			vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud.at(k)));
+		}
+		detectPolygon(vCloudHull);
+	}
+
 }
 
