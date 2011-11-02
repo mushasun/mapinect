@@ -27,7 +27,7 @@ namespace mapinect {
 		void addCounter(int diff);
 		void updateMatching();
 		inline int getCounter() { return counter; }
-		inline PointCloud<PointXYZ>::Ptr getCloud() { return cloud; }
+		inline PointCloud<PointXYZ>::Ptr getTrackedCloud() { return cloud; }
 		inline bool hasObject() { return objectInModel != NULL; }
 		inline bool hasMatching() { return matchingCloud != NULL; }
 		void removeMatching();

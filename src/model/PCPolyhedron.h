@@ -17,6 +17,7 @@ namespace mapinect {
 			virtual void		draw();
 			virtual void		detectPrimitives();
 			virtual void		applyTransformation();
+			virtual void		increaseLod();
 		protected:
 			//virtual PCPolygon*	createPCPolygon();
 

@@ -40,8 +40,6 @@ namespace mapinect {
 		PointCloud<PointXYZ>*		loadCloud(const string& name);
 
 		PointCloud<PointXYZ>::Ptr	getPartialCloud(ofPoint min, ofPoint max);
-		PointCloud<PointXYZ>::Ptr	getPartialCloudRealCoords(ofPoint min, ofPoint max, int density = 4);
-		PointCloud<PointXYZ>::Ptr	getCloud();
 
 		PointCloud<PointXYZ>::Ptr	cloud;
 		PointCloud<PointXYZ>::Ptr	currentDiffcloud;

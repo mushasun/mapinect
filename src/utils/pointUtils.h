@@ -8,11 +8,14 @@
 #include "ofxVec3f.h"
 #include <pcl/segmentation/segment_differences.h>
 #include <pcl/features/normal_3d.h>
+#include <pcl/filters/project_inliers.h>
 
 #define DECLARE_POINTXYZ_OFXVEC3F(v, p)	ofxVec3f v = POINTXYZ_OFXVEC3F(p)
 #define POINTXYZ_OFXVEC3F(p)			ofxVec3f(p.x, p.y, p.z)
 #define PCLNORMAL_OFXVEC3F(p)			ofxVec3f(p.normal_x, p.normal_y, p.normal_z)
 #define OFXVEC3F_POINTXYZ(v)			pcl::PointXYZ(v.x, v.y, v.z)
+
+using namespace pcl;
 
 void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z);
 
@@ -37,4 +40,12 @@ ofxVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane);
 
 //Estima la normal utilizando el conjunto de puntos especificado en indicesptr
 ofxVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr);
+
+PointCloud<PointXYZ>::Ptr getPartialCloudRealCoords(ofPoint min, ofPoint max, int density);
+
+PointCloud<PointXYZ>::Ptr getCloud(int density);
+
+PointCloud<PointXYZ>::Ptr getCloud();
+
+pcl::PointIndices::Ptr adjustPlane(pcl::ModelCoefficients coefficients, PointCloud<pcl::PointXYZ>::Ptr cloudToAdjust);
 #endif // POINT_UTILS_H__

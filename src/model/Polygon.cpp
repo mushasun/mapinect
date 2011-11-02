@@ -44,10 +44,14 @@ namespace mapinect {
 		return phi1 < phi2;
 	}
 
+	void Polygon::resetVertex() {
+		vertexs.clear();
+	}
+
 	void Polygon::sortVertexs() {
 		sort(vertexs.begin(), vertexs.end(), comparePolarCoords);
 	}
-
+	
 	float Polygon::calculateArea() {
 		// Code taken from http://softsurfer.com/Archive/algorithm_0101/algorithm_0101.htm#area3D_Polygon()
 		float area = 0;
@@ -104,14 +108,20 @@ namespace mapinect {
 
 	void Polygon::draw() {
 		//cout << calculateArea() << endl;
-		/*ofSetColor(0,255,0);
-		glBegin(GL_POLYGON);
+		ofSetColor(0,255,0);
+		/*glBegin(GL_POLYGON);
 			for (vector<ofxVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
 				ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
 				glVertex3f(w.x, w.y, 4);
 			}
 		glEnd();*/
+
+		for (vector<ofxVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
+			ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
+			ofCircle(w.x,w.y,4);
+		}
 	}
+
 
 }
 

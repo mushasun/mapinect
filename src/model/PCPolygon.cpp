@@ -21,6 +21,10 @@ namespace mapinect {
 		return false;
 	}
 
+	void PCPolygon::increaseLodOfPolygon(PointCloud<PointXYZ>::Ptr nuCloud){
+		// No existing algorithm for a generic poligon detection.
+	}
+
 	void PCPolygon::applyTransformation(Eigen::Affine3f* transformation)
 	{
 		pcl::transformPointCloud(cloud,cloud,*transformation);
