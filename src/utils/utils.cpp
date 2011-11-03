@@ -25,5 +25,6 @@ int					CLOUD_RES;
 float				TRANSLATION_DISTANCE_TOLERANCE;
 int					MAX_OBJ_LOD;
 int					objId;
+float				MAX_UNIFYING_DISTANCE;
 
 string				ARDUINO_COM_PORT;

@@ -81,17 +81,26 @@ namespace mapinect {
 		*/
 		ofResetColor();
 		stringstream reportStream;
+		ofxVec3f accel(gKinect->getMksAccel());
+		float accelLength = accel.length();
+		ofxVec3f rotation(RAD_TO_DEG * acosf(accel.x / accelLength) - 90,
+						RAD_TO_DEG * acosf(accel.y / accelLength),
+						RAD_TO_DEG * acosf(accel.z / accelLength) - 90);
+
 		reportStream << "accel is: "
 			<< ofToString(gKinect->getMksAccel().x, 2) << " / "
 			<< ofToString(gKinect->getMksAccel().y, 2) << " / " 
 			<< ofToString(gKinect->getMksAccel().z, 2) << endl
+			<< ofToString(rotation.x, 2) << " / "
+			<< ofToString(rotation.y, 2) << " / " 
+			<< ofToString(rotation.z, 2) << endl
 			<< "press p to switch between images and point cloud, rotate the point cloud with the mouse" << endl
 			<< "using opencv threshold = " << bThreshWithOpenCV <<" (press spacebar)" << endl
 			<< "set near threshold " << nearThreshold << " (press: + -)" << endl
 			<< "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
 			<< ", fps: " << ofGetFrameRate() << endl
 			<< "press c to close the connection and o to open it again, connection is: " << gKinect->isConnected() << endl;
-		ofDrawBitmapString(reportStream.str(),20,666);
+		ofDrawBitmapString(reportStream.str(),20,646);
 	}
 
 	//--------------------------------------------------------------

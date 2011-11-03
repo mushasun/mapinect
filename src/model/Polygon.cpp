@@ -8,7 +8,11 @@ namespace mapinect {
 		return vertexs.at(vertexNum);
 	}
 
-	void Polygon::addVertex(ofxVec3f v) {
+	void Polygon::setVertex(int vertexNum, const ofxVec3f& v) {
+		vertexs[vertexNum] = v;
+	}
+
+	void Polygon::addVertex(const ofxVec3f& v) {
 		vertexs.push_back(v);
 		if (vertexs.size() == 3) {
 			normal = (vertexs.at(2) - vertexs.at(1)) * (vertexs.at(0) - vertexs.at(1));
@@ -108,7 +112,6 @@ namespace mapinect {
 
 	void Polygon::draw() {
 		//cout << calculateArea() << endl;
-		ofSetColor(0,255,0);
 		/*glBegin(GL_POLYGON);
 			for (vector<ofxVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
 				ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
@@ -116,7 +119,9 @@ namespace mapinect {
 			}
 		glEnd();*/
 
+		int i = 1;
 		for (vector<ofxVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
+			ofSetColor(0,255 * i++ / 4.0f,0);
 			ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
 			ofCircle(w.x,w.y,4);
 		}
