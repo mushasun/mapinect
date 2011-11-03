@@ -22,6 +22,8 @@ namespace mapinect {
 			//virtual PCPolygon*	createPCPolygon();
 
 		private:
+			virtual void		unifyVertexs();
+
 			list<PCPolygon*>	pcpolygons;
 	};
 }

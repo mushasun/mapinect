@@ -14,7 +14,8 @@ namespace mapinect {
 			virtual ~Polygon() { }
 
 			const ofxVec3f&		getVertex(int vertexNum);
-			void				addVertex(ofxVec3f);
+			void				setVertex(int vertexNum, const ofxVec3f& v);
+			void				addVertex(const ofxVec3f&);
 			inline int			getVertexCount()			{ return vertexs.size(); }
 
 			void				sortVertexs();

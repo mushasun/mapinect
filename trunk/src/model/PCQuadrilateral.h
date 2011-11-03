@@ -17,7 +17,8 @@ namespace mapinect {
 		public:
 			PCQuadrilateral(pcl::ModelCoefficients coefficients);
 
-			virtual bool							detectPolygon(const std::vector<ofxVec3f>& cloud);
+			virtual bool							detectPolygon(pcl::PointCloud<PointXYZ>::Ptr cloud,
+														const std::vector<ofxVec3f>& vCloud);
 			virtual bool							detectPolygon2(const std::vector<ofxVec3f>& cloud);
 
 			inline const pcl::PointIndices::Ptr		getVertexIdxs() { return vertexIdxs; }

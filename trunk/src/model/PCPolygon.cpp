@@ -15,7 +15,7 @@ namespace mapinect {
 		return (Polygon*)modelObject;
 	}
 
-	bool PCPolygon::detectPolygon(const std::vector<ofxVec3f>& vCloud) {
+	bool PCPolygon::detectPolygon(pcl::PointCloud<PointXYZ>::Ptr cloud, const std::vector<ofxVec3f>& vCloud) {
 		// No existing algorithm for a generic poligon detection.
 
 		return false;
