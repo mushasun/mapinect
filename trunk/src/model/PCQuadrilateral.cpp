@@ -12,11 +12,15 @@ namespace mapinect {
 		this->coefficients = coefficients;
 	}
 
-	bool PCQuadrilateral::detectPolygon(const std::vector<ofxVec3f>& vCloud) {
+	bool PCQuadrilateral::detectPolygon(pcl::PointCloud<PointXYZ>::Ptr cloud, const std::vector<ofxVec3f>& vCloud) {
 		//ofxVec3f vMin, vMax;
 		findOfxVec3fBoundingBox(vCloud, vMin, vMax);
 		ofxVec3f center = vMin + vMax;
 		center *= 0.5f;
+
+		//Eigen::Vector4f clusterCentroid;
+		//compute3DCentroid(*cloud,clusterCentroid);
+		//ofxVec3f center(clusterCentroid.x(), clusterCentroid.y(), clusterCentroid.z());
 
 		int ixA = 0;
 		ofxVec3f vA(vCloud.at(ixA));
@@ -59,34 +63,45 @@ namespace mapinect {
 
 		//cout << "max distance to line: " << distanceC << endl;
 
+		
 		int ixD = ixC;
 		ofxVec2f v2D(v2C);
-		mapinect::Triangle2D triangleABC(v2A, v2B, v2C);
+		//mapinect::Triangle2D triangleABC(v2A, v2B, v2C);
+		PositionToLine ptlCtoAB = lineAB.positionTo(v2C);
 		double distanceD = 0;
 		for (int k = 0; k < vCloud.size(); k++) {
 			ofxVec3f v(vCloud.at(k));
 			ofxVec2f v2 = discardCoordinateOfxVec3f(v, discard);
-			double distance = triangleABC.distance(v2);
-			if (distance > distanceD) {
+			//double distance = triangleABC.distance(v2);
+			double distance = lineAB.distance(v2);
+			if (lineAB.positionTo(v2) != ptlCtoAB && distance > distanceD) {
 				distanceD = distance;
 				ixD = k;
 				v2D = v2;
 			}
 		}
+		
+
+		ofxVec3f v3A(vCloud.at(ixA));
+		ofxVec3f v3B(vCloud.at(ixB));
+		ofxVec3f v3C(vCloud.at(ixC));
+		//ofxVec3f v3Center = (v3A + v3B) * 0.5;
+		//ofxVec3f v3D = v3Center + (v3Center - v3C);
+		ofxVec3f v3D(vCloud.at(ixD));
 
 		//cout << "max distance to triangle: " << distanceD << endl;
 		getPolygonModelObject()->resetVertex();
-		getPolygonModelObject()->addVertex(vCloud.at(ixA));
-		getPolygonModelObject()->addVertex(vCloud.at(ixB));
-		getPolygonModelObject()->addVertex(vCloud.at(ixC));
-		getPolygonModelObject()->addVertex(vCloud.at(ixD));
-		getPolygonModelObject()->sortVertexs();
+		getPolygonModelObject()->addVertex(v3A);
+		getPolygonModelObject()->addVertex(v3B);
+		getPolygonModelObject()->addVertex(v3C);
+		getPolygonModelObject()->addVertex(v3D);
+		//getPolygonModelObject()->sortVertexs();
 
 		std::vector<int> indices (4);
 		indices[0] = ixA;
 		indices[1] = ixB;
 		indices[2] = ixC;
-		indices[3] = ixD;
+		indices[3] = 0;
 		pcl::PointIndices::Ptr v (new pcl::PointIndices ());
 		vertexIdxs = v;
 		vertexIdxs->indices = indices;
@@ -203,7 +218,8 @@ namespace mapinect {
 		for (int k = 0; k < cloud.size(); k++) {
 			vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud.at(k)));
 		}
-		detectPolygon(vCloudHull);
+		pcl::PointCloud<PointXYZ>::Ptr cloudPtr(new pcl::PointCloud<PointXYZ>(cloud));
+		detectPolygon(cloudPtr, vCloudHull);
 	}
 
 }

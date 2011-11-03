@@ -8,9 +8,9 @@
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/extract_indices.h>
 
-
 #include "PCQuadrilateral.h"
 #include "pointUtils.h"
+#include "utils.h"
 
 #define MAX_FACES		3
 
@@ -101,7 +101,7 @@ namespace mapinect {
 			}
 			PCPolygon* pcp = new PCQuadrilateral(*coefficients);
 			pcp->setId(id);
-			pcp->detectPolygon(vCloudHull);
+			pcp->detectPolygon(cloud_p, vCloudHull);
 			//detectedPlane.avgNormal = normalEstimation(cloud_p);
 			PointCloud<PointXYZ>::Ptr cloud_pTemp (new PointCloud<PointXYZ>(*cloud_p));
 			pcp->setCloud(cloud_pTemp);
@@ -110,6 +110,60 @@ namespace mapinect {
 			//writer.write<pcl::PointXYZ> ("cloud_pTemp" + ofToString(i) + ".pcd", *cloud_pTemp, false);
 			i++;
 			numFaces++;
+		}
+
+		unifyVertexs();
+	}
+
+	void PCPolyhedron::unifyVertexs() {
+		typedef struct {
+			PCPolygon*		pcp;
+			int				vertex;
+		} VertexInPCPolygon;
+		vector<VertexInPCPolygon> updateVertexs;
+
+		for (list<PCPolygon*>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end();) {
+			list<PCPolygon*>::iterator iter = nextIter++;
+			Polygon* polygon = (*iter)->getPolygonModelObject();
+
+			if (polygon == NULL) {
+				// No model object is available yet, quit!
+				return;
+			}
+
+			for (int j = 0; j < polygon->getVertexCount(); j++) {
+				updateVertexs.clear();
+				VertexInPCPolygon vpp;
+				vpp.pcp = *iter;
+				vpp.vertex = j;
+				updateVertexs.push_back(vpp);
+				ofxVec3f v(polygon->getVertex(j));
+
+				for (list<PCPolygon*>::iterator iter2 = iter; iter2 != pcpolygons.end(); iter2++) {
+					Polygon* polygon2 = (*iter2)->getPolygonModelObject();
+					for (int k = 0; k < polygon2->getVertexCount(); k++) {
+						ofxVec3f v2(polygon2->getVertex(k));
+						if (!(v == v2)
+							&& polygon->getVertex(j).distance(polygon2->getVertex(k)) <= MAX_UNIFYING_DISTANCE) {
+							VertexInPCPolygon vpp2;
+							vpp2.pcp = *iter2;
+							vpp2.vertex = k;
+							updateVertexs.push_back(vpp2);
+						}
+					}
+				}
+
+				if (updateVertexs.size() > 1) {
+					ofxVec3f avg(0, 0, 0);
+					for (int i = 0; i < updateVertexs.size(); i++) {
+						avg += updateVertexs.at(i).pcp->getPolygonModelObject()->getVertex(updateVertexs.at(i).vertex);
+					}
+					avg /= updateVertexs.size();
+					for (int i = 0; i < updateVertexs.size(); i++) {
+						updateVertexs.at(i).pcp->getPolygonModelObject()->setVertex(updateVertexs.at(i).vertex, avg);
+					}
+				}
+			}
 		}
 	}
 
@@ -138,5 +192,6 @@ namespace mapinect {
 			PointCloud<PointXYZ>::Ptr nuCloud (new PointCloud<PointXYZ>(cloud));
 			(*iter)->increaseLodOfPolygon(nuCloud);
 		}
+		unifyVertexs();
 	}
 }

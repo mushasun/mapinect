@@ -31,6 +31,7 @@ extern float				MAX_TABLE_CLUSTER_TOLERANCE;
 extern float				TRANSLATION_DISTANCE_TOLERANCE;
 extern int					CLOUD_RES;
 extern int					MAX_OBJ_LOD;
+extern float				MAX_UNIFYING_DISTANCE;
 
 extern string				ARDUINO_COM_PORT;
 
