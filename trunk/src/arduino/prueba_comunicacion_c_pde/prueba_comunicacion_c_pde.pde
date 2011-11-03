@@ -15,6 +15,7 @@ void setup()
   motor1 = AX12();
   motor2 = AX12();
   motor4 = AX12();
+  motor8 = AX12();
 
   Serial.begin (9600);  // inicializa el Serial a 115,2 Kb/s
   AX12::init (1000000);   // inicializa los AX12 a 1 Mb/s
@@ -30,21 +31,14 @@ void setup()
 //  motor4.SRL = RETURN_ALL;
   motor8.id = 8;
 
-  motor1.setVel (10);
   delay(100);
-  motor1.setPos (posicion1);
+  motor1.setPosVel (posicion1, 10);
   delay(100);
-  motor2.setVel (10);
+  motor2.setPosVel (posicion2, 10);
   delay(100);
-  motor2.setPos (posicion2);
+  motor4.setPosVel (posicion4, 10);
   delay(100);
-  motor4.setVel (10);
-  delay(100);
-  motor4.setPos (posicion4);
-  delay(100);
-  motor8.setVel (15);
-  delay(100);
-  motor8.setPos (posicion8);
+  motor8.setPosVel (posicion8, 10);
   delay(100);
 }
 
@@ -64,19 +58,19 @@ int pasarAngulo(byte angulo)
 
 void imprimirInfoMotores()
 {
-  /*Serial.println("Motor 1:");
+  Serial.println("Motor 1:");
   int pos = motor1.getPos(); 
   int load = motor1.getLoad();
   Serial.print("Posicion: ");
   Serial.println(pos, DEC);
   Serial.print("Carga: ");
-  Serial.println(load, DEC);*/
+  Serial.println(load, DEC);
   
   Serial.println("Motor 2:");
-  int pos = motor2.getPos(); 
-  int load = motor2.getLoad();
+  pos = motor2.getPos(); 
+  load = motor2.getLoad();
   Serial.print("Posicion: ");
-  Serial.println(pos, BIN);
+  Serial.println(pos, DEC);
   Serial.print("Carga: ");
   Serial.println(load, DEC);
   
@@ -84,7 +78,7 @@ void imprimirInfoMotores()
   pos = motor4.getPos(); 
   load = motor4.getLoad();
   Serial.print("Posicion: ");
-  Serial.println(pos, BIN);
+  Serial.println(pos, DEC);
   Serial.print("Carga: ");
   Serial.println(load, DEC);
   
@@ -105,32 +99,28 @@ void loop()
     byte angulo = Serial.read();
     int angulo_pasado = pasarAngulo(angulo);
     if (id==1){
-      motor1.setVel (15);
       posicion1 = angulo_pasado;
     }
     if (id==2){
-      motor2.setVel (15);
       posicion2 = angulo_pasado;
     }
     else if (id==4)
     {
-      motor4.setVel (15);
       posicion4 = angulo_pasado;
     }
     else if (id==8)
     {
-      motor8.setVel (50);
       posicion8 = angulo_pasado;
     }
     imprimirInfoMotores();
   }
   delay(10);
-  motor1.setPos (posicion1);
+  motor1.setPosVel (posicion1, 15);
   delay(10);
-  motor2.setPos (posicion2);
+  motor2.setPosVel (posicion2, 15);
   delay(10);
-  motor4.setPos (posicion4);
+  motor4.setPosVel (posicion4, 15);
   delay(10);
-  motor8.setPos (posicion8);
+  motor8.setPosVel (posicion8, 10);
   delay(10);
 }
