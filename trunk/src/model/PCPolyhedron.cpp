@@ -54,7 +54,7 @@ namespace mapinect {
 		int i = 0, nr_points = cloudTemp->points.size ();
 		// mientras 10% de la nube no se haya procesado
 		int numFaces = 0;
-		for (list<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
+		for (vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
 			delete *iter;
 		}
 		pcpolygons.clear();
@@ -122,8 +122,8 @@ namespace mapinect {
 		} VertexInPCPolygon;
 		vector<VertexInPCPolygon> updateVertexs;
 
-		for (list<PCPolygon*>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end();) {
-			list<PCPolygon*>::iterator iter = nextIter++;
+		for (vector<PCPolygon*>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end();) {
+			vector<PCPolygon*>::iterator iter = nextIter++;
 			Polygon* polygon = (*iter)->getPolygonModelObject();
 
 			if (polygon == NULL) {
@@ -139,7 +139,7 @@ namespace mapinect {
 				updateVertexs.push_back(vpp);
 				ofxVec3f v(polygon->getVertex(j));
 
-				for (list<PCPolygon*>::iterator iter2 = iter; iter2 != pcpolygons.end(); iter2++) {
+				for (vector<PCPolygon*>::iterator iter2 = iter; iter2 != pcpolygons.end(); iter2++) {
 					Polygon* polygon2 = (*iter2)->getPolygonModelObject();
 					for (int k = 0; k < polygon2->getVertexCount(); k++) {
 						ofxVec3f v2(polygon2->getVertex(k));
@@ -172,7 +172,7 @@ namespace mapinect {
 	//}
 
 	void PCPolyhedron::draw() {
-		for (list<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
+		for (vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
 			(*iter)->draw();
 		}
 	}
@@ -180,15 +180,26 @@ namespace mapinect {
 	void PCPolyhedron::applyTransformation()
 	{
 		PCModelObject::applyTransformation();
-		for(list<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
+		for(vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
 			(*iter)->applyTransformation(&transformation);
 		}
 	}
 
+	PCPolygon*	PCPolyhedron::getPCPolygon(int index)
+	{
+		return pcpolygons[index];
+	}
+
+	int PCPolyhedron::getPCPolygonSize()
+	{
+		return pcpolygons.size();
+	}
+
+
 	void PCPolyhedron::increaseLod()
 	{
 		PCModelObject::increaseLod();
-		for(list<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
+		for(vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
 			PointCloud<PointXYZ>::Ptr nuCloud (new PointCloud<PointXYZ>(cloud));
 			(*iter)->increaseLodOfPolygon(nuCloud);
 		}

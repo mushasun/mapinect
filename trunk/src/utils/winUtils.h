@@ -60,7 +60,7 @@ static void  ofEndCustomFullscreen(){
 	#ifdef TARGET_WIN32
 	
 		if(bCustomFullscreen){
-			HWND vWnd  = FindWindow(NULL, L"laser tag server");
+			HWND vWnd  = FindWindow(NULL, L"mapinect_aux");
 			
 		    long windowStyle = GetWindowLong(vWnd, GWL_STYLE);
 			windowStyle  |= WS_OVERLAPPEDWINDOW;
