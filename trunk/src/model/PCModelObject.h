@@ -32,6 +32,7 @@ namespace mapinect {
 		inline void					setDrawPointCloud(bool draw)		{ drawPointCloud = draw; }
 		inline PointCloud<PointXYZ>	getCloud()							{ return cloud; }
 		inline void					setId(int id)						{ this->id = id; }
+		inline bool hasObject()	{return modelObject!=NULL;}
 		inline int					getLod()							{ return lod; }
 		inline void					resetLod()							{ lod = 1; }
 		inline ofxVec3f				getvMin()							{ return vMin; }

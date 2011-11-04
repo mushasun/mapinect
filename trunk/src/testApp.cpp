@@ -1,6 +1,8 @@
 #include "testApp.h"
+
 #include "utils.h"
-#include "Model.h"
+
+using namespace mapinect;
 
 //--------------------------------------------------------------
 void testApp::setup() {
@@ -19,6 +21,7 @@ void testApp::setup() {
 	cv.setup();
 	pcm.setup();
 //	lpmt.setup();
+	vm.setup();
 
 	ard = new Arduino();
 
@@ -56,6 +59,7 @@ void testApp::exit() {
 void testApp::keyPressed (int key) {
 	char* x;
 	char b = 127;
+	int varAngle = 2;
 	switch (key) {
 	case 'w':
 		gKinect->enableDepthNearValueWhite(!gKinect->isDepthNearValueWhite());
@@ -75,56 +79,56 @@ void testApp::keyPressed (int key) {
 		gKinect->setCameraTiltAngle(angle);
 		break;
 	case 't':
-		valorArduino2+=10;
+		valorArduino2+=varAngle;
 		cout << valorArduino2 << endl;
 		//if(valorArduino2%10==0){
 			ard->sendMotor((char) valorArduino2, 2);
 		//}
 		break;
 	case 'g':
-		valorArduino2-=10;
+		valorArduino2-=varAngle;
 		cout << valorArduino2 << endl;
 		//if(valorArduino2%10==0){
 			ard->sendMotor((char) valorArduino2, 2);
 		//}
 		break;
 	case 'y':
-		valorArduino4+=10;
+		valorArduino4+=varAngle;
 		cout << valorArduino4 << endl;
 		//if(valorArduino4%10==0){
 			ard->sendMotor((char) valorArduino4, 4);
 		//}
 		break;
 	case 'h':
-		valorArduino4-=10;
+		valorArduino4-=varAngle;
 		cout << valorArduino4 << endl;
 		//if(valorArduino4%10==0){
 			ard->sendMotor((char) valorArduino4, 4);
 		//}
 		break;
 	case 'u':
-		valorArduino1-=10;
+		valorArduino1-=varAngle;
 		cout << valorArduino1 << endl;
 		//if(valorArduino2%10==0){
 			ard->sendMotor((char) valorArduino1, 1);
 		//}
 		break;
 	case 'j':
-		valorArduino1+=10;
+		valorArduino1+=varAngle;
 		cout << valorArduino1 << endl;
 		//if(valorArduino4%10==0){
 			ard->sendMotor((char) valorArduino1, 1);
 		//}
 		break;
 	case 'i':
-		valorArduino8-=10;
+		valorArduino8-=varAngle;
 		cout << valorArduino8 << endl;
 		//if(valorArduino2%10==0){
 			ard->sendMotor((char) valorArduino8, 8);
 		//}
 		break;
 	case 'k':
-		valorArduino8+=10;
+		valorArduino8+=varAngle;
 		cout << valorArduino1 << endl;
 		//if(valorArduino4%10==0){
 			ard->sendMotor((char) valorArduino8, 8);
@@ -184,47 +188,55 @@ void testApp::mouseReleased(int x, int y, int button)
 void testApp::fensterDraw()
 {
 	//lpmt.draw();
+	vm.draw();
 }
 
 //--------------------------------------------------------------
 void testApp::fensterUpdate()
 {
 	//lpmt.update();
+	vm.update();
 }
 
 //--------------------------------------------------------------
 void testApp::fensterKeyPressed(int key)
 {
-	lpmt.keyPressed(key);
+	//lpmt.keyPressed(key);
+	vm.keyPressed(key);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMouseMoved(int x, int y)
 {
-	lpmt.mouseMoved(x, y);
+	//lpmt.mouseMoved(x, y);
+	vm.mouseMoved(x, y);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMouseDragged(int x, int y, int button)
 {
-	lpmt.mouseDragged(x, y, button);
+	//lpmt.mouseDragged(x, y, button);
+	vm.mouseDragged(x, y, button);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMousePressed(int x, int y, int button)
 {
-	lpmt.mousePressed(x, y, button);
+	//lpmt.mousePressed(x, y, button);
+	vm.mousePressed(x, y, button);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMouseReleased(int x, int y, int button)
 {
-	lpmt.mouseReleased(x, y, button);
+	//lpmt.mouseReleased(x, y, button);
+	vm.mouseReleased(x, y, button);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterWindowResized(int w, int h)
 {
-	lpmt.windowResized(w, h);
+	//lpmt.windowResized(w, h);
+	vm.windowResized(w, h);
 }
 

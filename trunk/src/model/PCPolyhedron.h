@@ -17,14 +17,15 @@ namespace mapinect {
 			virtual void		draw();
 			virtual void		detectPrimitives();
 			virtual void		applyTransformation();
+			PCPolygon*			getPCPolygon(int index);
+			int					getPCPolygonSize();
 			virtual void		increaseLod();
 		protected:
 			//virtual PCPolygon*	createPCPolygon();
 
 		private:
+			vector<PCPolygon*>	pcpolygons;
 			virtual void		unifyVertexs();
-
-			list<PCPolygon*>	pcpolygons;
 	};
 }
 

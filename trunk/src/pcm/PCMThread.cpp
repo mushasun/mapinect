@@ -278,6 +278,11 @@ namespace mapinect {
 			//nDetectedObjects = openCVService->contourFinder.blobs.size();
 			PointCloud<PointXYZ>::Ptr filteredCloud = getTableCluster();
 
+			// WORK WITH CLOUD DIFFERENCES
+/*			PointCloud<PointXYZ>::Ptr secondCloud = getCloud();
+			PointCloud<PointXYZ>::Ptr filteredCloud(new PointCloud<PointXYZ>);
+			dif = getDifferencesCloud(cloud,secondCloud,filteredCloud,OCTREE_RES);
+*/
 			if(filteredCloud->empty())
 			{
 				cout << "cluster vacio!" << endl;
