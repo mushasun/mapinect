@@ -186,6 +186,9 @@
     <ClCompile Include="src\arduino\Arduino.cpp">
       <Filter>arduino</Filter>
     </ClCompile>
+    <ClCompile Include="src\vm\VM.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -426,6 +429,9 @@
     <ClInclude Include="src\arduino\Arduino.h">
       <Filter>arduino</Filter>
     </ClInclude>
+    <ClInclude Include="src\vm\VM.h">
+      <Filter>vm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -499,6 +505,9 @@
     </Filter>
     <Filter Include="arduino">
       <UniqueIdentifier>{9605fff1-8eeb-4d38-bef1-e2f58f931ec9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vm">
+      <UniqueIdentifier>{89e6d4e9-6520-433b-967b-9913157b32d1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
