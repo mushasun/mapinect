@@ -33,8 +33,6 @@ extern int					CLOUD_RES;
 extern int					MAX_OBJ_LOD;
 extern float				MAX_UNIFYING_DISTANCE;
 
-extern string				ARDUINO_COM_PORT;
-
 extern int					objId;
 
 #define MAX_FLOAT		FLT_MAX

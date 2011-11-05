@@ -3,8 +3,6 @@
 
 #include "ofMain.h"
 #include "ofxFenster.h"
-#include "monitor.h"
-#include "winUtils.h"
 
 #include "OpenCV.h"
 #include "PCM.h"
@@ -42,12 +40,8 @@ public:
 	mapinect::PCM			pcm;
 	mapinect::LPMT			lpmt;
 	mapinect::VM			vm;
+	mapinect::Arduino		arduino;
 
-	signed int valorArduino1;
-	signed int valorArduino2;
-	signed int valorArduino4;
-	signed int valorArduino8;
-	Arduino* ard;
 };
 
 #endif	// TEST_APP_H__
