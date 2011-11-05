@@ -8,7 +8,7 @@ AX12 motor8;
 int posicion1 = 512;
 int posicion2 = 512;
 int posicion4 = 512;
-int posicion8 = 512;
+int posicion8 = 570; //el cero está corrido :@
 
 void setup() 
 {
