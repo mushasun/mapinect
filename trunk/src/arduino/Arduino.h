@@ -3,18 +3,32 @@
 
 #include "ofSerial.h"
 
-class Arduino{
+namespace mapinect {
+	class Arduino{
 	
-public:
-	Arduino();
+	public:
+		Arduino();
+		virtual ~Arduino();
 
-    virtual ~Arduino();
+		virtual bool	setup();
+		virtual void	update();
+		virtual void	draw();
 
-	void sendMotor(char value, int id);
+		virtual void	keyPressed(int key);
 
-	unsigned char* read();
+		void			reset();
 
-	ofSerial	serial;
+	private:
+		void			sendMotor(char value, int id);
+		string			read();
 
-};
+		ofSerial		serial;
+		signed int		angleMotor1;
+		signed int		angleMotor2;
+		signed int		angleMotor4;
+		signed int		angleMotor8;
+
+	};
+}
+
 #endif

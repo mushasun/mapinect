@@ -22,16 +22,8 @@ void testApp::setup() {
 	pcm.setup();
 //	lpmt.setup();
 	vm.setup();
+	arduino.setup();
 
-	ard = new Arduino();
-
-	valorArduino1 = 128;
-	ard->sendMotor((char) valorArduino1, 1);
-	valorArduino2 = 128;
-	ard->sendMotor((char) valorArduino2, 2);
-	valorArduino4 = 128;
-	ard->sendMotor((char) valorArduino4, 4);
-	
 }
 
 //--------------------------------------------------------------
@@ -40,6 +32,7 @@ void testApp::update() {
 	bool isKinectFrameNew = gKinect->isFrameNew();
 	cv.update(isKinectFrameNew);
 	//pcm.update(isKinectFrameNew);
+	arduino.update();
 }
 
 //--------------------------------------------------------------
@@ -47,19 +40,16 @@ void testApp::draw()
 {
 	cv.draw();
 	pcm.draw();
+	arduino.draw();
 }
 
 //--------------------------------------------------------------
 void testApp::exit() {
 	gKinect->close();
-	delete ard;
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed (int key) {
-	char* x;
-	char b = 127;
-	int varAngle = 2;
 	switch (key) {
 	case 'w':
 		gKinect->enableDepthNearValueWhite(!gKinect->isDepthNearValueWhite());
@@ -78,75 +68,11 @@ void testApp::keyPressed (int key) {
 		if(angle<-30) angle=-30;
 		gKinect->setCameraTiltAngle(angle);
 		break;
-	case 't':
-		valorArduino2+=varAngle;
-		cout << valorArduino2 << endl;
-		//if(valorArduino2%10==0){
-			ard->sendMotor((char) valorArduino2, 2);
-		//}
-		break;
-	case 'g':
-		valorArduino2-=varAngle;
-		cout << valorArduino2 << endl;
-		//if(valorArduino2%10==0){
-			ard->sendMotor((char) valorArduino2, 2);
-		//}
-		break;
-	case 'y':
-		valorArduino4+=varAngle;
-		cout << valorArduino4 << endl;
-		//if(valorArduino4%10==0){
-			ard->sendMotor((char) valorArduino4, 4);
-		//}
-		break;
-	case 'h':
-		valorArduino4-=varAngle;
-		cout << valorArduino4 << endl;
-		//if(valorArduino4%10==0){
-			ard->sendMotor((char) valorArduino4, 4);
-		//}
-		break;
-	case 'u':
-		valorArduino1-=varAngle;
-		cout << valorArduino1 << endl;
-		//if(valorArduino2%10==0){
-			ard->sendMotor((char) valorArduino1, 1);
-		//}
-		break;
-	case 'j':
-		valorArduino1+=varAngle;
-		cout << valorArduino1 << endl;
-		//if(valorArduino4%10==0){
-			ard->sendMotor((char) valorArduino1, 1);
-		//}
-		break;
-	case 'i':
-		valorArduino8-=varAngle;
-		cout << valorArduino8 << endl;
-		//if(valorArduino2%10==0){
-			ard->sendMotor((char) valorArduino8, 8);
-		//}
-		break;
-	case 'k':
-		valorArduino8+=varAngle;
-		cout << valorArduino1 << endl;
-		//if(valorArduino4%10==0){
-			ard->sendMotor((char) valorArduino8, 8);
-		//}
-		break;
-	case 'p':
-		valorArduino1 = 128;
-		ard->sendMotor((char) valorArduino1, 1);
-		valorArduino2 = 128;
-		ard->sendMotor((char) valorArduino2, 2);
-		valorArduino4 = 128;
-		ard->sendMotor((char) valorArduino4, 4);
-	case 'm':
-		ard->read();
 	}
 		
 	//cv.keyPressed(key);
 	pcm.keyPressed(key);
+	arduino.keyPressed(key);
 }
 
 //--------------------------------------------------------------

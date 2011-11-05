@@ -42,7 +42,6 @@ namespace mapinect {
 			MAX_OBJ_LOD = XML.getValue("PCMConfig:MAX_OBJ_LOD", 2);
 			MAX_UNIFYING_DISTANCE = XML.getValue("PCMConfig:MAX_UNIFYING_DISTANCE", 0.01);
 
-			ARDUINO_COM_PORT = XML.getValue("PCMConfig:ARDUINO_COM_PORT", "COM3");
 		}
 
 		// Initialize point cloud
