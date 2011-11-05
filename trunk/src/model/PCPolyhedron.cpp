@@ -58,7 +58,7 @@ namespace mapinect {
 			delete *iter;
 		}
 		pcpolygons.clear();
-		while (cloudTemp->points.size () > 0.1 * nr_points && numFaces < MAX_FACES)
+		while (cloudTemp->points.size () > 0.03 * nr_points && numFaces < MAX_FACES)
 		{
 			pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
 			// Segment the largest planar component from the remaining cloud
@@ -100,7 +100,7 @@ namespace mapinect {
 				vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_p->at(k)));
 			}
 			PCPolygon* pcp = new PCQuadrilateral(*coefficients);
-			pcp->setId(id);
+			pcp->setId(getId());
 			pcp->detectPolygon(cloud_p, vCloudHull);
 			//detectedPlane.avgNormal = normalEstimation(cloud_p);
 			PointCloud<PointXYZ>::Ptr cloud_pTemp (new PointCloud<PointXYZ>(*cloud_p));

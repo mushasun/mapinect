@@ -174,9 +174,27 @@ namespace mapinect {
 		}
 		else if(objectInModel != NULL && objectInModel->getLod() < MAX_OBJ_LOD)								//Si no llegue al nivel maximo de detalle, aumento el detalle
 		{
+			PCDWriter writer;
 			ofxVec3f vMax,vMin;
 			PointCloud<PointXYZ>::Ptr oldCloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
 			findPointCloudBoundingBox(oldCloud, vMin, vMax);
+
+			int density = CLOUD_RES - objectInModel->getLod();
+			PointCloud<PointXYZ>::Ptr cloud = getCloud(density);
+			//writer.write<pcl::PointXYZ>("nuObjCloud.pcd", *cloud, false);
+			/*
+			ofxVec3f sMin = gKinect->getScreenCoordsFromWorldCoords(vMin);
+			ofxVec3f sMax = gKinect->getScreenCoordsFromWorldCoords(vMax);
+			sMin -= ofxVec3f(density + 1, density + 1);
+			sMax += ofxVec3f(density + 1, density + 1);
+
+			PointCloud<PointXYZ>::Ptr cloud = getPartialCloudRealCoords(sMin, sMax, density);
+			*/
+
+			ofxVec3f halo(0.001, 0.001, 0.001);
+			vMin -= halo;
+			vMax += halo;
+
 			Eigen::Vector4f eMax,eMin;
 			eMax[0] = vMax.x;
 			eMax[1] = vMax.y;
@@ -187,28 +205,27 @@ namespace mapinect {
 
 			vector<int> indices;
 
-			PointCloud<PointXYZ>::Ptr cloud = getCloud(CLOUD_RES - objectInModel->getLod());
 			pcl::getPointsInBox(*cloud,eMin,eMax,indices);
 			PointCloud<PointXYZ>::Ptr nuCloud (new PointCloud<PointXYZ>());
-			PointCloud<PointXYZ>::Ptr nuCloudFiltered (new PointCloud<PointXYZ>());
-			nuCloud->resize(indices.size());
 			
 			for(int i = 0; i < indices.size(); i++)
 				nuCloud->push_back(cloud->at(indices.at(i)));
 			
+
+			PointCloud<PointXYZ>::Ptr nuCloudFiltered (new PointCloud<PointXYZ>());
 			PassThrough<PointXYZ> pass;
 			pass.setInputCloud (nuCloud);
 			pass.setFilterFieldName ("z");
 			pass.setFilterLimits (0.001, 4.0);
 			//pass.setFilterLimitsNegative (true);
 			pass.filter (*nuCloudFiltered);
+			//writer.write<pcl::PointXYZ>("nuobj.pcd", *nuCloud, false);
+			//writer.write<pcl::PointXYZ>("nuCloudFiltered.pcd", *nuCloudFiltered, false);
 
 			gModel->objectsMutex.lock();
 			objectInModel->updateCloud(nuCloudFiltered);
 			gModel->objectsMutex.unlock();
 
-			/*PCDWriter writer;
-			writer.write<pcl::PointXYZ> ("nuobj.pcd", *nuCloud, false);*/
 		}
 	}
 
