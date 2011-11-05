@@ -66,15 +66,16 @@ namespace mapinect {
 		
 		int ixD = ixC;
 		ofxVec2f v2D(v2C);
-		//mapinect::Triangle2D triangleABC(v2A, v2B, v2C);
+		mapinect::Triangle2D triangleABC(v2A, v2B, v2C);
 		PositionToLine ptlCtoAB = lineAB.positionTo(v2C);
 		double distanceD = 0;
 		for (int k = 0; k < vCloud.size(); k++) {
 			ofxVec3f v(vCloud.at(k));
 			ofxVec2f v2 = discardCoordinateOfxVec3f(v, discard);
-			//double distance = triangleABC.distance(v2);
-			double distance = lineAB.distance(v2);
-			if (lineAB.positionTo(v2) != ptlCtoAB && distance > distanceD) {
+			double distance = triangleABC.distance(v2);
+			//double distance = lineAB.distance(v2);
+			//if (lineAB.positionTo(v2) != ptlCtoAB && distance > distanceD) {
+			if (distance > distanceD) {
 				distanceD = distance;
 				ixD = k;
 				v2D = v2;

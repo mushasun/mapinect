@@ -19,10 +19,13 @@ namespace mapinect {
 			inline void				setScale(const ofxVec3f& scale)			{ vScale = scale; }
 			inline const ofxVec3f	getRotation()							{ return vRotation; }
 			inline void				setRotation(const ofxVec3f& rotation)	{ vRotation = rotation; }
+			inline int				getId()									{ return objId; }
+			inline void				setId(int id)							{ objId = id; }
 
 		private:
 			ofxVec3f				vCenter, vScale, vRotation;
 			int						color;
+			int						objId;
 		
 	};
 }

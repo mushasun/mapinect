@@ -76,10 +76,7 @@ namespace mapinect {
 
 				if(detectMode)
 				{
-					Timer t;
-					t.start();
 					processDiferencesClouds();
-					t.end();
 				}
 
 				unlock();
@@ -173,6 +170,7 @@ namespace mapinect {
 		PointCloud<PointXYZ>::Ptr PCMThread::getTableCluster(){
 			PCDWriter writer;
 			PointCloud<PointXYZ>::Ptr cloud = getCloud();
+			//writer.write<pcl::PointXYZ> ("rawCloud.pcd", *cloud, false);
 			PointCloud<PointXYZ>::Ptr filteredCloud (new PointCloud<PointXYZ>());
 
 
@@ -185,6 +183,9 @@ namespace mapinect {
 			pass.filter (*filteredCloud);
 			//writer.write<pcl::PointXYZ> ("filteredCloud.pcd", *filteredCloud, false);
 
+			if (filteredCloud->size() == 0) {
+				return filteredCloud;
+			}
 
 			//Separo en clusters
 			PointCloud<PointXYZ>::Ptr tableCluster (new pcl::PointCloud<pcl::PointXYZ>);

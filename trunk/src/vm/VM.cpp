@@ -25,7 +25,7 @@ namespace mapinect {
 	// Dibujar Quad
 	ofxVec3f vA,vB,vC,vD;
 
-	ofxVec3f carasADibujar[12][4];
+	ofxVec3f carasADibujar[36][4];
 
 	//--------------------------------------------------------------
 	void VM::setup() {
@@ -137,8 +137,8 @@ namespace mapinect {
 			ofSetColor(0x00FF00);
 			glBegin(GL_TRIANGLES);      
 				glVertex3f(vB.x,vB.y,vB.z);
-				glVertex3f(vD.x,vD.y,vD.z);
-				glVertex3f(vA.x,vA.y,vA.z);    
+				glVertex3f(vC.x,vC.y,vC.z);
+				glVertex3f(vD.x,vD.y,vD.z);    
 			glEnd();
 		}
 

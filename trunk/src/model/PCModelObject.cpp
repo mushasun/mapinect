@@ -34,7 +34,7 @@ namespace mapinect {
 		//PointCloud<pcl::PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(*cloud));
 		findPointCloudBoundingBox(cloud, vMin, vMax);
 		transformation.setIdentity();
-		id = objId;
+		setId(objId);
 		lod = 1;
 	}
 
@@ -63,7 +63,7 @@ namespace mapinect {
 			
 			
 			ofSetColor(255,0,0);
-			ofDrawBitmapString(ofToString(id),w.x,w.y);
+			ofDrawBitmapString(ofToString(getId()),w.x,w.y);
 		}
 	}
 

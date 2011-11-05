@@ -22,8 +22,8 @@ namespace mapinect {
 		}
 	}
 
-	DiscardCoordinate	sortDiscardCoordinate;
-	ofxVec3f			sortCenter;
+	static DiscardCoordinate	sortDiscardCoordinate;
+	static ofxVec3f				sortCenter;
 
 	bool comparePolarCoords(const ofxVec3f& v3A, const ofxVec3f& v3B) {
 		ofxVec2f v2A = discardCoordinateOfxVec3f(v3A - sortCenter, sortDiscardCoordinate);
@@ -37,7 +37,7 @@ namespace mapinect {
 				phiA = arcsinA;
 			}
 			else {
-				phiA = PI - arcsinA;
+				phiA = PI + arcsinA;
 			}
 		}
 
@@ -49,7 +49,7 @@ namespace mapinect {
 				phiB = arcsinB;
 			}
 			else {
-				phiB = PI - arcsinB;
+				phiB = PI + arcsinB;
 			}
 		}
 
