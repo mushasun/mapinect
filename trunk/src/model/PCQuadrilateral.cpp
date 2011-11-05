@@ -95,7 +95,7 @@ namespace mapinect {
 		getPolygonModelObject()->addVertex(v3B);
 		getPolygonModelObject()->addVertex(v3C);
 		getPolygonModelObject()->addVertex(v3D);
-		//getPolygonModelObject()->sortVertexs();
+		getPolygonModelObject()->sortVertexs();
 
 		std::vector<int> indices (4);
 		indices[0] = ixA;

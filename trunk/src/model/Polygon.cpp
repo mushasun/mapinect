@@ -1,6 +1,8 @@
 #include "Polygon.h"
+
 #include <algorithm>
 #include "utils.h"
+#include "ofxVecUtils.h"
 
 namespace mapinect {
 
@@ -20,32 +22,38 @@ namespace mapinect {
 		}
 	}
 
-	bool comparePolarCoords(const ofxVec3f& v1, const ofxVec3f& v2) {
-		double phi1 = 0;
-		if (v1.x != 0 || v1.y != 0) {
-			double ro1 = sqrt(v1.x * v1.x + v1.y * v1.y);
-			double arcsin1 = asin(v1.y / ro1);
-			if (v1.x >= 0) {
-				phi1 = arcsin1;
+	DiscardCoordinate	sortDiscardCoordinate;
+	ofxVec3f			sortCenter;
+
+	bool comparePolarCoords(const ofxVec3f& v3A, const ofxVec3f& v3B) {
+		ofxVec2f v2A = discardCoordinateOfxVec3f(v3A - sortCenter, sortDiscardCoordinate);
+		ofxVec2f v2B = discardCoordinateOfxVec3f(v3B - sortCenter, sortDiscardCoordinate);
+
+		double phiA = 0;
+		if (v2A.x != 0 || v2A.y != 0) {
+			double roA = sqrt(v2A.x * v2A.x + v2A.y * v2A.y);
+			double arcsinA = asin(v2A.y / roA);
+			if (v2A.x >= 0) {
+				phiA = arcsinA;
 			}
 			else {
-				phi1 = PI - arcsin1;
+				phiA = PI - arcsinA;
 			}
 		}
 
-		double phi2 = 0;
-		if (v2.x != 0 || v2.y != 0) {
-			double ro2 = sqrt(v2.x * v2.x + v2.y * v2.y);
-			double arcsin2 = asin(v2.y / ro2);
-			if (v2.x >= 0) {
-				phi2 = arcsin2;
+		double phiB = 0;
+		if (v2B.x != 0 || v2B.y != 0) {
+			double roB = sqrt(v2B.x * v2B.x + v2B.y * v2B.y);
+			double arcsinB = asin(v2B.y / roB);
+			if (v2B.x >= 0) {
+				phiB = arcsinB;
 			}
 			else {
-				phi2 = PI - arcsin2;
+				phiB = PI - arcsinB;
 			}
 		}
 
-		return phi1 < phi2;
+		return phiA < phiB;
 	}
 
 	void Polygon::resetVertex() {
@@ -53,6 +61,10 @@ namespace mapinect {
 	}
 
 	void Polygon::sortVertexs() {
+		ofxVec3f min, max;
+		findOfxVec3fBoundingBox(vertexs, min, max);
+		sortDiscardCoordinate = calculateDiscardCoordinate(min, max);
+		sortCenter = (min + max) * 0.5;
 		sort(vertexs.begin(), vertexs.end(), comparePolarCoords);
 	}
 	
