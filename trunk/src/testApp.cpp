@@ -4,6 +4,8 @@
 
 using namespace mapinect;
 
+bool setupTexture;
+
 //--------------------------------------------------------------
 void testApp::setup() {
 	gKinect = new ofxKinect();
@@ -21,8 +23,10 @@ void testApp::setup() {
 	cv.setup();
 	pcm.setup();
 //	lpmt.setup();
-	vm.setup();
+//	vm.setup();
 	arduino.setup();
+
+	setupTexture = true;
 
 }
 
@@ -41,6 +45,7 @@ void testApp::draw()
 	cv.draw();
 	pcm.draw();
 	arduino.draw();
+
 }
 
 //--------------------------------------------------------------
@@ -110,11 +115,19 @@ void testApp::mouseReleased(int x, int y, int button)
 	pcm.mouseReleased(x, y, button);
 }
 
+//
+void testApp::fensterSetup()
+{
+	vm.setup();
+}
+
+
 //--------------------------------------------------------------
 void testApp::fensterDraw()
 {
 	//lpmt.draw();
 	vm.draw();
+
 }
 
 //--------------------------------------------------------------
@@ -122,6 +135,13 @@ void testApp::fensterUpdate()
 {
 	//lpmt.update();
 	vm.update();
+
+/*	if (setupTexture) {
+		// First load image texture
+		GLuint textureID = vm.loadImageTexture("ofTheo.jpg");
+		setupTexture = false;
+	}
+	*/
 }
 
 //--------------------------------------------------------------

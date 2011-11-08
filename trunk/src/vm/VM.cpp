@@ -25,12 +25,18 @@ namespace mapinect {
 	// Dibujar Quad
 	ofxVec3f vA,vB,vC,vD;
 
-	ofxVec3f carasADibujar[36][4];
+	ofxVec3f detectedQuads[12][4];
+
+	GLuint VM::textureID = 0;
+	unsigned char* VM::imgPixels = NULL;
 
 	//--------------------------------------------------------------
 	void VM::setup() {
-
+		bImgLoaded = false;
+//		textureID = loadImageTexture("ofTheo.jpg");
 	}
+
+
 
 	ofxVec3f scaleFromMtsToMms(ofxVec3f p)
 	{
@@ -45,6 +51,9 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void VM::draw()
 	{
+
+		textureID = loadImageTexture("Building_texture.jpg");
+
 		float nearDist 	= 300; //30 cms  //zProj / 10;	//This is also the viewing plane distance	
 		float farDist 	= 4000; //zProj * 10.0;	//4.0
 
@@ -70,14 +79,11 @@ namespace mapinect {
 		//glTranslatef(transX,transY,0);
 		glRotatef(zAngle,0,0,1);
 
-
-		int cant_caras = 0;
-
+		// Obtener caras detectadas por el Kinect
+		int cantQuads = 0;
 		gModel->objectsMutex.lock();
-
 		if (gModel->objects.size() > 0) 
 		{
-
 			for(list<mapinect::ModelObject*>::iterator k = gModel->objects.begin(); 
 				k != gModel->objects.end(); k++)
 			{
@@ -108,42 +114,74 @@ namespace mapinect {
 						vC = scaleFromMtsToMms(vC);
 						vD = scaleFromMtsToMms(vD);
 
-						carasADibujar[cant_caras][0] = vA;
-						carasADibujar[cant_caras][1] = vB;
-						carasADibujar[cant_caras][2] = vC;
-						carasADibujar[cant_caras][3] = vD;
-						cant_caras++;
+						detectedQuads[cantQuads][0] = vA;
+						detectedQuads[cantQuads][1] = vB;
+						detectedQuads[cantQuads][2] = vC;
+						detectedQuads[cantQuads][3] = vD;
+						cantQuads++;
 					}			
 				}					
 			}
+		} else {
+			// Quad de prueba
+			vA.set(-100,100,-500);
+			vB.set(0,100,-500);
+			vC.set(0,0,-500);
+			vD.set(-100,0,-500);
+			detectedQuads[cantQuads][0] = vA;
+			detectedQuads[cantQuads][1] = vB;
+			detectedQuads[cantQuads][2] = vC;
+			detectedQuads[cantQuads][3] = vD;
+			cantQuads++;
 		}
-		
 		gModel->objectsMutex.unlock();
-
-		for(int i=0; i<cant_caras; i++) 
+		
+		// Draw each quad
+		for(int i=0; i<cantQuads; i++) 
 		{
-			vA = carasADibujar[i][0];
-			vB = carasADibujar[i][1];
-			vC = carasADibujar[i][2];
-			vD = carasADibujar[i][3];
+			vA = detectedQuads[i][0];
+			vB = detectedQuads[i][1];
+			vC = detectedQuads[i][2];
+			vD = detectedQuads[i][3];
 
-			ofSetColor(0xFF0000);
-			glBegin(GL_TRIANGLES);      
-				glVertex3f(vA.x,vA.y,vA.z);    
-				glVertex3f(vB.x,vB.y,vB.z);
-				glVertex3f(vC.x,vC.y,vC.z);
-			glEnd();
+//			ofSetColor(0xFF0000);
+			
+			// If image loaded correctly
+			if (bImgLoaded) {
+				// Bind Texture
+				glEnable(GL_TEXTURE_2D);
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+				// GL_REPLACE can be specified to just draw the surface using the texture colors only
+				// GL_MODULATE means the computed surface color is multiplied by the texture color (to be used when lighting)
+				glBindTexture(GL_TEXTURE_2D, textureID); 
 
-			ofSetColor(0x00FF00);
-			glBegin(GL_TRIANGLES);      
-				glVertex3f(vB.x,vB.y,vB.z);
-				glVertex3f(vC.x,vC.y,vC.z);
-				glVertex3f(vD.x,vD.y,vD.z);    
-			glEnd();
+				// Draw quad and map 2D points for texture mapping
+				glBegin(GL_QUADS);      
+					glTexCoord2f(0, 0);
+					glVertex3f(vA.x,vA.y,vA.z);    
+					glTexCoord2f(1, 0);
+					glVertex3f(vB.x,vB.y,vB.z);
+					glTexCoord2f(1, 1);
+					glVertex3f(vC.x,vC.y,vC.z);
+					glTexCoord2f(0, 1);
+					glVertex3f(vD.x,vD.y,vD.z);
+				glEnd();
+
+			} else {
+				glDisable(GL_TEXTURE_2D);
+				glBegin(GL_QUADS);      
+					glVertex3f(vA.x,vA.y,vA.z);    
+					glVertex3f(vB.x,vB.y,vB.z);
+					glVertex3f(vC.x,vC.y,vC.z);
+					glVertex3f(vD.x,vD.y,vD.z);
+				glEnd();			
+			}
+
 		}
 
 		ofPopMatrix();
 
+//		glDeleteTextures(1,&textureID);
 	}
 
 	//--------------------------------------------------------------
@@ -323,5 +361,37 @@ namespace mapinect {
 	void VM::windowResized(int w, int h)
 	{
 	}
+
+	GLuint VM::loadImageTexture(char* imgFile)
+	{
+		if ((imgFile == NULL) || (imgFile == "")) {
+			bImgLoaded = false;
+			return -1;
+		} else {
+			bImgLoaded = img.loadImage(imgFile);
+			if (bImgLoaded) {
+				imgFilename = imgFile;
+				imgPixels = img.getPixels();
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glEnable(GL_TEXTURE_2D);
+				glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+				//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  				glGenTextures(1, &textureID);
+				glBindTexture(GL_TEXTURE_2D, textureID);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	
+				glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, img.getWidth(), img.getHeight(), 0, GL_RGB/*GL_RGBA*/,GL_UNSIGNED_BYTE,imgPixels);
+				img.setUseTexture(true);
+				glFlush();
+				return textureID;
+			} else {
+				return -1;
+			}
+		}
+	} 
+
 
 }

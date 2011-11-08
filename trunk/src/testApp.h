@@ -26,6 +26,7 @@ public:
 	virtual void windowResized(int w, int h);
 
 	virtual void fensterUpdate();
+	virtual void fensterSetup(); // Fenster setup added
 	virtual void fensterDraw();
 	virtual void fensterKeyPressed(int key);
 	virtual void fensterMouseMoved(int x, int y );
