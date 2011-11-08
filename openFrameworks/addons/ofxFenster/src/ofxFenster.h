@@ -28,6 +28,7 @@ public:
 
 class ofxFensterEventsStruct{
 public:
+	ofEvent<ofxFensterEvent> setup; // Fenster setup added
 	ofEvent<ofxFensterEvent> draw;
 	ofEvent<ofxFensterEvent> update;
 	ofEvent<ofxFensterResizeEvent> resize;
@@ -39,7 +40,9 @@ class ofxFensterListener{
 public:
 	virtual void fensterUpdate(){}
 	virtual void fensterDraw(){ofGetAppPtr()->draw();};
-	
+
+	virtual void fensterSetup(){ofGetAppPtr()->setup();}; // Fenster setup added
+
 	virtual void fensterKeyPressed  (int key){ofGetAppPtr()->keyPressed(key);};
 	virtual void fensterKeyReleased(int key){ofGetAppPtr()->keyReleased(key);};
 	virtual void fensterMouseMoved(int x, int y ){ofGetAppPtr()->mouseMoved(x, y);};
@@ -57,6 +60,7 @@ public:
 	~ofxFenster();
 	void init(ofxFensterListener* l, string title=""); //open the window
 	void update();
+	void setup();	// Fenster setup added
 	void draw(bool force=false);
 	
 	void setFPS(int fps);
@@ -82,6 +86,7 @@ protected:
 private:
 	void update(ofEventArgs &e);
 	void draw(ofEventArgs &e);
+	void setup(ofEventArgs &e);	// Fenster setup added
 	
 	int fpsUpdate;
 	int fpsDraw;

@@ -36,20 +36,28 @@ void winResize(int w, int h){
 	ofNotifyEvent(ofxFensterEvents.resize, efe);
 }
 
-void winKeyboardDown(unsigned char key, int x, int y) {
+void winKeyboardDownAux(int key, int x, int y) {
 	singleton->listener->fensterKeyPressed(key);
 }
 
+void winKeyboardDown(unsigned char key, int x, int y) {
+	winKeyboardDownAux(key,x,y);
+}
+
 void winKeyboardDownSpecial(int key, int x, int y) {
-	winKeyboardDown(key| OF_KEY_MODIFIER, x, y);
+	winKeyboardDownAux(key| OF_KEY_MODIFIER, x, y);
+}
+
+void winKeyboardUpAux(int key, int x, int y) {
+//	singleton->listener->fensterKeyPressed(key);
 }
 
 void winKeyboardUp(unsigned char key, int x, int y) {
-	singleton->listener->fensterKeyReleased(key);
+	winKeyboardUpAux(key,x,y);
 }
 
 void winKeyboardUpSpecial(int key, int x, int y) {
-	winKeyboardUp(key| OF_KEY_MODIFIER, x, y);
+	winKeyboardUpAux(key| OF_KEY_MODIFIER, x, y);
 }
 
 void winMouseMove(int x, int y){
@@ -63,8 +71,10 @@ void winMouseDragged(int x, int y){
 //OFX FENSTER 
 ofxFenster::ofxFenster(){
 	singleton = this;
-	width = 800;
+/*	width = 800;
 	height = 400;
+*/	width = 1280;
+	height = 768;
 	nextWinUpdate = 0;
 	nextWinDraw = 0;
 	setFPS(60);
@@ -81,7 +91,7 @@ void ofxFenster::init(ofxFensterListener* l, string name){
 	listener->fenster = this;
 	ofAddListener(ofEvents.update, this, &ofxFenster::update);
 	ofAddListener(ofEvents.draw, this, &ofxFenster::draw);
-	
+	ofAddListener(ofEvents.setup, this, &ofxFenster::setup); // Fenster setup added
 	mainWinRef = glutGetWindow();
 	glutInitWindowSize(width, height);
 	winRef = glutCreateWindow(name.c_str());
@@ -142,6 +152,14 @@ void ofxFenster::update(ofEventArgs& e){
 	static ofxFensterEvent efe;
 	efe.fenster = this;
 	ofNotifyEvent(ofxFensterEvents.update, efe);
+}
+
+void ofxFenster::setup(ofEventArgs& e){  // Fenster setup added
+	setup();
+}
+
+void ofxFenster::setup(){  // Fenster setup added
+	listener->fensterSetup();
 }
 
 void ofxFenster::draw(bool force){
