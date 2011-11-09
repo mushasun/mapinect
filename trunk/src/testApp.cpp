@@ -27,7 +27,6 @@ void testApp::setup() {
 	arduino.setup();
 
 	setupTexture = true;
-
 }
 
 //--------------------------------------------------------------
@@ -119,7 +118,7 @@ void testApp::mouseReleased(int x, int y, int button)
 //
 void testApp::fensterSetup()
 {
-	vm.setup();
+	vm.setup(this->fenster);
 }
 
 

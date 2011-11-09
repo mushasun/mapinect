@@ -7,20 +7,21 @@
 
 namespace mapinect {
 
-	float screenFov = 25.40f;		//28.04f;
-	float aspect = 1.36f;			//1.35f;
+	float screenFov = 28.00f;		//25.40f//28.04f;
+	float aspect = 1.33f;			//1.36f//1.35f;
 	float nearPlane = 0.3f;
 	float zAngle = 0.0f;
 
-	float transXAT = -45.0;			//-59.0;		
-	float transYAT = -6.0;		
+	float transXAT = -11.0;//-45.0;			//-59.0;		
+	float transYAT = 76.0;//-6.0;		
 
 	// Coordenadas 3D del proyector
-	float xProj = -20.0f;		
-	float yProj = 33.0f;		// 364 mm arriba del Kinect
-	float zProj = 0.0f;			// 720 o 900 mm de distancia (z) del Kinect
+	float xProj = 0;//-20.0f;		
+	float yProj = 30;//33.0f;		// 364 mm arriba del Kinect
+	float zProj = 0;//0.0f;			// 720 o 900 mm de distancia (z) del Kinect
 
-	float projectionMatrix[16];
+	//float projectionMatrix[16];
+	//float projInt[9];
 
 	// Dibujar Quad
 	static ofxVec3f vA,vB,vC,vD;
@@ -31,12 +32,11 @@ namespace mapinect {
 	unsigned char* VM::imgPixels = NULL;
 
 	//--------------------------------------------------------------
-	void VM::setup() {
+	void VM::setup(ofxFenster* f) {
 		bImgLoaded = false;
-//		textureID = loadImageTexture("ofTheo.jpg");
+		this->fenster = f;	
+		textureID = loadImageTexture("ofTheo.jpg");
 	}
-
-
 
 	ofxVec3f scaleFromMtsToMms(ofxVec3f p)
 	{
@@ -51,8 +51,8 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void VM::draw()
 	{
-
-		textureID = loadImageTexture("Building_texture.jpg");
+		
+		//textureID = loadImageTexture("globe.jpg");
 
 		float nearDist 	= 300; //30 cms  //zProj / 10;	//This is also the viewing plane distance	
 		float farDist 	= 4000; //zProj * 10.0;	//4.0
@@ -60,8 +60,25 @@ namespace mapinect {
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluPerspective(screenFov, aspect, nearDist, farDist);
+	
+/*		// Prueba
+		double w = ofGetWidth();
+		double h = ofGetHeight();
+		glOrtho(0,w,0,h,-1,1);
 
-		glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
+		projInt[0] = 900;	// alfa_x 
+		projInt[1] = 0;		// skew
+		projInt[2] = 600;	// u_0 - principal point x
+		projInt[3] = 0;
+		projInt[4] = 900;	// alfa_y
+		projInt[5] = 700;	// v_0 - principal point y
+		projInt[6] = 0;
+		projInt[7] = 0;
+		projInt[8] = 1;
+
+		glMultMatrixf(projInt);
+*/
+		//glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
 
 
 		glMatrixMode(GL_MODELVIEW);
@@ -123,11 +140,29 @@ namespace mapinect {
 				}					
 			}
 		} else {
-			// Quad de prueba
-			vA.set(-100,100,-500);
-			vB.set(0,100,-500);
-			vC.set(0,0,-500);
-			vD.set(-100,0,-500);
+			// Quads de prueba
+			vA.set(100,0,-500);
+			vB.set(100,140,-500);
+			vC.set(167,140,-500);
+			vD.set(167,0,-500);
+			detectedQuads[cantQuads][0] = vA;
+			detectedQuads[cantQuads][1] = vB;
+			detectedQuads[cantQuads][2] = vC;
+			detectedQuads[cantQuads][3] = vD;
+			cantQuads++;
+			vA.set(-60,0,-850);
+			vB.set(-60,140,-850);
+			vC.set(0,140,-800);
+			vD.set(0,0,-800);
+			detectedQuads[cantQuads][0] = vA;
+			detectedQuads[cantQuads][1] = vB;
+			detectedQuads[cantQuads][2] = vC;
+			detectedQuads[cantQuads][3] = vD;
+			cantQuads++;
+			vA.set(-200,0,-650);
+			vB.set(-200,160,-650);
+			vC.set(-140,160,-755);
+			vD.set(-140,0,-755);
 			detectedQuads[cantQuads][0] = vA;
 			detectedQuads[cantQuads][1] = vB;
 			detectedQuads[cantQuads][2] = vC;
@@ -136,6 +171,8 @@ namespace mapinect {
 		}
 		gModel->objectsMutex.unlock();
 		
+//		glTranslatef(0,-60,0); // Translate Kinect coords 6 cms down
+
 		// Draw each quad
 		for(int i=0; i<cantQuads; i++) 
 		{
@@ -162,9 +199,12 @@ namespace mapinect {
 					glTexCoord2f(1, 0);
 					glVertex3f(vB.x,vB.y,vB.z);
 					glTexCoord2f(1, 1);
+				//	glVertex3f(vD.x,vD.y,vD.z);
 					glVertex3f(vC.x,vC.y,vC.z);
 					glTexCoord2f(0, 1);
 					glVertex3f(vD.x,vD.y,vD.z);
+//					glVertex3f(vC.x,vC.y,vC.z);
+
 				glEnd();
 
 			} else {
@@ -181,7 +221,9 @@ namespace mapinect {
 
 		ofPopMatrix();
 
-//		glDeleteTextures(1,&textureID);
+
+
+	//	glDeleteTextures(1,&textureID);
 	}
 
 	//--------------------------------------------------------------
@@ -320,13 +362,13 @@ namespace mapinect {
 			nearPlane -= 0.005f;
 			printf("near increased: %f \n",nearPlane);
 			break;
-		case ',':
+	/*	case ',':
 			printf("Projection matrix:\n");
 			for(int i=0;i<16;i=i+4){
 				printf("[ %4.4f %4.4f %4.4f %4.4f] i=%d\n",projectionMatrix[i],projectionMatrix[i+1],projectionMatrix[i+2],projectionMatrix[i+3], i);
 			}
 			break;
-		case 'm':
+	*/	case 'm':
 			zAngle += 1.0f;
 			printf("Angle increased for rotation Z axis: %f \n",zAngle);
 			break;
@@ -364,15 +406,17 @@ namespace mapinect {
 
 	GLuint VM::loadImageTexture(char* imgFile)
 	{
+		GLuint result = -1;
+		this->fenster->toContext();
+
 		if ((imgFile == NULL) || (imgFile == "")) {
 			bImgLoaded = false;
-			return -1;
 		} else {
 			bImgLoaded = img.loadImage(imgFile);
 			if (bImgLoaded) {
 				imgFilename = imgFile;
 				imgPixels = img.getPixels();
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glEnable(GL_TEXTURE_2D);
 				glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
 				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -386,11 +430,12 @@ namespace mapinect {
 				glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, img.getWidth(), img.getHeight(), 0, GL_RGB/*GL_RGBA*/,GL_UNSIGNED_BYTE,imgPixels);
 				img.setUseTexture(true);
 				glFlush();
-				return textureID;
-			} else {
-				return -1;
+				result = textureID;
 			}
 		}
+
+		this->fenster->toMainContext();
+		return result;
 	} 
 
 
