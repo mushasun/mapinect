@@ -50,6 +50,7 @@ void testApp::draw()
 
 //--------------------------------------------------------------
 void testApp::exit() {
+	pcm.exit();
 	gKinect->close();
 }
 

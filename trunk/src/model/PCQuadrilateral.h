@@ -19,10 +19,9 @@ namespace mapinect {
 
 			virtual bool							detectPolygon(pcl::PointCloud<PointXYZ>::Ptr cloud,
 														const std::vector<ofxVec3f>& vCloud);
-			virtual bool							detectPolygon2(const std::vector<ofxVec3f>& cloud);
 
 			inline const pcl::PointIndices::Ptr		getVertexIdxs() { return vertexIdxs; }
-			virtual void							increaseLodOfPolygon(PointCloud<PointXYZ>::Ptr nuCloud);
+			virtual void							increaseLod(PointCloud<PointXYZ>::Ptr nuCloud);
 		private:
 			pcl::PointIndices::Ptr					vertexIdxs;
 	};

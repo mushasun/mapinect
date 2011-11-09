@@ -14,7 +14,7 @@ namespace mapinect {
 	}
 
 	double Line2D::distance(const ofxVec2f &v) {
-		double num = dabsd(calculateValue(v));
+		double num = abs(calculateValue(v));
 		return num / pSqrtA2B2;
 	}
 
@@ -30,7 +30,7 @@ namespace mapinect {
 
 	PositionToLine Line2D::positionTo(const ofxVec2f &v) {
 		double value = calculateValue(v);
-		if (dabsd(value) < DBL_EPSILON) {
+		if (abs(value) < DBL_EPSILON) {
 			return kPositionedInLine;
 		}
 		else if (value < 0) {

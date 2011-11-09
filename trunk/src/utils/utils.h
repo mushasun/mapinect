@@ -37,13 +37,10 @@ extern int					objId;
 
 #define MAX_FLOAT		FLT_MAX
 
-inline double dabsd(double value) {
-	if (value < 0) {
-		return -value;
-	}
-	else {
-		return value;
-	}
-}
+struct ofPolar {
+	float ro, theta;
+};
+
+ofPolar cartesianToPolar(const ofPoint& c);
 
 #endif	// UTILS_H__

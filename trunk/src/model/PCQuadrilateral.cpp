@@ -112,76 +112,7 @@ namespace mapinect {
 		return true;
 	}
 
-	bool PCQuadrilateral::detectPolygon2(const std::vector<ofxVec3f>& vCloud) {
-		ofxVec3f vMinMin = ofxVec3f(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
-		ofxVec3f vMaxMax = ofxVec3f(-MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT);
-
-		ofxVec3f vMinMax = ofxVec3f(MAX_FLOAT, -MAX_FLOAT, MAX_FLOAT);
-		ofxVec3f vMaxMin = ofxVec3f(-MAX_FLOAT, MAX_FLOAT, -MAX_FLOAT);
-
-		int pMinMin = -1;
-		int pMaxMax = -1;
-		int pMaxMin = -1;
-		int pMinMax = -1;
-
-		for (int k = 0; k < vCloud.size(); k++) {
-			ofxVec3f p = vCloud.at(k);
-
-			//Encuentro los vertices con:
-			//menor 'x' y menor 'y'  --> vMinMin 
-			//mayor 'x' y mayor 'y' --> vMaxMax
-			//mayor 'x' y menor 'y' --> vMaxMin
-			//menor 'x' y mayor 'y' --> vMinMax
-
-			if(p.x > vMaxMax.x && p.y > vMaxMax.y)
-			{
-				vMaxMax.x = p.x;
-				vMaxMax.y = p.y;
-				pMaxMax = k;
-			}
-
-			if(p.x > vMaxMin.x && p.y < vMaxMin.y)
-			{
-				vMaxMin.x = p.x;
-				vMaxMin.y = p.y;
-				pMaxMin = k;
-			}
-
-			if(p.x < vMinMin.x && p.y < vMinMin.y)
-			{
-				vMinMin.x = p.x;
-				vMinMin.y = p.y;
-				pMinMin = k;
-
-				//cout << "TempMinMin: " << p.x << ", " << p.y << endl;
-			}
-
-			if(p.x < vMinMax.x && p.y > vMinMax.y)
-			{
-				vMinMax.x = p.x;
-				vMinMax.y = p.y;
-				pMinMax = k;
-			}
-		}
-
-		if (pMaxMax != pMinMin != pMaxMin != pMinMax != -1)
-		{
-			getPolygonModelObject()->addVertex(vCloud.at(pMinMin));
-			getPolygonModelObject()->addVertex(vCloud.at(pMaxMin));
-			getPolygonModelObject()->addVertex(vCloud.at(pMaxMax));
-			getPolygonModelObject()->addVertex(vCloud.at(pMinMax));
-
-			//cout << "MinMin: " << pVA.x << ", " << pVA.y << endl;
-			//cout << "MaxMin: " << pVB.x << ", " << pVB.y << endl;
-			//cout << "MaxMax: " << pVC.x << ", " << pVC.y << endl;
-			//cout << "MinMax: " << pVD.x << ", " << pVD.y << endl;
-			return true;
-		}
-		else 
-			return false;
-	}
-
-	void PCQuadrilateral::increaseLodOfPolygon(PointCloud<PointXYZ>::Ptr nuCloud)
+	void PCQuadrilateral::increaseLod(PointCloud<PointXYZ>::Ptr nuCloud)
 	{
 		//PCDWriter writer;
 		//writer.write<pcl::PointXYZ> ("nuCloud.pcd", *nuCloud, false);
@@ -215,12 +146,15 @@ namespace mapinect {
 		this->cloud += *nuPointsOfFace;
 
 		//writer.write<pcl::PointXYZ> ("nucloudOfFace.pcd", cloud, false);
-		std::vector<ofxVec3f> vCloudHull;
+		std::vector<ofxVec3f> vCloud;
 		for (int k = 0; k < cloud.size(); k++) {
-			vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud.at(k)));
+			vCloud.push_back(POINTXYZ_OFXVEC3F(cloud.at(k)));
 		}
 		pcl::PointCloud<PointXYZ>::Ptr cloudPtr(new pcl::PointCloud<PointXYZ>(cloud));
-		detectPolygon(cloudPtr, vCloudHull);
+
+		matched = new PCQuadrilateral(coefficients);
+		matched->detectPolygon(cloudPtr, vCloud);
+		updateMatching();
 	}
 
 }

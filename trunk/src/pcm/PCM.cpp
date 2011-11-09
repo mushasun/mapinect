@@ -22,6 +22,11 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
+	void PCM::exit() {
+		pcmThread.exit();
+	}
+
+	//--------------------------------------------------------------
 	void PCM::update(bool isKinectFrameNew) {
 
 	}

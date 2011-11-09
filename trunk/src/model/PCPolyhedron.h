@@ -11,21 +11,26 @@ namespace mapinect {
 	class PCPolyhedron : public PCModelObject {
 		public:
 			PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud)
-				: PCModelObject(cloud, extendedCloud) { }
+				: PCModelObject(cloud, extendedCloud) { drawPointCloud = false; }
 			PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId)
-				: PCModelObject(cloud, extendedCloud, objId) { }
+				: PCModelObject(cloud, extendedCloud, objId) { drawPointCloud = false; }
 			virtual void		draw();
 			virtual void		detectPrimitives();
 			virtual void		applyTransformation();
 			PCPolygon*			getPCPolygon(int index);
 			int					getPCPolygonSize();
+			virtual void		resetLod();
 			virtual void		increaseLod();
 		protected:
 			//virtual PCPolygon*	createPCPolygon();
 
 		private:
-			vector<PCPolygon*>	pcpolygons;
+			void				updatePolygons();
 			virtual void		unifyVertexs();
+			bool				findBestFit(PCPolygon*, PCPolygon*& removed, bool& wasRemoved);
+
+			vector<PCPolygon*>	pcpolygons;
+
 	};
 }
 

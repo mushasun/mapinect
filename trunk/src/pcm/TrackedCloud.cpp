@@ -162,8 +162,8 @@ namespace mapinect {
 			gModel->objectsMutex.lock();
 			if(objectInModel != NULL)
 			{
-				objectInModel->setCloud(cloud);
 				objectInModel->resetLod();
+				objectInModel->setCloud(cloud);
 				/*if(needApplyTransformation)
 					objectInModel->applyTransformation();*/
 				//if(needRecalculateFaces)
@@ -191,7 +191,8 @@ namespace mapinect {
 			PointCloud<PointXYZ>::Ptr cloud = getPartialCloudRealCoords(sMin, sMax, density);
 			*/
 
-			ofxVec3f halo(0.001, 0.001, 0.001);
+			ofxVec3f halo(0.005, 0.005, 0.005);
+			halo /= (float)objectInModel->getLod();
 			vMin -= halo;
 			vMax += halo;
 

@@ -33,6 +33,7 @@ namespace mapinect {
 	class PCMThread : ofxThread {
 	public:
 		void						setup();
+		void						exit();
 		virtual void				threadedFunction();
 
 		void						saveCloud(const string& name);

@@ -56,3 +56,4 @@ ofxVec2f discardCoordinateOfxVec3f(const ofxVec3f& v, DiscardCoordinate discard)
 		return ofxVec2f(v.x, v.y);
 	}
 }
+

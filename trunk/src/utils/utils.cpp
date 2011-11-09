@@ -27,3 +27,21 @@ int					MAX_OBJ_LOD;
 int					objId;
 float				MAX_UNIFYING_DISTANCE;
 
+ofPolar cartesianToPolar(const ofPoint& c)
+{
+	ofPolar p;
+	p.ro = sqrt(c.x * c.x + c.y * c.y);
+	p.theta = 0;
+	if (c.x != 0 || c.y != 0) {
+		if (c.x == 0) {
+			p.theta = c.y > 0 ? PI / 2 : - PI / 2;
+		}
+		else {
+			p.theta = atan(c.y / c.x);
+			if (c.x < 0) {
+				p.theta += PI;
+			}
+		}
+	}
+	return p;
+}
