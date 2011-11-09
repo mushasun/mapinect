@@ -2,11 +2,13 @@
 #define VM_H__
 
 #include "ofImage.h"
+#include "ofxFenster.h"
 
 namespace mapinect {
+
 	class VM {
 	public:
-		virtual void setup();
+		virtual void setup(ofxFenster* f);
 		virtual void update();
 		virtual void draw();
 
@@ -28,6 +30,8 @@ namespace mapinect {
 
 		GLuint loadImageTexture(char* imgFile); 
 //		GLuint loadImageTexture(int& imgIndex); 
+
+		ofxFenster* fenster;
 
 	};
 }
