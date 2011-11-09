@@ -10,10 +10,8 @@ namespace mapinect {
 
 	class PCPolyhedron : public PCModelObject {
 		public:
-			PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud)
-				: PCModelObject(cloud, extendedCloud) { drawPointCloud = false; }
-			PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId)
-				: PCModelObject(cloud, extendedCloud, objId) { drawPointCloud = false; }
+			PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId);
+			
 			virtual void		draw();
 			virtual void		detectPrimitives();
 			virtual void		applyTransformation();

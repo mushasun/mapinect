@@ -8,6 +8,7 @@
 #include "Timer.h"
 #include "utils.h"
 
+
 using namespace std;
 
 #define DEFAULT_NAME		"test"
@@ -42,6 +43,11 @@ namespace mapinect {
 			MAX_OBJ_LOD = XML.getValue("PCMConfig:MAX_OBJ_LOD", 2);
 			MAX_UNIFYING_DISTANCE = XML.getValue("PCMConfig:MAX_UNIFYING_DISTANCE", 0.01);
 
+			KINECT_WIDTH = XML.getValue("PCMConfig:KINECT_WIDTH", 640);
+			KINECT_HEIGHT = XML.getValue("PCMConfig:KINECT_HEIGHT", 480);
+			KINECT_WIDTH_OFFSET = XML.getValue("PCMConfig:KINECT_WIDTH_OFFSET", 0);
+			KINECT_HEIGHT_OFFSET = XML.getValue("PCMConfig:KINECT_HEIGHT_OFFSET", 0);
+			MAX_UNIFYING_DISTANCE_PROJECTION = XML.getValue("PCMConfig:MAX_UNIFYING_DISTANCE_PROJECTION", 0.01);
 		}
 
 		// Initialize point cloud
@@ -61,7 +67,8 @@ namespace mapinect {
 		detectMode = false;
 		objId = 0;
 		startThread(true, false);
-
+		table = NULL;
+		gModel->table = NULL;
 	}
 
 	//--------------------------------------------------------------
@@ -264,12 +271,27 @@ namespace mapinect {
 			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_inliers (new pcl::PointCloud<pcl::PointXYZ>());
 			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_outliers (new pcl::PointCloud<pcl::PointXYZ>());
 
-			// Create the filtering object
+			//Obtengo los puntos que son mesa
+			extract.setInputCloud (cloudTemp);
+			extract.setIndices (inliers);
+			extract.setNegative (false);
+			if(cloud_p->size() != cloudTemp->size())
+				extract.filter (*cloud_filtered_temp_outliers);
+
+			gModel->objectsMutex.lock();
+			if(table == NULL)
+			{
+				table = new PCPolyhedron(cloud_filtered_temp_outliers, cloud_filtered_temp_outliers, -1);
+				table->setCloud(cloud_filtered_temp_outliers);
+				table->detectPrimitives();
+				gModel->table = table;
+			}
+			gModel->objectsMutex.unlock();
+
+			// Quito los puntos que no son mesa
 			extract.setInputCloud (cloudTemp);
 			extract.setIndices (inliers);
 			extract.setNegative (true);
-
-
 			if(cloud_p->size() != cloudTemp->size())
 				extract.filter (*cloud_filtered_temp_outliers);
 
@@ -320,7 +342,7 @@ namespace mapinect {
 
 			list<TrackedCloud*> nuevosClouds;
 
-			PCDWriter writer;
+			//PCDWriter writer;
 			//writer.write<pcl::PointXYZ> ("tableTop.pcd", *filteredCloud, false);
 
 			//separo en clusters

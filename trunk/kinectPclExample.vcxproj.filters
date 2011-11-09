@@ -189,6 +189,15 @@
     <ClCompile Include="src\vm\VM.cpp">
       <Filter>vm</Filter>
     </ClCompile>
+    <ClCompile Include="src\bouncingball\BouncingBall.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bouncingball\tejo.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bouncingball\Segment3D.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -432,6 +441,15 @@
     <ClInclude Include="src\vm\VM.h">
       <Filter>vm</Filter>
     </ClInclude>
+    <ClInclude Include="src\bouncingball\BouncingBall.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bouncingball\Segment3D.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bouncingball\tejo.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -508,6 +526,9 @@
     </Filter>
     <Filter Include="vm">
       <UniqueIdentifier>{89e6d4e9-6520-433b-967b-9913157b32d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bouncingball">
+      <UniqueIdentifier>{789b26d2-890f-42d1-bfa6-0d1e29022779}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

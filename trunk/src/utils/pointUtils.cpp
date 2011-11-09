@@ -273,11 +273,11 @@ PointCloud<PointXYZ>::Ptr getPartialCloudRealCoords(ofPoint min, ofPoint max, in
 	}
 
 PointCloud<PointXYZ>::Ptr getCloud(int density){
-		return getPartialCloudRealCoords(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),density);
+		return getPartialCloudRealCoords(ofPoint(KINECT_WIDTH_OFFSET,KINECT_HEIGHT_OFFSET),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),density);
 	}
 
 PointCloud<PointXYZ>::Ptr getCloud(){
-	return getPartialCloudRealCoords(ofPoint(0,0),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),CLOUD_RES);
+	return getPartialCloudRealCoords(ofPoint(KINECT_WIDTH_OFFSET,KINECT_HEIGHT_OFFSET),ofPoint(KINECT_WIDTH,KINECT_HEIGHT),CLOUD_RES);
 }
 
 PointIndices::Ptr adjustPlane(ModelCoefficients coefficients, PointCloud<PointXYZ>::Ptr cloudToAdjust)

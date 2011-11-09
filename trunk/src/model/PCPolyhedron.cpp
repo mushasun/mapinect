@@ -17,6 +17,21 @@
 
 namespace mapinect {
 
+	PCPolyhedron::PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId)
+				: PCModelObject(cloud, extendedCloud, objId)
+	{
+		drawPointCloud = false; 
+		ofxVec3f v;
+		Eigen::Vector4f eCenter;
+		pcl::compute3DCentroid(*cloud,eCenter);
+		
+		v.x = eCenter[0];
+		v.y = eCenter[1];
+		v.z = eCenter[2];
+
+		this->setCenter(v);
+	}
+
 	bool hasNoMatching(PCPolygon* p) {
 		return !(p->hasMatching());
 	}

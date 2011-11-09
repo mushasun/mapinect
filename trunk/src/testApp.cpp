@@ -18,13 +18,13 @@ void testApp::setup() {
 	//gKinect->setCameraTiltAngle(angle);
 
 	gModel = new mapinect::Model();
-	
 	ofSetWindowTitle("mapinect");
 	cv.setup();
 	pcm.setup();
 //	lpmt.setup();
 //	vm.setup();
 	arduino.setup();
+	bb.setup();
 
 	setupTexture = true;
 }
@@ -118,7 +118,7 @@ void testApp::mouseReleased(int x, int y, int button)
 //
 void testApp::fensterSetup()
 {
-	vm.setup(this->fenster);
+	//vm.setup(this->fenster);
 }
 
 
@@ -126,7 +126,8 @@ void testApp::fensterSetup()
 void testApp::fensterDraw()
 {
 	//lpmt.draw();
-	vm.draw();
+	//vm.draw();
+	bb.draw();
 
 }
 
@@ -134,7 +135,8 @@ void testApp::fensterDraw()
 void testApp::fensterUpdate()
 {
 	//lpmt.update();
-	vm.update();
+	//vm.update();
+	bb.update();
 
 /*	if (setupTexture) {
 		// First load image texture
@@ -148,41 +150,47 @@ void testApp::fensterUpdate()
 void testApp::fensterKeyPressed(int key)
 {
 	//lpmt.keyPressed(key);
-	vm.keyPressed(key);
+	//vm.keyPressed(key);
+	bb.keyPressed(key);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMouseMoved(int x, int y)
 {
 	//lpmt.mouseMoved(x, y);
-	vm.mouseMoved(x, y);
+	//vm.mouseMoved(x, y);
+	bb.mouseMoved(x, y);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMouseDragged(int x, int y, int button)
 {
 	//lpmt.mouseDragged(x, y, button);
-	vm.mouseDragged(x, y, button);
+	bb.mouseDragged(x, y, button);
+	//vm.mouseDragged(x, y, button);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMousePressed(int x, int y, int button)
 {
 	//lpmt.mousePressed(x, y, button);
-	vm.mousePressed(x, y, button);
+	//vm.mousePressed(x, y, button);
+	bb.mousePressed(x, y, button);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMouseReleased(int x, int y, int button)
 {
 	//lpmt.mouseReleased(x, y, button);
-	vm.mouseReleased(x, y, button);
+	//vm.mouseReleased(x, y, button);
+	bb.mouseReleased(x, y, button);
 }
 
 //--------------------------------------------------------------
 void testApp::fensterWindowResized(int w, int h)
 {
 	//lpmt.windowResized(w, h);
-	vm.windowResized(w, h);
+	//vm.windowResized(w, h);
+	bb.windowResized(w, h);
 }
 
