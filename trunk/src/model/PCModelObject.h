@@ -33,7 +33,7 @@ namespace mapinect {
 		inline PointCloud<PointXYZ>	getCloud()							{ return cloud; }
 		inline bool					hasObject()							{ return modelObject != NULL; }
 		inline int					getLod()							{ return lod; }
-		inline void					resetLod()							{ lod = 1; }
+		virtual void				resetLod();
 		inline ofxVec3f				getvMin()							{ return vMin; }
 		inline ofxVec3f				getvMax()							{ return vMax; }
 

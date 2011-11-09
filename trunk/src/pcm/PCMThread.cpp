@@ -65,6 +65,11 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
+	void PCMThread::exit() {
+		stopThread();
+	}
+
+	//--------------------------------------------------------------
 	void PCMThread::threadedFunction() {
 		while (isThreadRunning()) {
 			if (lock()) {

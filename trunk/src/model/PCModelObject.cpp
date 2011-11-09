@@ -46,12 +46,17 @@ namespace mapinect {
 
 	}
 
+	void PCModelObject::resetLod() {
+		lod = 1;
+	}
+
 	void PCModelObject::draw(){
 		if (modelObject != NULL) {
 			modelObject->draw();
 		}
 		if (drawPointCloud) {
-			ofSetColor(0,0,255);
+			static int colors[] = { kRGBBlue, kRGBGreen, kRGBRed, 0xFFFF00, 0xFF00FF, 0x00FFFF };
+			ofSetColor(colors[getId() % 6]);
 			ofxVec3f w;
 			glBegin(GL_POINTS);
 			for (size_t i = 0; i < cloud.size(); i++) {
@@ -61,9 +66,6 @@ namespace mapinect {
 			}
 			glEnd();
 			
-			
-			ofSetColor(255,0,0);
-			ofDrawBitmapString(ofToString(getId()),w.x,w.y);
 		}
 	}
 

@@ -23,9 +23,9 @@ namespace mapinect {
 	float projectionMatrix[16];
 
 	// Dibujar Quad
-	ofxVec3f vA,vB,vC,vD;
+	static ofxVec3f vA,vB,vC,vD;
 
-	ofxVec3f detectedQuads[12][4];
+	static ofxVec3f detectedQuads[12][4];
 
 	GLuint VM::textureID = 0;
 	unsigned char* VM::imgPixels = NULL;

@@ -29,31 +29,10 @@ namespace mapinect {
 		ofxVec2f v2A = discardCoordinateOfxVec3f(v3A - sortCenter, sortDiscardCoordinate);
 		ofxVec2f v2B = discardCoordinateOfxVec3f(v3B - sortCenter, sortDiscardCoordinate);
 
-		double phiA = 0;
-		if (v2A.x != 0 || v2A.y != 0) {
-			double roA = sqrt(v2A.x * v2A.x + v2A.y * v2A.y);
-			double arcsinA = asin(v2A.y / roA);
-			if (v2A.x >= 0) {
-				phiA = arcsinA;
-			}
-			else {
-				phiA = PI + arcsinA;
-			}
-		}
+		ofPolar pA = cartesianToPolar(v2A);
+		ofPolar pB = cartesianToPolar(v2B);
 
-		double phiB = 0;
-		if (v2B.x != 0 || v2B.y != 0) {
-			double roB = sqrt(v2B.x * v2B.x + v2B.y * v2B.y);
-			double arcsinB = asin(v2B.y / roB);
-			if (v2B.x >= 0) {
-				phiB = arcsinB;
-			}
-			else {
-				phiB = PI + arcsinB;
-			}
-		}
-
-		return phiA < phiB;
+		return pA.theta < pB.theta;
 	}
 
 	void Polygon::resetVertex() {

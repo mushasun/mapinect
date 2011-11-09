@@ -8,6 +8,7 @@ namespace mapinect {
 	public:
 
 		virtual void setup();
+		virtual void exit();
 		virtual void update(bool isKinectFrameNew);
 		virtual void draw();
 
