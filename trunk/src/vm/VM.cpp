@@ -12,8 +12,8 @@ namespace mapinect {
 	float nearPlane = 0.3f;
 	float zAngle = 0.0f;
 
-	float transXAT = -11.0;//-45.0;			//-59.0;		
-	float transYAT = 76.0;//-6.0;		
+	float transXAT = -24.0; //-11.0;//-45.0;			//-59.0;		
+	float transYAT = 26.0; //76.0;//-6.0;		
 
 	// Coordenadas 3D del proyector
 	float xProj = 0;//-20.0f;		
