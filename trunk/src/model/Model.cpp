@@ -2,7 +2,7 @@
 
 namespace mapinect {
 	Model::Model() {
-		
+		this->table = NULL;
 	}
 
 }

@@ -1,8 +1,7 @@
 #ifndef UTILS_H__
 #define UTILS_H__
 
-#define KINECT_WIDTH 640
-#define KINECT_HEIGHT 480
+
 
 #include "ofxKinect.h"
 #include "Model.h"
@@ -32,6 +31,11 @@ extern float				TRANSLATION_DISTANCE_TOLERANCE;
 extern int					CLOUD_RES;
 extern int					MAX_OBJ_LOD;
 extern float				MAX_UNIFYING_DISTANCE;
+extern int					KINECT_WIDTH;
+extern int					KINECT_HEIGHT;
+extern int					KINECT_WIDTH_OFFSET;
+extern int					KINECT_HEIGHT_OFFSET;
+extern float				MAX_UNIFYING_DISTANCE_PROJECTION;
 
 extern int					objId;
 
@@ -41,6 +45,15 @@ struct ofPolar {
 	float ro, theta;
 };
 
+inline ofxVec3f scaleFromMtsToMms(ofxVec3f p)
+{
+	ofxVec3f res;
+	// Transform from meters to milimeters
+	res.x = (p.x)*1000;
+	res.y = (p.y)*1000;
+	res.z = (p.z)*1000;
+	return res;	
+}
 ofPolar cartesianToPolar(const ofPoint& c);
 
 #endif	// UTILS_H__

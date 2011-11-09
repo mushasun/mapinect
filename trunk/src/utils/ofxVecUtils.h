@@ -70,7 +70,7 @@ std::vector<PairMatching> bestMatching(const std::vector<T>& vA, const std::vect
 	std::vector<std::vector<T>>	perms = permutations(vB);
 
 	int ixPerm = -1;
-	if (perms.size() == 0) {
+	if (true || perms.size() == 0) {
 		perms.push_back(vB);
 		ixPerm = 0;
 	}

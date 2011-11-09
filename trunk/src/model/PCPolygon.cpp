@@ -57,6 +57,7 @@ namespace mapinect {
 		pcl::transformPointCloud(cloud,cloud,*transformation);
 	}
 
+
 	bool PCPolygon::matches(PCPolygon* polygon, PCPolygon*& removed, bool& wasRemoved)
 	{
 		bool result = true;

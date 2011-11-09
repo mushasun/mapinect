@@ -38,15 +38,15 @@ namespace mapinect {
 		textureID = loadImageTexture("ofTheo.jpg");
 	}
 
-	ofxVec3f scaleFromMtsToMms(ofxVec3f p)
-	{
-		ofxVec3f res;
-		// Transform from meters to milimeters
-		res.x = (p.x)*1000;
-		res.y = (p.y)*1000;
-		res.z = (p.z)*1000;
-		return res;	
-	}
+	//ofxVec3f scaleFromMtsToMms(ofxVec3f p)
+	//{
+	//	ofxVec3f res;
+	//	// Transform from meters to milimeters
+	//	res.x = (p.x)*1000;
+	//	res.y = (p.y)*1000;
+	//	res.z = (p.z)*1000;
+	//	return res;	
+	//}
 
 	//--------------------------------------------------------------
 	void VM::draw()

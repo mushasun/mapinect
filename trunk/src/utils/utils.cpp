@@ -26,6 +26,11 @@ float				TRANSLATION_DISTANCE_TOLERANCE;
 int					MAX_OBJ_LOD;
 int					objId;
 float				MAX_UNIFYING_DISTANCE;
+int					KINECT_WIDTH;
+int					KINECT_HEIGHT;
+int					KINECT_WIDTH_OFFSET;
+int					KINECT_HEIGHT_OFFSET;
+float				MAX_UNIFYING_DISTANCE_PROJECTION;
 
 ofPolar cartesianToPolar(const ofPoint& c)
 {

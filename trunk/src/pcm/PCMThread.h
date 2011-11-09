@@ -23,6 +23,7 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/segmentation/extract_clusters.h>
+#include "PCPolyhedron.h"
 
 using namespace pcl;
 
@@ -66,6 +67,7 @@ namespace mapinect {
 		int							noDifferencesCount;
 		bool						findBestFit(TrackedCloud* trackedCloud, TrackedCloud*& removedCloud, bool &removed);
 		std::list<TrackedCloud>		trackedClouds;
+		PCPolyhedron*				table;
 
 	};
 }

@@ -12,6 +12,7 @@ namespace mapinect {
 
 		ofxMutex					objectsMutex;
 		std::list<ModelObject*>		objects;
+		ModelObject*				table;
 	};
 }
 

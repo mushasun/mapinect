@@ -53,6 +53,8 @@ namespace mapinect {
 				iter != gModel->objects.end(); iter++) {
 					(*iter)->drawObject();
 			}
+			if(gModel->table != NULL)
+				gModel->table->draw();	
 			gModel->objectsMutex.unlock();
 
 			ofPopMatrix();
