@@ -90,15 +90,14 @@ if not exist "$(ProjectDir)bin\data" mkdir  "$(ProjectDir)bin\data"
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <AdditionalDependencies>openframeworksLib.lib;OpenGL32.lib;GLu32.lib;kernel32.lib;setupapi.lib;glut32.lib;rtAudio.lib;videoInput.lib;libfreetype.lib;FreeImage.lib;qtmlClient.lib;dsound.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;GLee.lib;fmodex_vc.lib;glu32.lib;PocoFoundationmt.lib;PocoNetmt.lib;PocoUtilmt.lib;PocoXMLmt.lib;Ws2_32.lib;..\..\..\addons\ofxOpenCv\libs\opencv\lib\vs2010\cv110.lib;..\..\..\addons\ofxOpenCv\libs\opencv\lib\vs2010\cvaux110.lib;..\..\..\addons\ofxOpenCv\libs\opencv\lib\vs2010\cxcore110.lib;..\..\..\addons\ofxOsc\libs\oscpack\lib\vs2010\oscpack.lib;lib\freenect.lib;..\..\..\..\PCL\PCL\lib\pcl_common.lib;..\..\..\..\PCL\PCL\lib\pcl_features.lib;..\..\..\..\PCL\PCL\lib\pcl_filters.lib;..\..\..\..\PCL\PCL\lib\pcl_io.lib;..\..\..\..\PCL\PCL\lib\pcl_kdtree.lib;..\..\..\..\PCL\PCL\lib\pcl_keypoints.lib;..\..\..\..\PCL\PCL\lib\pcl_octree.lib;..\..\..\..\PCL\PCL\lib\pcl_range_image.lib;..\..\..\..\PCL\PCL\lib\pcl_range_image_border_extractor.lib;..\..\..\..\PCL\PCL\lib\pcl_registration.lib;..\..\..\..\PCL\PCL\lib\pcl_sample_consensus.lib;..\..\..\..\PCL\PCL\lib\pcl_segmentation.lib;..\..\..\..\PCL\PCL\lib\pcl_surface.lib;..\..\..\..\PCL\PCL\lib\pcl_visualization.lib;..\..\..\..\PCL\qhull 6.2.0.1373\lib\qhullstatic.lib;..\..\..\..\PCL\CMINPACK 1.1.3\lib\cminpack_s.lib;..\..\..\..\PCL\OpenNI\Lib\openNI.lib;..\..\..\..\PCL\flann 1.6.9\lib\flann_cpp_s.lib;vtkWidgets.lib;vtkHybrid.lib;vtkRendering.lib;vtkGraphics.lib;vtkverdict.lib;vtkImaging.lib;vtkIO.lib;vtkFiltering.lib;vtkCommon.lib;vtkDICOMParser.lib;vtkNetCDF_cxx.lib;vtkmetaio.lib;comctl32.lib;wsock32.lib;vtksqlite.lib;vtkpng.lib;vtktiff.lib;vtkzlib.lib;vtkjpeg.lib;vtkexpat.lib;vtksys.lib;ws2_32.lib;vtkexoIIc.lib;vtkNetCDF.lib;vfw32.lib;vtkftgl.lib;opengl32.lib;vtkfreetype.lib;..\..\..\..\PCL\PCL-Boost\lib\libboost_system-vc100-mt-1_46_1.lib;..\..\..\..\PCL\PCL-Boost\lib\libboost_filesystem-vc100-mt-1_46_1.lib;..\..\..\..\PCL\PCL-Boost\lib\libboost_thread-vc100-mt-1_46_1.lib;..\..\..\..\PCL\PCL-Boost\lib\libboost_date_time-vc100-mt-1_46_1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\libs\glut\lib\vs2010;..\..\..\libs\rtAudio\lib\vs2010;..\..\..\libs\FreeImage\lib\vs2010;..\..\..\libs\freetype\lib\vs2010;..\..\..\libs\quicktime\lib\vs2010;..\..\..\libs\fmodex\lib\vs2010;..\..\..\libs\videoInput\lib\vs2010;..\..\..\libs\glee\lib\vs2010;..\..\..\libs\glu\lib\vs2010;..\..\..\libs\Poco\lib\vs2010;..\..\..\libs\openFrameworksCompiled\lib\vs2010;lib;..\..\..\..\PCL\VTK 5.6\lib\vtk-5.6;..\..\..\..\PCL\VTK 5.6\lib\vtk-5.6\$(Configuration);..\..\..\..\PCL\PCL\lib;..\..\..\..\PCL\PCL\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>atlthunk.lib; LIBC.lib; LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -107,6 +106,9 @@ if not exist "$(ProjectDir)bin\data" mkdir  "$(ProjectDir)bin\data"
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <GenerateMapFile>false</GenerateMapFile>
+      <StripPrivateSymbols>
+      </StripPrivateSymbols>
     </Link>
     <PostBuildEvent>
       <Message>adding DLLs and creating data folder</Message>
@@ -153,6 +155,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvImage.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.cpp" />
     <ClCompile Include="src\arduino\Arduino.cpp" />
+    <ClCompile Include="src\bouncingball\BObject.cpp" />
     <ClCompile Include="src\bouncingball\BouncingBall.cpp" />
     <ClCompile Include="src\bouncingball\Segment3D.cpp" />
     <ClCompile Include="src\bouncingball\tejo.cpp" />
@@ -238,6 +241,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxOpenCv.h" />
     <ClInclude Include="src\arduino\Arduino.h" />
+    <ClInclude Include="src\bouncingball\BObject.h" />
     <ClInclude Include="src\bouncingball\BouncingBall.h" />
     <ClInclude Include="src\bouncingball\Segment3D.h" />
     <ClInclude Include="src\bouncingball\tejo.h" />

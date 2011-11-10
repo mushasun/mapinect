@@ -20,9 +20,9 @@ void Tejo::draw()
 }
 
 
-void Tejo::update(std::vector<Segment3D> segmentos)
+void Tejo::update(vector<BObject*> bobjects)
 {
-	if(check_collision(segmentos))
+	if(check_collision(bobjects))
 		cout << "Choco!" << endl;
 	ofxVec3f dif = position - tableCenter;
 	ofxVec3f proj = dif.dot(tableNormal) * tableNormal;
@@ -36,31 +36,40 @@ void Tejo::move()
 	position += direction * vel;
 }
 
-bool Tejo::check_collision(std::vector<Segment3D> segmentos){ 
+bool Tejo::check_collision(vector<BObject*> bobjects){ 
 	ofxVec3f normal;
 	bool collision = false;
-	for(int i = 0; i < segmentos.size(); i++)
+	for(int j = 0; j < bobjects.size(); j++)
 	{
-		Segment3D s = segmentos.at(i);
-
-		/*ofxVec3f pt_v = (position + direction*vel) - s.getOrigin();
-		ofxVec3f proj_v = (pt_v.dot(s.getDirection())) * s.getDirection(); 
-		ofxVec3f closest = s.getOrigin() + proj_v;
-		float dist = (position - closest).length();*/
-
-		ofxVec3f closest = s.closestPoint(position+direction*vel);
-		float dist = (position+direction*vel - closest).length();
-		if(dist <= radio)
+		BObject* curObj = bobjects.at(j);
+		vector<Segment3D> segmentos = curObj->getSegments();
+		for(int i = 0; i < segmentos.size(); i++)
 		{
-			if(direction.dot(s.getNormal()) < 0)
+			Segment3D s = segmentos.at(i);
+
+			/*ofxVec3f pt_v = (position + direction*vel) - s.getOrigin();
+			ofxVec3f proj_v = (pt_v.dot(s.getDirection())) * s.getDirection(); 
+			ofxVec3f closest = s.getOrigin() + proj_v;
+			float dist = (position - closest).length();*/
+
+			ofxVec3f closest = s.closestPoint(position+direction*vel);
+			float dist = (position+direction*vel - closest).length();
+			if(dist <= radio)
 			{
-				normal += s.getNormal();
-				collision = true;
-			}
-			else if(s.isDoubleNormal())
-			{
-				normal -= s.getNormal();
-				collision = true;
+				if(direction.dot(s.getNormal()) < 0)
+				{
+					normal += s.getNormal();
+					collision = true;
+					curObj->sound.play();
+					curObj->setColorBoost(60);
+				}
+				else if(s.isDoubleNormal())
+				{
+					normal -= s.getNormal();
+					collision = true;
+					curObj->setColorBoost(60);
+					curObj->sound.play();
+				}
 			}
 		}
 	}

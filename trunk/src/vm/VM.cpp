@@ -329,7 +329,7 @@ namespace mapinect {
 			case '0':
 				if (!bCustomFullscreen) 
 				{
-					ofBeginCustomFullscreen(1280, 0, 1280, 768);
+					ofBeginCustomFullscreen(1440, 0, 1280, 768);
 					bCustomFullscreen = true;
 				} else 
 				{

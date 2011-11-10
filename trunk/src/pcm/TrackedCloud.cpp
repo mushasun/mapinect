@@ -34,7 +34,7 @@ namespace mapinect {
 
 	void TrackedCloud::addCounter(int diff) {
 		counter += diff;
-		if (counter == 0) {
+		if (counter <= 0) {
 			if (hasObject()) {
 				gModel->objectsMutex.lock();
 					gModel->objects.remove(objectInModel);

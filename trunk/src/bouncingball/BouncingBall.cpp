@@ -37,32 +37,24 @@ vector<ofxVec3f> unifyVertex(vector<ofxVec3f> lst, ofxVec3f& centroid)
 
 	//--------------------------------------------------------------
 	void BouncingBall::setup() {
-		screenFov = 25.40f;		//28.04f;
-		aspect = 1.36f;			//1.35f;
+		screenFov = 28.00f;		//25.40f//28.04f;
+		aspect = 1.33f;			//1.36f//1.35f;
 		nearPlane = 0.3f;
 		zAngle = 0.0f;
 
-		transXAT = -45.0;			//-59.0;		
-		transYAT = -6.0;		
+		transXAT = 31.0; //-11.0;//-45.0;			//-59.0;		
+		transYAT = -9.0; //76.0;//-6.0;		
 
 		// Coordenadas 3D del proyector
-		xProj = -20.0f;		
-		yProj = 33.0f;		// 364 mm arriba del Kinect
-		zProj = 0.0f;			// 720 o 900 mm de distancia (z) del Kinect
+		xProj = 0;//-20.0f;		
+		yProj = 24;//33.0f;		// 364 mm arriba del Kinect
+		zProj = 0;//0.0f;			// 720 o 900 mm de distancia (z) del Kinect
+
+
 		y_angle = 0.0;
 		tableSetted = false;
 
 	}
-
-	//ofxVec3f scaleFromMtsToMms(ofxVec3f p)
-	//{
-	//	ofxVec3f res;
-	//	// Transform from meters to milimeters
-	//	res.x = (p.x)*1000;
-	//	res.y = (p.y)*1000;
-	//	res.z = (p.z)*1000;
-	//	return res;	
-	//}
 
 	//--------------------------------------------------------------
 	void BouncingBall::draw()
@@ -75,7 +67,7 @@ vector<ofxVec3f> unifyVertex(vector<ofxVec3f> lst, ofxVec3f& centroid)
 		glLoadIdentity();
 		gluPerspective(screenFov, aspect, nearDist, farDist);
 
-		glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
+		//glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
 
 
 		glMatrixMode(GL_MODELVIEW);
@@ -88,190 +80,21 @@ vector<ofxVec3f> unifyVertex(vector<ofxVec3f> lst, ofxVec3f& centroid)
 		ofxVec3f right (1,0,0);
 		ofxVec3f upDir = right.cross(lookAt);
 		gluLookAt(eyePos.x, eyePos.y, eyePos.z, lookAtPos.x, lookAtPos.y, lookAtPos.z, upDir.x, upDir.y, upDir.z);
+		glRotatef(zAngle,0,0,1);
 
-		//glRotatef(180,0,1,0);
-		//glRotatef(180,1,0,0);
-		//ofTranslate(0,0,-500);
-
-		ofSetColor(0xFF0000);
-		/*glBegin(GL_TRIANGLES);      
-			glVertex3f(0,0,-1000);    
-			glVertex3f(50,100,-1000);    
-			glVertex3f(50,0,-1000);    
-		glEnd();*/
-
-		int cant_caras = 0;
-
-		gModel->objectsMutex.lock();
-		//DrawTable
-		if(gModel->table != NULL)
+		if(tableSetted)
 		{
-			//ofScale(3500,3500,3500);
-			PCPolyhedron* hedron = (PCPolyhedron*)(gModel->table);
-				for (int i=0; i<hedron->getPCPolygonSize();i++)
-				{
-					PCPolygon* gon = hedron->getPCPolygon(i);
-					if (gon->hasObject()) 
-					{
-						mapinect::Polygon* q = gon->getPolygonModelObject();
-						vA = q->getVertex(0)*ofxVec3f(1,-1,-1)*1000;
-						vB = q->getVertex(1)*ofxVec3f(1,-1,-1)*1000;
-						vC = q->getVertex(2)*ofxVec3f(1,-1,-1)*1000;
-						vD = q->getVertex(3)*ofxVec3f(1,-1,-1)*1000;
-						
+			table->draw();
+			
 
-						ofSetColor(0xFF0000);
-						glBegin(GL_TRIANGLES);      
-							glVertex3f(vA.x,vA.y,vA.z);    
-							glVertex3f(vB.x,vB.y,vB.z);
-							glVertex3f(vC.x,vC.y,vC.z);
-							glVertex3f(vC.x,vC.y,vC.z);
-							glVertex3f(vD.x,vD.y,vD.z);
-							glVertex3f(vA.x,vA.y,vA.z);
-						glEnd();
-
-						ofSetColor(0,0,255);
-
-						ofSetColor(255,255,255);
-						glPointSize(10);
-						glEnable(GL_POINT_SMOOTH);
-						glBegin(GL_POINTS);
-						ofSetColor(255,255,255);
-						glVertex3f(vA.x,vA.y,vA.z);    
-						ofSetColor(255,255,0);
-						glVertex3f(vB.x,vB.y,vB.z);    
-						ofSetColor(0,255,0);
-						glVertex3f(vC.x,vC.y,vC.z);    
-						ofSetColor(0,0,255);
-						glVertex3f(vD.x,vD.y,vD.z);    
-						glEnd();
-						
-					}			
-				}	
-				ball.draw();
-
+			//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+			ball.draw();
+			for (int j = 0; j < bobjects.size();j++)
+				if(bobjects.at(j)->getId() != -1) //No es la mesa
+					bobjects.at(j)->draw();
+			//glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+			
 		}
-		if (gModel->objects.size() > 0) 
-		{
-			int objs = 1;
-			for(list<mapinect::ModelObject*>::iterator k = gModel->objects.begin(); 
-				k != gModel->objects.end(); k++)
-			{
-				PCPolyhedron* hedron = (PCPolyhedron*)(*k);
-				for (int i=0; i<hedron->getPCPolygonSize();i++)
-				{
-					PCPolygon* gon = hedron->getPCPolygon(i);
-					if (gon->hasObject()) 
-					{
-						mapinect::Polygon* q = gon->getPolygonModelObject();
-						vA = q->getVertex(0)*ofxVec3f(1,-1,-1)*1000;
-						vB = q->getVertex(1)*ofxVec3f(1,-1,-1)*1000;
-						vC = q->getVertex(2)*ofxVec3f(1,-1,-1)*1000;
-						vD = q->getVertex(3)*ofxVec3f(1,-1,-1)*1000;
-						
-						ofSetColor(64 * objs ,objs*31*i+1,148);
-						glBegin(GL_TRIANGLES);      
-							glVertex3f(vA.x,vA.y,vA.z);    
-							glVertex3f(vB.x,vB.y,vB.z);
-							glVertex3f(vC.x,vC.y,vC.z);
-							glVertex3f(vC.x,vC.y,vC.z);
-							glVertex3f(vD.x,vD.y,vD.z);
-							glVertex3f(vA.x,vA.y,vA.z);
-						glEnd();
-
-						/*vector<ofxVec3f> vecs;
-						vecs.push_back(vA);
-						vecs.push_back(vB);
-						vecs.push_back(vC);
-						vecs.push_back(vD);
-
-						ofSetColor(255,255,255);
-						for(int i = 0; i < vecs.size();i++)
-						{
-							ofxVec3f v = vecs.at(i);
-
-							ofxVec3f dif = v - tableCenter;
-							ofxVec3f proj = dif.dot(tableNormal) * tableNormal;
-							v = v - proj;
-							v *= ofxVec3f(1,-1,-1)*1000;
-							glPointSize(10);
-							glEnable(GL_POINT_SMOOTH);
-							glBegin(GL_POINTS);
-							glVertex3f(v.x,v.y,v.z);    
-							glEnd();
-						}*/
-						/*vector<ofxVec3f> ordered = closerToTable(vecs);
-						
-						ofSetColor(255,255,255);
-						glPointSize(10);
-						glEnable(GL_POINT_SMOOTH);
-						glBegin(GL_POINTS);
-						glVertex3f(ordered.at(0).x,ordered.at(0).y,ordered.at(0).z);    
-						ofSetColor(255,255,0);
-						glVertex3f(ordered.at(3).x,ordered.at(3).y,ordered.at(3).z);    
-						glEnd();*/
-					}			
-				}
-				/*vector<ofxVec3f> vecsproj;
-				for (int i=0; i<hedron->getPCPolygonSize();i++)
-					{
-						ofxVec3f objCenter = hedron->getCenter();
-						PCPolygon* gon = hedron->getPCPolygon(i);
-						if (gon->hasObject()) 
-						{
-							mapinect::Polygon* q = gon->getPolygonModelObject();
-							
-							for(int i = 0; i < 4;i++)
-							{
-								ofxVec3f v = q->getVertex(i);
-
-								ofxVec3f dif = v - tableCenter;
-								ofxVec3f proj = dif.dot(tableNormal) * tableNormal;
-								v = v - proj;
-								vecsproj.push_back(v);
-							}
-						}			
-
-					}	
-					ofSetColor(0,255,255);
-					ofxVec3f centroid;
-					vector<ofxVec3f> vecsprojunified = unifyVertex(vecsproj,centroid);
-					for(int i = 0; i < vecsprojunified.size();i++)
-						{
-							ofxVec3f v = vecsprojunified.at(i);
-							v *= ofxVec3f(1,-1,-1)*1000;
-							glBegin(GL_POINTS);
-							glVertex3f(v.x,v.y,v.z);    
-							glEnd();
-						}*/
-				objs++;
-			}
-		}
-		
-		gModel->objectsMutex.unlock();
-
-		/*for(int i=0; i<cant_caras; i++) 
-		{
-			vA = carasADibujar[i][0];
-			vB = carasADibujar[i][1];
-			vC = carasADibujar[i][2];
-			vD = carasADibujar[i][3];
-
-			ofSetColor(0xFF0000);
-			glBegin(GL_TRIANGLES);      
-				glVertex3f(vA.x,vA.y,vA.z);    
-				glVertex3f(vB.x,vB.y,vB.z);
-				glVertex3f(vC.x,vC.y,vC.z);
-			glEnd();
-
-			ofSetColor(0x00FF00);
-			glBegin(GL_TRIANGLES);      
-				glVertex3f(vB.x,vB.y,vB.z);
-				glVertex3f(vD.x,vD.y,vD.z);
-				glVertex3f(vA.x,vA.y,vA.z);    
-			glEnd();
-		}*/
-
 		ofPopMatrix();
 
 	}
@@ -317,13 +140,36 @@ vector<ofxVec3f> unifyVertex(vector<ofxVec3f> lst, ofxVec3f& centroid)
 		}
 	}
 
+	void BouncingBall::clearUnvisitedObjects()
+	{
+		std::vector<BObject*> keep;
+		for (std::vector<BObject*>::const_iterator it = bobjects.begin (); it != bobjects.end (); ++it)
+		{
+			if((*it)->visited || (*it)->getId() == -1)
+				keep.push_back(*it);
+			else
+				delete(*it);
+		}
+		bobjects = keep;
+	}
+	
+	BObject* BouncingBall::getBObject(int id)
+	{
+		for(int i = 0; i < bobjects.size(); i++)
+		{
+			if(bobjects.at(i)->getId() == id)
+			{
+				bobjects.at(i)->visited = true;
+				return bobjects.at(i);
+			}
+		}
+		vector<Segment3D> nuVec;
+		BObject* nuObject = new BObject(nuVec,ofxVec3f(rand()%256,rand()%256,rand()%256),id,rand()%6);
+		bobjects.push_back(nuObject);
+		return nuObject;
+	}
 	//--------------------------------------------------------------
 	void BouncingBall::update() {
-		segments.clear();
-		for(int i = 0; i < tableSegment3Ds.size(); i++)
-		{
-			segments.push_back(tableSegment3Ds.at(i));
-		}
 
 		gModel->objectsMutex.lock();
 		if(!tableSetted)
@@ -361,15 +207,20 @@ vector<ofxVec3f> unifyVertex(vector<ofxVec3f> lst, ofxVec3f& centroid)
 					tableSegment3Ds.push_back(s2);
 					tableSegment3Ds.push_back(s3);
 					tableSegment3Ds.push_back(s4);
+					table = new BObject(tableSegment3Ds, ofxVec3f(255,255,255), -1,0);
+					table->setPolyhedron(hedron);
 					//segments.push_back(s5);
 					//segments.push_back(s6);
-
+					bobjects.push_back(table);
 					tableSetted = true;
 				}	
 			}
 		}
 		else
 		{
+			for (int j = 0; j < bobjects.size();j++)
+				bobjects.at(j)->visited = false;
+
 			if (gModel->objects.size() > 0) 
 			{
 				int objs = 1;
@@ -377,7 +228,13 @@ vector<ofxVec3f> unifyVertex(vector<ofxVec3f> lst, ofxVec3f& centroid)
 					k != gModel->objects.end(); k++)
 				{
 					PCPolyhedron* hedron = (PCPolyhedron*)(*k);
+					int hedronId = hedron->getId();
+					BObject* curObj = getBObject(hedronId);
+					curObj->clearSegments();
+					curObj->update();
 					vector<ofxVec3f> vecsproj;
+					
+					curObj->setPolyhedron(hedron);
 					for (int i=0; i<hedron->getPCPolygonSize();i++)
 					{
 						ofxVec3f objCenter = hedron->getCenter();
@@ -406,19 +263,20 @@ vector<ofxVec3f> unifyVertex(vector<ofxVec3f> lst, ofxVec3f& centroid)
 							for(int j = i + 1; j < vecsprojunified.size(); j++)
 							{
 								Segment3D s1 = Segment3D(vecsprojunified.at(i),vecsprojunified.at(j),tableNormal,centroid,true);			
-								segments.push_back(s1);
+								curObj->pushSegment(s1);
 							}
 						}
 					}
 					else if (vecsprojunified.size() == 2)
 					{
 						Segment3D s1 = Segment3D(vecsprojunified.at(0),vecsprojunified.at(1),tableNormal,tableCenter,true,true);			
-						segments.push_back(s1);
+						curObj->pushSegment(s1);
 					}
 				}
 			}
-			ball.update(segments);
+			ball.update(bobjects);
 		}
+		clearUnvisitedObjects();
 		gModel->objectsMutex.unlock();
 		
 		

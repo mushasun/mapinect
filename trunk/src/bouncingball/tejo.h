@@ -1,6 +1,7 @@
 #include "ofxVecUtils.h"
 #include "ofMain.h"
 #include "Segment3D.h"
+#include "BObject.h"
 
 class Tejo
 {
@@ -15,7 +16,7 @@ public:
 	inline ofxVec3f getPos() { return position; }
 
 	void draw();
-	void update(std::vector<Segment3D> segmentos);
+	void update(vector<BObject*> bobjects);
 
 private:
 		ofxVec3f position;
@@ -23,7 +24,7 @@ private:
 		double vel;
         double radio;
         void move();
-        bool check_collision(std::vector<Segment3D> segmentos);
+        bool check_collision(vector<BObject*> bobjects);
         //bool hayInterseccionEsfera(vector<Esfera*> cuerpos);
         static float AbsorcionEnergeticaEnChoque ;
         int idBalaTextura;

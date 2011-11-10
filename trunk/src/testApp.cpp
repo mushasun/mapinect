@@ -9,7 +9,7 @@ bool setupTexture;
 #define BOUNCING_BALL		1
 #define BUILDINGS			2
 
-static int APPLICATION = BUILDINGS;
+static int APPLICATION = BOUNCING_BALL;
 
 //--------------------------------------------------------------
 void testApp::setup() {

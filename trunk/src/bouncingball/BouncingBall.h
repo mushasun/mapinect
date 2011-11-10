@@ -3,6 +3,7 @@
 #include "ofxVecUtils.h"
 #include "Tejo.h"
 #include "Segment3D.h"
+#include "BObject.h"
 
 namespace mapinect {
 	class BouncingBall {
@@ -47,6 +48,10 @@ namespace mapinect {
 		float y_angle;
 		vector<ofxVec3f> closerToTable(vector<ofxVec3f> lst);
 		void getOrderedPoints(vector<ofxVec3f> vecsproj,ofxVec3f& left,ofxVec3f& top,ofxVec3f& right,ofxVec3f& bottom,ofxVec3f& centroid);
+		BObject* getBObject(int id);
+		void clearUnvisitedObjects();
+		vector<BObject*> bobjects;
+		BObject* table;
 	};
 }
 
