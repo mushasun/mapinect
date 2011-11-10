@@ -198,6 +198,9 @@
     <ClCompile Include="src\bouncingball\Segment3D.cpp">
       <Filter>bouncingball</Filter>
     </ClCompile>
+    <ClCompile Include="src\buildings\Buildings.cpp">
+      <Filter>buildings</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -450,6 +453,9 @@
     <ClInclude Include="src\bouncingball\tejo.h">
       <Filter>bouncingball</Filter>
     </ClInclude>
+    <ClInclude Include="src\buildings\Buildings.h">
+      <Filter>buildings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -529,6 +535,9 @@
     </Filter>
     <Filter Include="bouncingball">
       <UniqueIdentifier>{789b26d2-890f-42d1-bfa6-0d1e29022779}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="buildings">
+      <UniqueIdentifier>{5d74f2ba-3be3-4c70-b380-98de2e871d48}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
