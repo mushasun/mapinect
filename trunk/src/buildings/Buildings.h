@@ -1,12 +1,13 @@
-#ifndef VM_H__
-#define VM_H__
+#ifndef BUILDINGS_H__
+#define BUILDINGS_H__
 
 #include "ofImage.h"
 #include "ofxFenster.h"
+#include "ofxVec3f.h"
 
 namespace mapinect {
 
-	class VM {
+	class buildings {
 	public:
 		virtual void setup(ofxFenster* f);
 		virtual void update();
@@ -28,6 +29,23 @@ namespace mapinect {
 		bool bTexApplied;
 		GLuint textureID;
 		GLuint streetT;
+		GLuint camino;
+
+		float screenFov;		//25.40f//28.04f;
+		float aspect;			//1.36f//1.35f;
+		float nearPlane;
+		float zAngle;
+
+		std::vector<float> porcentajes;
+
+		float transXAT; //-11.0;//-45.0;			//-59.0;		
+		float transYAT; //76.0;//-6.0;		
+
+		// Coordenadas 3D del proyector
+		float xProj;//-20.0f;		
+		float yProj;//33.0f;		// 364 mm arriba del Kinect
+		float zProj;//0.0f;			// 720 o 900 mm de distancia (z) del Kinect
+		
 
 		GLuint loadImageTexture(char* imgFile); 
 //		GLuint loadImageTexture(int& imgIndex); 
@@ -37,4 +55,4 @@ namespace mapinect {
 	};
 }
 
-#endif	// VM_H__
+#endif	// BUILDINGS_H__

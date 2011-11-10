@@ -50,3 +50,15 @@ ofPolar cartesianToPolar(const ofPoint& c)
 	}
 	return p;
 }
+
+bool sortOnY(ofxVec3f l, ofxVec3f r) {
+    return l.y < r.y;
+}
+
+bool sortOnX(ofxVec3f l, ofxVec3f r) {
+    return l.x < r.x;
+}
+
+bool sortOnZ(ofxVec3f l, ofxVec3f r) {
+    return l.z < r.z;
+}

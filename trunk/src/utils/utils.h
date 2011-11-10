@@ -56,4 +56,10 @@ inline ofxVec3f scaleFromMtsToMms(ofxVec3f p)
 }
 ofPolar cartesianToPolar(const ofPoint& c);
 
+bool sortOnY(ofxVec3f l, ofxVec3f r);
+
+bool sortOnX(ofxVec3f l, ofxVec3f r);
+
+bool sortOnZ(ofxVec3f l, ofxVec3f r);
+
 #endif	// UTILS_H__

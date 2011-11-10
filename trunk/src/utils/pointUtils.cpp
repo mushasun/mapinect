@@ -10,6 +10,7 @@ void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z) {
 	p.z = z;
 }
 
+
 void findPointCloudBoundingBox(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointXYZ& min, pcl::PointXYZ& max) {
 	setPointXYZ(min, MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
 	setPointXYZ(max, -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT);

@@ -35,6 +35,7 @@ int getDifferencesCount(pcl::PointCloud<pcl::PointXYZ>::Ptr src,
 						pcl::PointCloud<pcl::PointXYZ>::Ptr tgt, 
 						float distanceThreshold);
 
+
 //Estima la normal utilizando un conjunto aleatorio de puntos, la cantidad tomada es especificada por plane->points.size() / NORMAL_ESTIMATION_PERCENT
 ofxVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane);
 
@@ -48,4 +49,5 @@ PointCloud<PointXYZ>::Ptr getCloud(int density);
 PointCloud<PointXYZ>::Ptr getCloud();
 
 pcl::PointIndices::Ptr adjustPlane(pcl::ModelCoefficients coefficients, PointCloud<pcl::PointXYZ>::Ptr cloudToAdjust);
+
 #endif // POINT_UTILS_H__
