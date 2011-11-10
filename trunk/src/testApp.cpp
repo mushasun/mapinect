@@ -6,6 +6,11 @@ using namespace mapinect;
 
 bool setupTexture;
 
+#define BOUNCING_BALL		1
+#define BUILDINGS			2
+
+static int APPLICATION = BUILDINGS;
+
 //--------------------------------------------------------------
 void testApp::setup() {
 	gKinect = new ofxKinect();
@@ -22,9 +27,14 @@ void testApp::setup() {
 	cv.setup();
 	pcm.setup();
 //	lpmt.setup();
-//	vm.setup();
+	if (APPLICATION == BOUNCING_BALL) {
+		bb.setup();
+	}
+	else if (APPLICATION == BUILDINGS) {
+		bu.setup(this->fenster);
+	}
+	
 	arduino.setup();
-	bb.setup();
 
 	setupTexture = true;
 }
@@ -126,8 +136,12 @@ void testApp::fensterSetup()
 void testApp::fensterDraw()
 {
 	//lpmt.draw();
-	//vm.draw();
-	bb.draw();
+	if (APPLICATION == BOUNCING_BALL) {
+		bb.draw();
+	}
+	else if (APPLICATION == BUILDINGS) {
+		bu.draw();
+	}
 
 }
 
@@ -135,8 +149,12 @@ void testApp::fensterDraw()
 void testApp::fensterUpdate()
 {
 	//lpmt.update();
-	//vm.update();
-	bb.update();
+	if (APPLICATION == BOUNCING_BALL) {
+		bb.update();
+	}
+	else if (APPLICATION == BUILDINGS) {
+		bu.update();
+	}
 
 /*	if (setupTexture) {
 		// First load image texture
@@ -150,47 +168,71 @@ void testApp::fensterUpdate()
 void testApp::fensterKeyPressed(int key)
 {
 	//lpmt.keyPressed(key);
-	//vm.keyPressed(key);
-	bb.keyPressed(key);
+	if (APPLICATION == BOUNCING_BALL) {
+		bb.keyPressed(key);
+	}
+	else if (APPLICATION == BUILDINGS) {
+		bu.keyPressed(key);
+	}
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMouseMoved(int x, int y)
 {
 	//lpmt.mouseMoved(x, y);
-	//vm.mouseMoved(x, y);
-	bb.mouseMoved(x, y);
+	if (APPLICATION == BOUNCING_BALL) {
+		bb.mouseMoved(x, y);
+	}
+	else if (APPLICATION == BUILDINGS) {
+		bu.mouseMoved(x, y);
+	}
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMouseDragged(int x, int y, int button)
 {
 	//lpmt.mouseDragged(x, y, button);
-	bb.mouseDragged(x, y, button);
-	//vm.mouseDragged(x, y, button);
+	if (APPLICATION == BOUNCING_BALL) {
+		bb.mouseDragged(x, y, button);
+	}
+	else if (APPLICATION == BUILDINGS) {
+		bu.mouseDragged(x, y, button);
+	}
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMousePressed(int x, int y, int button)
 {
 	//lpmt.mousePressed(x, y, button);
-	//vm.mousePressed(x, y, button);
-	bb.mousePressed(x, y, button);
+	if (APPLICATION == BOUNCING_BALL) {
+		bb.mousePressed(x, y, button);
+	}
+	else if (APPLICATION == BUILDINGS) {
+		bu.mousePressed(x, y, button);
+	}
 }
 
 //--------------------------------------------------------------
 void testApp::fensterMouseReleased(int x, int y, int button)
 {
 	//lpmt.mouseReleased(x, y, button);
-	//vm.mouseReleased(x, y, button);
-	bb.mouseReleased(x, y, button);
+	if (APPLICATION == BOUNCING_BALL) {
+		bb.mouseReleased(x, y, button);
+	}
+	else if (APPLICATION == BUILDINGS) {
+		bu.mouseReleased(x, y, button);
+	}
 }
 
 //--------------------------------------------------------------
 void testApp::fensterWindowResized(int w, int h)
 {
 	//lpmt.windowResized(w, h);
-	//vm.windowResized(w, h);
-	bb.windowResized(w, h);
+	if (APPLICATION == BOUNCING_BALL) {
+		bb.windowResized(w, h);
+	}
+	else if (APPLICATION == BUILDINGS) {
+		bu.windowResized(w, h);
+	}
 }
 
