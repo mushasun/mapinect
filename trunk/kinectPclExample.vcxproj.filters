@@ -198,6 +198,9 @@
     <ClCompile Include="src\bouncingball\Segment3D.cpp">
       <Filter>bouncingball</Filter>
     </ClCompile>
+    <ClCompile Include="src\bouncingball\BObject.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
     <ClCompile Include="src\buildings\Buildings.cpp">
       <Filter>buildings</Filter>
     </ClCompile>
@@ -451,6 +454,9 @@
       <Filter>bouncingball</Filter>
     </ClInclude>
     <ClInclude Include="src\bouncingball\tejo.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bouncingball\BObject.h">
       <Filter>bouncingball</Filter>
     </ClInclude>
     <ClInclude Include="src\buildings\Buildings.h">
