@@ -198,11 +198,23 @@
     <ClCompile Include="src\bouncingball\Segment3D.cpp">
       <Filter>bouncingball</Filter>
     </ClCompile>
+    <ClCompile Include="src\buildings\Buildings.cpp">
+      <Filter>buildings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\helpers\TxManager.cpp">
+      <Filter>helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\buildings\Building.cpp">
+      <Filter>buildings</Filter>
+    </ClCompile>
     <ClCompile Include="src\bouncingball\BObject.cpp">
       <Filter>bouncingball</Filter>
     </ClCompile>
-    <ClCompile Include="src\buildings\Buildings.cpp">
+    <ClCompile Include="src\buildings\Floor.cpp">
       <Filter>buildings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\ofGraphicsUtils.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -456,10 +468,23 @@
     <ClInclude Include="src\bouncingball\tejo.h">
       <Filter>bouncingball</Filter>
     </ClInclude>
+    <ClInclude Include="src\buildings\Buildings.h">
+      <Filter>buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IApplication.h" />
+    <ClInclude Include="src\helpers\TxManager.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\ITxManager.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buildings\Building.h">
+      <Filter>buildings</Filter>
+    </ClInclude>
     <ClInclude Include="src\bouncingball\BObject.h">
       <Filter>bouncingball</Filter>
     </ClInclude>
-    <ClInclude Include="src\buildings\Buildings.h">
+    <ClInclude Include="src\buildings\Floor.h">
       <Filter>buildings</Filter>
     </ClInclude>
   </ItemGroup>
@@ -543,7 +568,10 @@
       <UniqueIdentifier>{789b26d2-890f-42d1-bfa6-0d1e29022779}</UniqueIdentifier>
     </Filter>
     <Filter Include="buildings">
-      <UniqueIdentifier>{5d74f2ba-3be3-4c70-b380-98de2e871d48}</UniqueIdentifier>
+      <UniqueIdentifier>{0b71838c-6d9e-4ff3-b7a4-1b3bf560e96f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="helpers">
+      <UniqueIdentifier>{a48df4ae-c3cd-453e-acd8-acb8d6ef7409}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

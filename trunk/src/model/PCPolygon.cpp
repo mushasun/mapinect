@@ -19,7 +19,7 @@ namespace mapinect {
 		return (Polygon*)modelObject;
 	}
 
-	ofxVec3f PCPolygon::getNormal() {
+	ofxVec3f PCPolygon::getNormal() const {
 		ofxVec3f normal(coefficients.values[0], coefficients.values[1], coefficients.values[2]);
 		normal.normalize();
 		return normal;

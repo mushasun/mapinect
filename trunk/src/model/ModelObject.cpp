@@ -7,6 +7,7 @@ namespace mapinect {
 
 	void ModelObject::drawObject() {
 		ofPushMatrix();
+			ofSetColor(color);
 			ofTranslate(vCenter.x, vCenter.y, vCenter.z);
 			ofScale(vScale.x, vScale.y, vScale.z);
 			ofRotateX(vRotation.x);

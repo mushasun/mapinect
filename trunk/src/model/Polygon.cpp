@@ -101,21 +101,28 @@ namespace mapinect {
 		return abs(area);
 	}
 
+	ofxVec3f Polygon::project(const ofxVec3f& p) {
+		ofxVec3f dif = p - getCenter();
+		ofxVec3f normalProj = dif.dot(normal) * normal;
+		ofxVec3f proj = p - normalProj;
+		return proj;
+	}
+
 	void Polygon::draw() {
 		//cout << calculateArea() << endl;
-		/*glBegin(GL_POLYGON);
-			for (vector<ofxVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
-				ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
-				glVertex3f(w.x, w.y, 4);
+		glBegin(GL_POLYGON);
+			for (int i = 0; i < vertexs.size(); i++) {
+				glVertex3f(vertexs[i].x, vertexs[i].y, vertexs[i].z);
 			}
-		glEnd();*/
-
+		glEnd();
+		/*
 		int i = 1;
 		for (vector<ofxVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
 			ofSetColor(0,255 * i++ / 4.0f,0);
 			ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
 			ofCircle(w.x,w.y,4);
 		}
+		*/
 	}
 
 

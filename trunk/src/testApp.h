@@ -8,9 +8,10 @@
 #include "PCM.h"
 #include "LPMT.h"
 #include "VM.h"
-#include "BouncingBall.h"
 #include "Buildings.h"
 #include "Arduino.h"
+
+#include "IApplication.h"
 
 class testApp : public ofBaseApp, public ofxFensterListener {
 public:
@@ -44,9 +45,8 @@ public:
 	mapinect::LPMT			lpmt;
 	mapinect::VM			vm;
 	mapinect::Arduino		arduino;
-	mapinect::BouncingBall	bb;
-	mapinect::buildings		bu;
 
+	IApplication* app;
 };
 
 #endif	// TEST_APP_H__

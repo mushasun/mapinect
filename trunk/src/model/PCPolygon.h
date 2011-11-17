@@ -14,7 +14,7 @@ namespace mapinect {
 
 			Polygon*			getPolygonModelObject();
 
-			ofxVec3f			getNormal();
+			ofxVec3f			getNormal() const;
 			
 			virtual void		draw();
 

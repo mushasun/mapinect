@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "ofGraphicsUtils.h"
 namespace mapinect {
+
 	//--------------------------------------------------------------
 	void OpenCV::setup() {
 
@@ -20,9 +21,14 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	void OpenCV::update(bool isgKinectFrameNew) {
+	void OpenCV::exit() {
+		
+	}
 
-		//if(isgKinectFrameNew)
+	//--------------------------------------------------------------
+	void OpenCV::update(bool isKinectFrameNew) {
+
+		//if(isKinectFrameNew)
 		//{
 		//	ofBackground(100, 100, 100);
 
@@ -129,28 +135,4 @@ namespace mapinect {
 		}
 	}
 
-	//--------------------------------------------------------------
-	void OpenCV::mouseMoved(int x, int y)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void OpenCV::mouseDragged(int x, int y, int button)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void OpenCV::mousePressed(int x, int y, int button)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void OpenCV::windowResized(int w, int h)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void OpenCV::mouseReleased(int x, int y, int button)
-	{
-	}
 }

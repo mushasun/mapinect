@@ -11,6 +11,7 @@ namespace mapinect {
 		virtual ~Arduino();
 
 		virtual bool	setup();
+		virtual void	exit();
 		virtual void	update();
 		virtual void	draw();
 

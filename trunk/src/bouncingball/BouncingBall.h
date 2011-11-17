@@ -1,14 +1,18 @@
 #ifndef BouncingBall_H__
 #define BouncingBall_H__
+
+#include "IApplication.h"
+
 #include "ofxVecUtils.h"
 #include "Tejo.h"
 #include "Segment3D.h"
 #include "BObject.h"
 
-namespace mapinect {
-	class BouncingBall {
+namespace bouncing {
+	class BouncingBall : public IApplication {
 	public:
 		virtual void setup();
+		virtual void exit();
 		virtual void update();
 		virtual void draw();
 
@@ -18,26 +22,8 @@ namespace mapinect {
 		virtual void mousePressed(int x, int y, int button);
 		virtual void mouseReleased(int x, int y, int button);
 		virtual void windowResized(int w, int h);
+	
 	private:
-		float screenFov;		//28.04f;
-		float aspect;			//1.35f;
-		float nearPlane;
-		float zAngle;
-
-		float transXAT;			//-59.0;		
-		float transYAT;		
-
-		// Coordenadas 3D del proyector
-		float xProj;		
-		float yProj;		// 364 mm arriba del Kinect
-		float zProj;			// 720 o 900 mm de distancia (z) del Kinect
-
-		float projectionMatrix[16];
-
-		// Dibujar Quad
-		ofxVec3f vA,vB,vC,vD;
-
-		ofxVec3f carasADibujar[12][4];
 		bool tableSetted;
 		Tejo ball;
 		std::vector<Segment3D> tableSegment3Ds;

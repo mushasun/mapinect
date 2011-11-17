@@ -1,14 +1,6 @@
 #include "PCM.h"
 
-#include "pointUtils.h"
-#include "ofxVecUtils.h"
-#include "Line2D.h"
-#include "Triangle2D.h"
-#include "ofGraphicsUtils.h"
-
-#include "ofxMutex.h"
-
-ofxMutex mutexDetectedObjects;
+#include "utils.h"
 
 #define DEFAULT_NAME		"test"
 
@@ -93,9 +85,9 @@ namespace mapinect {
 		case'p':
 			drawPC = !drawPC;
 			break;
-			//case 's':
-			//	saveCloud(DEFAULT_NAME);
-			//	break;
+		//case 's':
+		//	saveCloud(DEFAULT_NAME);
+		//	break;
 		case 'd':
 			pcmThread.processDiferencesClouds();
 			break;
@@ -111,32 +103,4 @@ namespace mapinect {
 		//	break;
 	}
 
-	//--------------------------------------------------------------
-	void PCM::mouseDragged(int x, int y, int button)
-	{
-
-	}
-
-	//--------------------------------------------------------------
-	void PCM::mousePressed(int x, int y, int button)
-	{
-
-	}
-
-	//--------------------------------------------------------------
-	void PCM::windowResized(int w, int h)
-	{
-
-	}
-
-	//--------------------------------------------------------------
-	void PCM::mouseReleased(int x, int y, int button)
-	{
-
-	}
-
-	void PCM::mouseMoved(int x, int y)
-	{
-	
-	}
 }

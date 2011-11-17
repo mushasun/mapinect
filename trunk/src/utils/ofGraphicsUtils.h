@@ -13,4 +13,7 @@ inline void ofResetColor() {
 	ofSetColor(kRGBWhite);
 }
 
+void ofDrawQuadTextured(const ofPoint& vA, const ofPoint& vB, const ofPoint& vC, const ofPoint& vD,
+	float sA = 0, float tA = 0, float sB = 1, float tB = 0, float sC = 1, float tC = 1, float sD = 0, float tD = 1);
+
 #endif	// OFGRAPHICS_UTILS_H__
