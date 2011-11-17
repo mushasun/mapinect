@@ -18,10 +18,12 @@ namespace mapinect {
 			void				addVertex(const ofxVec3f&);
 			inline int			getVertexCount()			{ return vertexs.size(); }
 			inline const vector<ofxVec3f>&	getVertexs()	{ return vertexs; }
+			inline const ofxVec3f&	getNormal()				{ return normal; }
 
 			void				sortVertexs();
 
 			float				calculateArea();
+			ofxVec3f			project(const ofxVec3f&);
 			void				resetVertex();
 			virtual void		draw();
 		

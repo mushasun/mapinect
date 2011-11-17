@@ -110,4 +110,15 @@ T average(const std::vector<T>& v) {
 	return avg;
 }
 
+#define SORT_ON_PROP(T, prop) \
+	template<class T> \
+	bool sortOn_##prop(const T& a, const T&b) { \
+		return a.##prop < b.##prop; \
+	}
+
+
+SORT_ON_PROP(T, x)
+SORT_ON_PROP(T, y)
+SORT_ON_PROP(T, z)
+
 #endif	// OFXVEC_UTILS_H__

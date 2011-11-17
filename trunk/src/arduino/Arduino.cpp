@@ -78,6 +78,10 @@ namespace mapinect {
 		return false;
 	}
 
+	void Arduino::exit() {
+		serial.close();
+	}
+
 	void Arduino::update() {
 
 	}

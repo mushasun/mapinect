@@ -1,229 +1,89 @@
 #include "vm.h"
 
-#include "utils.h"
+#include "ofxXmlSettings.h"
+#include "ofxVec3f.h"
 #include "winUtils.h"
-#include "Model.h"
-#include "PCPolyhedron.h"
 
 namespace mapinect {
 
-	float screenFov = 28.00f;		//25.40f//28.04f;
-	float aspect = 1.33f;			//1.36f//1.35f;
-	float nearPlane = 0.3f;
-	float zAngle = 0.0f;
+#define		VM_CONFIG			"VMConfig:"
 
-	float transXAT = -24.0; //-11.0;//-45.0;			//-59.0;		
-	float transYAT = 26.0; //76.0;//-6.0;		
+	static float screenFov;
+	static float aspect;
+	static float nearPlane;
+	static float farPlane;
 
-	// Coordenadas 3D del proyector
-	float xProj = 0;//-20.0f;		
-	float yProj = 30;//33.0f;		// 364 mm arriba del Kinect
-	float zProj = 0;//0.0f;			// 720 o 900 mm de distancia (z) del Kinect
+	static float xAngle;
+	static float yAngle;
+	static float zAngle;
 
-	//float projectionMatrix[16];
-	//float projInt[9];
+	static float xTransLookAt;
+	static float yTransLookAt;
 
-	// Dibujar Quad
-	static ofxVec3f vA,vB,vC,vD;
+	static float xProj;
+	static float yProj;
+	static float zProj;
 
-	static ofxVec3f detectedQuads[12][4];
 
-	GLuint VM::textureID = 0;
-	unsigned char* VM::imgPixels = NULL;
+	static bool bCustomFullscreen = false;
 
 	//--------------------------------------------------------------
-	void VM::setup(ofxFenster* f) {
-		bImgLoaded = false;
-		this->fenster = f;	
-		textureID = loadImageTexture("ofTheo.jpg");
+	void VM::setup() {
+		ofxXmlSettings XML;
+		if(XML.loadFile("VM_Config.xml")) {
+
+			screenFov = XML.getValue(VM_CONFIG "SCREEN_FOV", 28.00f);
+			aspect = XML.getValue(VM_CONFIG "ASPECT_RATIO", 1.33f);
+			nearPlane = XML.getValue(VM_CONFIG "NEAR_PLANE", 300.0f);
+			farPlane = XML.getValue(VM_CONFIG "FAR_PLANE", 4000.0f);
+
+			xAngle = XML.getValue(VM_CONFIG "ANGLE_X", 0.0f);
+			yAngle = XML.getValue(VM_CONFIG "ANGLE_Y", 0.0f);
+			zAngle = XML.getValue(VM_CONFIG "ANGLE_Z", 0.0f);
+
+			xTransLookAt = XML.getValue(VM_CONFIG "TRANSLATION_LOOK_AT_X", 31.0f);
+			yTransLookAt = XML.getValue(VM_CONFIG "TRANSLATION_LOOK_AT_Y", -9.0f);
+
+			xProj = XML.getValue(VM_CONFIG "PROJECT_POS_X", 0.0f);
+			yProj = XML.getValue(VM_CONFIG "PROJECT_POS_Y", 24.0f);
+			zProj = XML.getValue(VM_CONFIG "PROJECT_POS_Z", 0.0f);
+
+		}
+
 	}
 
-	//ofxVec3f scaleFromMtsToMms(ofxVec3f p)
-	//{
-	//	ofxVec3f res;
-	//	// Transform from meters to milimeters
-	//	res.x = (p.x)*1000;
-	//	res.y = (p.y)*1000;
-	//	res.z = (p.z)*1000;
-	//	return res;	
-	//}
-
 	//--------------------------------------------------------------
-	void VM::draw()
-	{
+	void VM::setupView() {
 		
-		//textureID = loadImageTexture("globe.jpg");
-
-		float nearDist 	= 300; //30 cms  //zProj / 10;	//This is also the viewing plane distance	
-		float farDist 	= 4000; //zProj * 10.0;	//4.0
-
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(screenFov, aspect, nearDist, farDist);
+		gluPerspective(screenFov, aspect, nearPlane, farPlane);
 	
-/*		// Prueba
-		double w = ofGetWidth();
-		double h = ofGetHeight();
-		glOrtho(0,w,0,h,-1,1);
-
-		projInt[0] = 900;	// alfa_x 
-		projInt[1] = 0;		// skew
-		projInt[2] = 600;	// u_0 - principal point x
-		projInt[3] = 0;
-		projInt[4] = 900;	// alfa_y
-		projInt[5] = 700;	// v_0 - principal point y
-		projInt[6] = 0;
-		projInt[7] = 0;
-		projInt[8] = 1;
-
-		glMultMatrixf(projInt);
-*/
-		//glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
-
-
 		glMatrixMode(GL_MODELVIEW);
 		ofPushMatrix();
-		glLoadIdentity();
+			glLoadIdentity();
 
-		ofxVec3f eyePos (xProj, yProj, zProj);
-		ofxVec3f lookAtPos (xProj+transXAT, yProj+transYAT, -900.0);
-		ofxVec3f lookAt = lookAtPos - eyePos;
-		ofxVec3f right (1,0,0);
-		ofxVec3f upDir = right.cross(lookAt);
-		gluLookAt(eyePos.x, eyePos.y, eyePos.z, lookAtPos.x, lookAtPos.y, lookAtPos.z, upDir.x, upDir.y, upDir.z);
+			ofxVec3f eyePos (xProj, yProj, zProj);
+			ofxVec3f lookAtPos (xProj + xTransLookAt, yProj + yTransLookAt, -900.0);
+			ofxVec3f lookAt = lookAtPos - eyePos;
+			ofxVec3f right (1, 0, 0);
+			ofxVec3f upDir = right.cross(lookAt);
+			gluLookAt(eyePos.x, eyePos.y, eyePos.z, lookAtPos.x, lookAtPos.y, lookAtPos.z, upDir.x, upDir.y, upDir.z);
 
-		//glTranslatef(-180,0,0);
-		//glTranslatef(transX,transY,0);
-		glRotatef(zAngle,0,0,1);
+			//glTranslatef(-180,0,0);
+			//glTranslatef(transX,transY,0);
+			glRotatef(zAngle, 0, 0, 1);
+			glScalef(1000, -1000, -1000);
+	}
 
-		// Obtener caras detectadas por el Kinect
-		int cantQuads = 0;
-		gModel->objectsMutex.lock();
-		if (gModel->objects.size() > 0) 
-		{
-			for(list<mapinect::ModelObject*>::iterator k = gModel->objects.begin(); 
-				k != gModel->objects.end(); k++)
-			{
-				PCPolyhedron* hedron = (PCPolyhedron*)(*k);
-				for (int i=0; i<hedron->getPCPolygonSize();i++)
-				{
-					PCPolygon* gon = hedron->getPCPolygon(i);
-					if (gon->hasObject()) 
-					{
-						mapinect::Polygon* q = gon->getPolygonModelObject();
-						vA = q->getVertex(0);
-						vB = q->getVertex(1);
-						vC = q->getVertex(2);
-						vD = q->getVertex(3);
-						// Invert Y and Z due to difference between Kinect and world orientations
-						vA.z = vA.z*-1;
-						vB.z = vB.z*-1;
-						vC.z = vC.z*-1;
-						vD.z = vD.z*-1;
-						vA.y = vA.y*-1;
-						vB.y = vB.y*-1;
-						vC.y = vC.y*-1;
-						vD.y = vD.y*-1;
-		
-						//SCALE KINECT MEASURE (MTS) INTO MM
-						vA = scaleFromMtsToMms(vA);
-						vB = scaleFromMtsToMms(vB);
-						vC = scaleFromMtsToMms(vC);
-						vD = scaleFromMtsToMms(vD);
+	//--------------------------------------------------------------
+	void VM::draw() {
 
-						detectedQuads[cantQuads][0] = vA;
-						detectedQuads[cantQuads][1] = vB;
-						detectedQuads[cantQuads][2] = vC;
-						detectedQuads[cantQuads][3] = vD;
-						cantQuads++;
-					}			
-				}					
-			}
-		} else {
-			// Quads de prueba
-			vA.set(100,0,-500);
-			vB.set(100,140,-500);
-			vC.set(167,140,-500);
-			vD.set(167,0,-500);
-			detectedQuads[cantQuads][0] = vA;
-			detectedQuads[cantQuads][1] = vB;
-			detectedQuads[cantQuads][2] = vC;
-			detectedQuads[cantQuads][3] = vD;
-			cantQuads++;
-			vA.set(-60,0,-850);
-			vB.set(-60,140,-850);
-			vC.set(0,140,-800);
-			vD.set(0,0,-800);
-			detectedQuads[cantQuads][0] = vA;
-			detectedQuads[cantQuads][1] = vB;
-			detectedQuads[cantQuads][2] = vC;
-			detectedQuads[cantQuads][3] = vD;
-			cantQuads++;
-			vA.set(-200,0,-650);
-			vB.set(-200,160,-650);
-			vC.set(-140,160,-755);
-			vD.set(-140,0,-755);
-			detectedQuads[cantQuads][0] = vA;
-			detectedQuads[cantQuads][1] = vB;
-			detectedQuads[cantQuads][2] = vC;
-			detectedQuads[cantQuads][3] = vD;
-			cantQuads++;
-		}
-		gModel->objectsMutex.unlock();
-		
-//		glTranslatef(0,-60,0); // Translate Kinect coords 6 cms down
+	}
 
-		// Draw each quad
-		for(int i=0; i<cantQuads; i++) 
-		{
-			vA = detectedQuads[i][0];
-			vB = detectedQuads[i][1];
-			vC = detectedQuads[i][2];
-			vD = detectedQuads[i][3];
-
-//			ofSetColor(0xFF0000);
-			
-			// If image loaded correctly
-			if (bImgLoaded) {
-				// Bind Texture
-				glEnable(GL_TEXTURE_2D);
-				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-				// GL_REPLACE can be specified to just draw the surface using the texture colors only
-				// GL_MODULATE means the computed surface color is multiplied by the texture color (to be used when lighting)
-				glBindTexture(GL_TEXTURE_2D, textureID); 
-
-				// Draw quad and map 2D points for texture mapping
-				glBegin(GL_QUADS);      
-					glTexCoord2f(0, 0);
-					glVertex3f(vA.x,vA.y,vA.z);    
-					glTexCoord2f(1, 0);
-					glVertex3f(vB.x,vB.y,vB.z);
-					glTexCoord2f(1, 1);
-				//	glVertex3f(vD.x,vD.y,vD.z);
-					glVertex3f(vC.x,vC.y,vC.z);
-					glTexCoord2f(0, 1);
-					glVertex3f(vD.x,vD.y,vD.z);
-//					glVertex3f(vC.x,vC.y,vC.z);
-
-				glEnd();
-
-			} else {
-				glDisable(GL_TEXTURE_2D);
-				glBegin(GL_QUADS);      
-					glVertex3f(vA.x,vA.y,vA.z);    
-					glVertex3f(vB.x,vB.y,vB.z);
-					glVertex3f(vC.x,vC.y,vC.z);
-					glVertex3f(vD.x,vD.y,vD.z);
-				glEnd();			
-			}
-
-		}
-
+	//--------------------------------------------------------------
+	void VM::endView() {
 		ofPopMatrix();
-
-
-
-	//	glDeleteTextures(1,&textureID);
 	}
 
 	//--------------------------------------------------------------
@@ -307,20 +167,20 @@ namespace mapinect {
 				printf("zProj increased: %f \n",zProj);
 				break;
 			case 'j':
-				transXAT += varX;
-				printf("transXAT increased: %f \n",transXAT);
+				xTransLookAt += varX;
+				printf("xTransLookAt increased: %f \n", xTransLookAt);
 				break;
 			case 'l':
-				transXAT -= varX;
-				printf("transXAT increased: %f \n",transXAT);
+				xTransLookAt -= varX;
+				printf("xTransLookAt increased: %f \n", xTransLookAt);
 				break;
 			case 'i':
-				transYAT += varY;
-				printf("transYAT increased: %f \n",transYAT);
+				yTransLookAt += varY;
+				printf("yTransLookAt increased: %f \n", yTransLookAt);
 				break;
 			case 'k':
-				transYAT -= varY;
-				printf("transYAT increased: %f \n",transYAT);
+				yTransLookAt -= varY;
+				printf("yTransLookAt increased: %f \n", yTransLookAt);
 				break;
 
 			/*********************
@@ -329,7 +189,7 @@ namespace mapinect {
 			case '0':
 				if (!bCustomFullscreen) 
 				{
-					ofBeginCustomFullscreen(1440, 0, 1280, 768);
+					ofBeginCustomFullscreen(1280, 0, 1280, 768);
 					bCustomFullscreen = true;
 				} else 
 				{
@@ -346,12 +206,7 @@ namespace mapinect {
 				printf("	aspect: %.4f \n	fov: %.4f \n", aspect, screenFov);
 				printf("Current viewing parameters: \n");
 				printf("	Eye    = (%.2f,%.2f,%.2f) \n", xProj, yProj, zProj);
-				printf("	LookAt = (%.2f,%.2f,%.2f) \n", xProj+transXAT, yProj+transYAT, -900.0);
-				printf("Current quad coordinates: \n");
-				printf("	A = (%.4f,%.4f,%.4f) \n", vA.x, vA.y, vA.z);
-				printf("	B = (%.4f,%.4f,%.4f) \n", vB.x, vB.y, vB.z);
-				printf("	C = (%.4f,%.4f,%.4f) \n", vC.x, vC.y, vC.z);
-				printf("	D = (%.4f,%.4f,%.4f) \n", vD.x, vD.y, vD.z);
+				printf("	LookAt = (%.2f,%.2f,%.2f) \n", xProj + xTransLookAt, yProj + yTransLookAt, -900.0);
 				break;
 
 		case 'o':
@@ -403,40 +258,5 @@ namespace mapinect {
 	void VM::windowResized(int w, int h)
 	{
 	}
-
-	GLuint VM::loadImageTexture(char* imgFile)
-	{
-		GLuint result = -1;
-		this->fenster->toContext();
-
-		if ((imgFile == NULL) || (imgFile == "")) {
-			bImgLoaded = false;
-		} else {
-			bImgLoaded = img.loadImage(imgFile);
-			if (bImgLoaded) {
-				imgFilename = imgFile;
-				imgPixels = img.getPixels();
-				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				glEnable(GL_TEXTURE_2D);
-				glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
-				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-				//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  				glGenTextures(1, &textureID);
-				glBindTexture(GL_TEXTURE_2D, textureID);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	
-				glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, img.getWidth(), img.getHeight(), 0, GL_RGB/*GL_RGBA*/,GL_UNSIGNED_BYTE,imgPixels);
-				img.setUseTexture(true);
-				glFlush();
-				result = textureID;
-			}
-		}
-
-		this->fenster->toMainContext();
-		return result;
-	} 
-
 
 }

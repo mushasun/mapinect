@@ -272,30 +272,32 @@ namespace mapinect {
 			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_outliers (new pcl::PointCloud<pcl::PointXYZ>());
 
 			//Obtengo los puntos que son mesa
-			extract.setInputCloud (cloudTemp);
-			extract.setIndices (inliers);
-			extract.setNegative (false);
-			if(cloud_p->size() != cloudTemp->size())
-				extract.filter (*cloud_filtered_temp_outliers);
+			if (inliers->indices.size() != cloudTemp->size()) {
+				extract.setInputCloud (cloudTemp);
+				extract.setIndices (inliers);
+				extract.setNegative (false);
+				extract.filter (*cloud_filtered_temp_inliers);
+			}
+			else {
+				cloud_filtered_temp_inliers = cloudTemp;
+			}
 
-			gModel->objectsMutex.lock();
 			if(table == NULL)
 			{
-				table = new PCPolyhedron(cloud_filtered_temp_outliers, cloud_filtered_temp_outliers, -1);
-				table->setCloud(cloud_filtered_temp_outliers);
+				ofxScopedMutex objectsLock(gModel->objectsMutex);
+				table = new PCPolyhedron(cloud_filtered_temp_inliers, cloud_filtered_temp_inliers, -1);
 				table->detectPrimitives();
 				gModel->table = table;
 			}
-			gModel->objectsMutex.unlock();
 
 			// Quito los puntos que no son mesa
 			extract.setInputCloud (cloudTemp);
 			extract.setIndices (inliers);
 			extract.setNegative (true);
 			if(cloud_p->size() != cloudTemp->size())
-				extract.filter (*cloud_filtered_temp_outliers);
+				extract.filter (*cloud_filtered_temp_inliers);
 
-			cloudTemp = cloud_filtered_temp_outliers;
+			cloudTemp = cloud_filtered_temp_inliers;
 
 			return cloudTemp;
 		}
