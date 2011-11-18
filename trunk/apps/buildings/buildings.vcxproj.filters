@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\buildings\Building.cpp">
+      <Filter>buildings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\buildings\Buildings.cpp">
+      <Filter>buildings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\buildings\Floor.cpp">
+      <Filter>buildings</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="buildings">
+      <UniqueIdentifier>{5244f333-5b86-450f-8984-56087961afad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\buildings\Building.h">
+      <Filter>buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buildings\Buildings.h">
+      <Filter>buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buildings\Floor.h">
+      <Filter>buildings</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,5 +1,4 @@
 #include "BObject.h"
-#include "utils.h"
 
 namespace bouncing {
 	BObject::BObject(std::vector<Segment3D> segments, ofxVec3f color, int id, int soundId)
@@ -43,7 +42,6 @@ namespace bouncing {
 
 	void BObject::draw()
 	{
-		gModel->objectsMutex.lock();
 		if(polyhedron != NULL)
 		{
 			for (int i = 0; i < this->polyhedron->getPCPolygonSize(); i++)
@@ -58,7 +56,6 @@ namespace bouncing {
 				}			
 			}
 		}
-		gModel->objectsMutex.unlock();
 	}
 
 }
