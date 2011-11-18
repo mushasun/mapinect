@@ -1,5 +1,5 @@
-#ifndef BouncingBall_H__
-#define BouncingBall_H__
+#ifndef BOUNCING_BALL_H__
+#define BOUNCING_BALL_H__
 
 #include "IApplication.h"
 
@@ -41,4 +41,4 @@ namespace bouncing {
 	};
 }
 
-#endif	// BouncingBall_H__
+#endif	// BOUNCING_BALL_H__
