@@ -33,6 +33,12 @@ namespace buildings {
 	}
 
 	//--------------------------------------------------------------
+	void Buildings::debugDraw()
+	{
+
+	}
+
+	//--------------------------------------------------------------
 	void Buildings::draw()
 	{
 		ofxScopedMutex objectsLock(gModel->objectsMutex);

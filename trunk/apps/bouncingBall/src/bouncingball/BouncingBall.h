@@ -22,6 +22,8 @@ namespace bouncing {
 		virtual void mousePressed(int x, int y, int button);
 		virtual void mouseReleased(int x, int y, int button);
 		virtual void windowResized(int w, int h);
+
+		virtual void debugDraw();
 	
 	private:
 		bool tableSetted;

@@ -42,7 +42,14 @@ namespace bouncing {
 		tableSetted = false;
 	}
 
+	//--------------------------------------------------------------
 	void BouncingBall::exit()
+	{
+
+	}
+
+	//--------------------------------------------------------------
+	void BouncingBall::debugDraw()
 	{
 
 	}

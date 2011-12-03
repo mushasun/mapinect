@@ -25,6 +25,8 @@ namespace buildings {
 		virtual void mouseReleased(int x, int y, int button);
 		virtual void windowResized(int w, int h);
 
+		virtual void debugDraw();
+
 	private:
 		std::map<int, Building*>	buildings;
 		Floor*						floor;
