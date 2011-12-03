@@ -1,6 +1,11 @@
 #ifndef I_TX_MANAGER_H__
 #define I_TX_MANAGER_H__
 
+/// <summary>
+/// Interface for texture manager. Loading, unloading, binding and enabling
+/// of user's application textures should be performed through this interface.
+/// </summary>
+
 #include "ofGraphics.h"
 
 namespace mapinect {

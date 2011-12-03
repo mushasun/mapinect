@@ -4,6 +4,12 @@
 #include "ITxManager.h"
 
 namespace mapinect {
+	
+	/// <summary>
+	/// IApplication.h
+	/// 
+	/// Provides an interface for each application that uses mapinect.
+	/// </summary>
 	class IApplication {
 	public:
 
@@ -19,6 +25,12 @@ namespace mapinect {
 		virtual void mouseReleased(int x, int y, int button) = 0;
 		virtual void windowResized(int w, int h) = 0;
 
+		virtual void debugDraw() = 0;
+
+		/// <summary>
+		/// Interface for handling texture. Loading, binding and enabling
+		/// should be called through this object.
+		/// </summary>
 		ITxManager* txManager;
 	};
 }
