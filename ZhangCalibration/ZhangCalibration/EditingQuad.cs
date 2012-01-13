@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Data;
+using System.Windows.Shapes;
 
 namespace ZhangCalibration
 {
@@ -11,36 +12,37 @@ namespace ZhangCalibration
 
 		public EditingQuad(Quad quad)
 		{
-			this.Quad = quad;
-			this.Polygon = new System.Windows.Shapes.Polygon();
-			Polygon.Stroke = System.Windows.Media.Brushes.Red;
-			Polygon.StrokeThickness = 1;
-			Binding binding = new Binding();
-			binding.Source = Quad;
-			binding.Path = new System.Windows.PropertyPath("Points");
-			Polygon.SetBinding(System.Windows.Shapes.Polygon.PointsProperty, binding);
+			this.MyQuad = quad;
+			this.MyPolygon = new Polygon();
+			MyPolygon.Stroke = System.Windows.Media.Brushes.Red;
+			MyPolygon.StrokeThickness = 1;
+			Binding binding = new Binding(Quad.PointsProperty);
+			MyPolygon.DataContext = MyQuad;
+			MyPolygon.SetBinding(Polygon.PointsProperty, binding);
 		}
 
 		~EditingQuad()
 		{
 		}
 
-		public System.Windows.Shapes.Polygon Polygon { get; private set; }
+		public System.Windows.Shapes.Polygon MyPolygon { get; private set; }
 
-		private Quad _Quad;
-		public Quad Quad
+		public const string MyQuadProperty = "MyQuad";
+		private Quad _MyQuad;
+		public Quad MyQuad
 		{
 			get
 			{
-				return _Quad;
+				return _MyQuad;
 			}
 			set
 			{
-				_Quad = value;
-				FirePropertyChanged("Quad");
+				_MyQuad = value;
+				FirePropertyChanged(MyQuadProperty);
 			}
 		}
 
+		public const string EditingPointIndexProperty = "EditingPointIndex";
 		private int _EditingPointIndex;
 		public int EditingPointIndex
 		{
@@ -51,7 +53,7 @@ namespace ZhangCalibration
 			set
 			{
 				_EditingPointIndex = value;
-				FirePropertyChanged("EditingPointIndex");
+				FirePropertyChanged(EditingPointIndexProperty);
 			}
 		}
 

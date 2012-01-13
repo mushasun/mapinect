@@ -20,6 +20,7 @@ namespace ZhangCalibration
 			return result;
 		}
 
+		public const string PointsProperty = "Points";
 		private List<System.Windows.Point> _Points;
 		public List<System.Windows.Point> Points {
 			get
@@ -29,7 +30,7 @@ namespace ZhangCalibration
 			set
 			{
 				_Points = value;
-				FirePropertyChanged("Points");
+				FirePropertyChanged(PointsProperty);
 			}
 		}
 

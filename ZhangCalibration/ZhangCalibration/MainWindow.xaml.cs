@@ -53,7 +53,7 @@ namespace ZhangCalibration
 
 			for (int i = 0; i < myDataCalibration.Quads.Count; i++)
 			{
-				CanvasCalibration.Children.Add(myDataCalibration.Quads[i].Polygon);
+				CanvasCalibration.Children.Add(myDataCalibration.Quads[i].MyPolygon);
 			}
 		}
 
