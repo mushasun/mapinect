@@ -17,7 +17,8 @@ namespace ZhangCalibration
 			MyPolygon.Stroke = System.Windows.Media.Brushes.Red;
 			MyPolygon.StrokeThickness = 1;
 			Binding binding = new Binding(Quad.PointsProperty);
-			MyPolygon.DataContext = MyQuad;
+			binding.Source = MyQuad;
+			binding.Mode = BindingMode.TwoWay;
 			MyPolygon.SetBinding(Polygon.PointsProperty, binding);
 		}
 
