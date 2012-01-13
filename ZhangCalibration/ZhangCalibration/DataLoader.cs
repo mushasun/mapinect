@@ -29,7 +29,9 @@ namespace ZhangCalibration
 				Quad quad = new Quad();
 				for (int i = 0; i < 4; i++)
 				{
-					quad.Points.Add(new System.Windows.Point(numbers[ix++], numbers[ix++]));
+					NotifyablePoint notifyablePoint = new NotifyablePoint();
+					notifyablePoint.Point = new System.Windows.Point(numbers[ix++], numbers[ix++]);
+					quad.Points.Add(notifyablePoint);
 				}
 				result.Add(quad);
 			}
