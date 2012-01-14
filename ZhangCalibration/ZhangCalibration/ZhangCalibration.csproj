@@ -57,7 +57,6 @@
     </ApplicationDefinition>
     <Compile Include="DataCalibration.cs" />
     <Compile Include="EditingQuad.cs" />
-    <Compile Include="NotifyablePoint.cs" />
     <Compile Include="NotifyPropertyChanged.cs" />
     <Compile Include="Quad.cs" />
     <Page Include="MainWindow.xaml">

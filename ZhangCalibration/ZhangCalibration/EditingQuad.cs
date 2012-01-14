@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Data;
 using System.Windows.Shapes;
+using System.Windows.Media;
 
 namespace ZhangCalibration
 {
@@ -14,16 +15,23 @@ namespace ZhangCalibration
 		{
 			this.MyQuad = quad;
 			this.MyPolygon = new Polygon();
-			MyPolygon.Stroke = System.Windows.Media.Brushes.Red;
+			MyPolygon.Fill = new SolidColorBrush(Color.FromArgb(64, 255, 255, 0));
+			MyPolygon.Stroke = Brushes.Red;
 			MyPolygon.StrokeThickness = 1;
 			Binding binding = new Binding(Quad.PointsProperty);
 			binding.Source = MyQuad;
-			binding.Mode = BindingMode.TwoWay;
 			MyPolygon.SetBinding(Polygon.PointsProperty, binding);
 		}
 
 		~EditingQuad()
 		{
+			MyQuad = null;
+			MyPolygon = null;
+		}
+
+		public override string ToString()
+		{
+			return MyQuad.ToString();
 		}
 
 		public System.Windows.Shapes.Polygon MyPolygon { get; private set; }

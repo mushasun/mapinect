@@ -23,7 +23,7 @@
 				</Grid.RowDefinitions>
 				<Button Name="ButtonOpen" Content="Open image" Click="ButtonOpen_Click" Grid.Row="0" />
 				<ListBox Name="ListBoxData" Grid.Row="1"
-						 ItemsSource="{Binding Source={StaticResource myDataCalibration}, Path=Quads}" />
+						 ItemsSource="{Binding Source={StaticResource myDataCalibration}, Path=MyQuads}" />
 				<Button Name="ButtonAddQuad" Content="Add quad" Grid.Row="2" Click="ButtonAddQuad_Click" />
 			</Grid>
 		</Grid>
