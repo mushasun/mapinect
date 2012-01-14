@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections.ObjectModel;
+using System.Windows.Media;
+using System.Windows;
 
 namespace ZhangCalibration
 {
@@ -27,12 +30,13 @@ namespace ZhangCalibration
 			while (ix + 8 <= numbers.Count)
 			{
 				Quad quad = new Quad();
+				PointCollection points = new PointCollection();
 				for (int i = 0; i < 4; i++)
 				{
-					NotifyablePoint notifyablePoint = new NotifyablePoint();
-					notifyablePoint.Point = new System.Windows.Point(numbers[ix++], numbers[ix++]);
-					quad.Points.Add(notifyablePoint);
+					Point point = new Point(numbers[ix++], numbers[ix++]);
+					points.Add(point);
 				}
+				quad.Points = points;
 				result.Add(quad);
 			}
 

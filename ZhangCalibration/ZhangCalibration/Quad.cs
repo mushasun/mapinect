@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
+using System.Windows.Media;
 
 namespace ZhangCalibration
 {
@@ -11,7 +12,7 @@ namespace ZhangCalibration
 
 		public Quad()
 		{
-			Points = new ObservableCollection<NotifyablePoint>();
+			Points = new PointCollection();
 		}
 
 		public override string ToString()
@@ -20,8 +21,8 @@ namespace ZhangCalibration
 		}
 
 		public const string PointsProperty = "Points";
-		private ObservableCollection<NotifyablePoint> _Points;
-		public ObservableCollection<NotifyablePoint> Points {
+		private PointCollection _Points;
+		public PointCollection Points {
 			get
 			{
 				return _Points;

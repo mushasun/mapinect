@@ -51,9 +51,9 @@ namespace ZhangCalibration
 			CalibrationImage.Stretch = Stretch.Fill;
 			CanvasCalibration.Children.Add(CalibrationImage);
 
-			for (int i = 0; i < myDataCalibration.Quads.Count; i++)
+			for (int i = 0; i < myDataCalibration.MyQuads.Count; i++)
 			{
-				CanvasCalibration.Children.Add(myDataCalibration.Quads[i].MyPolygon);
+				CanvasCalibration.Children.Add(myDataCalibration.MyQuads[i].MyPolygon);
 			}
 		}
 
@@ -64,16 +64,17 @@ namespace ZhangCalibration
 		{
 			Quad quad = new Quad();
 			myEditingQuad = new EditingQuad(quad);
-			myDataCalibration.Quads.Add(myEditingQuad);
+			myDataCalibration.MyQuads.Add(myEditingQuad);
 		}
 
 		private void CanvasCalibration_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (e.LeftButton == MouseButtonState.Pressed)
 			{
-				Polygon polygon = (Polygon)CanvasCalibration.InputHitTest(e.GetPosition(CanvasCalibration));
-				if (polygon != null)
+				object hit = CanvasCalibration.InputHitTest(e.GetPosition(CanvasCalibration));
+				if (hit is Polygon)
 				{
+					Polygon polygon = (Polygon)hit;
 					polygon.Stroke = Brushes.Green;
 				}
 			}

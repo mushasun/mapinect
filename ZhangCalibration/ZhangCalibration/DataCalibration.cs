@@ -21,22 +21,23 @@ namespace ZhangCalibration
 			string data = tr.ReadToEnd();
 			List<EditingQuad> quads = new List<EditingQuad>();
 			DataLoader.ParseData(data).ForEach(q => quads.Add(new EditingQuad(q)));
-			Quads = quads;
+			MyQuads = quads;
 		}
 
 		public string Filename { get; set; }
 		public string ImageFilename { get; set; }
 
-		private List<EditingQuad> _Quads;
-		public List<EditingQuad> Quads {
+		public const string QuadsProperty = "MyQuads";
+		private List<EditingQuad> _MyQuads;
+		public List<EditingQuad> MyQuads {
 			get
 			{
-				return _Quads;
+				return _MyQuads;
 			}
 			set
 			{
-				_Quads = value;
-				FirePropertyChanged("Quads");
+				_MyQuads = value;
+				FirePropertyChanged(QuadsProperty);
 			}
 		}
 
