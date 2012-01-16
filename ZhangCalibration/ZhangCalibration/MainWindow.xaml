@@ -5,14 +5,15 @@
         Title="ZhangCalibration" Width="870" Height="530" ResizeMode="NoResize">
 	<Window.Resources>
 		<local:DataCalibration x:Key="myDataCalibration" />
-		<local:EditingQuad x:Key="myEditingQuad" />
 	</Window.Resources>
     <Grid Margin="5">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="650" />
 			<ColumnDefinition Width="185" />
 		</Grid.ColumnDefinitions>
-		<Canvas Name="CanvasCalibration" Grid.Column="0" MouseDown="CanvasCalibration_MouseDown">
+		<Canvas Name="CanvasCalibration" Grid.Column="0"
+				PreviewMouseLeftButtonDown="CanvasCalibration_PreviewMouseLeftButtonDown"
+				PreviewMouseMove="CanvasCalibration_PreviewMouseMove">
 		</Canvas>
 		<Grid Grid.Column="1">
 			<Grid>
@@ -22,8 +23,6 @@
 					<RowDefinition Height="1*" />
 				</Grid.RowDefinitions>
 				<Button Name="ButtonOpen" Content="Open image" Click="ButtonOpen_Click" Grid.Row="0" />
-				<ListBox Name="ListBoxData" Grid.Row="1"
-						 ItemsSource="{Binding Source={StaticResource myDataCalibration}, Path=MyQuads}" />
 				<Button Name="ButtonAddQuad" Content="Add quad" Grid.Row="2" Click="ButtonAddQuad_Click" />
 			</Grid>
 		</Grid>

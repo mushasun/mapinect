@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ZhangCalibration
 {
-	public class DataCalibration : NotifyPropertyChanged
+	public class DataCalibration : NotifyPropertyChanged.NotifyPropertyChanged
 	{
 		public const string SupportedImageFormat = ".tif";
 
@@ -21,7 +21,26 @@ namespace ZhangCalibration
 			string data = tr.ReadToEnd();
 			List<EditingQuad> quads = new List<EditingQuad>();
 			DataLoader.ParseData(data).ForEach(q => quads.Add(new EditingQuad(q)));
+			foreach (EditingQuad editingQuad in quads)
+			{
+				editingQuad.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(editingQuad_PropertyChanged);
+			}
 			MyQuads = quads;
+		}
+
+		void editingQuad_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == EditingQuad.IsEditingProperty)
+			{
+				EditingQuad editingQuad = (EditingQuad)sender;
+				foreach (EditingQuad eq in MyQuads)
+				{
+					if (eq != editingQuad)
+					{
+						eq.IsEditing = false;
+					}
+				}
+			}
 		}
 
 		public string Filename { get; set; }

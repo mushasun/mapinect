@@ -57,7 +57,6 @@
     </ApplicationDefinition>
     <Compile Include="DataCalibration.cs" />
     <Compile Include="EditingQuad.cs" />
-    <Compile Include="NotifyPropertyChanged.cs" />
     <Compile Include="Quad.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -191,6 +190,16 @@
     <Content Include="data\Model.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CanvasEditor\CanvasEditor.csproj">
+      <Project>{AD84D1B6-04D6-4BBB-8DA0-DEF698075F87}</Project>
+      <Name>CanvasEditor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NotifyPropertyChanged\NotifyPropertyChanged.csproj">
+      <Project>{5D4C4227-940B-4E8D-BA03-51571BFE907B}</Project>
+      <Name>NotifyPropertyChanged</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
