@@ -7,7 +7,7 @@ using System.Windows.Media;
 
 namespace ZhangCalibration
 {
-	public class Quad : NotifyPropertyChanged
+	public class Quad : NotifyPropertyChanged.NotifyPropertyChanged
 	{
 
 		public Quad()
