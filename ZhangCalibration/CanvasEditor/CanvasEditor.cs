@@ -43,6 +43,11 @@ namespace CanvasEditor
 			}
 		}
 
+		public void AddEditable(IEditable editable)
+		{
+			Canvas.Children.Add(editable.UIElement);
+		}
+
 		public System.Windows.Controls.Canvas Canvas { get; set; }
 
 		public IEnumerable<System.Windows.FrameworkElement> EditableElements { get; set; }
