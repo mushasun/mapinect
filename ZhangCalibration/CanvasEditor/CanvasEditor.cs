@@ -43,7 +43,7 @@ namespace CanvasEditor
 			}
 		}
 
-		public void AddEditable(IEditable editable)
+		internal void AddEditable(IEditable editable)
 		{
 			Canvas.Children.Add(editable.UIElement);
 		}
