@@ -45,15 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CanvasEditor.cs" />
-    <Compile Include="EditableEventArgs.cs" />
     <Compile Include="EditableFrameworkElement.cs" />
-    <Compile Include="HandleEditable.cs" />
-    <Compile Include="EditableSizeEventArgs.cs" />
-    <Compile Include="HandleEditableCreator.cs" />
-    <Compile Include="HandleEventArgs.cs" />
-    <Compile Include="HandlePositionChangedEventArgs.cs" />
+    <Compile Include="EditableHandleManager.cs" />
+    <Compile Include="EditableHandle.cs" />
     <Compile Include="IEditable.cs" />
-    <Compile Include="IEditableHandle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

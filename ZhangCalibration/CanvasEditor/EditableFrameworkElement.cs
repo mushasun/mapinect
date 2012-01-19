@@ -28,49 +28,20 @@ namespace CanvasEditor
 
 		public bool IsEnabled { get; set; }
 
-		public ICollection<IEditableHandle> Handles { get; private set; }
+		private EditableHandleManager HandleManager { get; set; }
 
-		private void CreateHandlesIfNecessary()
-		{
-			if (Handles == null)
-			{
-				Handles = new List<IEditableHandle>();
-				for (BoundaryPosition position = 0; position < BoundaryPosition.BoundaryPositionCount; position++)
-				{
-					IEditableHandle handle = new HandleEditable(this, position);
-					Handles.Add(handle);
-				}
-			}
-		}
-
-		private void ShowHandles()
-		{
-			foreach (IEditableHandle handle in Handles)
-			{
-				handle.IsVisible = true;
-			}
-		}
-
-		private bool myIsEditable;
-		public bool IsEditable {
-			get
-			{
-				return myIsEditable;
-			}
+		public bool Select {
 			set
 			{
-				myIsEditable = value;
-				if (myIsEditable)
-				{
-					CreateHandlesIfNecessary();
-					ShowHandles();
-				}
+				HandleManager.HandlesVisible = value;
 			}
 		}
 
 		public PointNotifyPropertyChanged Position { get; private set; }
 
 		public SizeNotifyPropertyChanged Size { get; private set; }
+
+		public event OnEditablePositionChanged PositionChanged;
 
 		public event OnEditableSizeChanged SizeChanged;
 
