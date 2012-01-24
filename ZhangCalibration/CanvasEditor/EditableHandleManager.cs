@@ -3,61 +3,24 @@ using System.Windows;
 
 namespace CanvasEditor
 {
-	internal class EditableHandleManager
+	internal class EditableHandleManager : EditableAlteringManager
 	{
 
 		internal EditableHandleManager(IEditable editable)
+			: base(editable)
 		{
-			Editable = editable;
-			HandlesVisible = false;
+
 		}
 
-		public IEditable Editable { get; private set; }
-
-		private bool myHandlesVisible;
-		public bool HandlesVisible
+		protected override List<EditableAlteringObject> GetAlteringObjects()
 		{
-			get
+			List<EditableAlteringObject> result = new List<EditableAlteringObject>();
+			for (EditableHandlePosition position = EditableHandlePosition.First; position < EditableHandlePosition.Count; position++)
 			{
-				return myHandlesVisible;
+				EditableHandle handle = new EditableHandle(this, position);
+				result.Add(handle);
 			}
-			set
-			{
-				myHandlesVisible = value;
-				if (myHandlesVisible)
-				{
-					CreateHandlesIfNecessary();
-					UpdateHandlesPosition();
-				}
-				if (Handles != null)
-				{
-					Handles.ForEach(h => h.IsVisible = myHandlesVisible);
-				}
-			}
-		}
-
-		private List<EditableHandle> Handles { get; set; }
-
-		private void CreateHandlesIfNecessary()
-		{
-			if (Handles == null)
-			{
-				Handles = new List<EditableHandle>();
-				for (EditableHandlePosition position = EditableHandlePosition.First; position < EditableHandlePosition.Count; position++)
-				{
-					EditableHandle handle = new EditableHandle(this, position);
-				}
-			}
-		}
-
-		private void UpdateHandlesPosition()
-		{
-			foreach (EditableHandle handle in Handles)
-			{
-				Point position = EditableHandlePositionToPoint(handle.HandlePosition);
-				handle.Position.X = position.X;
-				handle.Position.Y = position.Y;
-			}
+			return result;
 		}
 
 		internal Point EditableHandlePositionToPoint(EditableHandlePosition handlePosition)

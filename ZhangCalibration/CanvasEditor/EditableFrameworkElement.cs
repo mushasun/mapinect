@@ -33,7 +33,7 @@ namespace CanvasEditor
 		public bool Select {
 			set
 			{
-				HandleManager.HandlesVisible = value;
+				HandleManager.AlteringObjectsVisible = value;
 			}
 		}
 

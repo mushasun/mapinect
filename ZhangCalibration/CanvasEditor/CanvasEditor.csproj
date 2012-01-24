@@ -45,9 +45,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CanvasEditor.cs" />
+    <Compile Include="EditableAlteringManager.cs" />
+    <Compile Include="EditableAlteringObject.cs" />
+    <Compile Include="EditableVertex.cs" />
     <Compile Include="EditableFrameworkElement.cs" />
     <Compile Include="EditableHandleManager.cs" />
     <Compile Include="EditableHandle.cs" />
+    <Compile Include="EditablePolygon.cs" />
+    <Compile Include="EditableShape.cs" />
+    <Compile Include="EditableVertexManager.cs" />
     <Compile Include="IEditable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
