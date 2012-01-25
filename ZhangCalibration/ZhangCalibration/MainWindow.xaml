@@ -11,9 +11,7 @@
 			<ColumnDefinition Width="650" />
 			<ColumnDefinition Width="185" />
 		</Grid.ColumnDefinitions>
-		<Canvas Name="CanvasCalibration" Grid.Column="0"
-				PreviewMouseLeftButtonDown="CanvasCalibration_PreviewMouseLeftButtonDown"
-				PreviewMouseMove="CanvasCalibration_PreviewMouseMove">
+		<Canvas Name="CanvasCalibration" Grid.Column="0">
 		</Canvas>
 		<Grid Grid.Column="1">
 			<Grid>

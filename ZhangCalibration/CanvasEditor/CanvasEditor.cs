@@ -2,17 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Controls;
 
 namespace CanvasEditor
 {
 	public class CanvasEditor
 	{
 
+		public CanvasEditor(Canvas canvas)
+		{
+			Canvas = canvas;
+		}
+
 		public CanvasEditor(System.Windows.Controls.Canvas canvas,
 			IEnumerable<System.Windows.FrameworkElement> editableElements)
+			: this(canvas)
 		{
-			this.Canvas = canvas;
-			this.EditableElements = editableElements;
+			EditableElements = editableElements;
 
 			canvas.MouseMove += new System.Windows.Input.MouseEventHandler(canvas_MouseMove);
 			foreach (System.Windows.FrameworkElement element in EditableElements)
