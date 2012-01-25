@@ -51,17 +51,6 @@ namespace ZhangCalibration
 			CalibrationImage.Stretch = Stretch.Fill;
 			CanvasCalibration.Children.Add(CalibrationImage);
 
-			for (int i = 0; i < myDataCalibration.MyQuads.Count; i++)
-			{
-				CanvasCalibration.Children.Add(myDataCalibration.MyQuads[i].MyPolygon);
-			}
-			for (int i = 0; i < myDataCalibration.MyQuads.Count; i++)
-			{
-				for (int j = 0; j < myDataCalibration.MyQuads[i].MyVertexCircles.Count; j++)
-				{
-					CanvasCalibration.Children.Add(myDataCalibration.MyQuads[i].MyVertexCircles[j]);
-				}
-			}
 		}
 
 		private void ButtonAddQuad_Click(object sender, RoutedEventArgs e)
@@ -69,25 +58,6 @@ namespace ZhangCalibration
 			Quad quad = new Quad();
 			myEditingQuad = new EditingQuad(quad);
 			myDataCalibration.MyQuads.Add(myEditingQuad);
-		}
-
-		private void CanvasCalibration_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-		{
-			dragStartPosition = e.GetPosition(CanvasCalibration);
-		}
-
-		private void CanvasCalibration_PreviewMouseMove(object sender, MouseEventArgs e)
-		{
-			if (myDataCalibration.MyQuads.Any(q => q.DraggingVertex != null))
-			{
-				EditingQuad editingQuad = myDataCalibration.MyQuads.First(q => q.DraggingVertex != null);
-				Point pos = e.GetPosition(CanvasCalibration);
-				Vector dif = Point.Subtract(pos, dragStartPosition);
-				editingQuad.OffsetDraggingVertex(dif);
-				dragStartPosition = pos;
-
-				e.Handled = true;
-			}
 		}
 
 		public DataCalibration myDataCalibration { get; set; }

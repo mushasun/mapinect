@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Controls;
 
 namespace ZhangCalibration
 {
@@ -9,8 +10,9 @@ namespace ZhangCalibration
 	{
 		public const string SupportedImageFormat = ".tif";
 
-		public DataCalibration()
+		public DataCalibration(Canvas canvas)
 		{
+			CanvasEditor = new CanvasEditor.CanvasEditor(canvas);
 		}
 
 		public void Load(string imageFilename)
@@ -23,28 +25,15 @@ namespace ZhangCalibration
 			DataLoader.ParseData(data).ForEach(q => quads.Add(new EditingQuad(q)));
 			foreach (EditingQuad editingQuad in quads)
 			{
-				editingQuad.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(editingQuad_PropertyChanged);
+				
 			}
 			MyQuads = quads;
 		}
 
-		void editingQuad_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if (e.PropertyName == EditingQuad.IsEditingProperty)
-			{
-				EditingQuad editingQuad = (EditingQuad)sender;
-				foreach (EditingQuad eq in MyQuads)
-				{
-					if (eq != editingQuad)
-					{
-						eq.IsEditing = false;
-					}
-				}
-			}
-		}
-
 		public string Filename { get; set; }
 		public string ImageFilename { get; set; }
+
+		private CanvasEditor.CanvasEditor CanvasEditor;
 
 		public const string QuadsProperty = "MyQuads";
 		private List<EditingQuad> _MyQuads;
