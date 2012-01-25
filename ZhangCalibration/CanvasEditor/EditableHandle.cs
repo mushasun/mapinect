@@ -23,11 +23,24 @@ namespace CanvasEditor
 	internal class EditableHandle : EditableAlteringObject
 	{
 
-		internal EditableHandle(EditableAlteringManager manager, EditableHandlePosition position)
+		internal EditableHandle(EditableAlteringManager manager, EditableHandlePosition handlePosition)
 			: base(manager)
 		{
-			Position = ((EditableHandleManager)manager).EditableHandlePositionToPoint(position);
+			HandlePosition = handlePosition;
 		}
 
+		public EditableHandlePosition HandlePosition { get; set; }
+
+		internal override void UpdatePosition()
+		{
+			Point point = ((EditableHandleManager)Manager).EditableHandlePositionToPoint(HandlePosition);
+			Position.X = point.X;
+			Position.Y = point.Y;
+		}
+
+		protected override FrameworkElement NewAlteringFrameworkElement()
+		{
+			return new Rectangle();
+		}
 	}
 }

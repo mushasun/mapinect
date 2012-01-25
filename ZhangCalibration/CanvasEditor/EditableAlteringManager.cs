@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CanvasEditor
 {
-	internal class EditableAlteringManager
+	internal abstract class EditableAlteringManager
 	{
 
 		internal EditableAlteringManager(IEditable editable)
@@ -40,7 +40,7 @@ namespace CanvasEditor
 
 		private List<EditableAlteringObject> AlteringObjects { get; set; }
 
-		virtual protected List<EditableAlteringObject> GetAlteringObjects();
+		abstract protected List<EditableAlteringObject> GetAlteringObjects();
 
 		private void CreateAlteringObjectsIfNecessary()
 		{
@@ -52,12 +52,7 @@ namespace CanvasEditor
 
 		private void UpdateAlteringObjectsPosition()
 		{
-			foreach (EditableHandle handle in AlteringObjects)
-			{
-				Point position = EditableHandlePositionToPoint(handle.HandlePosition);
-				handle.Position.X = position.X;
-				handle.Position.Y = position.Y;
-			}
+			AlteringObjects.ForEach(h => h.UpdatePosition());
 		}
 
 	}

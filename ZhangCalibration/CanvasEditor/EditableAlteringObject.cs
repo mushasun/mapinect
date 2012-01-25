@@ -6,7 +6,7 @@ using System.Windows.Data;
 
 namespace CanvasEditor
 {
-	internal class EditableAlteringObject
+	internal abstract class EditableAlteringObject
 	{
 		internal EditableAlteringObject(EditableAlteringManager manager)
 		{
@@ -18,7 +18,9 @@ namespace CanvasEditor
 
 		public EditableAlteringManager Manager { get; private set; }
 
-		public PointNotifyPropertyChanged Position { get; private set; }
+		public PointNotifyPropertyChanged Position { get; protected set; }
+
+		abstract internal void UpdatePosition();
 
 		private bool myIsVisible;
 		public bool IsVisible {
@@ -37,7 +39,7 @@ namespace CanvasEditor
 
 		static internal readonly Size ObjectSize = new Size(6, 6);
 
-		virtual protected FrameworkElement NewAlteringFrameworkElement();
+		abstract protected FrameworkElement NewAlteringFrameworkElement();
 
 		private UIElement CreateUIElement()
 		{
