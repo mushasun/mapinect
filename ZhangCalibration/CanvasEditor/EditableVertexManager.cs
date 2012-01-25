@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PropertyChangedLibrary;
 
 namespace CanvasEditor
 {
@@ -17,10 +18,13 @@ namespace CanvasEditor
 		protected override List<EditableAlteringObject> GetAlteringObjects()
 		{
 			List<EditableAlteringObject> result = new List<EditableAlteringObject>();
-			foreach (Point point in Polygon)
-			{
-				
-			}
+
+			return result;
+		}
+
+		internal PointNotifyPropertyChanged EditableVertexIndexToPoint(int vertexIndex)
+		{
+			return Polygon.PointCollection.Points[vertexIndex];
 		}
 
 		private EditablePolygon Polygon

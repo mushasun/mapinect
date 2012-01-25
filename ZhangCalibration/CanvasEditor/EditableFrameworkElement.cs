@@ -5,10 +5,10 @@ using PropertyChangedLibrary;
 
 namespace CanvasEditor
 {
-	class EditableFrameworkElement : IEditable
+	public class EditableFrameworkElement : IEditable
 	{
 
-		EditableFrameworkElement(CanvasEditor editor, FrameworkElement element)
+		internal EditableFrameworkElement(CanvasEditor editor, FrameworkElement element)
 		{
 			Editor = editor;
 			UIElement = element;

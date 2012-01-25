@@ -49,5 +49,11 @@ namespace PropertyChangedLibrary
 			}
 		}
 
+		public void Offset(double x, double y)
+		{
+			X += x;
+			Y += y;
+		}
+
 	}
 }

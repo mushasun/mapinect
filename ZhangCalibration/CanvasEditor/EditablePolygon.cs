@@ -6,11 +6,18 @@ using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using PropertyChangedLibrary;
 using System.Windows.Data;
+using System.Windows;
 
 namespace CanvasEditor
 {
-	class EditablePolygon : EditableShape
+	public class EditablePolygon : EditableShape
 	{
+
+		internal EditablePolygon(CanvasEditor editor, FrameworkElement element)
+			: base(editor, element)
+		{
+
+		}
 
 		private PointCollection myPointCollection;
 		public PointCollection PointCollection {
@@ -40,7 +47,7 @@ namespace CanvasEditor
 
 	}
 
-	class PointCollection : NotifyPropertyChanged.NotifyPropertyChanged
+	public class PointCollection : NotifyPropertyChanged.NotifyPropertyChanged
 	{
 
 		public const string PointsProperty = "Points";

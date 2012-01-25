@@ -7,38 +7,25 @@ using System;
 
 namespace CanvasEditor
 {
-	class EditableVertex : EditableAlteringObject
+	internal class EditableVertex : EditableAlteringObject
 	{
 
-		public EditableVertex(EditableVertexManager manager)
+		internal EditableVertex(EditableAlteringManager manager, int vertexIndex)
+			: base(manager)
 		{
-			Position = manager.EditableHandlePositionToPoint(handlePosition);
+			VertexIndex = vertexIndex;
+		}
+
+		public int VertexIndex { get; private set; }
+
+		internal override void UpdatePosition()
+		{
+			
 		}
 
 		protected override FrameworkElement NewAlteringFrameworkElement()
 		{
-			return new 
-		}
-
-		private UIElement CreateVertexUIElement()
-		{
-			Rectangle handle = new Ellipse();
-			handle.SetValue(Canvas.ZIndexProperty, EditableHandleZOrder);
-
-			handle.SetValue(Canvas.WidthProperty, HandleSize.Width);
-			handle.SetValue(Canvas.HeightProperty, HandleSize.Height);
-
-			Binding xBinding = new Binding(PointNotifyPropertyChanged.XProperty);
-			xBinding.Source = Position;
-			xBinding.Converter = new EditableAlteringObjectUIElementPositionConverter();
-			handle.SetBinding(Canvas.LeftProperty, xBinding);
-
-			Binding yBinding = new Binding(PointNotifyPropertyChanged.YProperty);
-			yBinding.Source = Position;
-			yBinding.Converter = new EditableAlteringObjectUIElementPositionConverter();
-			handle.SetBinding(Canvas.TopProperty, yBinding);
-
-			return handle;
+			return new Ellipse();
 		}
 
 	}
