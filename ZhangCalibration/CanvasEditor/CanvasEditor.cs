@@ -61,7 +61,7 @@ namespace CanvasEditor
 			}
 		}
 
-		public IList<IEditable> IEditableElements { get; private set; }
+		public List<IEditable> IEditableElements { get; private set; }
 
 		private UIElementCollection myEditableElements;
 		public UIElementCollection EditableUIElements
@@ -84,6 +84,15 @@ namespace CanvasEditor
 						element.PreviewMouseLeftButtonDown += new System.Windows.Input.MouseButtonEventHandler(element_PreviewMouseLeftButtonDown);
 					}
 				}
+			}
+		}
+
+		public void SelectByUIElement(UIElement element)
+		{
+			IEditableElements.ForEach(iee => iee.Select = false);
+			if (EditableUIElements.Contains(element))
+			{
+				IEditableElements.First(iee => iee.UIElement == element).Select = true;
 			}
 		}
 

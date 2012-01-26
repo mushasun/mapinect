@@ -13,15 +13,18 @@ namespace ZhangCalibration
 
 		public EditingQuad(Quad quad)
 		{
-			this.Quad = quad;
-			this.Polygon = new Polygon();
+			Quad = quad;
+			Polygon = new Polygon();
 			Polygon.Fill = PolygonFillColor;
 			Polygon.StrokeThickness = 1;
 			Polygon.Points = Quad.Points;
+			Polygon.PreviewMouseLeftButtonDown += new System.Windows.Input.MouseButtonEventHandler(Polygon_PreviewMouseLeftButtonDown);
+			Selected = false;
 		}
 
 		~EditingQuad()
 		{
+			Polygon.PreviewMouseLeftButtonDown -= Polygon_PreviewMouseLeftButtonDown;
 			Quad = null;
 			Polygon = null;
 		}
@@ -47,6 +50,30 @@ namespace ZhangCalibration
 		}
 
 		public Polygon Polygon { get; private set; }
+
+		private void Polygon_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			if (!e.Handled)
+			{
+				e.Handled = true;
+				Selected = true;
+			}
+		}
+
+		public const string SelectedProperty = "Selected";
+		private bool mySelected;
+		public bool Selected
+		{
+			get
+			{
+				return mySelected;
+			}
+			set
+			{
+				mySelected = value;
+				FirePropertyChanged(SelectedProperty);
+			}
+		}
 
 	}
 
