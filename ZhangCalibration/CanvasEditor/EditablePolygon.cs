@@ -85,9 +85,9 @@ namespace CanvasEditor
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
 		{
 			PointCollection original = (PointCollection)value;
-			System.Windows.Media.PointCollection collection = new System.Windows.Media.PointCollection(
+			System.Windows.Media.PointCollection target = new System.Windows.Media.PointCollection(
 				original.Points.Select(pn => pn.Point).ToList());
-			return collection;
+			return target;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
