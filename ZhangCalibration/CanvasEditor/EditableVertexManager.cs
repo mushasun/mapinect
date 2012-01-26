@@ -24,7 +24,7 @@ namespace CanvasEditor
 
 		internal PointNotifyPropertyChanged EditableVertexIndexToPoint(int vertexIndex)
 		{
-			return Polygon.PointCollection.Points[vertexIndex];
+			return Polygon.PointCollection[vertexIndex];
 		}
 
 		private EditablePolygon Polygon

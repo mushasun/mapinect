@@ -8,8 +8,8 @@ namespace CanvasEditor
 
 	enum EditableHandlePosition
 	{
-		First = -1,
-		TopLeft,
+		First = 0,
+		TopLeft = First,
 		TopCenter,
 		TopRight,
 		MidRight,

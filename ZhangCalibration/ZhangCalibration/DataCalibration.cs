@@ -37,6 +37,7 @@ namespace ZhangCalibration
 			foreach (EditingQuad editingQuad in quads)
 			{
 				myCanvasEditor.Canvas.Children.Add(editingQuad.Polygon);
+				editingQuad.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(editingQuad_PropertyChanged);
 			}
 			myCanvasEditor.EditableUIElements = myCanvasEditor.Canvas.Children;
 			MyQuads = quads;
@@ -64,6 +65,15 @@ namespace ZhangCalibration
 			{
 				_MyQuads = value;
 				FirePropertyChanged(QuadsProperty);
+			}
+		}
+
+		private void editingQuad_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (sender is EditingQuad && e.PropertyName == EditingQuad.SelectedProperty)
+			{
+				EditingQuad editingQuad = (EditingQuad)sender;
+				myCanvasEditor.SelectByUIElement(editingQuad.Polygon);
 			}
 		}
 

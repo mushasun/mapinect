@@ -50,10 +50,20 @@ namespace CanvasEditor
 				return (FrameworkElement)UIElement;
 			}
 		}
-
+		
 		public bool IsEnabled { get; set; }
 
-		private EditableHandleManager HandleManager { get; set; }
+		private EditableHandleManager myHandleManager;
+		private EditableHandleManager HandleManager {
+			get
+			{
+				if (myHandleManager == null)
+				{
+					myHandleManager = new EditableHandleManager(this);
+				}
+				return myHandleManager;
+			}
+		}
 
 		public bool Select {
 			set

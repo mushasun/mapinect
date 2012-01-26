@@ -17,26 +17,13 @@ namespace CanvasEditor
 			: base(editor, element)
 		{
 			PointCollection = new PointCollection(Polygon.Points);
+			PointCollection.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(PointCollection_CollectionChanged);
+			VertexManager = new EditableVertexManager(this);
 		}
 
-		private PointCollection myPointCollection;
-		public PointCollection PointCollection {
-			get
-			{
-				return myPointCollection;
-			}
-			set
-			{
-				myPointCollection = value;
-				if (Polygon != null)
-				{
-					Binding pointsBinding = new Binding(PointCollection.PointsProperty);
-					pointsBinding.Source = myPointCollection;
-					pointsBinding.Converter = new PointCollectionConverter();
-					Polygon.SetValue(Polygon.PointsProperty, pointsBinding);
-				}
-			}
-		}
+		public PointCollection PointCollection { get; private set; }
+
+		private EditableVertexManager VertexManager { get; set; }
 
 		private Polygon Polygon
 		{
@@ -46,53 +33,30 @@ namespace CanvasEditor
 			}
 		}
 
+		private void PointCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			Polygon.Points = PointCollection.ToPointCollection;
+		}
+
 	}
 
-	public class PointCollection : NotifyPropertyChanged.NotifyPropertyChanged
+	public class PointCollection : ObservableCollection<PointNotifyPropertyChanged>
 	{
 
 		public PointCollection(System.Windows.Media.PointCollection pointCollection)
 		{
-			ObservableCollection<PointNotifyPropertyChanged> points = new ObservableCollection<PointNotifyPropertyChanged>();
 			foreach (Point point in pointCollection)
 			{
-				points.Add(new PointNotifyPropertyChanged(point));
+				Add(new PointNotifyPropertyChanged(point));
 			}
-			Points = points;
 		}
 
-		public const string PointsProperty = "Points";
-		private ObservableCollection<PointNotifyPropertyChanged> myPoints;
-		public ObservableCollection<PointNotifyPropertyChanged> Points
+		public System.Windows.Media.PointCollection ToPointCollection
 		{
 			get
 			{
-				return myPoints;
+				return new System.Windows.Media.PointCollection(this.Select(p => p.Point));
 			}
-			set
-			{
-				myPoints = value;
-				FirePropertyChanged(PointsProperty);
-			}
-		}
-
-	}
-
-	[ValueConversion(typeof(PointCollection), typeof(System.Windows.Media.PointCollection))]
-	internal class PointCollectionConverter : IValueConverter
-	{
-
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-		{
-			PointCollection original = (PointCollection)value;
-			System.Windows.Media.PointCollection target = new System.Windows.Media.PointCollection(
-				original.Points.Select(pn => pn.Point).ToList());
-			return target;
-		}
-
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-		{
-			throw new NotImplementedException();
 		}
 
 	}
