@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Windows.Shapes;
+﻿using System.Windows.Shapes;
 using System.Windows.Media;
-using System.Windows.Controls;
-using System.Collections.ObjectModel;
 
 namespace ZhangCalibration
 {
@@ -20,40 +13,40 @@ namespace ZhangCalibration
 
 		public EditingQuad(Quad quad)
 		{
-			this.MyQuad = quad;
-			this.MyPolygon = new Polygon();
-			MyPolygon.Fill = PolygonFillColor;
-			MyPolygon.StrokeThickness = 1;
-			MyPolygon.Points = MyQuad.Points;
+			this.Quad = quad;
+			this.Polygon = new Polygon();
+			Polygon.Fill = PolygonFillColor;
+			Polygon.StrokeThickness = 1;
+			Polygon.Points = Quad.Points;
 		}
 
 		~EditingQuad()
 		{
-			MyQuad = null;
-			MyPolygon = null;
+			Quad = null;
+			Polygon = null;
 		}
 
 		public override string ToString()
 		{
-			return MyQuad.ToString();
+			return Quad.ToString();
 		}
 
-		public const string MyQuadProperty = "MyQuad";
-		private Quad _MyQuad;
-		public Quad MyQuad
+		public const string QuadProperty = "Quad";
+		private Quad myQuad;
+		public Quad Quad
 		{
 			get
 			{
-				return _MyQuad;
+				return myQuad;
 			}
 			set
 			{
-				_MyQuad = value;
-				FirePropertyChanged(MyQuadProperty);
+				myQuad = value;
+				FirePropertyChanged(QuadProperty);
 			}
 		}
 
-		public Polygon MyPolygon { get; private set; }
+		public Polygon Polygon { get; private set; }
 
 	}
 
