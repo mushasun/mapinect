@@ -36,7 +36,7 @@ namespace ZhangCalibration
 
 			foreach (EditingQuad editingQuad in quads)
 			{
-				myCanvasEditor.Canvas.Children.Add(editingQuad.MyPolygon);
+				myCanvasEditor.Canvas.Children.Add(editingQuad.Polygon);
 			}
 			myCanvasEditor.EditableUIElements = myCanvasEditor.Canvas.Children;
 			MyQuads = quads;

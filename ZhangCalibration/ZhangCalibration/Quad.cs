@@ -21,15 +21,15 @@ namespace ZhangCalibration
 		}
 
 		public const string PointsProperty = "Points";
-		private PointCollection _Points;
+		private PointCollection myPoints;
 		public PointCollection Points {
 			get
 			{
-				return _Points;
+				return myPoints;
 			}
 			set
 			{
-				_Points = value;
+				myPoints = value;
 				FirePropertyChanged(PointsProperty);
 			}
 		}
