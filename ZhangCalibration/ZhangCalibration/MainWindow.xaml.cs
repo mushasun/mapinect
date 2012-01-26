@@ -24,6 +24,7 @@ namespace ZhangCalibration
 			InitializeComponent();
 			myDataCalibration = (DataCalibration)Resources["myDataCalibration"];
 			myDataCalibration.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(myDataCalibration_PropertyChanged);
+			myDataCalibration.Canvas = CanvasCalibration;
 		}
 
 		private void ButtonOpen_Click(object sender, RoutedEventArgs e)
@@ -41,15 +42,6 @@ namespace ZhangCalibration
 
 		void myDataCalibration_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			CanvasCalibration.Children.Clear();
-
-			Image CalibrationImage = new Image();
-			CalibrationImage.Source = new System.Windows.Media.Imaging.BitmapImage(
-				new Uri(myDataCalibration.ImageFilename, UriKind.RelativeOrAbsolute));
-			CalibrationImage.Width = 640;
-			CalibrationImage.Height = 480;
-			CalibrationImage.Stretch = Stretch.Fill;
-			CanvasCalibration.Children.Add(CalibrationImage);
 
 		}
 

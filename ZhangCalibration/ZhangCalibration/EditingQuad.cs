@@ -24,6 +24,7 @@ namespace ZhangCalibration
 			this.MyPolygon = new Polygon();
 			MyPolygon.Fill = PolygonFillColor;
 			MyPolygon.StrokeThickness = 1;
+			MyPolygon.Points = MyQuad.Points;
 		}
 
 		~EditingQuad()

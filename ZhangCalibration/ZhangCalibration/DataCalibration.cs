@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace ZhangCalibration
 {
@@ -10,9 +11,8 @@ namespace ZhangCalibration
 	{
 		public const string SupportedImageFormat = ".tif";
 
-		public DataCalibration(Canvas canvas)
+		public DataCalibration()
 		{
-			CanvasEditor = new CanvasEditor.CanvasEditor(canvas);
 		}
 
 		public void Load(string imageFilename)
@@ -23,17 +23,35 @@ namespace ZhangCalibration
 			string data = tr.ReadToEnd();
 			List<EditingQuad> quads = new List<EditingQuad>();
 			DataLoader.ParseData(data).ForEach(q => quads.Add(new EditingQuad(q)));
+
+			myCanvasEditor.Clear();
+
+			Image CalibrationImage = new Image();
+			CalibrationImage.Source = new System.Windows.Media.Imaging.BitmapImage(
+				new Uri(ImageFilename, UriKind.RelativeOrAbsolute));
+			CalibrationImage.Width = 640;
+			CalibrationImage.Height = 480;
+			CalibrationImage.Stretch = Stretch.Fill;
+			myCanvasEditor.Canvas.Children.Add(CalibrationImage);
+
 			foreach (EditingQuad editingQuad in quads)
 			{
-				
+				myCanvasEditor.Canvas.Children.Add(editingQuad.MyPolygon);
 			}
+			myCanvasEditor.EditableUIElements = myCanvasEditor.Canvas.Children;
 			MyQuads = quads;
 		}
 
 		public string Filename { get; set; }
 		public string ImageFilename { get; set; }
 
-		private CanvasEditor.CanvasEditor CanvasEditor;
+		private CanvasEditor.CanvasEditor myCanvasEditor;
+		public Canvas Canvas {
+			set
+			{
+				myCanvasEditor = new CanvasEditor.CanvasEditor(value);
+			}
+		}
 
 		public const string QuadsProperty = "MyQuads";
 		private List<EditingQuad> _MyQuads;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Controls;
+using System.Windows;
 
 namespace CanvasEditor
 {
@@ -12,19 +13,14 @@ namespace CanvasEditor
 		public CanvasEditor(Canvas canvas)
 		{
 			Canvas = canvas;
+			Canvas.MouseMove += new System.Windows.Input.MouseEventHandler(canvas_MouseMove);
 		}
 
 		public CanvasEditor(System.Windows.Controls.Canvas canvas,
-			IEnumerable<System.Windows.FrameworkElement> editableElements)
+			UIElementCollection editableElements)
 			: this(canvas)
 		{
-			EditableElements = editableElements;
-
-			canvas.MouseMove += new System.Windows.Input.MouseEventHandler(canvas_MouseMove);
-			foreach (System.Windows.FrameworkElement element in EditableElements)
-			{
-				element.PreviewMouseLeftButtonDown += new System.Windows.Input.MouseButtonEventHandler(element_PreviewMouseLeftButtonDown);
-			}
+			EditableUIElements = editableElements;
 		}
 
 		void canvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -43,7 +39,7 @@ namespace CanvasEditor
 
 		void element_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-			if (EditingElement != null && EditableElements.Contains(sender))
+			if (EditingElement != null && EditableUIElements.Contains((UIElement)sender))
 			{
 				EditingElement = (System.Windows.FrameworkElement)sender;
 			}
@@ -56,7 +52,40 @@ namespace CanvasEditor
 
 		public System.Windows.Controls.Canvas Canvas { get; set; }
 
-		public IEnumerable<System.Windows.FrameworkElement> EditableElements { get; set; }
+		public void Clear()
+		{
+			Canvas.Children.Clear();
+			if (EditableUIElements != null)
+			{
+				EditableUIElements.Clear();
+			}
+		}
+
+		public IList<IEditable> IEditableElements { get; private set; }
+
+		private UIElementCollection myEditableElements;
+		public UIElementCollection EditableUIElements
+		{
+			get
+			{
+				return myEditableElements;
+			}
+			set
+			{
+				myEditableElements = value;
+
+				IEditableElements = new List<IEditable>();
+				foreach (System.Windows.FrameworkElement element in EditableUIElements)
+				{
+					IEditable editable = EditableWrapper.CreateWrapperForUIElement(this, element);
+					if (editable != null)
+					{
+						IEditableElements.Add(editable);
+						element.PreviewMouseLeftButtonDown += new System.Windows.Input.MouseButtonEventHandler(element_PreviewMouseLeftButtonDown);
+					}
+				}
+			}
+		}
 
 		private System.Windows.FrameworkElement EditingElement { get; set; }
 
