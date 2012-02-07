@@ -59,7 +59,7 @@ namespace mapinect {
 	{
 		cv.draw();
 		pcm.draw();
-		app->debugDraw();
+		//app->debugDraw();
 	}
 
 	//--------------------------------------------------------------

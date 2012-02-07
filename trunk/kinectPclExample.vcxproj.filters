@@ -148,6 +148,8 @@
     <ClCompile Include="src\lpmt\monitor.cpp">
       <Filter>lpmt</Filter>
     </ClCompile>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\testApp.cpp" />
     <ClCompile Include="src\model\Box.cpp">
       <Filter>model</Filter>
     </ClCompile>
@@ -187,22 +189,23 @@
     <ClCompile Include="src\vm\VM.cpp">
       <Filter>vm</Filter>
     </ClCompile>
-    <ClCompile Include="src\helpers\TxManager.cpp">
-      <Filter>helpers</Filter>
+    <ClCompile Include="src\bouncingball\BouncingBall.cpp">
+      <Filter>bouncingball</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\ofGraphicsUtils.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="src\bouncingball\tejo.cpp">
+      <Filter>bouncingball</Filter>
     </ClCompile>
-    <ClCompile Include="src\mapinect.cpp" />
-    <ClCompile Include="src\mapinectApp.cpp" />
+    <ClCompile Include="src\bouncingball\Segment3D.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bouncingball\BObject.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\buildings\Buildings.cpp">
+      <Filter>buildings</Filter>
+    </ClCompile>
     <ClCompile Include="src\model\PCHand.cpp">
       <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\objectTypesEnum.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pcm\PotentialHand.h">
-      <Filter>pcm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -407,6 +410,7 @@
     <ClInclude Include="src\lpmt\monitor.h">
       <Filter>lpmt</Filter>
     </ClInclude>
+    <ClInclude Include="src\testApp.h" />
     <ClInclude Include="src\model\Box.h">
       <Filter>model</Filter>
     </ClInclude>
@@ -446,20 +450,23 @@
     <ClInclude Include="src\vm\VM.h">
       <Filter>vm</Filter>
     </ClInclude>
-    <ClInclude Include="src\IApplication.h" />
-    <ClInclude Include="src\helpers\TxManager.h">
-      <Filter>helpers</Filter>
+    <ClInclude Include="src\bouncingball\BouncingBall.h">
+      <Filter>bouncingball</Filter>
     </ClInclude>
-    <ClInclude Include="src\helpers\ITxManager.h">
-      <Filter>helpers</Filter>
+    <ClInclude Include="src\bouncingball\Segment3D.h">
+      <Filter>bouncingball</Filter>
     </ClInclude>
-    <ClInclude Include="src\mapinect.h" />
-    <ClInclude Include="src\mapinectApp.h" />
+    <ClInclude Include="src\bouncingball\tejo.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bouncingball\BObject.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buildings\Buildings.h">
+      <Filter>buildings</Filter>
+    </ClInclude>
     <ClInclude Include="src\model\PCHand.h">
       <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\objectTypesEnum.h">
-      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -538,8 +545,11 @@
     <Filter Include="vm">
       <UniqueIdentifier>{89e6d4e9-6520-433b-967b-9913157b32d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="helpers">
-      <UniqueIdentifier>{a48df4ae-c3cd-453e-acd8-acb8d6ef7409}</UniqueIdentifier>
+    <Filter Include="bouncingball">
+      <UniqueIdentifier>{789b26d2-890f-42d1-bfa6-0d1e29022779}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="buildings">
+      <UniqueIdentifier>{5d74f2ba-3be3-4c70-b380-98de2e871d48}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

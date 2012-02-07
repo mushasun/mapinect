@@ -7,7 +7,7 @@
 #include "ofxXmlSettings.h"
 #include "Timer.h"
 #include "utils.h"
-
+#include "PCHand.h"
 
 using namespace std;
 
@@ -69,6 +69,7 @@ namespace mapinect {
 		startThread(true, false);
 		table = NULL;
 		gModel->table = NULL;
+		handSetted = false;
 	}
 
 	//--------------------------------------------------------------
@@ -179,6 +180,51 @@ namespace mapinect {
 			return ((TrackedCloud)trackedCloud).getCounter() == 0;
 		}
 
+		void PCMThread::setPotentialHand(PointCloud<PointXYZ>::Ptr cluster)
+		{
+			Eigen::Vector4f clusterCentroid;
+			compute3DCentroid(*cluster,clusterCentroid);
+			ofxVec3f ptoCentroid = ofxVec3f(clusterCentroid.x(),clusterCentroid.y(),clusterCentroid.z());
+			setPotentialHand(cluster, ptoCentroid);
+		}
+
+		void PCMThread::setPotentialHand(PointCloud<PointXYZ>::Ptr cluster, ofxVec3f centroid)
+		{
+			if(!onTable(cluster, table))
+			{
+				cout << "Not on Table!" << endl;
+				PotentialHand potHand = PotentialHand(cluster,centroid);
+				bool newPotentialHand = true;
+
+				potentialHands.clear();
+				for (int i = 0; i < potentialHands.size(); i++)
+				{
+					//if(potentialHands.at(i) == potHand)
+					//{
+						newPotentialHand = false;
+						potentialHands.at(i).timesVisited ++;
+						potentialHands.at(i).visited = true;
+
+						if(potentialHands.at(i).timesVisited > 3)
+						{
+							cout << "MANOOOOOO!!!" << endl;
+							handSetted = true;
+						}
+						break;
+					//}
+					//else
+					//	cout << (potHand.centroid - potentialHands.at(i).centroid).length() << endl;
+				}
+				if(newPotentialHand)
+					potentialHands.push_back(potHand);
+			}
+		}
+
+		/*void PCMThread::cleanPotentialHand()
+		{
+			potentialHands.
+		}*/
+
 		PointCloud<PointXYZ>::Ptr PCMThread::getTableCluster(){
 			PCDWriter writer;
 			PointCloud<PointXYZ>::Ptr cloud = getCloud();
@@ -222,19 +268,50 @@ namespace mapinect {
 			{
 				pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZ>);
 				for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++)
-					cloud_cluster->points.push_back (filteredCloud->points[*pit]); //*
-				//writer.write<pcl::PointXYZ> ("cluster" + ofToString(++count) + ".pcd", *cloud_cluster, false);
+				{
+					pcl::PointXYZ pto = filteredCloud->points[*pit];
+					//pto.z = 0;
+					cloud_cluster->points.push_back (pto); //*
+				}
+				writer.write<pcl::PointXYZ> ("cluster" + ofToString(++count) + ".pcd", *cloud_cluster, false);
+
+
+				//Debug
+				pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
+				pcl::ConvexHull<pcl::PointXYZ> chull;
+				chull.setInputCloud (cloud_cluster);
+				chull.reconstruct (*cloud_hull);
+				writer.write<pcl::PointXYZ> ("clusterhull" + ofToString(++count) + ".pcd", *cloud_hull, false);
+
 
 				Eigen::Vector4f clusterCentroid;
 				compute3DCentroid(*cloud_cluster,clusterCentroid);
-
-				if(clusterCentroid.norm() < min_dist)
+				ofxVec3f ptoCentroid = ofxVec3f(clusterCentroid.x(),clusterCentroid.y(),clusterCentroid.z());
+				if(table == NULL)
 				{
-					min_dist = clusterCentroid.norm();
-					tableCluster = cloud_cluster;
+					if(clusterCentroid.norm() < min_dist)
+					{
+						if(tableCluster->size() > 0)
+							setPotentialHand(tableCluster);
+						min_dist = clusterCentroid.norm();
+						tableCluster = cloud_cluster;
+					}
+					else
+						setPotentialHand(cloud_cluster,ptoCentroid);
+				}
+				else
+				{
+					if(abs(clusterCentroid.norm() - tableClusterLastDist) < min_dist)
+					{
+						if(tableCluster->size() > 0)
+							setPotentialHand(tableCluster);
+						min_dist = abs(clusterCentroid.norm() - tableClusterLastDist);
+						tableCluster = cloud_cluster;
+					}
+					else
+						setPotentialHand(cloud_cluster, ptoCentroid);
 				}
 			}
-
 			
 			//writer.write<pcl::PointXYZ> ("table.pcd", *tableCluster, false);
 
@@ -281,15 +358,19 @@ namespace mapinect {
 			else {
 				cloud_filtered_temp_inliers = cloudTemp;
 			}
-
+			
 			if(table == NULL)
 			{
-				ofxScopedMutex objectsLock(gModel->objectsMutex);
+				//ofxScopedMutex objectsLock(gModel->objectsMutex);
+				gModel->objectsMutex.lock();
 				table = new PCPolyhedron(cloud_filtered_temp_inliers, cloud_filtered_temp_inliers, -1);
 				table->detectPrimitives();
 				gModel->table = table;
-			}
+				gModel->objectsMutex.unlock();
 
+				tableClusterLastDist = min_dist;
+			}
+			
 			// Quito los puntos que no son mesa
 			extract.setInputCloud (cloudTemp);
 			extract.setIndices (inliers);
@@ -312,54 +393,61 @@ namespace mapinect {
 			PointCloud<PointXYZ>::Ptr filteredCloud(new PointCloud<PointXYZ>);
 			dif = getDifferencesCloud(cloud,secondCloud,filteredCloud,OCTREE_RES);
 */
-			if(filteredCloud->empty())
+			if(filteredCloud->empty() && potentialHands.empty())
 			{
-				cout << "cluster vacio!" << endl;
+				//cout << "cluster vacio!" << endl;
 				return;
 			}
-
-			//Subdivido la nube de diferencias en clusters
-			// Creating the KdTree object for the search method of the extraction
-			pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
-			tree->setInputCloud (filteredCloud);
-
-			std::vector<pcl::PointIndices> cluster_indices;
-			pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-			ec.setClusterTolerance (MAX_CLUSTER_TOLERANCE); 
-			ec.setMinClusterSize (MIN_CLUSTER_SIZE);
-			ec.setMaxClusterSize (MAX_CLUSTER_SIZE);
-			ec.setSearchMethod (tree);
-			ec.setInputCloud(filteredCloud);
-			ec.extract (cluster_indices);
-
-			/*nDetectedObjects = cluster_indices.size();
-			int j = 0;
-			*/
 
 			//Actualizo las detecciones temporales
 			for (list<TrackedCloud>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
 				iter->addCounter(-1);
 			}
 			trackedClouds.remove_if(countIsZero);
-
 			list<TrackedCloud*> nuevosClouds;
-
-			//PCDWriter writer;
-			//writer.write<pcl::PointXYZ> ("tableTop.pcd", *filteredCloud, false);
-
-			//separo en clusters
 			int debugCounter = 0;
-			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+
+			if(!filteredCloud->empty())
 			{
-				pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZ>);
-				for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++)
-					cloud_cluster->points.push_back (filteredCloud->points[*pit]); //*
+				//Subdivido la nube de diferencias en clusters
+				// Creating the KdTree object for the search method of the extraction
+				pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
+				tree->setInputCloud (filteredCloud);
+
+				std::vector<pcl::PointIndices> cluster_indices;
+				pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+				ec.setClusterTolerance (MAX_CLUSTER_TOLERANCE); 
+				ec.setMinClusterSize (MIN_CLUSTER_SIZE);
+				ec.setMaxClusterSize (MAX_CLUSTER_SIZE);
+				ec.setSearchMethod (tree);
+				ec.setInputCloud(filteredCloud);
+				ec.extract (cluster_indices);
+
+				/*PCDWriter writer;
+				writer.write<pcl::PointXYZ> ("tableTop.pcd", *filteredCloud, false);*/
+
+				//separo en clusters
+				
+				for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+				{
+					pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZ>);
+					for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++)
+						cloud_cluster->points.push_back (filteredCloud->points[*pit]); //*
 
 
-				//writer.write<pcl::PointXYZ> ("cluster" + ofToString(debugCounter) + ".pcd", *cloud_cluster, false);
+					//writer.write<pcl::PointXYZ> ("cluster" + ofToString(debugCounter) + ".pcd", *cloud_cluster, false);
 
-				nuevosClouds.push_back(new TrackedCloud(cloud_cluster));
-				debugCounter++;
+					nuevosClouds.push_back(new TrackedCloud(cloud_cluster));
+					debugCounter++;
+				}
+			}
+			if(!handSetted)
+			{
+				for (std::vector<PotentialHand>::const_iterator it = potentialHands.begin (); it != potentialHands.end (); ++it)
+				{
+					nuevosClouds.push_back(new TrackedCloud(it->cloud,true));
+				}
+				potentialHands.clear();
 			}
 
 			//Itero en todas las nuves encontradas buscando el mejor ajuste con un objeto encontrado
@@ -370,9 +458,9 @@ namespace mapinect {
 			int max_iter = 10;
 			do{
 				for (list<TrackedCloud*>::iterator iter = nuevosClouds.begin(); iter != nuevosClouds.end(); iter++) {
-					/*PCDWriter writer;
+					//PCDWriter writer;
 
-					writer.write<pcl::PointXYZ> ("vector" + ofToString(debugCounter) + ".pcd", *iter->getCloud(), false);*/
+					//writer.write<pcl::PointXYZ> ("vector" + ofToString(debugCounter) + ".pcd", *(*iter)->getTrackedCloud(), false);
 					TrackedCloud *removedCloud;
 					bool removed = false;
 					//Busco el mejor ajuste
