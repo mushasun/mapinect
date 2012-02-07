@@ -2,6 +2,7 @@
 #define MAPINECT_LINE2D_H__
 
 #include "ofxVec2f.h"
+#include "ofxVec3f.h"
 
 namespace mapinect {
 
@@ -17,6 +18,7 @@ namespace mapinect {
 		virtual ~Line2D() { };
 
 		inline const ofxVec2f &getOrigin() { return pOrigin; }
+		inline const ofxVec3f getCoefficients() { return ofxVec3f(pA,pB,pC); }
 
 		double distance(const ofxVec2f &v);
 		double calculateValue(const ofxVec2f &v);

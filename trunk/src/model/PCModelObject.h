@@ -42,6 +42,8 @@ namespace mapinect {
 
 		virtual void				detectPrimitives();
 		virtual void				increaseLod();
+
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 	protected:
 		bool						drawPointCloud;
 

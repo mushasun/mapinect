@@ -19,6 +19,8 @@ namespace mapinect {
 			int					getPCPolygonSize();
 			virtual void		resetLod();
 			virtual void		increaseLod();
+
+			
 		protected:
 			//virtual PCPolygon*	createPCPolygon();
 

@@ -9,6 +9,8 @@
 #include <pcl/segmentation/segment_differences.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/filters/project_inliers.h>
+#include "objectTypesEnum.h"
+#include "PCPolyhedron.h"
 
 #define DECLARE_POINTXYZ_OFXVEC3F(v, p)	ofxVec3f v = POINTXYZ_OFXVEC3F(p)
 #define POINTXYZ_OFXVEC3F(p)			ofxVec3f(p.x, p.y, p.z)
@@ -50,4 +52,11 @@ PointCloud<PointXYZ>::Ptr getCloud();
 
 pcl::PointIndices::Ptr adjustPlane(pcl::ModelCoefficients coefficients, PointCloud<pcl::PointXYZ>::Ptr cloudToAdjust);
 
+float evaluatePoint(pcl::ModelCoefficients coefficients, ofxVec3f pto);
+
+ObjectType getObjectType(pcl::PointCloud<pcl::PointXYZ>::Ptr src);
+
+bool isInBorder(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+
+bool onTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolyhedron *table);
 #endif // POINT_UTILS_H__

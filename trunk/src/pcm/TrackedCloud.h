@@ -16,9 +16,11 @@ namespace mapinect {
 		float						nearest;
 		bool						needApplyTransformation;
 		bool						needRecalculateFaces;
+		bool						hand;
 	public:
 		
 		TrackedCloud(PointCloud<PointXYZ>::Ptr cloud);
+		TrackedCloud(PointCloud<PointXYZ>::Ptr cloud, bool isHand);
 		TrackedCloud();
 		virtual ~TrackedCloud();
 
@@ -30,6 +32,7 @@ namespace mapinect {
 		inline PointCloud<PointXYZ>::Ptr getTrackedCloud() { return cloud; }
 		inline bool hasObject() { return objectInModel != NULL; }
 		inline bool hasMatching() { return matchingCloud != NULL; }
+		inline bool isPotentialHand() { return hand; }
 		void removeMatching();
 		void updateCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster);
 		bool matchingTrackedObjects(TrackedCloud tracked_temp, Eigen::Affine3f &transformation);

@@ -27,7 +27,7 @@ namespace mapinect {
 			virtual bool		matches(PCPolygon* polygon, PCPolygon*& removed, bool& wasRemoved);
 			void				updateMatching();
 			void				removeMatching();
-
+			inline ModelCoefficients getCoefficients(){ return coefficients; }
 		protected:
 			pcl::ModelCoefficients coefficients;
 

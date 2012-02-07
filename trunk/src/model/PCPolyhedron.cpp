@@ -68,7 +68,7 @@ namespace mapinect {
 		seg.setModelType (pcl::SACMODEL_PLANE);
 		seg.setMethodType (pcl::SAC_RANSAC);
 		seg.setMaxIterations (50);
-		seg.setDistanceThreshold (0.009); //original: 0.01
+		seg.setDistanceThreshold (0.09); //original: 0.01
 
 		// Create the filtering object
 		int i = 0, nr_points = cloudTemp->points.size ();

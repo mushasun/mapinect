@@ -1,7 +1,9 @@
 #include "TrackedCloud.h"
 
 #include "utils.h"
+#include "objectTypesEnum.h"
 #include "PCPolyhedron.h"
+#include "PCHand.h"
 #include "pointUtils.h"
 #include <pcl/registration/transformation_estimation.h>
 #include <pcl/io/pcd_io.h>
@@ -17,6 +19,19 @@ namespace mapinect {
 		minPointDif = numeric_limits<int>::max();
 		needApplyTransformation = false;
 		needRecalculateFaces = false;
+		hand = false;
+	}
+
+	TrackedCloud::TrackedCloud(PointCloud<PointXYZ>::Ptr cloud, bool isHand) {
+		this->cloud = cloud;
+		counter = 2;
+		objectInModel = NULL;
+		matchingCloud = NULL;
+		nearest = numeric_limits<int>::max();
+		minPointDif = numeric_limits<int>::max();
+		needApplyTransformation = false;
+		needRecalculateFaces = false;
+		hand = hand;
 	}
 
 	TrackedCloud::TrackedCloud() {
@@ -26,6 +41,7 @@ namespace mapinect {
 		minPointDif = numeric_limits<int>::max();
 		needApplyTransformation = false;
 		needRecalculateFaces = false;
+		hand = false;
 	}
 
 	TrackedCloud::~TrackedCloud() {
@@ -47,7 +63,31 @@ namespace mapinect {
 			counter = TIMES_TO_CREATE_OBJ + 2;
 				
 			gModel->objectsMutex.lock();
-				objectInModel = new PCPolyhedron(cloud, cloud, objId);
+				//////////////Para identificar si es un objeto o una mano/////////////////
+				//ObjectType objType = getObjectType(cloud);
+
+				//switch(objType)
+				//{
+				//	case HAND:
+				//		objectInModel = new PCHand(cloud, cloud, objId);
+				//		break;
+				//	case BOX:
+				//		objectInModel = new PCPolyhedron(cloud, cloud, objId);
+				//		break;
+				//	default:
+				//		//objectInModel = new PCPolyhedron(cloud, cloud, objId);
+				//		return;
+				//		break;
+				//}
+				////////////////////////////////////////////////////////////
+				
+				//Si se descomenta lo anterior, comentar esto.
+			    if(hand)
+					objectInModel = new PCHand(cloud, cloud, -99);
+				else
+					objectInModel = new PCPolyhedron(cloud, cloud, objId);
+				cout << "New object!" << endl;
+
 				objId++;
 				objectInModel->detectPrimitives();
 				gModel->objects.push_back(objectInModel);
@@ -126,6 +166,7 @@ namespace mapinect {
 				removed = true;
 			}
 			matchingCloud = trackedCloud;
+			hand = trackedCloud->isPotentialHand();
 			return true;
 			//getDifferencesCloud -> tiene problemas!!!
 			//int dif = getDifferencesCloud(cloud, trackedCloud->getCloud(), difCloud, OCTREE_RES);
