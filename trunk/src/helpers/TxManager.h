@@ -2,7 +2,6 @@
 #define TX_MANAGER_H__
 
 #include "ITxManager.h"
-
 #include "ofxFenster.h"
 
 namespace mapinect {
@@ -12,6 +11,9 @@ namespace mapinect {
 		TxManager(ofxFenster* f);
 
 		GLuint	loadTexture(string imgFile);
+		GLuint	loadVideoTexture(string videoFile);
+		void	updateVideoTexture();
+
 		void	unloadTexture(GLuint textureId);
 
 		void	bindTexture(GLuint textureId) const;
@@ -21,7 +23,9 @@ namespace mapinect {
 
 	private:
 		ofxFenster* fenster;
-
+		ofVideoPlayer video;
+		unsigned char* videoPixels;
+		
 	};
 }
 

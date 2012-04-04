@@ -28,8 +28,8 @@ namespace mapinect {
 		gModel = new mapinect::Model();
 		ofSetWindowTitle("mapinect");
 		cv.setup();
-		pcm.setup();
-		arduino.setup();
+//		pcm.setup();
+//		arduino.setup();
 
 		app->txManager = new TxManager(this->fenster);
 		app->setup();
@@ -39,9 +39,9 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void mapinectApp::exit() {
 		cv.exit();
-		pcm.exit();
+/*		pcm.exit();
 		arduino.exit();
-		app->exit();
+*/		app->exit();
 		gKinect->close();
 	}
 
@@ -50,16 +50,16 @@ namespace mapinect {
 		gKinect->update();
 		bool isKinectFrameNew = gKinect->isFrameNew();
 		cv.update(isKinectFrameNew);
-		pcm.update(isKinectFrameNew);
-		arduino.update();
+//		pcm.update(isKinectFrameNew);
+//		arduino.update();
 	}
 
 	//--------------------------------------------------------------
 	void mapinectApp::draw()
 	{
 		cv.draw();
-		pcm.draw();
-		//app->debugDraw();
+		//pcm.draw();
+		app->debugDraw();
 	}
 
 	//--------------------------------------------------------------
@@ -79,8 +79,8 @@ namespace mapinect {
 		}
 		
 		cv.keyPressed(key);
-		pcm.keyPressed(key);
-		arduino.keyPressed(key);
+//		pcm.keyPressed(key);
+//		arduino.keyPressed(key);
 	}
 
 	//--------------------------------------------------------------
@@ -129,6 +129,7 @@ namespace mapinect {
 	{
 		vm.update();
 		app->update();
+		app->txManager->updateVideoTexture();
 	}
 
 	//--------------------------------------------------------------
