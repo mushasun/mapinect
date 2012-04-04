@@ -21,6 +21,38 @@ namespace mapinect {
 		glBindTexture(GL_TEXTURE_2D, textureId);
 	}
 
+	GLuint TxManager::loadVideoTexture(string videoFile)
+	{
+		GLuint result = -1;
+		fenster->toContext();
+
+		if (!videoFile.empty()) {
+			video.loadMovie(videoFile);			
+			if (!video.bLoaded) {
+				return result;			
+			} else {
+				video.play(); 		
+				videoPixels = video.getPixels();
+
+				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glEnable(GL_TEXTURE_2D);
+				glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  				glGenTextures(1, &result);
+				glBindTexture(GL_TEXTURE_2D, result);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, video.getWidth(), video.getHeight(), 0, GL_RGB,
+					GL_UNSIGNED_BYTE, videoPixels);				
+			}
+
+			fenster->toMainContext();
+			return result;
+		}
+	}
+
 	GLuint TxManager::loadTexture(string imgFile)
 	{
 		GLuint result = -1;
@@ -54,6 +86,12 @@ namespace mapinect {
 
 	void TxManager::unloadTexture(GLuint textureId) {
 		glDeleteTextures(1, &textureId);
+	}
+
+	void TxManager::updateVideoTexture() {
+		video.update();
+		videoPixels = video.getPixels();	
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, video.getWidth(), video.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, videoPixels);
 	}
 
 }
