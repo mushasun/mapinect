@@ -10,21 +10,21 @@ namespace mapinect {
 	public:
 		TxManager(ofxFenster* f);
 
-		GLuint	loadTexture(string imgFile);
+		GLuint	loadImageTexture(string imgFile);
+		
 		GLuint	loadVideoTexture(string videoFile);
-		void	updateVideoTexture();
-
-		void	unloadTexture(GLuint textureId);
+		void	updateVideoTexture(GLuint textureId);
 
 		void	bindTexture(GLuint textureId) const;
+		void	unloadTexture(GLuint textureId);
 		
 		void	enableTextures() const;
 		void	disableTextures() const;
 
 	private:
 		ofxFenster* fenster;
-		ofVideoPlayer video;
-		unsigned char* videoPixels;
+		std::map<GLuint,ofVideoPlayer*> videoMap;
+		std::map<GLuint,unsigned char*> videoPix;
 		
 	};
 }

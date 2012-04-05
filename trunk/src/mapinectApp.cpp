@@ -129,7 +129,6 @@ namespace mapinect {
 	{
 		vm.update();
 		app->update();
-		app->txManager->updateVideoTexture();
 	}
 
 	//--------------------------------------------------------------
