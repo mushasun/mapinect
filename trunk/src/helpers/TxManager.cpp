@@ -92,6 +92,22 @@ namespace mapinect {
 		}
 	}
 
+	void TxManager::updateVideoTextures() {
+		std::map<GLuint, ofVideoPlayer*>::const_iterator it;
+		for (it = videoMap.begin(); it != videoMap.end(); it++) {
+			bindTexture(it->first);
+			ofVideoPlayer* video = it->second;
+			video->update();
+			std::map<GLuint, unsigned char*>::const_iterator itPix = videoPix.find(it->first);
+			// If found
+			if (itPix != videoPix.end()) {
+				unsigned char* videoPixels = itPix->second;
+				videoPixels = video->getPixels();
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, video->getWidth(), video->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, videoPixels);
+			}
+		}
+	}
+
 	void TxManager::bindTexture(GLuint textureId) const {
 		glBindTexture(GL_TEXTURE_2D, textureId);
 	}

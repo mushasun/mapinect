@@ -13,7 +13,7 @@ namespace mapinect {
 		GLuint	loadImageTexture(string imgFile);
 		
 		GLuint	loadVideoTexture(string videoFile);
-		void	updateVideoTexture(GLuint textureId);
+		void	updateVideoTextures();
 
 		void	bindTexture(GLuint textureId) const;
 		void	unloadTexture(GLuint textureId);
@@ -25,7 +25,9 @@ namespace mapinect {
 		ofxFenster* fenster;
 		std::map<GLuint,ofVideoPlayer*> videoMap;
 		std::map<GLuint,unsigned char*> videoPix;
-		
+
+		void	updateVideoTexture(GLuint textureId);
+
 	};
 }
 
