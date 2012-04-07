@@ -15,7 +15,7 @@ namespace mapinect {
 		virtual GLuint	loadImageTexture(string imgFile) = 0;
 
 		virtual GLuint	loadVideoTexture(string videoFile) = 0;
-		virtual void	updateVideoTexture(GLuint textureId) = 0;
+		virtual void	updateVideoTextures() = 0;
 
 		virtual void	bindTexture(GLuint textureId) const = 0;
 		virtual void	unloadTexture(GLuint textureId) = 0;

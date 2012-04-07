@@ -120,6 +120,7 @@ namespace mapinect {
 	{
 		vm.setupView();
 		vm.draw();
+		app->txManager->updateVideoTextures();
 		app->draw();
 		vm.endView();
 	}
