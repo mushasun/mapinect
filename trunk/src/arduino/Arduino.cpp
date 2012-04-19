@@ -1,6 +1,7 @@
 #include "Arduino.h"
 
 #include "ofxXmlSettings.h"
+#include <direct.h> // for getcwd
 
 namespace mapinect {
 
@@ -33,6 +34,8 @@ namespace mapinect {
 	static char		RESET_ANGLE4;
 	static char		RESET_ANGLE8;
 	static int		ANGLE_STEP;
+	static int		ARM_HEIGHT;
+	static int		ARM_LENGTH;
 
 	Arduino::Arduino()
 	{
@@ -40,12 +43,17 @@ namespace mapinect {
 
 	Arduino::~Arduino()
 	{
-		serial.close();
+		if (serial.available()){
+			serial.close();
+		}
 	}
 
 	bool Arduino::setup()
 	{
 		ofxXmlSettings XML;
+		char CurrentPath[255];
+		getcwd(CurrentPath, 255);
+		cout << CurrentPath << endl;
 		if(XML.loadFile("Arduino_Config.xml")) {
 
 			COM_PORT = XML.getValue(ARDUINO_CONFIG "COM_PORT", "COM3");
@@ -64,10 +72,17 @@ namespace mapinect {
 
 			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "ANGLE_STEP", 2);
 
+			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "HEIGHT", 2);
+			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "LENGTH", 2);
+
 			RESET_ANGLE1 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE1", ANGLE_DEFAULT);
 			RESET_ANGLE2 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE2", ANGLE_DEFAULT);
 			RESET_ANGLE4 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE4", ANGLE_DEFAULT);
 			RESET_ANGLE8 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE8", ANGLE_DEFAULT);
+
+			ARM_HEIGHT = XML.getValue(ARDUINO_CONFIG "ARM_HEIGHT", 0);
+			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0);
+
 		}
 
 		serial.enumerateDevices();
@@ -79,7 +94,9 @@ namespace mapinect {
 	}
 
 	void Arduino::exit() {
-		serial.close();
+		if (serial.available()){
+			serial.close();
+		}
 	}
 
 	void Arduino::update() {
@@ -129,6 +146,10 @@ namespace mapinect {
 		}
 		else if (key == KEY_PRINT_STATUS) {
 			cout << read() << endl;
+			cout << "motor 1: " << angleMotor1 << endl;
+			cout << "motor 2: " << angleMotor2 << endl;
+			cout << "motor 4: " << angleMotor4 << endl;
+			cout << "motor 8: " << angleMotor8 << endl;
 		}
 	}
 
@@ -191,4 +212,72 @@ namespace mapinect {
 		}
 		return result;
 	}
+
+	ofxVec3f Arduino::getKinect3dCoordinates()
+	{
+		//angleMotor1 = motor de la base
+		//angleMotor2 = motor del medio
+		//angleMotor4 = motor de la punta
+		//angleMotor8 = motor de mas de la punta
+		//vamos a hallar las coordenadas x, y, z desde la base del brazo que está apoyada
+		//en el la mesa.
+		//hallemos z
+		//sen(alpha) * el largo del brazo (la mitad desde el centro)
+		double y = sin((float)angleMotor2) * ARM_LENGTH;
+		double z = cos((float)angleMotor2) * ARM_LENGTH;
+		double x = sin((float)angleMotor1) * y;
+		ofxVec3f position = ofxVec3f(float(x), float (y), float (z));
+		return position;
+	}
+
+	void Arduino::setKinect3dCoordinates(float x, float y, float z)
+	{
+		angleMotor1 = (int)round(asin(x/y));
+		angleMotor2 = (int)round(acos(y/ARM_LENGTH));
+	}
+
+	ofxVec3f Arduino::setKinect3dCoordinates(ofxVec3f position)
+	{
+		//wrapper para posicionar desde un ofxVec3f
+		ofxVec3f closest_position = find_closest_point_to_sphere(position);
+		setKinect3dCoordinates(closest_position.x, closest_position.y, closest_position.z);
+		return closest_position;
+	}
+
+	ofxVec3f Arduino::convert_3D_cart_to_spher(ofxVec3f cart_point)
+	{
+		//devuelve un ofxVec3f que por simplicidad:
+		//x = r, y = phi, z = theta
+		//http://www.thecubiclewarrior.com/post/5954842175/spherical-to-cartesian
+		float r = sqrt(pow(cart_point.x, 2) + pow(cart_point.y, 2) + pow(cart_point.z, 2) );
+		float phi = acos(cart_point.y/r);
+		float theta = atan2(cart_point.y, cart_point.x);
+		ofxVec3f spher_point(r, phi, theta);
+		return spher_point;
+	}
+
+	ofxVec3f Arduino::convert_3D_spher_to_cart(ofxVec3f spher_point)
+	{
+		//http://www.thecubiclewarrior.com/post/5954842175/spherical-to-cartesian
+		float r = spher_point.x;
+		float phi = spher_point.y;
+		float theta = spher_point.z;
+
+		float x = r*sin(phi)*cos(theta);
+		float y = r*sin(phi)*sin(theta);
+		float z = r*cos(phi);
+
+		ofxVec3f cart_point(x, y, z);
+		return cart_point;
+	}
+
+	ofxVec3f Arduino::find_closest_point_to_sphere(ofxVec3f point)
+	{
+		//la lógica es pasar el punto que viene a un punto en coordenadas esféricas
+		//reducir el r y pasarlo nuevamente a coordenadas cartesianas.
+		ofxVec3f spher_orig_point = convert_3D_cart_to_spher(point);
+		spher_orig_point.x = ARM_LENGTH;
+		return convert_3D_spher_to_cart(spher_orig_point);
+	}
+
 }
