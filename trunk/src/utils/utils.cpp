@@ -31,6 +31,12 @@ int					KINECT_HEIGHT;
 int					KINECT_WIDTH_OFFSET;
 int					KINECT_HEIGHT_OFFSET;
 float				MAX_UNIFYING_DISTANCE_PROJECTION;
+float				HAND_SIZE;
+vector<float>		MIN_ANGLES_FINGERS;
+vector<float>		MAX_ANGLES_FINGERS;
+vector<float>		MIN_LENGTH_FINGERS;
+vector<float>		MAX_LENGTH_FINGERS;
+
 
 ofPolar cartesianToPolar(const ofPoint& c)
 {
@@ -61,4 +67,19 @@ bool sortOnX(ofxVec3f l, ofxVec3f r) {
 
 bool sortOnZ(ofxVec3f l, ofxVec3f r) {
     return l.z < r.z;
+}
+
+//Parcea array de floats separado por ',' sin espacios
+vector<float> parceArray(string str)
+{
+	std::stringstream ss(str);
+	std::vector<float> vect;
+	float i;
+	while (ss >> i)
+	{
+			vect.push_back(i);
+			if (ss.peek() == ',')
+					ss.ignore();
+	}
+	return vect;
 }

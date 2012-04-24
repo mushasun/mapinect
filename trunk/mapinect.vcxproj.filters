@@ -204,6 +204,12 @@
     <ClCompile Include="src\pcm\PotentialHand.h">
       <Filter>pcm</Filter>
     </ClCompile>
+    <ClCompile Include="src\pcm\PotentialHand.cpp">
+      <Filter>pcm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\HandDetector.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -460,6 +466,12 @@
     </ClInclude>
     <ClInclude Include="src\utils\objectTypesEnum.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\HandDetector.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\AlignmentDetector.h">
+      <Filter>model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

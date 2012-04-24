@@ -19,7 +19,7 @@ namespace mapinect {
 			int					getPCPolygonSize();
 			virtual void		resetLod();
 			virtual void		increaseLod();
-
+			virtual void		addToModel(PointCloud<PointXYZ>::Ptr nuCloud);
 			
 		protected:
 			//virtual PCPolygon*	createPCPolygon();
@@ -28,7 +28,9 @@ namespace mapinect {
 			void				updatePolygons();
 			virtual void		unifyVertexs();
 			bool				findBestFit(PCPolygon*, PCPolygon*& removed, bool& wasRemoved);
-
+			vector<PCPolygon*>	detectPolygons(PointCloud<pcl::PointXYZ>::Ptr cloudTemp, float planeTolerance = 0.01, float pointsTolerance = 4.0, bool limitFaces = true);
+			void				mergePolygons(vector<PCPolygon*> toMerge);
+			vector<PCPolygon*>	discardPolygonsOutOfBox(vector<PCPolygon*> toDiscard);
 			vector<PCPolygon*>	pcpolygons;
 
 	};

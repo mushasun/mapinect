@@ -5,6 +5,7 @@
 #include "PointUtils.h"
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/project_inliers.h>
+#include <pcl/segmentation/extract_clusters.h>
 
 namespace mapinect {
 
@@ -114,21 +115,19 @@ namespace mapinect {
 
 	void PCQuadrilateral::increaseLod(PointCloud<PointXYZ>::Ptr nuCloud)
 	{
-		//PCDWriter writer;
-		//writer.write<pcl::PointXYZ> ("nuCloud.pcd", *nuCloud, false);
-		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
 		PCDWriter writer;
+		//writer.write<pcl::PointXYZ> ("nuCloudFace"+ ofToString(this->getId())+".pcd", *nuCloud, false);
+		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
 		//writer.write<pcl::PointXYZ> ("nuCloud.pcd", *nuCloud, false);
 
 		PointCloud<pcl::PointXYZ>::Ptr nuPointsOfFace (new PointCloud<PointXYZ>());
-		pcl::PointIndices::Ptr inliers = adjustPlane(coefficients,nuCloud);
 
+		//Obtengo los puntos que pertenecen al plano
+		pcl::PointIndices::Ptr inliers = adjustPlane(coefficients,nuCloud);
 		if (inliers->indices.size () == 0) {
 			std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
 			return;
 		}
-
-		//FIX
 		pcl::ExtractIndices<pcl::PointXYZ> extract;
 		if(inliers->indices.size() != nuCloud->size())
 		{
@@ -140,12 +139,54 @@ namespace mapinect {
 		else
 			nuPointsOfFace = nuCloud;
 
-		//writer.write<pcl::PointXYZ> ("nuPointsOfFace.pcd", *nuPointsOfFace, false);
-		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
+		
+		//writer.write<pcl::PointXYZ> ("nuPointsOfFace" + ofToString(this->getId()) + ".pcd", *nuPointsOfFace, false);
+		
+		//Comentado para commit
+		////Elimino outliers
+		////Clustering de los puntos del plano
+		//pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
+		//tree->setInputCloud (nuPointsOfFace);
+		//std::vector<pcl::PointIndices> cluster_indices;
+		//pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+		//ec.setClusterTolerance (0.02); 
+		//ec.setMinClusterSize (5);
+		//ec.setMaxClusterSize (10000);
+		//ec.setSearchMethod (tree);
+		//ec.setInputCloud(nuPointsOfFace);
 
+		//ec.extract (cluster_indices);
+		//int debuccount = 0;
+		//ofxVec3f center = this->getCenter();
+		//Eigen::Vector4f partialCenter;
+		//float mindist = numeric_limits<float>::max();
+		//pcl::PointCloud<pcl::PointXYZ>::Ptr closest (new pcl::PointCloud<pcl::PointXYZ>());
+
+		////Tomo el cluster más cercano al actual
+		//if(cluster_indices.size() > 0)
+		//{
+		//	for(int i = 0; i < cluster_indices.size(); i++)
+		//	{
+		//		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p_filtered (new pcl::PointCloud<pcl::PointXYZ>());
+		//		cloud_p_filtered->resize(cluster_indices.at(i).indices.size());
+		//		for (std::vector<int>::const_iterator pit = cluster_indices.at(i).indices.begin (); pit != cluster_indices.at(i).indices.end (); pit++)
+		//			cloud_p_filtered->points.push_back (nuPointsOfFace->points[*pit]); //*
+		//		pcl::compute3DCentroid(*cloud_p_filtered,partialCenter);
+		//		ofxVec3f vPartialCenter(partialCenter.x(),partialCenter.y(),partialCenter.z());
+
+		//		if(abs((center - vPartialCenter).length()) < mindist)
+		//		{
+		//			mindist = abs((center - vPartialCenter).length());
+		//			closest = cloud_p_filtered;
+		//		}
+		//	}
+		//}
+		
+		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
+		//merge de nubes
 		this->cloud += *nuPointsOfFace;
 
-		//writer.write<pcl::PointXYZ> ("nucloudOfFace.pcd", cloud, false);
+		//writer.write<pcl::PointXYZ> ("nucloudOfFace"+ ofToString(this->getId())+".pcd", cloud, false);
 		std::vector<ofxVec3f> vCloud;
 		for (int k = 0; k < cloud.size(); k++) {
 			vCloud.push_back(POINTXYZ_OFXVEC3F(cloud.at(k)));

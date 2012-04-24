@@ -55,6 +55,38 @@ namespace mapinect {
 	void PCPolygon::applyTransformation(Eigen::Affine3f* transformation)
 	{
 		pcl::transformPointCloud(cloud,cloud,*transformation);
+		Eigen::Vector3f eVec;
+		vector<ofxVec3f> vertexs = getPolygonModelObject()->getVertexs();
+		
+		Eigen::Vector3f pointInPlane(0,0,-coefficients.values.at(3)/coefficients.values.at(2));//(0,0,-d/c)
+
+		eVec.x() = coefficients.values.at(0);
+		eVec.y() = coefficients.values.at(1);
+		eVec.z() = coefficients.values.at(2);
+		//eVec.w() = coefficients.values.at(3);
+
+		eVec = (*transformation) * eVec;
+		pointInPlane = (*transformation) * pointInPlane;
+
+		coefficients.values.at(0) = eVec.x();
+		coefficients.values.at(1) = eVec.y();
+		coefficients.values.at(2) = eVec.z();
+		coefficients.values.at(3) = - coefficients.values.at(0)*pointInPlane.x() //d = -ax0 -by0 -cz0
+								    - coefficients.values.at(1)*pointInPlane.y()
+									- coefficients.values.at(2)*pointInPlane.z();
+
+		/*for(int i = 0; i < vertexs.size(); i++)
+		{
+			eVec.x() = vertexs.at(i).x;
+			eVec.y() = vertexs.at(i).y;
+			eVec.z() = vertexs.at(i).z;
+
+			eVec = (*transformation) * eVec;
+
+			vertexs.at(i).x = eVec.x();
+			vertexs.at(i).y = eVec.y();
+			vertexs.at(i).z = eVec.z();
+		}*/
 	}
 
 
