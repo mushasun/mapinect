@@ -37,7 +37,7 @@ namespace mapinect {
 		inline ofxVec3f				getvMin()							{ return vMin; }
 		inline ofxVec3f				getvMax()							{ return vMax; }
 
-		virtual void				applyTransformation();
+		virtual void				addToModel(PointCloud<PointXYZ>::Ptr nuCloud);
 		void						updateCloud(PointCloud<PointXYZ>::Ptr nuCloud);
 
 		virtual void				detectPrimitives();
@@ -54,6 +54,9 @@ namespace mapinect {
 		PointCloud<PointXYZ>		extendedcloud;
 		ModelObject*				modelObject;
 		int							lod;
+
+		virtual void				applyTransformation();
+
 	};
 }
 #endif	// MAPINECT_PC_MODEL_OBJECT_H__

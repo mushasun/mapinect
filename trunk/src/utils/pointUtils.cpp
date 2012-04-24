@@ -14,7 +14,7 @@
 #include <pcl/octree/octree_pointcloud_density.h>
 #include <pcl/filters/passthrough.h>
 #include "ofxVec2f.h"
-
+#include "HandDetector.h"
 
 void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z) {
 	p.x = x;
@@ -318,94 +318,101 @@ float evaluatePoint(pcl::ModelCoefficients coefficients, ofxVec3f pto)
 		   coefficients.values.at(3);
 }
 
-float boxProbability(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+float boxProbability(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,mapinect::PCPolygon* table)
 {
-	vector<ofxVec3f> normals;
-	float totalPoints = cloud->size();
-	float pointsInPlanes = 0;
-	pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
-	pcl::SACSegmentation<pcl::PointXYZ> seg;
-	pcl::ExtractIndices<pcl::PointXYZ> extract;
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>);
-	PointCloud<pcl::PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(*cloud));
-	
-	seg.setOptimizeCoefficients (true);
-	// Mandatory
-	seg.setModelType (pcl::SACMODEL_PLANE);
-	seg.setMethodType (pcl::SAC_RANSAC);
-	seg.setMaxIterations (50);
-	seg.setDistanceThreshold (0.009); //original: 0.01
-
-	// Create the filtering object
-	int i = 0, nr_points = cloud->points.size ();
-
-	int numFaces = 0;
-	while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < 8)
+	if(onTable(cloud,table))
 	{
-		pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
-		// Segment the largest planar component from the remaining cloud
-		seg.setInputCloud (cloudTemp);
-		seg.segment (*inliers, *coefficients);
-		if (inliers->indices.size () == 0) {
-			std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
-			break;
-		}
+		vector<ofxVec3f> normals;
+		float totalPoints = cloud->size();
+		float pointsInPlanes = 0;
+		pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
+		pcl::SACSegmentation<pcl::PointXYZ> seg;
+		pcl::ExtractIndices<pcl::PointXYZ> extract;
+		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>);
+		PointCloud<pcl::PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(*cloud));
+	
+		seg.setOptimizeCoefficients (true);
+		// Mandatory
+		seg.setModelType (pcl::SACMODEL_PLANE);
+		seg.setMethodType (pcl::SAC_RANSAC);
+		seg.setMaxIterations (50);
+		seg.setDistanceThreshold (0.009); //original: 0.01
 
-		pointsInPlanes += inliers->indices.size();
+		// Create the filtering object
+		int i = 0, nr_points = cloud->points.size ();
 
-		//FIX
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_inliers (new pcl::PointCloud<pcl::PointXYZ>());
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_outliers (new pcl::PointCloud<pcl::PointXYZ>());
-		if(inliers->indices.size() != cloudTemp->size())
+		int numFaces = 0;
+		while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < 8)
 		{
-			// Extract the inliers
+			pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
+			// Segment the largest planar component from the remaining cloud
+			seg.setInputCloud (cloudTemp);
+			seg.segment (*inliers, *coefficients);
+			if (inliers->indices.size () == 0) {
+				std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+				break;
+			}
+
+			pointsInPlanes += inliers->indices.size();
+
+			//FIX
+			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_inliers (new pcl::PointCloud<pcl::PointXYZ>());
+			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_outliers (new pcl::PointCloud<pcl::PointXYZ>());
+			if(inliers->indices.size() != cloudTemp->size())
+			{
+				// Extract the inliers
+				extract.setInputCloud (cloudTemp);
+				extract.setIndices (inliers);
+				extract.setNegative (false);
+				extract.filter (*cloud_filtered_temp_inliers);
+				cloud_p = cloud_filtered_temp_inliers;
+			}
+			else
+				cloud_p = cloudTemp;
+		
+			ofxVec3f norm = normalEstimation(cloud_p);
+
+			//Chequeo que las normales sean perpendiculares entre si y paraleas o perpendiculares a la mesa.
+			if(table != NULL)
+			{
+				ofxVec3f tableNormal = table->getNormal();
+
+				float dot = abs(tableNormal.dot(norm));
+				if( dot > 0.1 && dot < 0.9)
+					return 0;
+				//si es paralela a la mesa, chequeo que esté sobre la mesa
+				if(dot > 0.9)
+					if(!onTable(cloud_p,table))
+						return 0;
+			}
+			for(int i = 0; i < normals.size(); i++)
+			{
+				float dot = abs(normals[i].dot(norm));
+				if( dot > 0.1)
+					return 0;
+			}
+
+			normals.push_back(norm);
+			// Create the filtering object
 			extract.setInputCloud (cloudTemp);
 			extract.setIndices (inliers);
-			extract.setNegative (false);
-			extract.filter (*cloud_filtered_temp_inliers);
-			cloud_p = cloud_filtered_temp_inliers;
+			extract.setNegative (true);
+
+		
+			if(cloud_p->size() != cloudTemp->size())
+				extract.filter (*cloud_filtered_temp_outliers);
+
+			cloudTemp = cloud_filtered_temp_outliers;
+
+			i++;
+			numFaces++;
 		}
+
+		if(numFaces > 0 && numFaces < 4)
+			return pointsInPlanes/totalPoints;
 		else
-			cloud_p = cloudTemp;
-		
-		ofxVec3f norm = normalEstimation(cloud_p);
-
-		//Chequeo que las normales sean perpendiculares entre si y paraleas o perpendiculares a la mesa.
-		if(gModel->table != NULL)
-		{
-			mapinect::PCPolyhedron* hedron = dynamic_cast<mapinect::PCPolyhedron*>(gModel->table);
-			mapinect::PCPolygon* gon = hedron->getPCPolygon(0);
-			ofxVec3f tableNormal = gon->getNormal();
-
-			float dot = abs(tableNormal.dot(norm));
-			if( dot > 0.1 && dot < 0.9)
-				return 0;
-		}
-		for(int i = 0; i < normals.size(); i++)
-		{
-			float dot = abs(normals[i].dot(norm));
-			if( dot > 0.1)
-				return 0;
-		}
-
-		normals.push_back(norm);
-		// Create the filtering object
-		extract.setInputCloud (cloudTemp);
-		extract.setIndices (inliers);
-		extract.setNegative (true);
-
-		
-		if(cloud_p->size() != cloudTemp->size())
-			extract.filter (*cloud_filtered_temp_outliers);
-
-		cloudTemp = cloud_filtered_temp_outliers;
-
-		i++;
-		numFaces++;
+			return 0;
 	}
-
-	if(numFaces > 0 && numFaces < 4)
-		return pointsInPlanes/totalPoints;
 	else
 		return 0;
 }
@@ -443,209 +450,45 @@ bool isInFingers(vector<mapinect::Line2D> fingers, ofxVec3f pto)
 	return false;
 }
 
-float handProbability(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+float handProbability(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolygon* table)
 {
-	//vector<mapinect::Line2D> fingers;
+	pcl::PointCloud<pcl::PointXYZ>::Ptr clusterBack (new pcl::PointCloud<pcl::PointXYZ>(*cloud));
+	mapinect::HandDetector hd;
+	hd.SetPotentialHandCloud(clusterBack);
+	hd.SetTable(table);
+	return hd.IsHand();
+}
 
-	//int idx_max, idx_min;
-	//float max = -999;
-	//float min = 9999;
-	//for(int i = 0; i < cloud->points.size(); i++)
-	//{
-	//	cloud->points.at(i).z = 0;
-	//	if(cloud->points.at(i).y > max)
-	//	{
-	//		idx_max = i;
-	//		max = cloud->points.at(i).y;
-	//	}
-	//}
-
-	//pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_tmp_max (new pcl::PointCloud<pcl::PointXYZ>());
-
-	//cloud_tmp_max->points.push_back(cloud->points.at(idx_max));
-	//
-	////pcl::io::savePCDFileASCII ("hand.pcd", *cloud);
-	////pcl::io::savePCDFileASCII ("max.pcd", *cloud_tmp_max);
-
-	//pcl::octree::OctreePointCloud<pcl::PointXYZ>::Ptr ot (new pcl::octree::OctreePointCloud<pcl::PointXYZ>(0.01));
-	//ot->setInputCloud(cloud);
-	//ot->addPointsFromInputCloud();
-
-
-	//pcl::PointXYZ potential_finger_tip = cloud->points.at(idx_max);
-	//ofxVec3f v_potential_finger_tip = POINTXYZ_OFXVEC3F(potential_finger_tip);
-	//if(isFingerTip(ot,v_potential_finger_tip)) // found fingertip
-	//{
-	//	pcl::PointCloud<pcl::PointXYZ>::Ptr cliped_cloud (new pcl::PointCloud<pcl::PointXYZ>());
-
-	//	pcl::PassThrough<pcl::PointXYZ> pass;
-	//	pass.setInputCloud (cloud);
-	//	pass.setFilterFieldName ("y");
-	//	pass.setFilterLimits (max - 0.2, max);
-	//	//pass.setFilterLimitsNegative (true);
-	//	pass.filter (*cliped_cloud);
-
-	//	//pcl::io::savePCDFileASCII ("hand_cliped.pcd", *cliped_cloud);
-	//	Eigen::Vector4f xyz_centroid;
-	//	pcl::compute3DCentroid(*cliped_cloud,xyz_centroid);
-
-	//	pcl::PointXYZ centroid (xyz_centroid.x(),xyz_centroid.y(),xyz_centroid.z());
-	//	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_tmp_centroid (new pcl::PointCloud<pcl::PointXYZ>());
-	//	cloud_tmp_centroid->points.push_back(centroid);
-	//	//pcl::io::savePCDFileASCII ("hand_centroid.pcd", *cloud_tmp_centroid);
-	//	mapinect::Line2D finger(POINTXYZ_OFXVEC3F(centroid),POINTXYZ_OFXVEC3F(potential_finger_tip));
-	//	fingers.push_back(finger);
-
-	//	int fingersLeft = 5;
-	//	while(fingersLeft)
-	//	{
-	//		/*float m = (potential_finger_tip.y - centroid.y)/(potential_finger_tip.x - centroid.x);
-	//		float c = (m * centroid.x) - centroid.y;*/
-	//		max = -999;
-	//		idx_max = -1;
-	//		for(int i = 0; i < cliped_cloud->points.size(); i++)
-	//		{
-	//			pcl::PointXYZ pto = cliped_cloud->points.at(i);
-
-	//			if(pto.y > max && !isInFingers(fingers,POINTXYZ_OFXVEC3F(pto)))
-	//			{
-	//				idx_max = i;
-	//				max = cloud->points.at(i).y;
-	//			}
-	//		}
-
-	//		if(isFingerTip(ot,POINTXYZ_OFXVEC3F(cliped_cloud->points.at(idx_max))))
-	//		{
-	//			mapinect::Line2D nuFinger(POINTXYZ_OFXVEC3F(centroid),POINTXYZ_OFXVEC3F(cliped_cloud->points.at(idx_max)));
-	//			fingers.push_back(nuFinger);
-	//			fingersLeft--;
-	//		}
-	//		else
-	//			fingersLeft = 0;
-	//	}
-	//}
-	//
-	//if(fingers.size() > 0)
-	//	return 1;
-	//else
-	//	return 0;
-
-	//Metodo con Convex hull y contorno
-
-	int idx_max, idx_min;
-	float max = -999;
-	for(int i = 0; i < cloud->points.size(); i++)
-	{
-		cloud->points.at(i).z = 0;
-		if(cloud->points.at(i).y > max)
-		{
-			idx_max = i;
-			max = cloud->points.at(i).y;
-		}
+mapinect::PCPolygon* getTable()
+{
+	mapinect::PCPolygon* table;
+	mapinect::PCPolyhedron* tablePol = dynamic_cast<mapinect::PCPolyhedron*>(gModel->table);
+	if (tablePol->getPCPolygonSize() > 0) {
+		table = tablePol->getPCPolygon(0);
 	}
 
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_tmp_max (new pcl::PointCloud<pcl::PointXYZ>());
-
-	cloud_tmp_max->points.push_back(cloud->points.at(idx_max));
-	
-	pcl::io::savePCDFileASCII ("hand.pcd", *cloud);
-	pcl::io::savePCDFileASCII ("max.pcd", *cloud_tmp_max);
-
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cliped_cloud (new pcl::PointCloud<pcl::PointXYZ>());
-
-	pcl::PassThrough<pcl::PointXYZ> pass;
-	pass.setInputCloud (cloud);
-	pass.setFilterFieldName ("y");
-	pass.setFilterLimits (max - 0.15, max);
-	pass.filter (*cliped_cloud);
-
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::ConvexHull<pcl::PointXYZ> chull;
-	chull.setInputCloud (cliped_cloud);
-	chull.reconstruct (*cloud_hull);
-	
-	pcl::io::savePCDFileASCII ("hand_cliped.pcd", *cliped_cloud);
-	pcl::io::savePCDFileASCII ("hand_hull.pcd", *cloud_hull);
-
-	return 1;
+	return table;
 }
 
 ObjectType getObjectType(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 {
-	float box_prob = boxProbability(cloud);
+	mapinect::PCPolygon* table = getTable();
 
-	float hand_prob = handProbability(cloud);
+	float box_prob = boxProbability(cloud, table);
 
-	//pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
-	//pcl::ConvexHull<pcl::PointXYZ> chull;
-	//chull.setInputCloud (cloud);
-	//chull.reconstruct (*cloud_hull);
-
-	//list<ofxVec3f> hullPoints;
-
-	//for(int i = 0; i < cloud_hull->size(); i++)
-	//{
-	//	PointXYZ pto = cloud_hull->at(i);
-	//	hullPoints.push_back(ofxVec3f(pto.x,pto.y,pto.z));
-	//}
-
-	//vector<vector<ofxVec3f>> tmp;
-	//list<ofxVec3f> final;
-	//if(gModel->table != NULL)
-	//{
-	//	mapinect::PCPolyhedron* hedron = (mapinect::PCPolyhedron*)(gModel->table);
-	//	mapinect::PCPolygon* gon = hedron->getPCPolygon(0);
-	//	pcl::ModelCoefficients coefficients = gon->getCoefficients();
-	//		
-	//	for (list<ofxVec3f>::iterator iter = hullPoints.begin(); iter != hullPoints.end(); iter++) {
-	//		if(abs(evaluatePoint(coefficients, *iter)) < 0.03)     //<---------- Chequeo de la mesa
-	//		{
-	//			bool unified = false;
-	//			for(int j = 0; j < tmp.size(); j++)
-	//			{
-	//				vector<ofxVec3f> inTmp = tmp.at(j);
-	//				if(inTmp.size() > 0 && 
-	//					inTmp.at(0).distance(*iter) < MAX_UNIFYING_DISTANCE_PROJECTION)
-	//				{
-	//					inTmp.push_back(*iter);
-	//					unified = true;
-	//				}
-	//			}
-	//			if(!unified)
-	//			{
-	//				vector<ofxVec3f> inTmp;
-	//				inTmp.push_back(*iter);
-	//				tmp.push_back(inTmp);
-	//			}
-	//		}
-	//	}
-
-	//	for(int i = 0; i < tmp.size(); i++)
-	//	{
-	//		vector<ofxVec3f> inTmp = tmp.at(i);
-	//		ofxVec3f avg = ofxVec3f();
-	//		int j;
-	//		for(j = 0; j < inTmp.size(); j++)
-	//			avg += inTmp.at(j);
-	//		avg /= j;
-	//		final.push_back(avg);
-	//	}
-	//}
-
-	//hullPoints = final;
-	//ObjectType ret;
-	//if(hullPoints.size() > 1 && box_prob > 0.9)
-	//	return ret = BOX;
-	//else if(box_prob < 0.9)
-	//	return ret = HAND;
-	//else
-	//	return ret = UNRECOGNIZED;
+	float hand_prob = handProbability(cloud,table);
 
 	ObjectType ret;
-	if(hand_prob == 1)
-		return ret = HAND;
-	else if (box_prob > 0.9)
-		return ret = BOX;
+	
+	float max_prob = max(hand_prob,box_prob);
+
+	if(max_prob > .80)
+	{
+		if(hand_prob == max_prob)
+			return ret = HAND;
+		else
+			return ret = BOX;
+	}
 	else
 		return ret = UNRECOGNIZED;
 }
@@ -682,8 +525,22 @@ bool isInBorder(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 
 	return false;
 }
+//Para debug
+//Crea una nube a partir del punto y nombre por parámetro
+void createCloud(ofxVec3f pto, string name)
+{
+	PCDWriter writer;
+	PointXYZ ptoXYZ = PointXYZ(pto.x,pto.y,pto.z);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+	cloud->push_back(ptoXYZ);
+	writer.write<pcl::PointXYZ> (name, *cloud, false);
+}
 
-bool onTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolyhedron *table)
+
+
+//True si está en contacto con la mesa
+
+bool onTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolygon *table)
 {
 	//Busco el mayor y
 	if(table != NULL)
@@ -699,8 +556,95 @@ bool onTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolyhedron *
 			}
 		}
 
-		return abs(evaluatePoint(table->getPCPolygon(0)->getCoefficients(),POINTXYZ_OFXVEC3F(cloud->points.at(idx_max)))) < 0.03;
+		return abs(evaluatePoint(table->getCoefficients(),POINTXYZ_OFXVEC3F(cloud->points.at(idx_max)))) < 0.03;
 	}
 	else
 		return false;
+}
+
+//True si está en contacto con la mesa
+bool onTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolyhedron *table)
+{
+	return onTable(cloud,table->getPCPolygon(0));
+}
+
+float minf(float x, float y)
+{
+	if(x <= y)
+		return x;
+	return y;
+}
+
+float maxf(float x, float y)
+{
+	if(x >= y)
+		return x;
+	return y;
+}
+
+PointCloud<PointXYZRGB>::Ptr getPartialColorCloudRealCoords(ofPoint min, ofPoint max, int density){
+		//Chequeo
+		if (min.x < 0 || min.y < 0 || max.x > KINECT_WIDTH || max.y > KINECT_HEIGHT || min.x > max.x || min.y > max.y) //* load the file
+		{
+			PCL_ERROR ("Error en parametros de entrada para obtener la nube \n");
+		}
+
+		//Calcular tamaño de la nube
+		PointCloud<PointXYZRGB>::Ptr partialColud (new pcl::PointCloud<pcl::PointXYZRGB>);
+		partialColud->width    = ceil((max.x - min.x)/density);
+		partialColud->height   = ceil((max.y - min.y)/density);
+		partialColud->is_dense = false;
+		partialColud->points.resize (partialColud->width*partialColud->height);
+		register float* depth_map = gKinect->getDistancePixels();
+		//Recorrer el mapa de distancias obteniendo sólo los que estén dentro del rectángulo
+		register int depth_idx = 0;
+		int cloud_idx = 0;
+		for(int v = min.y; v < max.y; v += density) {
+			for(register int u = min.x; u < max.x; u += density) {
+				pcl::PointXYZRGB& pt = partialColud->points[cloud_idx];
+				cloud_idx++;
+
+				// Check for invalid measurements
+				if(depth_map[depth_idx] == 0){
+					pt.x = pt.y = pt.z = 0;
+				}
+				else
+				{
+					ofxVec3f pto = gKinect->getWorldCoordinateFor(u,v);
+					ofColor color = gKinect->getCalibratedColorAt(ofPoint(u,v));
+
+					if(pto.z > MAX_Z)
+						pt.x = pt.y = pt.z = 0;
+					else
+					{
+						pt.x = pto.x;
+						pt.y = pto.y;
+						pt.z = pto.z;
+
+						uint8_t r = color.r; 
+
+						uint8_t g = color.g; 
+
+						uint8_t b = color.b;           
+
+						//cout<<v,<<r << "," << g << "," << b <<endl;
+						uint32_t rgb_val = ((uint32_t)r << 16 | (uint32_t)g << 8 | (uint32_t)b);
+
+						pt.rgb = *reinterpret_cast<float*>(&rgb_val);
+					}
+				}
+
+				depth_idx += density;
+			}
+		}
+		return partialColud;	
+
+	}
+
+bool tableParallel(mapinect::PCPolygon *polygon, mapinect::PCPolygon *table)
+{
+	ofxVec3f tableNormal = table->getNormal();
+	ofxVec3f polygonNormal = polygon->getNormal();
+	float dot = abs(tableNormal.dot(polygonNormal));
+	return dot > 0.9;
 }

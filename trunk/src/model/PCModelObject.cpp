@@ -2,6 +2,8 @@
 #include "pointUtils.h"
 #include "utils.h"
 #include <pcl/registration/transformation_estimation.h>
+#include <pcl/io/pcd_io.h>
+
 
 namespace mapinect {
 	PCModelObject::PCModelObject() {
@@ -79,6 +81,14 @@ namespace mapinect {
 		PointCloud<PointXYZ> transformed;
 		transformPointCloud(cloud,transformed,transformation);
 		cloud = transformed;
+	}
+
+	void PCModelObject::addToModel(PointCloud<PointXYZ>::Ptr nuCloud){
+		//pcl::io::savePCDFileASCII ("pre.pcd", cloud);
+		//pcl::io::savePCDFileASCII ("nu.pcd", *nuCloud);
+		//applyTransformation();
+		/*cloud += *nuCloud;*/
+		//pcl::io::savePCDFileASCII ("transformed.pcd", cloud);
 	}
 }
 

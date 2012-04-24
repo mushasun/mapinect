@@ -115,14 +115,14 @@ namespace mapinect {
 				glVertex3f(vertexs[i].x, vertexs[i].y, vertexs[i].z);
 			}
 		glEnd();
-		/*
+		
 		int i = 1;
 		for (vector<ofxVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
 			ofSetColor(0,255 * i++ / 4.0f,0);
 			ofxVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
 			ofCircle(w.x,w.y,4);
 		}
-		*/
+		
 	}
 
 

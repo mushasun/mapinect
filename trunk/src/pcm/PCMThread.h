@@ -24,7 +24,6 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include "PCPolyhedron.h"
-#include "PotentialHand.h"
 
 using namespace pcl;
 
@@ -61,8 +60,7 @@ namespace mapinect {
 		bool						detectMode;
 
 	private:
-		void						setPotentialHand(PointCloud<PointXYZ>::Ptr cluster);
-		void						setPotentialHand(PointCloud<PointXYZ>::Ptr cluster, ofxVec3f centroid);
+		void						processPotentialHands(vector<PointCloud<PointXYZ>::Ptr> potHands);
 		ofxVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane);
 		ofxVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr);
 		int							getSlotForTempObj();
@@ -72,9 +70,8 @@ namespace mapinect {
 		std::list<TrackedCloud>		trackedClouds;
 		PCPolyhedron*				table;
 		float						tableClusterLastDist;
-		std::vector<PotentialHand>	potentialHands;
 		bool						handSetted;
-		
+		vector<PointCloud<PointXYZ>::Ptr>	potentialHands;
 
 	};
 }

@@ -27,8 +27,8 @@ namespace mapinect {
 
 		gModel = new mapinect::Model();
 		ofSetWindowTitle("mapinect");
-		cv.setup();
-//		pcm.setup();
+		//cv.setup();
+		pcm.setup();
 //		arduino.setup();
 
 		app->txManager = new TxManager(this->fenster);
@@ -38,9 +38,9 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void mapinectApp::exit() {
-		cv.exit();
-/*		pcm.exit();
-		arduino.exit();
+//		cv.exit();
+		pcm.exit();
+/*		arduino.exit();
 */		app->exit();
 		gKinect->close();
 	}
@@ -49,16 +49,16 @@ namespace mapinect {
 	void mapinectApp::update() {
 		gKinect->update();
 		bool isKinectFrameNew = gKinect->isFrameNew();
-		cv.update(isKinectFrameNew);
-//		pcm.update(isKinectFrameNew);
+//		cv.update(isKinectFrameNew);
+		pcm.update(isKinectFrameNew);
 //		arduino.update();
 	}
 
 	//--------------------------------------------------------------
 	void mapinectApp::draw()
 	{
-		cv.draw();
-		//pcm.draw();
+//		cv.draw();
+		pcm.draw();
 		app->debugDraw();
 	}
 
@@ -78,8 +78,8 @@ namespace mapinect {
 			gKinect->setCameraTiltAngle(angle);
 		}
 		
-		cv.keyPressed(key);
-//		pcm.keyPressed(key);
+//		cv.keyPressed(key);
+		pcm.keyPressed(key);
 //		arduino.keyPressed(key);
 	}
 

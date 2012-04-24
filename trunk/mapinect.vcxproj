@@ -165,6 +165,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\math\Triangle2D.cpp" />
     <ClCompile Include="src\model\Box.cpp" />
     <ClCompile Include="src\model\Cylinder.cpp" />
+    <ClCompile Include="src\model\HandDetector.cpp" />
     <ClCompile Include="src\model\Model.cpp" />
     <ClCompile Include="src\model\ModelObject.cpp" />
     <ClCompile Include="src\model\PCHand.cpp" />
@@ -178,6 +179,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\open-cv\OpenCV.cpp" />
     <ClCompile Include="src\pcm\PCM.cpp" />
     <ClCompile Include="src\pcm\PCMThread.cpp" />
+    <ClCompile Include="src\pcm\PotentialHand.cpp" />
     <ClCompile Include="src\pcm\PotentialHand.h" />
     <ClCompile Include="src\pcm\TrackedCloud.cpp" />
     <ClCompile Include="src\utils\objectTypesEnum.cpp">
@@ -267,8 +269,10 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\mapinectApp.h" />
     <ClInclude Include="src\math\Line2D.h" />
     <ClInclude Include="src\math\Triangle2D.h" />
+    <ClInclude Include="src\model\AlignmentDetector.h" />
     <ClInclude Include="src\model\Box.h" />
     <ClInclude Include="src\model\Cylinder.h" />
+    <ClInclude Include="src\model\HandDetector.h" />
     <ClInclude Include="src\model\Model.h" />
     <ClInclude Include="src\model\ModelObject.h" />
     <ClInclude Include="src\model\PCHand.h" />
