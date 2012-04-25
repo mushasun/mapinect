@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\testApp.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxCamaraLucida\src\CamaraLucida.cpp">
+      <Filter>addons\ofxCamaraLucida\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxCamaraLucida\src\cmlMesh.cpp">
+      <Filter>addons\ofxCamaraLucida\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxCamaraLucida\src\freenect\cmlMesh_freenect.cpp">
+      <Filter>addons\ofxCamaraLucida\src\freenect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxKinect\src\ofxKinect.cpp">
+      <Filter>addons\ofxKinect\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxKinect\src\ofxKinectCalibration.cpp">
+      <Filter>addons\ofxKinect\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxKinect\src\ofxKinectPlayer.cpp">
+      <Filter>addons\ofxKinect\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxKinect\src\ofxKinectRecorder.cpp">
+      <Filter>addons\ofxKinect\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvColorImage.cpp">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvContourFinder.cpp">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvFloatImage.cpp">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvGrayscaleImage.cpp">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvHaarFinder.cpp">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvImage.cpp">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.cpp">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.cpp">
+      <Filter>addons\ofxXmlSettings\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.cpp">
+      <Filter>addons\ofxXmlSettings\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlerror.cpp">
+      <Filter>addons\ofxXmlSettings\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp">
+      <Filter>addons\ofxXmlSettings\libs</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\testApp.h" />
+    <ClInclude Include="src\keyboard.h" />
+    <ClInclude Include="..\..\..\addons\ofxCamaraLucida\src\ofxPlane.h">
+      <Filter>addons\ofxCamaraLucida\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxCamaraLucida\src\CamaraLucida.h">
+      <Filter>addons\ofxCamaraLucida\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxCamaraLucida\src\cmlCalibration.h">
+      <Filter>addons\ofxCamaraLucida\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxCamaraLucida\src\cmlMesh.h">
+      <Filter>addons\ofxCamaraLucida\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxCamaraLucida\src\cmlUtils.h">
+      <Filter>addons\ofxCamaraLucida\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxCamaraLucida\src\freenect\cmlMesh_freenect.h">
+      <Filter>addons\ofxCamaraLucida\src\freenect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxKinect\src\ofxBase3DVideo.h">
+      <Filter>addons\ofxKinect\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxKinect\src\ofxKinect.h">
+      <Filter>addons\ofxKinect\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxKinect\src\ofxKinectCalibration.h">
+      <Filter>addons\ofxKinect\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxKinect\src\ofxKinectPlayer.h">
+      <Filter>addons\ofxKinect\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxKinect\src\ofxKinectRecorder.h">
+      <Filter>addons\ofxKinect\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvColorImage.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvConstants.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvContourFinder.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvFloatImage.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvGrayscaleImage.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvHaarFinder.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvImage.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvMain.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxOpenCv.h">
+      <Filter>addons\ofxOpenCv\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.h">
+      <Filter>addons\ofxXmlSettings\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h">
+      <Filter>addons\ofxXmlSettings\libs</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="addons">
+      <UniqueIdentifier>{d79abca0-5b91-4000-9e03-3b535f96d5b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxCamaraLucida">
+      <UniqueIdentifier>{3714c124-fdaa-4269-b0b3-54eb078363ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxCamaraLucida\src">
+      <UniqueIdentifier>{f5c1ad22-7be1-4772-88ec-d0ecf72700f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxCamaraLucida\src\freenect">
+      <UniqueIdentifier>{673c084d-4899-4bd7-bf5c-53fb7d20c4e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxKinect">
+      <UniqueIdentifier>{87c0d595-ba84-4d22-ae45-6f0607a6b15e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxKinect\src">
+      <UniqueIdentifier>{577b374b-f069-406c-a5e5-c8f971e2f2ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxOpenCv">
+      <UniqueIdentifier>{39b62df6-dc7f-4356-bd22-05d22f86609d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxOpenCv\src">
+      <UniqueIdentifier>{d16925dc-5bf0-43c0-94e7-c9e8ce59624d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxXmlSettings">
+      <UniqueIdentifier>{34f75361-0ba4-4ba4-bf3e-e64e2f55e720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxXmlSettings\src">
+      <UniqueIdentifier>{b7a1974e-6618-4106-a4e7-8d769c886d80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxXmlSettings\libs">
+      <UniqueIdentifier>{eda2bc4d-f483-42a3-a377-5edbde4e2411}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
