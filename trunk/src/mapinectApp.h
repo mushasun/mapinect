@@ -69,6 +69,11 @@ namespace mapinect {
 		/// </summary>
 		IApplication*	app;
 
+	private:
+		void getKinectCalibData(char* kinect_calib_file, double& d_fx, double& d_fy, float& d_cx, float& d_cy,
+									double& rgb_fx, double& rgb_fy, float& rgb_cx, float& rgb_cy,
+									ofxVec3f& T, ofxMatrix4x4& R);
+
 	};
 }
 

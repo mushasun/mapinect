@@ -4,6 +4,14 @@
 using namespace pcl;
 
 namespace mapinect {
+	PotentialHand::PotentialHand(PointCloud<PointXYZ>::Ptr	cloud, ofxVec3f centroid)
+	{
+		this->cloud = cloud;
+		this->centroid = centroid;
+		this->visited = false;
+		this->timesVisited = 0;
+	}
+
 	PotentialHand::PotentialHand(PointCloud<PointXYZ>::Ptr	cloud)
 	{
 		this->cloud = cloud;
