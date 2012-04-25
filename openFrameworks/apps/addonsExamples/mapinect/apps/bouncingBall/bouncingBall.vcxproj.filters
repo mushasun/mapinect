@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\bouncingball\BouncingBall.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bouncingball\tejo.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bouncingball\Segment3D.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bouncingball\BObject.cpp">
+      <Filter>bouncingball</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\bouncingball\BouncingBall.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bouncingball\Segment3D.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bouncingball\tejo.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bouncingball\BObject.h">
+      <Filter>bouncingball</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="bouncingball">
+      <UniqueIdentifier>{789b26d2-890f-42d1-bfa6-0d1e29022779}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
