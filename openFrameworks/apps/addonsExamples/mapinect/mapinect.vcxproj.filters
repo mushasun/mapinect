@@ -195,6 +195,7 @@
     <ClCompile Include="src\model\HandDetector.cpp">
       <Filter>model</Filter>
     </ClCompile>
+    <ClCompile Include="src\Feature.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -425,6 +426,7 @@
     <ClInclude Include="src\model\HandDetector.h">
       <Filter>model</Filter>
     </ClInclude>
+    <ClInclude Include="src\Feature.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">

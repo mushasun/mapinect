@@ -27,6 +27,8 @@ namespace mapinect {
 		
 
 	private:
+		bool			isActive();
+
 		void			sendMotor(char value, int id);
 		string			read();
 

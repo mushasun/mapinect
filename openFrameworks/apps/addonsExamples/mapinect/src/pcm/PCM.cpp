@@ -1,5 +1,6 @@
 #include "PCM.h"
 
+#include "Feature.h"
 #include "utils.h"
 
 #define DEFAULT_NAME		"test"
@@ -9,22 +10,28 @@ using namespace std;
 namespace mapinect {
 	//--------------------------------------------------------------
 	void PCM::setup() {
+		CHECK_ACTIVE;
+
 		pcmThread.setup();
 		drawPC = false;
 	}
 
 	//--------------------------------------------------------------
 	void PCM::exit() {
+		CHECK_ACTIVE;
+
 		pcmThread.exit();
 	}
 
 	//--------------------------------------------------------------
 	void PCM::update(bool isKinectFrameNew) {
-
+		CHECK_ACTIVE;
 	}
 
 	//--------------------------------------------------------------
 	void PCM::draw() {
+		CHECK_ACTIVE;
+
 		ofResetColor();
 
 		if(drawPC) {
@@ -55,6 +62,8 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void PCM::drawPointCloud() {
+		CHECK_ACTIVE;
+
 		ofScale(400, 400, 400);
 		int w = 640;
 		int h = 480;
@@ -78,6 +87,8 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void PCM::keyPressed (int key) {
+		CHECK_ACTIVE;
+
 		switch (key) {
 		case ' ':
 			pcmThread.detectMode = !pcmThread.detectMode;
@@ -103,4 +114,8 @@ namespace mapinect {
 		//	break;
 	}
 
+	//--------------------------------------------------------------
+	bool PCM::isActive() {
+		return IsFeaturePCMActive();
+	}
 }

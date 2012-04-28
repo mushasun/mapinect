@@ -1,5 +1,6 @@
 #include "Arduino.h"
 
+#include "Feature.h"
 #include "ofxXmlSettings.h"
 #include <direct.h> // for getcwd
 
@@ -50,6 +51,7 @@ namespace mapinect {
 
 	bool Arduino::setup()
 	{
+		CHECK_ACTIVE false;
 		ofxXmlSettings XML;
 		char CurrentPath[255];
 		getcwd(CurrentPath, 255);
@@ -94,20 +96,22 @@ namespace mapinect {
 	}
 
 	void Arduino::exit() {
+		CHECK_ACTIVE;
 		if (serial.available()){
 			serial.close();
 		}
 	}
 
 	void Arduino::update() {
-
+		CHECK_ACTIVE;
 	}
 
 	void Arduino::draw() {
-
+		CHECK_ACTIVE;
 	}
 
 	void Arduino::keyPressed (int key) {
+		CHECK_ACTIVE;
 
 		if (key == KEY_MOVE_1R) {
 			angleMotor1 += ANGLE_STEP;
@@ -156,6 +160,7 @@ namespace mapinect {
 
 	void Arduino::reset()
 	{
+		CHECK_ACTIVE;
 		if (RESET_ANGLE1 != ANGLE_UNDEFINED) {
 			angleMotor1 = RESET_ANGLE1;
 			sendMotor((char) angleMotor1, ID_MOTOR_1);
@@ -278,6 +283,11 @@ namespace mapinect {
 		ofVec3f spher_orig_point = convert_3D_cart_to_spher(point);
 		spher_orig_point.x = ARM_LENGTH;
 		return convert_3D_spher_to_cart(spher_orig_point);
+	}
+
+	bool Arduino::isActive()
+	{
+		return IsFeatureArduinoActive();
 	}
 
 }

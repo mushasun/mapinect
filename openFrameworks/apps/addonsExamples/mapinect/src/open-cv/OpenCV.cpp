@@ -1,10 +1,14 @@
 #include "OpenCV.h"
+
+#include "Feature.h"
 #include "utils.h"
 #include "ofGraphicsUtils.h"
+
 namespace mapinect {
 
 	//--------------------------------------------------------------
 	void OpenCV::setup() {
+		CHECK_ACTIVE;
 
 		colorImg.allocate(gKinect->width, gKinect->height);
 		grayImage.allocate(gKinect->width, gKinect->height);
@@ -22,11 +26,12 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void OpenCV::exit() {
-		
+		CHECK_ACTIVE;
 	}
 
 	//--------------------------------------------------------------
 	void OpenCV::update(bool isKinectFrameNew) {
+		CHECK_ACTIVE;
 
 		if(isKinectFrameNew)
 		{
@@ -79,7 +84,8 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void OpenCV::draw() {
-		
+		CHECK_ACTIVE;
+
 		ofResetColor();
 		colorImg.draw(10, 10, 400, 300);
 		grayImage.draw(10, 320, 400, 300);
@@ -113,6 +119,8 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void OpenCV::keyPressed (int key) {
+		CHECK_ACTIVE;
+
 		switch (key) {
 		case '>':
 		case '.':
@@ -135,6 +143,12 @@ namespace mapinect {
 			if (nearThreshold < 0) nearThreshold = 0;
 			break;
 		}
+	}
+
+	//--------------------------------------------------------------
+	bool OpenCV::isActive()
+	{
+		return IsFeatureCVActive();
 	}
 
 }
