@@ -14,4 +14,8 @@
 	<PROJECTOR_POS_X>0.0</PROJECTOR_POS_X>
 	<PROJECTOR_POS_Y>24.0</PROJECTOR_POS_Y>
 	<PROJECTOR_POS_Z>0.0</PROJECTOR_POS_Z>
+		
+	<PROJ_CALIB><![CDATA[data/calib/projector_calibration.yml]]></PROJ_CALIB>
+	<KINECT_CALIB><![CDATA[data/calib/kinect-calib-rodrivero.yml]]></KINECT_CALIB>	
+
 </VMConfig>
