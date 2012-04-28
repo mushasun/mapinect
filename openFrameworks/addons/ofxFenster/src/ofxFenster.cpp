@@ -8,6 +8,7 @@
  */
 
 #include "ofxFenster.h"
+
 #include "glut.h"
 
 ofxFensterEventsStruct ofxFensterEvents;
@@ -160,7 +161,9 @@ void ofxFenster::setup(ofEventArgs& e){  // Fenster setup added
 }
 
 void ofxFenster::setup(){  // Fenster setup added
+	toContext();
 	listener->fensterSetup();
+	toMainContext();
 }
 
 void ofxFenster::draw(bool force){

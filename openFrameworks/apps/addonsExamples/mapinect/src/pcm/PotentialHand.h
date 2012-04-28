@@ -5,19 +5,14 @@
 #include <pcl/point_types.h>
 #include "ofVec3f.h"
 #include "utils.h"
-
+#include <pcl/common/centroid.h>
 using namespace pcl;
 
 namespace mapinect {
 	class PotentialHand {
 	public:
-		inline PotentialHand(PointCloud<PointXYZ>::Ptr	cloud, ofVec3f centroid)
-		{
-			this->cloud = cloud;
-			this->centroid = centroid;
-			this->visited = false;
-			this->timesVisited = 0;
-		};
+		PotentialHand(PointCloud<PointXYZ>::Ptr	cloud, ofVec3f centroid);
+		PotentialHand(PointCloud<PointXYZ>::Ptr	cloud);
 
 		PointCloud<PointXYZ>::Ptr	cloud;
 		bool						visited;

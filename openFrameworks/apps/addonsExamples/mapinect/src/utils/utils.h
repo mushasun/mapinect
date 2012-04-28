@@ -5,6 +5,7 @@
 
 #include "ofxKinect.h"
 #include "Model.h"
+using namespace std;
 
 extern ofxKinect			*gKinect;
 extern mapinect::Model		*gModel;
@@ -36,6 +37,12 @@ extern int					KINECT_HEIGHT;
 extern int					KINECT_WIDTH_OFFSET;
 extern int					KINECT_HEIGHT_OFFSET;
 extern float				MAX_UNIFYING_DISTANCE_PROJECTION;
+extern float				HAND_SIZE;
+extern vector<float>		MIN_ANGLES_FINGERS;
+extern vector<float>		MAX_ANGLES_FINGERS;
+extern vector<float>		MIN_LENGTH_FINGERS;
+extern vector<float>		MAX_LENGTH_FINGERS;
+
 
 extern int					objId;
 
@@ -61,5 +68,7 @@ bool sortOnY(ofVec3f l, ofVec3f r);
 bool sortOnX(ofVec3f l, ofVec3f r);
 
 bool sortOnZ(ofVec3f l, ofVec3f r);
+
+vector<float> parceArray(string str);
 
 #endif	// UTILS_H__

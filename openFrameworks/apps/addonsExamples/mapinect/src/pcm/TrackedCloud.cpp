@@ -8,6 +8,8 @@
 #include <pcl/registration/transformation_estimation.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/passthrough.h>
+#include <pcl/filters/extract_indices.h>
+#include "AlignmentDetector.h"
 
 namespace mapinect {
 	TrackedCloud::TrackedCloud(PointCloud<PointXYZ>::Ptr cloud) {
@@ -20,18 +22,34 @@ namespace mapinect {
 		needApplyTransformation = false;
 		needRecalculateFaces = false;
 		hand = false;
+
+
+		features_computed = false;
+		search_method_xyz_ = pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr();
+		normal_radius_ = 0.02f;
+		feature_radius_ = 0.02f;
 	}
 
-	TrackedCloud::TrackedCloud(PointCloud<PointXYZ>::Ptr cloud, bool isHand) {
+	TrackedCloud::TrackedCloud(PointCloud<PointXYZ>::Ptr cloud, bool isHand, bool forceCreate) {
 		this->cloud = cloud;
-		counter = 2;
 		objectInModel = NULL;
 		matchingCloud = NULL;
 		nearest = numeric_limits<int>::max();
 		minPointDif = numeric_limits<int>::max();
 		needApplyTransformation = false;
 		needRecalculateFaces = false;
-		hand = hand;
+		hand = isHand;
+
+		if(isHand)
+		{
+			//Fuerzo crear el objeto
+			counter = TIMES_TO_CREATE_OBJ;
+			if(forceCreate)
+				addCounter(0);
+		}
+		else
+			counter = 2;
+		
 	}
 
 	TrackedCloud::TrackedCloud() {
@@ -50,6 +68,7 @@ namespace mapinect {
 
 	void TrackedCloud::addCounter(int diff) {
 		counter += diff;
+		//cout << "counter: " << counter;
 		if (counter <= 0) {
 			if (hasObject()) {
 				gModel->objectsMutex.lock();
@@ -59,39 +78,50 @@ namespace mapinect {
 				gModel->objectsMutex.unlock();
 			}
 		}
-		else if(counter == TIMES_TO_CREATE_OBJ && !hasObject()) {
+		else if(counter >= TIMES_TO_CREATE_OBJ && !hasObject()) {
 			counter = TIMES_TO_CREATE_OBJ + 2;
 				
-			gModel->objectsMutex.lock();
+			
 				//////////////Para identificar si es un objeto o una mano/////////////////
-				//ObjectType objType = getObjectType(cloud);
+			ObjectType objType = getObjectType(cloud);
 
-				//switch(objType)
-				//{
-				//	case HAND:
-				//		objectInModel = new PCHand(cloud, cloud, objId);
-				//		break;
-				//	case BOX:
-				//		objectInModel = new PCPolyhedron(cloud, cloud, objId);
-				//		break;
-				//	default:
-				//		//objectInModel = new PCPolyhedron(cloud, cloud, objId);
-				//		return;
-				//		break;
-				//}
+			switch(objType)
+			{
+				case HAND:
+					objectInModel = new PCHand(cloud, cloud, objId);
+					cout << "HAND DETECTED" << endl;
+					break;
+				case BOX:
+					objectInModel = new PCPolyhedron(cloud, cloud, objId);
+					cout << "BOX DETECTED" << endl;
+					break;
+				case UNRECOGNIZED:
+					cout << "UNRECOGNIZED!" << endl;
+					counter-= 2;
+					return;
+					break;
+			}
 				////////////////////////////////////////////////////////////
 				
-				//Si se descomenta lo anterior, comentar esto.
-			    if(hand)
-					objectInModel = new PCHand(cloud, cloud, -99);
-				else
-					objectInModel = new PCPolyhedron(cloud, cloud, objId);
-				cout << "New object!" << endl;
-
-				objId++;
-				objectInModel->detectPrimitives();
-				gModel->objects.push_back(objectInModel);
-			gModel->objectsMutex.unlock();
+				////Si se descomenta lo anterior, comentar esto.
+			 //   if(hand)
+				//{
+				//	objectInModel = new PCHand(cloud, cloud, -99);
+				//	cout << "Hand detected!" << endl;
+				//}
+				//else
+				//{
+				//	objectInModel = new PCPolyhedron(cloud, cloud, objId);
+				//	cout << "New object!" << endl;
+				//}
+			if(objType != UNRECOGNIZED)
+			{
+				gModel->objectsMutex.lock();
+					objId++;
+					objectInModel->detectPrimitives();
+					gModel->objects.push_back(objectInModel);
+				gModel->objectsMutex.unlock();
+			}
 		}
 	}
 
@@ -106,29 +136,10 @@ namespace mapinect {
 		 nearest = numeric_limits<int>::max();
 		 minPointDif = numeric_limits<int>::max();
 	}
-	bool TrackedCloud::matches(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster) {
-		/*if(this->hasObject())
-		{
-			Eigen::Affine3f transformation;
-			PointCloud<PointXYZ>::Ptr obj_cloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
-			if(matchingObjects(cloud_cluster,obj_cloud,transformation))
-			{
-				objectInModel->applyTransformation(&transformation);
-				return true;
-			}
-		}
-		else
-		{
-			PointCloud<PointXYZ>::Ptr difCloud (new PointCloud<PointXYZ>);
-			int dif = getDifferencesCloud(cloud, cloud_cluster, difCloud, OCTREE_RES);
-			if(dif < DIFF_IN_OBJ)
-			{
-				return true;
-			}
-		}*/
-		return false;
-	}
-
+	
+	//Compara si trackedCloud se corresponde con la TrackedCloud actual
+	//En caso de tener una correspondencia (matchingCloud) previamente asociada, la devuelve en removedCloud
+	//y setea removed a false
 	bool TrackedCloud::matches(TrackedCloud* trackedCloud, TrackedCloud*& removedCloud, bool &removed)
 	{
 		removed = false;
@@ -149,7 +160,7 @@ namespace mapinect {
 				return true;
 			}
 		}
-		else
+		else //Si no tiene un objeto asociado, sólo compara las distancias entre las distintas nubes.
 		{
 			PointCloud<PointXYZ>::Ptr difCloud (new PointCloud<PointXYZ>);
 			Eigen::Vector4f clusterCentroid;
@@ -157,60 +168,61 @@ namespace mapinect {
 			compute3DCentroid(*trackedCloud->getTrackedCloud(),clusterCentroid);
 			compute3DCentroid(*cloud,objCentroid);
 			Eigen::Vector4f translationVector = clusterCentroid - objCentroid;
-			if(translationVector.norm() > this->nearest)
-				return false;
-			this->nearest = translationVector.norm();
-			if(matchingCloud != NULL)
+			if(translationVector.norm() < this->nearest)
 			{
-				removedCloud = matchingCloud;
-				removed = true;
-			}
-			matchingCloud = trackedCloud;
-			hand = trackedCloud->isPotentialHand();
-			return true;
-			//getDifferencesCloud -> tiene problemas!!!
-			//int dif = getDifferencesCloud(cloud, trackedCloud->getCloud(), difCloud, OCTREE_RES);
+				this->nearest = translationVector.norm();
+				if(matchingCloud != NULL)
+				{
+					removedCloud = matchingCloud;
+					removed = true;
+				}
+				matchingCloud = trackedCloud;
+				hand = trackedCloud->isPotentialHand();
+
+				//getDifferencesCloud -> tiene problemas!!!
+				//int dif = getDifferencesCloud(cloud, trackedCloud->getCloud(), difCloud, OCTREE_RES);
 			
-			//if(dif < DIFF_IN_OBJ)
-			//{
-			//	if(matchingCloud != NULL)
-			//	{
-			//		removedCloud = matchingCloud;
-			//		removed = true;
-			//	}
-			//	//debug
-			//	//matchingCloud = trackedCloud;
-			//	return true;
-			//}
+				//if(dif < DIFF_IN_OBJ)
+				//{
+				//	if(matchingCloud != NULL)
+				//	{
+				//		removedCloud = matchingCloud;
+				//		removed = true;
+				//	}
+				//	//debug
+				//	//matchingCloud = trackedCloud;
+				//	return true;
+				//}
+				return true;
+			}
+			else
+				return false;
 		}
 		return false;
 	}
 
 	void TrackedCloud::updateMatching()
 	{
-		if(needApplyTransformation || needRecalculateFaces)		//Necesito recalcular algo
+		if(needApplyTransformation || needRecalculateFaces || objectInModel == NULL)		//Necesito recalcular algo
 		{ 
-
-			if(needApplyTransformation)
-				cout << "applyTransform!" << endl;
-			if(needRecalculateFaces)
-				cout << "recalculate!" << endl;
-
-
-
 			if(hasMatching())
-				cloud = matchingCloud->getTrackedCloud();
-			gModel->objectsMutex.lock();
-			if(objectInModel != NULL)
 			{
-				objectInModel->resetLod();
-				objectInModel->setCloud(cloud);
-				/*if(needApplyTransformation)
-					objectInModel->applyTransformation();*/
-				//if(needRecalculateFaces)
+				cloud = matchingCloud->getTrackedCloud();
+				gModel->objectsMutex.lock();
+				if(objectInModel != NULL)
+				{
+					/* Metodo viejo
+					objectInModel->resetLod();
+					objectInModel->setCloud(cloud);
 					objectInModel->detectPrimitives();
+					*/
+				
+					objectInModel->resetLod();
+					objectInModel->addToModel(cloud);
+					objectInModel->setCloud(cloud);
+				}
+				gModel->objectsMutex.unlock();
 			}
-			gModel->objectsMutex.unlock();
 			
 		}
 		else if(objectInModel != NULL && objectInModel->getLod() < MAX_OBJ_LOD)								//Si no llegue al nivel maximo de detalle, aumento el detalle
@@ -255,6 +267,8 @@ namespace mapinect {
 			
 
 			PointCloud<PointXYZ>::Ptr nuCloudFiltered (new PointCloud<PointXYZ>());
+			PointCloud<PointXYZ>::Ptr nuCloudFilteredNoTable (new PointCloud<PointXYZ>());
+
 			PassThrough<PointXYZ> pass;
 			pass.setInputCloud (nuCloud);
 			pass.setFilterFieldName ("z");
@@ -264,8 +278,20 @@ namespace mapinect {
 			//writer.write<pcl::PointXYZ>("nuobj.pcd", *nuCloud, false);
 			//writer.write<pcl::PointXYZ>("nuCloudFiltered.pcd", *nuCloudFiltered, false);
 
+			//Quito los puntos que pertenecen a la mesa
+			PCPolygon* table = getTable();
+			ModelCoefficients tableCoef = table->getCoefficients();
+			PointIndices::Ptr tableIdx = adjustPlane(tableCoef,nuCloud);
+
+			pcl::ExtractIndices<pcl::PointXYZ> extract;
+			extract.setInputCloud (nuCloudFiltered);
+			extract.setIndices (tableIdx);
+			extract.setNegative (true);
+			extract.filter (*nuCloudFilteredNoTable);
+			//writer.write<pcl::PointXYZ>("nuCloudFilteredNoTable.pcd", *nuCloudFilteredNoTable, false);
+
 			gModel->objectsMutex.lock();
-			objectInModel->updateCloud(nuCloudFiltered);
+			objectInModel->updateCloud(nuCloudFilteredNoTable);
 			gModel->objectsMutex.unlock();
 
 		}
@@ -277,6 +303,36 @@ namespace mapinect {
 
 	bool TrackedCloud::matchingTrackedObjects(TrackedCloud tracked_temp, Eigen::Affine3f &transformation)
 	{
+		///////////////////////////Metodo con Alignment////////////////////////
+		//AlignmentDetector ad;
+		//ad.setTargetCloud(tracked_temp);
+		//ad.setTemplateCloud(*this);
+		//AlignmentDetector::Result r = ad.align();
+
+		//cout<<"result: " << r.fitness_score << endl;
+
+		//if(r.fitness_score < nearest &&
+		//	r.fitness_score < 0.00005f)
+		//{
+		//	cout << "match!" << endl;
+		//	transformation = r.final_transformation;
+		//	nearest = r.fitness_score;
+		//	needApplyTransformation = true;
+		//	needRecalculateFaces = true;
+
+		//	//pcl::PointCloud<pcl::FPFHSignature33>::Ptr f1 = this->getLocalFeatures();
+		//	//pcl::PointCloud<pcl::FPFHSignature33>::Ptr f2 = this->matchingCloud->getLocalFeatures();
+
+		//	//pcl::io::savePCDFile("featureSource.pcd",*f1);
+		//	//pcl::io::savePCDFile("featureTarget.pcd",*f2);
+
+		//	//cout << transformation << endl;
+		//	return true;
+		//}
+
+		///////////////////////////Fin Metodo con Alignment////////////////////////
+
+		///////////////////////////Metodo Previo.//////////////////////////////
 		//PCDWriter writer;
 		//writer.write<pcl::PointXYZ> ("obj.pcd", *obj_cloud, false);
 		/*writer.write<pcl::PointXYZ> ("cluster.pcd", *cluster, false);
@@ -348,6 +404,49 @@ namespace mapinect {
 			needApplyTransformation = false;
 
 		return true;
-		////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////
+		///////////////////////////Fin Metodo Previo.//////////////////////////////
 	}
+
+	pcl::PointCloud<pcl::FPFHSignature33>::Ptr TrackedCloud::getLocalFeatures ()
+	{
+		if(!features_computed)
+		{
+			processInput ();
+		}
+		return features_;
+	}
+
+	void TrackedCloud::processInput()
+	{
+		computeSurfaceNormals();
+		computeLocalFeatures();
+    }
+
+	 // Compute the surface normals
+    void TrackedCloud::computeSurfaceNormals ()
+    {
+      normals_ = SurfaceNormals::Ptr (new SurfaceNormals);
+
+      pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> norm_est;
+      norm_est.setInputCloud (cloud);
+	  pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>());
+      norm_est.setSearchMethod (tree);
+      norm_est.setRadiusSearch (normal_radius_);
+      norm_est.compute (*normals_);
+    }
+
+    // Compute the local feature descriptors
+    void TrackedCloud::computeLocalFeatures ()
+    {
+      features_ = LocalFeatures::Ptr (new LocalFeatures);
+
+      pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::FPFHSignature33> fpfh_est;
+      fpfh_est.setInputCloud (cloud);
+      fpfh_est.setInputNormals (normals_);
+	  pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>());
+      fpfh_est.setSearchMethod (tree);
+      fpfh_est.setRadiusSearch (feature_radius_);
+      fpfh_est.compute (*features_);
+    }
 }

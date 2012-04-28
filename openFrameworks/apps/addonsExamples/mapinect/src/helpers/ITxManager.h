@@ -12,13 +12,17 @@ namespace mapinect {
 	class ITxManager {
 	public:
 
-		virtual GLuint	loadTexture(string imgFile) = 0;
-		virtual void	unloadTexture(GLuint textureId) = 0;
+		virtual GLuint	loadImageTexture(string imgFile) = 0;
+
+		virtual GLuint	loadVideoTexture(string videoFile) = 0;
+		virtual void	updateVideoTextures() = 0;
 
 		virtual void	bindTexture(GLuint textureId) const = 0;
-		
+		virtual void	unloadTexture(GLuint textureId) = 0;
+
 		virtual void	enableTextures() const = 0;
 		virtual void	disableTextures() const = 0;
+
 	};
 }
 

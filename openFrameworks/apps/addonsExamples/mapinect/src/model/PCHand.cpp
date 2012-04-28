@@ -75,9 +75,9 @@ namespace mapinect {
 		  pcl::ConvexHull<pcl::PointXYZ> chull;
 		  chull.setInputCloud (cloud_projected);
 		  chull.reconstruct (*cloud_hull);
-		  /*PCDWriter writer;
-		  writer.write<pcl::PointXYZ> ("handprojected.pcd", *cloud_projected, false);
-		  writer.write<pcl::PointXYZ> ("convexHull.pcd", *cloud_hull, false);*/
+		  //PCDWriter writer;
+		  //writer.write<pcl::PointXYZ> ("handprojected.pcd", *cloud_projected, false);
+		  //writer.write<pcl::PointXYZ> ("convexHull.pcd", *cloud_hull, false);
 
 
 		  fingerTips.clear();

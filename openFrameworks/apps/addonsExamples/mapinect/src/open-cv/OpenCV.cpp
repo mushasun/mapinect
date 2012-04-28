@@ -28,63 +28,65 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void OpenCV::update(bool isKinectFrameNew) {
 
-		//if(isKinectFrameNew)
-		//{
-		//	ofBackground(100, 100, 100);
+		if(isKinectFrameNew)
+		{
+			ofBackground(100, 100, 100);
 
-		//	grayImage.setFromPixels(gKinect->getDepthPixels(), gKinect->width, gKinect->height);
+			colorImg.setFromPixels(gKinect->getPixels(), gKinect->width, gKinect->height);
 
-		//	//we do two thresholds - one for the far plane and one for the near plane
-		//	//we then do a cvAnd to get the pixels which are a union of the two thresholds.	
-		//	if( bThreshWithOpenCV ) {
-		//		grayThreshFar = grayImage;
-		//		grayThresh = grayImage;
-		//		grayThresh.threshold(nearThreshold, true);
-		//		grayThreshFar.threshold(farThreshold);
-		//		cvAnd(grayThresh.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
-		//	}
-		//	else{
+			grayImage.setFromPixels(gKinect->getDepthPixels(), gKinect->width, gKinect->height);
 
-		//		//or we do it ourselves - show people how they can work with the pixels
+			//we do two thresholds - one for the far plane and one for the near plane
+			//we then do a cvAnd to get the pixels which are a union of the two thresholds.	
+			if( bThreshWithOpenCV ) {
+				grayThreshFar = grayImage;
+				grayThresh = grayImage;
+				grayThresh.threshold(nearThreshold, true);
+				grayThreshFar.threshold(farThreshold);
+				cvAnd(grayThresh.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
+			}
+			else{
 
-		//		unsigned char * pix = grayImage.getPixels();
-		//		int numPixels = grayImage.getWidth() * grayImage.getHeight();
+				//or we do it ourselves - show people how they can work with the pixels
 
-		//		for(int i = 0; i < numPixels; i++){
-		//			if( pix[i] < nearThreshold && pix[i] > farThreshold ){
-		//				pix[i] = 255;
-		//			}else{
-		//				pix[i] = 0;
-		//			}
-		//		}
-		//	}
+				unsigned char * pix = grayImage.getPixels();
+				int numPixels = grayImage.getWidth() * grayImage.getHeight();
 
-		//	//update the cv image
-		//	grayImage.flagImageChanged();
+				for(int i = 0; i < numPixels; i++){
+					if( pix[i] < nearThreshold && pix[i] > farThreshold ){
+						pix[i] = 255;
+					}else{
+						pix[i] = 0;
+					}
+				}
+			}
 
-		//	// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
-		//	// also, find holes is set to true so we will get interior contours as well....
-		//	contourFinder.findContours(grayImage, 10, (gKinect->width*gKinect->height)/2, 20, false);
+			//update the cv image
+			grayImage.flagImageChanged();
 
-		//	//for(int i = 0 ; i < contourFinder.nBlobs; i++)
-		//	//{
-		//	//	cout << "min: (" << contourFinder.blobs[i].boundingRect.x << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y << ")" << endl;
-		//	//	cout << "max: (" << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.width << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y + contourFinder.blobs[i].boundingRect.height<< ")" << endl;
-		//	//}
+			// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
+			// also, find holes is set to true so we will get interior contours as well....
+			contourFinder.findContours(grayImage, 10, (gKinect->width*gKinect->height)/2, 20, false);
 
-		//}
+			//for(int i = 0 ; i < contourFinder.nBlobs; i++)
+			//{
+			//	cout << "min: (" << contourFinder.blobs[i].boundingRect.x << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y << ")" << endl;
+			//	cout << "max: (" << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.width << ", " << contourFinder.blobs[i].boundingRect.x + contourFinder.blobs[i].boundingRect.y + contourFinder.blobs[i].boundingRect.height<< ")" << endl;
+			//}
+
+		}
 	}
 
 	//--------------------------------------------------------------
 	void OpenCV::draw() {
-		/*
+		
 		ofResetColor();
-
+		colorImg.draw(10, 10, 400, 300);
 		grayImage.draw(10, 320, 400, 300);
 
-		//grayDiff.draw(420, 10, 400, 300);
+		grayDiff.draw(420, 10, 400, 300);
 		contourFinder.draw(10, 320, 400, 300);
-		*/
+		
 		ofResetColor();
 		stringstream reportStream;
 		ofVec3f accel(gKinect->getMksAccel());

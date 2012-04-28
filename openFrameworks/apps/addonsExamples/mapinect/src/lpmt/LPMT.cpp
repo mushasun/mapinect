@@ -188,12 +188,12 @@ namespace mapinect {
 			gui.addComboBox("image bg", quads[i].bgImg, imgFiles.size(), images);
 			gui.addSlider("img mult X", quads[i].imgMultX, 0.2, 4.0);
 			gui.addSlider("img mult Y", quads[i].imgMultY, 0.2, 4.0);
-			gui.addColorPicker("img colorize", &quads[i].imgColorize.r);
+			//gui.addColorPicker("img colorize", &quads[i].imgColorize.r);
 			gui.addTitle("Solid color").setNewColumn(true);
 			gui.addToggle("solid bg on/off", quads[i].colorBg);
-			gui.addColorPicker("Color", &quads[i].bgColor.r);
+			//gui.addColorPicker("Color", &quads[i].bgColor.r);
 			gui.addToggle("transition color", quads[i].transBg);
-			gui.addColorPicker("second Color", &quads[i].secondColor.r);
+			//gui.addColorPicker("second Color", &quads[i].secondColor.r);
 			gui.addSlider("trans duration", quads[i].transDuration, 0.2, 60.0);
 
 			gui.addPage("quad "+ofToString(i)+" - 2/3");
@@ -202,7 +202,7 @@ namespace mapinect {
 			gui.addComboBox("video bg", quads[i].bgVideo, videoFiles.size(), videos);
 			gui.addSlider("video mult X", quads[i].videoMultX, 0.2, 4.0);
 			gui.addSlider("video mult Y", quads[i].videoMultY, 0.2, 4.0);
-			gui.addColorPicker("video colorize", &quads[i].videoColorize.r);
+			//gui.addColorPicker("video colorize", &quads[i].videoColorize.r);
 			gui.addSlider("video sound vol", quads[i].videoVolume, 0, 100);
 			gui.addSlider("video speed", quads[i].videoSpeed, -2.0, 4.0);
 			gui.addToggle("video loop", quads[i].videoLoop);
@@ -210,10 +210,10 @@ namespace mapinect {
 			gui.addToggle("cam on/off", quads[i].camBg);
 			gui.addSlider("camera mult X", quads[i].camMultX, 0.2, 4.0);
 			gui.addSlider("camera mult Y", quads[i].camMultY, 0.2, 4.0);
-			gui.addColorPicker("cam colorize", &quads[i].camColorize.r);
+			//gui.addColorPicker("cam colorize", &quads[i].camColorize.r);
 			gui.addTitle("Greenscreen");
 			gui.addSlider("g-screen threshold", quads[i].thresholdGreenscreen, 0, 120);
-			gui.addColorPicker("greenscreen col", &quads[i].colorGreenscreen.r);
+			//gui.addColorPicker("greenscreen col", &quads[i].colorGreenscreen.r);
 			gui.addToggle("video greenscreen", quads[i].videoGreenscreen);
 			gui.addToggle("camera greenscreen", quads[i].camGreenscreen);
 			gui.addTitle("Slideshow");
@@ -293,7 +293,7 @@ namespace mapinect {
 			// if snapshot is on draws it as window background
 			if (snapshotOn) {
 				ofEnableAlphaBlending();
-				ofSetHexColor(0xFFFFFF);
+				ofSetColor(0xFFFFFF);
 				snapshotTexture.draw(0,0,ofGetWidth(),ofGetHeight());
 				ofDisableAlphaBlending();
 			}
@@ -311,7 +311,7 @@ namespace mapinect {
 		// in setup mode writes the number of active quad at the bottom of the window
 		if (isSetup)
 		{
-			ofSetHexColor(0xFFFFFF);
+			ofSetColor(0xFFFFFF);
 			ttf.drawString("active quad: "+ofToString(activeQuad), 30, ofGetHeight()-25);
 		}
 

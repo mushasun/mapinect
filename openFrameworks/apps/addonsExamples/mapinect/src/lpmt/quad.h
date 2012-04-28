@@ -35,15 +35,15 @@ public:
     ball balls[80];
 
     int borderColor;
-    ofFloatColor bgColor;
-    ofFloatColor secondColor;
-    ofFloatColor startColor;
-    ofFloatColor endColor;
-    ofFloatColor transColor;
-    ofFloatColor imgColorize;
-    ofFloatColor videoColorize;
-    ofFloatColor camColorize;
-    ofFloatColor colorGreenscreen;
+    ofColor bgColor;
+    ofColor secondColor;
+    ofColor startColor;
+    ofColor endColor;
+    ofColor transColor;
+    ofColor imgColorize;
+    ofColor videoColorize;
+    ofColor camColorize;
+    ofColor colorGreenscreen;
 
     int bgAlpha;
 

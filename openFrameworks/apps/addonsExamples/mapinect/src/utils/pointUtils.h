@@ -58,5 +58,21 @@ ObjectType getObjectType(pcl::PointCloud<pcl::PointXYZ>::Ptr src);
 
 bool isInBorder(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
+mapinect::PCPolygon* getTable();
+
 bool onTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolyhedron *table);
+
+bool onTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolygon *table);
+
+bool tableParallel(mapinect::PCPolygon *polygon, mapinect::PCPolygon *table);
+
+//pcl::PointCloud<pcl::PointXYZ>::Ptr getPointsOverTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolyhedron *table,int &handDirection);
+
+void createCloud(ofVec3f pto, string name);
+
+float maxf(float x, float y);
+
+float minf(float x, float y);
+
+PointCloud<PointXYZRGB>::Ptr getPartialColorCloudRealCoords(ofPoint min, ofPoint max, int density);
 #endif // POINT_UTILS_H__
