@@ -17,6 +17,8 @@ namespace mapinect {
 		void			drawPointCloud();
 
 	private:
+		bool			isActive();
+
 		PCMThread		pcmThread;
 		bool			drawPC;
 		int 			pointCloudRotationY;

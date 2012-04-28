@@ -1,5 +1,6 @@
 #include "mapinectApp.h"
 
+#include "Feature.h"
 #include "utils.h"
 #include "TxManager.h"
 
@@ -8,6 +9,8 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	mapinectApp::mapinectApp(IApplication* app) {
 		this->app = app;
+
+		LoadFeatures();
 	}
 
 	//--------------------------------------------------------------
@@ -18,9 +21,12 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void mapinectApp::setup() {
 		gKinect = new ofxKinect();
-		gKinect->init();
-		gKinect->setVerbose(true);
-		gKinect->open();
+		if (IsFeatureKinectActive())
+		{
+			gKinect->init();
+			gKinect->setVerbose(true);
+			gKinect->open();
+		}
 
 		// zero the tilt on startup
 		angle = 0;
@@ -42,13 +48,23 @@ namespace mapinect {
 		pcm.exit();
 		arduino.exit();
 		app->exit();
-		gKinect->close();
+
+		if (IsFeatureKinectActive())
+		{
+			gKinect->close();
+		}
 	}
 
 	//--------------------------------------------------------------
 	void mapinectApp::update() {
-		gKinect->update();
-		bool isKinectFrameNew = gKinect->isFrameNew();
+		bool isKinectFrameNew = false;
+
+		if (IsFeatureKinectActive())
+		{
+			gKinect->update();
+			gKinect->isFrameNew();
+		}
+
 		cv.update(isKinectFrameNew);
 		pcm.update(isKinectFrameNew);
 		arduino.update();
@@ -75,7 +91,10 @@ namespace mapinect {
 		}
 		if (angleVariation != 0) {
 			angle = ofClamp(angle + angleVariation, -30, 30);
-			gKinect->setCameraTiltAngle(angle);
+			if (IsFeatureKinectActive())
+			{
+				gKinect->setCameraTiltAngle(angle);
+			}
 		}
 		
 		cv.keyPressed(key);
@@ -113,14 +132,17 @@ namespace mapinect {
 	{
 		vm.setup();
 
-		double fx_d, fy_d, fx_rgb, fy_rgb; 
-		float  cx_d, cy_d, cx_rgb, cy_rgb;
-		ofVec3f T_rgb;
-		ofMatrix4x4 R_rgb;
-		getKinectCalibData(const_cast<char*>(VM::kinect_calib_file.c_str()), fx_d, fy_d, cx_d, cy_d,
-									fx_rgb, fy_rgb, cx_rgb, cy_rgb, T_rgb, R_rgb);
-		gKinect->getCalibration().setCalibValues( fx_d, fy_d, cx_d, cy_d,
-									fx_rgb, fy_rgb, cx_rgb, cy_rgb, T_rgb, R_rgb);
+		if (IsFeatureKinectActive())
+		{
+			double fx_d, fy_d, fx_rgb, fy_rgb; 
+			float  cx_d, cy_d, cx_rgb, cy_rgb;
+			ofVec3f T_rgb;
+			ofMatrix4x4 R_rgb;
+			getKinectCalibData(const_cast<char*>(VM::kinect_calib_file.c_str()), fx_d, fy_d, cx_d, cy_d,
+										fx_rgb, fy_rgb, cx_rgb, cy_rgb, T_rgb, R_rgb);
+			gKinect->getCalibration().setCalibValues( fx_d, fy_d, cx_d, cy_d,
+										fx_rgb, fy_rgb, cx_rgb, cy_rgb, T_rgb, R_rgb);
+		}
 	}
 
 

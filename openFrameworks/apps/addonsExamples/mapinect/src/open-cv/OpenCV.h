@@ -14,6 +14,8 @@ namespace mapinect {
 		virtual void keyPressed(int key);
 
 	private:
+		bool					isActive();
+
 		ofxCvColorImage			colorImg;
 
 		ofxCvGrayscaleImage 	grayImage;

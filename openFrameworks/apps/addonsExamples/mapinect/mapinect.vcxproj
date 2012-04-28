@@ -151,6 +151,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvImage.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.cpp" />
     <ClCompile Include="src\arduino\Arduino.cpp" />
+    <ClCompile Include="src\Feature.cpp" />
     <ClCompile Include="src\helpers\TxManager.cpp" />
     <ClCompile Include="src\lpmt\LPMT.cpp" />
     <ClCompile Include="src\lpmt\monitor.cpp" />
@@ -242,6 +243,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxOpenCv.h" />
     <ClInclude Include="src\arduino\Arduino.h" />
+    <ClInclude Include="src\Feature.h" />
     <ClInclude Include="src\helpers\ITxManager.h" />
     <ClInclude Include="src\helpers\TxManager.h" />
     <ClInclude Include="src\IApplication.h" />

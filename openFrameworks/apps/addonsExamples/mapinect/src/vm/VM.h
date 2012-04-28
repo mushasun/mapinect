@@ -25,6 +25,7 @@ namespace mapinect {
 		static std::string kinect_calib_file;
 
 	private:
+		bool		 isActive();
 		virtual void loadProjCalibData(char* proj_calib_file);
 	};
 }

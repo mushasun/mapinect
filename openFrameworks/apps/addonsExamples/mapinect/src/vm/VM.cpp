@@ -1,5 +1,6 @@
 #include "vm.h"
 
+#include "Feature.h"
 #include "ofxXmlSettings.h"
 #include "ofVec3f.h"
 #include "winUtils.h"
@@ -35,6 +36,8 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void VM::setup() {
+		CHECK_ACTIVE;
+
 		ofxXmlSettings XML;
 		if(XML.loadFile("VM_Config.xml")) {
 
@@ -67,7 +70,9 @@ namespace mapinect {
 	// Load calibration parameters for projector
 	//		Camara Lucida, www.camara-lucida.com.ar
 	void VM::loadProjCalibData(char* proj_calib_file) {
-	
+		
+		CHECK_ACTIVE;
+
 		// Load matrices from Projector's calibration file		
 		CvMat* projector_intrinsics = (CvMat*) cvLoad(proj_calib_file, NULL, "proj_intrinsics");
 		CvMat* projector_size = (CvMat*) cvLoad(proj_calib_file, NULL, "proj_size");
@@ -161,6 +166,8 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void VM::setupView() {
 	
+		CHECK_ACTIVE;
+
 /*		int w = ofGetWidth();
 		int h = ofGetHeight();
 		glViewport(0, 0, w, h);
@@ -203,21 +210,26 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void VM::draw() {
+		CHECK_ACTIVE;
 
 	}
 
 	//--------------------------------------------------------------
 	void VM::endView() {
+		CHECK_ACTIVE;
+		
 		ofPopMatrix();
 	}
 
 	//--------------------------------------------------------------
 	void VM::update() {
-	
+		CHECK_ACTIVE;
 	}
 
 	//--------------------------------------------------------------
 	void VM::keyPressed(int key) {
+		CHECK_ACTIVE;
+
 		float var = 0.01f;
 		float varX = 1.0f;
 		float varY = 1.0f;
@@ -362,26 +374,37 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void VM::mouseMoved(int x, int y)
 	{
+		CHECK_ACTIVE;
 	}
 
 	//--------------------------------------------------------------
 	void VM::mouseDragged(int x, int y, int button)
 	{
+		CHECK_ACTIVE;
 	}
 
 	//--------------------------------------------------------------
 	void VM::mousePressed(int x, int y, int button)
 	{
+		CHECK_ACTIVE;
 	}
 
 	//--------------------------------------------------------------
 	void VM::mouseReleased(int x, int y, int button)
 	{
+		CHECK_ACTIVE;
 	}
 
 	//--------------------------------------------------------------
 	void VM::windowResized(int w, int h)
 	{
+		CHECK_ACTIVE;
+	}
+
+	//--------------------------------------------------------------
+	bool VM::isActive()
+	{
+		return IsFeatureVMActive();
 	}
 
 }
