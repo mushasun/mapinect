@@ -2,6 +2,8 @@
 #include "pointUtils.h"
 #include "utils.h"
 #include <pcl/registration/transformation_estimation.h>
+#include <pcl/io/pcd_io.h>
+
 
 namespace mapinect {
 	PCModelObject::PCModelObject() {
@@ -56,7 +58,7 @@ namespace mapinect {
 		}
 		if (drawPointCloud) {
 			static int colors[] = { kRGBBlue, kRGBGreen, kRGBRed, 0xFFFF00, 0xFF00FF, 0x00FFFF };
-			ofSetHexColor(colors[getId() % 6]);
+			ofSetColor(colors[getId() % 6]);
 			ofVec3f w;
 			glBegin(GL_POINTS);
 			for (size_t i = 0; i < cloud.size(); i++) {
@@ -79,6 +81,14 @@ namespace mapinect {
 		PointCloud<PointXYZ> transformed;
 		transformPointCloud(cloud,transformed,transformation);
 		cloud = transformed;
+	}
+
+	void PCModelObject::addToModel(PointCloud<PointXYZ>::Ptr nuCloud){
+		//pcl::io::savePCDFileASCII ("pre.pcd", cloud);
+		//pcl::io::savePCDFileASCII ("nu.pcd", *nuCloud);
+		//applyTransformation();
+		/*cloud += *nuCloud;*/
+		//pcl::io::savePCDFileASCII ("transformed.pcd", cloud);
 	}
 }
 

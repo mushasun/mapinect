@@ -3,7 +3,7 @@
 
 #include "PCPolyhedron.h"
 #include "ITxManager.h"
-#include "Floor.h"s
+#include "Floor.h"
 
 using namespace mapinect;
 

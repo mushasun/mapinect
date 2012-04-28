@@ -495,11 +495,11 @@ int quad::getdir (string directory, vector<string> &files)
         ofNoFill();
         if (isSetup)
         {
-            ofSetHexColor(borderColor);
+            ofSetColor(borderColor);
             ofRect(0, 0, ofGetWidth(), ofGetHeight());
             // draws helper grid on active quad
             if (borderColor == 0xFFFFFF) {
-                ofSetHexColor(0x444444);
+                ofSetColor(0x444444);
                 ofLine(0,ofGetHeight()/2,ofGetWidth(),ofGetHeight()/2);
                 ofLine(ofGetWidth()/2,0,ofGetWidth()/2,ofGetHeight());
                 ofLine(ofGetWidth()/2,0,ofGetWidth()/2-20,20);
@@ -515,9 +515,9 @@ int quad::getdir (string directory, vector<string> &files)
 
         // writes quad number with a dropback shadow in the middle of quad - KEEP IT AT LAST POSITION IN draw()
         if (isSetup) {
-            ofSetHexColor(0x000000);
+            ofSetColor(0x000000);
             ttf.drawString("quad n. "+ofToString(quadNumber), ofGetWidth()/2, ofGetHeight()/2);
-            ofSetHexColor(0xFFFFFF);
+            ofSetColor(0xFFFFFF);
             ttf.drawString("quad n. "+ofToString(quadNumber), (ofGetWidth()/2)-4, (ofGetHeight()/2)-4);
         }
 

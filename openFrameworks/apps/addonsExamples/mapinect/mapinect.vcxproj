@@ -161,6 +161,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\math\Triangle2D.cpp" />
     <ClCompile Include="src\model\Box.cpp" />
     <ClCompile Include="src\model\Cylinder.cpp" />
+    <ClCompile Include="src\model\HandDetector.cpp" />
     <ClCompile Include="src\model\Model.cpp" />
     <ClCompile Include="src\model\ModelObject.cpp" />
     <ClCompile Include="src\model\PCHand.cpp" />
@@ -252,8 +253,10 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\mapinectApp.h" />
     <ClInclude Include="src\math\Line2D.h" />
     <ClInclude Include="src\math\Triangle2D.h" />
+    <ClInclude Include="src\model\AlignmentDetector.h" />
     <ClInclude Include="src\model\Box.h" />
     <ClInclude Include="src\model\Cylinder.h" />
+    <ClInclude Include="src\model\HandDetector.h" />
     <ClInclude Include="src\model\Model.h" />
     <ClInclude Include="src\model\ModelObject.h" />
     <ClInclude Include="src\model\PCHand.h" />

@@ -53,14 +53,18 @@ public:
 
 	const static int	width = 640;
 	const static int	height = 480;
+
+	static void setCalibValues(double fx_d, double fy_d, float cx_d, float cy_d,
+								double fx_rgb, double fy_rgb, float cx_rgb, float cy_rgb,
+								ofVec3f T_rgb, ofMatrix4x4 R_rgb); 
 private:
 	static void calculateLookups();
 	static bool lookupsCalculated;
 	static float distancePixelsLookup[2048];
 	static unsigned char depthPixelsLookupNearWhite[2048];
 	static unsigned char depthPixelsLookupFarWhite[2048];
-	ofVec3f T_rgb;
-	ofMatrix4x4 R_rgb;
+	static ofVec3f T_rgb;
+	static ofMatrix4x4 R_rgb;
 	static double fx_d;
 	static double fy_d;
 	static float cx_d;

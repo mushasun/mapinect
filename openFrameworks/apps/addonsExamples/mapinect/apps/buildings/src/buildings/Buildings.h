@@ -27,6 +27,9 @@ namespace buildings {
 
 		virtual void debugDraw();
 
+		static GLuint	videoTexture;
+		static GLuint	videoTexture2;
+
 	private:
 		std::map<int, Building*>	buildings;
 		Floor*						floor;

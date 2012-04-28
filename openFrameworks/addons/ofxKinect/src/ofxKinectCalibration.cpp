@@ -6,6 +6,8 @@
  */
 
 #include "ofxKinectCalibration.h"
+#include "ofxOpenCv.h"
+
 #ifdef _MSC_VER
 // round() is C99. MSVC doesn't support C99.
 float round(float n) {
@@ -27,6 +29,8 @@ float ofxKinectCalibration::distancePixelsLookup[2048];
 unsigned char ofxKinectCalibration::depthPixelsLookupNearWhite[2048];
 unsigned char ofxKinectCalibration::depthPixelsLookupFarWhite[2048];
 
+/*
+// Original intrinsic values from ofxKinectCalibration
 double ofxKinectCalibration::fx_d = 1.0 / 5.9421434211923247e+02;
 double ofxKinectCalibration::fy_d = 1.0 / 5.9104053696870778e+02;
 float ofxKinectCalibration::cx_d = 3.3930780975300314e+02;
@@ -35,14 +39,26 @@ double ofxKinectCalibration::fx_rgb = 5.2921508098293293e+02;
 double ofxKinectCalibration::fy_rgb = 5.2556393630057437e+02;
 float ofxKinectCalibration::cx_rgb = 3.2894272028759258e+02;
 float ofxKinectCalibration::cy_rgb = 2.6748068171871557e+02;
+*/
 
-ofxKinectCalibration::ofxKinectCalibration():
-	T_rgb( 1.9985242312092553e-02f, -7.4423738761617583e-04f, -1.0916736334336222e-02f ),
-	R_rgb(9.9984628826577793e-01f, 1.2635359098409581e-03f, -1.7487233004436643e-02f, 0,
+// Use intrinsics obtained with rgbdemo as initial values
+double ofxKinectCalibration::fx_d = 1.0 / 5.8895364040469110e+002;
+double ofxKinectCalibration::fy_d = 1.0 / 5.8976774993209585e+002;
+float ofxKinectCalibration::cx_d = 3.2695959041779128e+002;
+float ofxKinectCalibration::cy_d = 2.2974127445785402e+002;
+double ofxKinectCalibration::fx_rgb = 5.2202494823701784e+002;
+double ofxKinectCalibration::fy_rgb = 5.2493081124141452e+002;
+float ofxKinectCalibration::cx_rgb = 3.0588986504656799e+002;
+float ofxKinectCalibration::cy_rgb = 2.5786244835195140e+002;
+
+ofVec3f ofxKinectCalibration::T_rgb( 1.9985242312092553e-02f, -7.4423738761617583e-04f, -1.0916736334336222e-02f );
+ofMatrix4x4 ofxKinectCalibration::R_rgb(9.9984628826577793e-01f, 1.2635359098409581e-03f, -1.7487233004436643e-02f, 0,
 		 -1.4779096108364480e-03f, 9.9992385683542895e-01f, -1.2251380107679535e-02f, 0,
 		  1.7470421412464927e-02f, 1.2275341476520762e-02f, 9.9977202419716948e-01f, 0,
-		  0,0,0,1)
-{
+		  0,0,0,1);
+
+
+ofxKinectCalibration::ofxKinectCalibration(){
 	depthPixels				= NULL;
 	calibratedRGBPixels		= NULL;
 	distancePixels 			= NULL;
@@ -236,4 +252,22 @@ ofVec3f ofxKinectCalibration::getScreenCoordsFromWorldCoords(const ofVec3f& worl
 	result.y = round((worldPoint.y * 1/(worldPoint.z*fy_d)) + cy_d);
 
 	return result;
+}
+
+// Load calibration parameters for Kinect's rgb and depth cameras
+void ofxKinectCalibration::setCalibValues(double d_fx, double d_fy, float d_cx, float d_cy,
+						double rgb_fx, double rgb_fy, float rgb_cx, float rgb_cy,
+						ofVec3f T, ofMatrix4x4 R){
+	ofxKinectCalibration::fx_d = d_fx;
+	ofxKinectCalibration::fy_d = d_fy;
+	ofxKinectCalibration::cx_d = d_cx;
+	ofxKinectCalibration::cy_d = d_cy;
+
+	ofxKinectCalibration::fx_rgb = rgb_fx;
+	ofxKinectCalibration::fy_rgb = rgb_fy;
+	ofxKinectCalibration::cx_rgb = rgb_cx;
+	ofxKinectCalibration::cy_rgb = rgb_cy;
+
+	ofxKinectCalibration::T_rgb = T;
+	ofxKinectCalibration::R_rgb = R;
 }

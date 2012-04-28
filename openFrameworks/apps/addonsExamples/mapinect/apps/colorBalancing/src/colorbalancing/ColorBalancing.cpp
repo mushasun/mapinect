@@ -29,11 +29,11 @@ namespace colorbalancing {
 		for (int i = 0; i < KWIDTH; i++) {
 			for (int j = 0; j < KHEIGHT; j++) {
 				ofColor c = gKinect->getColorAt(i, j);
-				c.r /= 255.0f;
-				c.g /= 255.0f;
-				c.b /= 255.0f;
+				float r = (float)c.r / 255.0f;
+				float g = (float)c.g / 255.0f;
+				float b = (float)c.b / 255.0f;
 				camera[j * KWIDTH + i] = c;
-				maxColor = max(max(c.r, c.g), max(c.b, maxColor));
+				maxColor = max(max(r, g), max(b, maxColor));
 			}
 		}
 		if (maxColor < 0.001) {

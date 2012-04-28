@@ -7,11 +7,14 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/segmentation/extract_clusters.h>
 
 #include "PCQuadrilateral.h"
 #include "pointUtils.h"
 #include "utils.h"
 #include "ofVecUtils.h"
+#include <pcl/io/pcd_io.h>
+
 
 #define MAX_FACES		3
 
@@ -36,10 +39,57 @@ namespace mapinect {
 		return !(p->hasMatching());
 	}
 
-	void PCPolyhedron::detectPrimitives() {
+	void PCPolyhedron::mergePolygons(vector<PCPolygon*> toMerge) {
+		vector<PCPolygon*> aAgregar;
+		vector<PCPolygon*> aProcesar;
+
+		int remainingIters = 10;
+		do {
+			for (int i = 0; i < toMerge.size(); i++) {
+				PCPolygon*	removed = NULL;
+				bool		wasRemoved = false;
+				bool		fitted = findBestFit(toMerge[i], removed, wasRemoved);
+
+				if (wasRemoved) {
+					aProcesar.push_back(removed);
+				}
+				if (!fitted) {
+					aAgregar.push_back(toMerge[i]);
+				}
+			}
+			toMerge = aProcesar;
+			aProcesar.clear();
+			remainingIters--;
+		} while (toMerge.size() > 0 && remainingIters > 0);
+
+		vector<PCPolygon*> keep;
+		for (vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
+			if (!(*iter)->hasMatching()) {
+				delete *iter;				//Puede no tener que borrarse, puede pasar a ser una cara oculta
+			}
+			else {
+				keep.push_back(*iter);
+			}
+		}
+		pcpolygons = keep;
+
+		updatePolygons();
+
+		for (int i = 0; i < aAgregar.size(); i++) {
+			if (indexOf(pcpolygons, aAgregar[i]) < 0) {
+				pcpolygons.push_back(aAgregar[i]);
+			}
+		}
+
+		aAgregar.clear();
+
+		cout << "pols: " << pcpolygons.size() << endl;
+	}
+
+	vector<PCPolygon*> PCPolyhedron::detectPolygons(PointCloud<pcl::PointXYZ>::Ptr cloudTemp, float planeTolerance, float pointsTolerance, bool limitFaces){
+		float maxFaces = limitFaces ? MAX_FACES : 100;
 		sensor_msgs::PointCloud2::Ptr cloud_blob (new sensor_msgs::PointCloud2());
 		sensor_msgs::PointCloud2::Ptr cloud_filtered_blob (new sensor_msgs::PointCloud2);
-		//pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>)
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>);
 		pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
 		
@@ -48,42 +98,22 @@ namespace mapinect {
 		pcl::ExtractIndices<pcl::PointXYZ> extract;
 		std::vector<ofVec3f> vCloudHull;
 
-
-		//PCDWriter writer;
-		//writer.write<pcl::PointXYZ> ("cloud_p.pcd", cloud, false);
-
-		//Remover outliers
-		PointCloud<pcl::PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(cloud));
-		
-		//sor.setInputCloud (cloudTemp);
-		//sor.setMeanK (10); //Cantidad de vecinos a analizar
-		//sor.setStddevMulThresh (1.0);
-		//sor.filter (*cloud_filtered);
-
-		//writer.write<pcl::PointXYZ> ("filtered.pcd", *cloud_filtered, false);
-
 		// Optional
 		seg.setOptimizeCoefficients (true);
 		// Mandatory
 		seg.setModelType (pcl::SACMODEL_PLANE);
 		seg.setMethodType (pcl::SAC_RANSAC);
 		seg.setMaxIterations (50);
-		seg.setDistanceThreshold (0.09); //original: 0.01
+		seg.setDistanceThreshold (planeTolerance); //original: 0.01
 
 		// Create the filtering object
 		int i = 0, nr_points = cloudTemp->points.size ();
-		// mientras 10% de la nube no se haya procesado
+		// mientras 7% de la nube no se haya procesado
 
-		/*
-		for (int i = 0; i < pcpolygons.size(); i++) {
-			delete pcpolygons[i];
-		}
-		pcpolygons.clear();
-		*/
 		vector<PCPolygon*> nuevos;
 
 		int numFaces = 0;
-		while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < MAX_FACES)
+		while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < maxFaces)
 		{
 			pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
 			// Segment the largest planar component from the remaining cloud
@@ -120,16 +150,42 @@ namespace mapinect {
 
 			cloudTemp = cloud_filtered_temp_outliers;
 
-			vCloudHull.clear();
-			for (int k = 0; k < cloud_p->size(); k++) {
-				vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_p->at(k)));
+			//pcl::io::savePCDFile("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
+			
+			//Remove outliers by clustering
+			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p_filtered (new pcl::PointCloud<pcl::PointXYZ>());
+			pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
+			tree->setInputCloud (cloud_p);
+
+			std::vector<pcl::PointIndices> cluster_indices;
+			pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+			ec.setClusterTolerance (0.02); 
+			ec.setMinClusterSize (5);
+			ec.setMaxClusterSize (10000);
+			ec.setSearchMethod (tree);
+			ec.setInputCloud(cloud_p);
+
+			ec.extract (cluster_indices);
+			int debuccount = 0;
+
+			if(cluster_indices.size() > 0)
+			{
+				for (std::vector<int>::const_iterator pit = cluster_indices.at(0).indices.begin (); pit != cluster_indices.at(0).indices.end (); pit++)
+					cloud_p_filtered->points.push_back (cloud_p->points[*pit]); //*
 			}
+
+			//pcl::io::savePCDFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
+
+			vCloudHull.clear();
+			for (int k = 0; k < cloud_p_filtered->size(); k++) {
+				vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_p_filtered->at(k)));
+			}
+
 			PCPolygon* pcp = new PCQuadrilateral(*coefficients);
 			static int polygonId = 0;
 			pcp->setId(polygonId++);
-			pcp->detectPolygon(cloud_p, vCloudHull);
-			//detectedPlane.avgNormal = normalEstimation(cloud_p);
-			PointCloud<PointXYZ>::Ptr cloud_pTemp (new PointCloud<PointXYZ>(*cloud_p));
+			pcp->detectPolygon(cloud_p_filtered, vCloudHull);
+			PointCloud<PointXYZ>::Ptr cloud_pTemp (new PointCloud<PointXYZ>(*cloud_p_filtered));
 			pcp->setCloud(cloud_pTemp);
 			nuevos.push_back(pcp);
 			
@@ -138,49 +194,13 @@ namespace mapinect {
 			numFaces++;
 		}
 
-		vector<PCPolygon*> aAgregar;
-		vector<PCPolygon*> aProcesar;
+		return nuevos;
+	}
 
-		int remainingIters = 10;
-		do {
-			for (int i = 0; i < nuevos.size(); i++) {
-				PCPolygon*	removed = NULL;
-				bool		wasRemoved = false;
-				bool		fitted = findBestFit(nuevos[i], removed, wasRemoved);
-
-				if (wasRemoved) {
-					aProcesar.push_back(removed);
-				}
-				if (!fitted) {
-					aAgregar.push_back(nuevos[i]);
-				}
-			}
-			nuevos = aProcesar;
-			aProcesar.clear();
-			remainingIters--;
-		} while (nuevos.size() > 0 && remainingIters > 0);
-
-		vector<PCPolygon*> keep;
-		for (vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
-			if (!(*iter)->hasMatching()) {
-				delete *iter;
-			}
-			else {
-				keep.push_back(*iter);
-			}
-		}
-		pcpolygons = keep;
-
-		updatePolygons();
-
-		for (int i = 0; i < aAgregar.size(); i++) {
-			if (indexOf(pcpolygons, aAgregar[i]) < 0) {
-				pcpolygons.push_back(aAgregar[i]);
-			}
-		}
-
-		aAgregar.clear();
-
+	void PCPolyhedron::detectPrimitives() {
+		PointCloud<PointXYZ>::Ptr cloud_Temp (new PointCloud<PointXYZ>(cloud));
+		vector<PCPolygon*> nuevos = detectPolygons(cloud_Temp); 
+		mergePolygons(nuevos);
 		unifyVertexs();
 	}
 
@@ -252,10 +272,6 @@ namespace mapinect {
 		return false;
 	}
 
-	//PCPolygon* PCPolyhedron::createPCPolygon() {
-	//	return new PCQuadrilateral();
-	//}
-
 	void PCPolyhedron::draw() {
 		for (vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
 			(*iter)->draw();
@@ -289,10 +305,74 @@ namespace mapinect {
 
 	void PCPolyhedron::increaseLod() {
 		PCModelObject::increaseLod();
+
 		for(vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
 			PointCloud<PointXYZ>::Ptr nuCloud (new PointCloud<PointXYZ>(cloud));
 			(*iter)->increaseLod(nuCloud);
 		}
 		unifyVertexs();
+	}
+
+	vector<PCPolygon*>	PCPolyhedron::discardPolygonsOutOfBox(vector<PCPolygon*> toDiscard)
+	{
+		vector<PCPolygon*> polygonsInBox;
+		PCPolygon* table = getTable();
+
+		//pcl::io::savePCDFile("table.pcd",table->getCloud());
+		
+		for(int i = 0; i < toDiscard.size(); i++)
+		{
+			//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
+
+			PointCloud<PointXYZ>::Ptr cloudPtr (new PointCloud<PointXYZ>(toDiscard.at(i)->getCloud()));
+			if(onTable(cloudPtr,table))
+			{
+				cout << "pol" << ofToString(i) << " On table!" <<endl;
+				polygonsInBox.push_back(toDiscard.at(i));
+			}
+			else if(tableParallel(toDiscard.at(i), table))
+			{
+				cout << "pol" << ofToString(i) << " parallel table!" <<endl;
+				polygonsInBox.push_back(toDiscard.at(i));
+				//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
+			}
+
+		}
+
+		return polygonsInBox;
+	}
+
+	void PCPolyhedron::addToModel(PointCloud<PointXYZ>::Ptr nuCloud)
+	{
+		PCModelObject::addToModel(nuCloud);
+		PointCloud<PointXYZ>::Ptr cloudPtr (new PointCloud<PointXYZ>(cloud));
+
+		///TODO:
+		/// 1 - Detectar caras de la nueva nube
+		/// 2 - Descartar caras que no pertenecen a la caja (caras de la mano)
+		/// 3 - Matchear caras de la nube anterior con las nuevas caras
+		/// 4 - Estimar caras ocultas (?)
+		
+		//Detecto nuevas caras
+		vector<PCPolygon*> nuevos = detectPolygons(nuCloud,0.003,2.6,false); 
+
+		cout << "pre discard: " << nuevos.size() << endl;
+		//Descarto caras fuera del objeto
+		vector<PCPolygon*> inBox = discardPolygonsOutOfBox(nuevos);
+		
+		cout << "post discard: " << inBox.size() << endl;
+
+		mergePolygons(inBox);
+		unifyVertexs();
+
+
+		//*nuCloud += *cloudPtr;
+		//for(vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
+		//	//(*iter)->applyTransformation(&transformation);
+		//	(*iter)->increaseLod(nuCloud);
+		//}
+		//unifyVertexs();
+		//pcl::io::savePCDFileASCII ("merged.pcd", *nuCloud);
+
 	}
 }

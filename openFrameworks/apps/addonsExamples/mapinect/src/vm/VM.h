@@ -1,6 +1,8 @@
 #ifndef VM_H__
 #define VM_H__
 
+#include <string>
+
 namespace mapinect {
 
 	class VM {
@@ -19,6 +21,11 @@ namespace mapinect {
 		virtual void mouseReleased(int x, int y, int button);
 		virtual void windowResized(int w, int h);
 
+		static std::string proj_calib_file;
+		static std::string kinect_calib_file;
+
+	private:
+		virtual void loadProjCalibData(char* proj_calib_file);
 	};
 }
 

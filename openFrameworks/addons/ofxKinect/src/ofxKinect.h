@@ -59,8 +59,8 @@ class ofxKinect : public ofxBase3DVideo, protected ofThread{
 		ofColor getCalibratedColorAt(int x, int y);
 		ofColor getCalibratedColorAt(const ofPoint & p);
 
-		//ofxMatrix4x4 getRGBDepthMatrix();
-		//void setRGBDepthMatrix(const ofxMatrix4x4 & matrix);
+		//ofMatrix4x4 getRGBDepthMatrix();
+		//void setRGBDepthMatrix(const ofMatrix4x4 & matrix);
 
 		float 			getHeight();
 		float 			getWidth();
