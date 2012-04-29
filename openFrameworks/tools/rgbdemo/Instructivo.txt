@@ -66,3 +66,11 @@ fx	0	cx
 0	0	1 
 Verificar que el valor del average reprojection error devuelto sea menor a 1. En caso que sea mayor, es probable que algo haya fallado.
 
+Usar archivos de calibración en Mapinect
+----------------------------------------
+Con las instancias de calibración de las cámaras y del proyector se obtienen dos archivos yml.
+Deben ser copiados al directorio: \bin\data\calib\ de cada aplicación (buildings, etc).
+Se debe modificar además en el archivo VM_config.xml (en \bin\data\, para cada aplicación) a los parámetros PROJ_CALIB y KINECT_CALIB.
+
+
+
