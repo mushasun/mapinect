@@ -1,0 +1,67 @@
+RGBDemo
+http://labs.manctl.com/rgbdemo/index.php/Documentation/Calibration
+http://labs.manctl.com/rgbdemo/index.php/Documentation/TutorialProjectorKinectCalibration
+
+Calibración de cámaras IR y RGB del Kinect
+------------------------------------------
+Input:
+Imprimir patrón de chessboard de archivo: chessboard_a3.pdf o chessboard_a4.pdf (en \data). Pegar sobre una superficie 
+plana y rígida en lo posible (cartón, mdf).
+
+Pasos:
+1- Ejecutar rgbd-viewer.exe. 
+2- Marcar Capture->Dual RGB/IR mode y modificar Output dir.
+3- Posicionar al patrón de chessboard frente al Kinect, y grabar la imágen con Ctrl+G
+	Tener en cuenta que el patrón debe estar lo más cerca posible de la cámara y deben verse todos los cuadrados.
+4 - Repetir el paso 3 variando el ángulo y posición del patrón frente a la cámara. 
+	Se necesitan tomar entre 20 y 30 imágenes para reducir márgen de error.
+5- Ejecutar calibrate-kinect-ir.exe desde línea de comando. 
+Se deben setear los parámetros:
+--input  			Directorio en donde se grabaron las imágenes tomadas en el paso 3.
+--output 			Nombre del archivo de salida con los parámetros de calibración (.yml)
+--pattern-width 	Número de esquinas internas a lo ancho del patrón de chessboard. En caso de utilizar el patrón de tamaño A3 el valor será 10 (default)
+--pattern-height  	Número de esquinas internas a lo largo del patrón de chessboard. En caso de utilizar el patrón de tamaño A3 el valor será 7 (default)
+--pattern-size		Largo de cada cuadrado del patrón de chessboard, en metros. En caso de utilizar el patrón de tamaño A3 el valor será 0.034; para A4 0.025 (default)
+
+Output:
+Se obtiene un archivo con los parámetros intrínsecos de las cámaras, y los extrínsecos (R y T).
+Matrices rgb_intrinsics y depth_intrinsics contienen parámetros intrínsecos: focal length fx fy, principal point cx cy, en la forma:
+fx	0	cx
+0	fy	cy
+0	0	1 
+
+Calibración del proyector respecto al Kinect
+--------------------------------------------
+Input:
+Archivo de calibración del Kinect generado en el paso anterior.
+Imprimir patrón de chessboard de archivo: projector_chessboard.pdf (en \data); tamaño A1. Pegar sobre superficie plana y rígida. 
+
+Pasos:
+1- Proyectar en pantalla completa el archivo: chessboard_projector.pptx
+2- Ejecutar rgbd-viewer.exe. Marcar Capture->Dual RGB/IR mode y modificar Output dir.
+3- Posicionar al patrón de chessboard frente al Kinect, de modo que el chessboard que se proyecte quede en el espacio blanco de adentro,
+sin superponerse con los patrones de chessboard de las puntas. Grabar la imágen con Ctrl+G
+	Tener en cuenta que el patrón debe estar lo más cerca posible de la cámara y deben verse todos los cuadrados.
+4- Repetir el paso 3 variando el ángulo y teniendo en cuenta que lo proyectado debe caer dentro del espacio céntrico, sin superponerse.
+	Tomar entre 20 y 30 imágenes.
+5- Ejecutar calibrate-projector.exe desde línea de comando.
+Se deben setear los parámetros:
+--kinect			Nombre del archivo de calibración con los parámetros del Kinect, obtenido en el paso de calibración previo
+--output			Nombre del archivo de salida con los parámetros del proyector (.yml)
+--projector-width	Width del proyector en pixeles. Valor por default: 1280
+--projector-heigth	Height del proyector en pixeles. Valor por default: 800. En nuestro caso debe ser 768.
+--pattern-width		Número de esquinas internas a lo ancho; por defecto valor 7.
+--pattern-heigth	Número de esquinas internas a lo largo; por defecto valor 10.
+--pattern-pixels	Largo de cada cuadrado del patrín de chessboard, en pixeles. Valor por defecto: 40.
+--pattern-size		Largo de cuadrados en metros. Valor por defecto 0.04
+
+En caso de respetar las distancias detalladas en: projector_chessboard_help.jpg, los demás parámetros no deberán ser modificados.
+
+Output:
+Se obtiene un archivo con los parámetros intrínsecos del proyector, y los extrínsecos con respecto al Kinect (R y T).
+Matriz proj_intrinsics contiene parámetros intrínsecos: focal length fx fy, principal point cx cy, en la forma:
+fx	0	cx
+0	fy	cy
+0	0	1 
+
+
