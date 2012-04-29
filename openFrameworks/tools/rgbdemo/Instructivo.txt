@@ -64,5 +64,5 @@ Matriz proj_intrinsics contiene parámetros intrínsecos: focal length fx fy, prin
 fx	0	cx
 0	fy	cy
 0	0	1 
-
+Verificar que el valor del average reprojection error devuelto sea menor a 1. En caso que sea mayor, es probable que algo haya fallado.
 
