@@ -10,21 +10,8 @@ namespace mapinect {
 
 #define		VM_CONFIG			"VMConfig:"
 
-	static float screenFov;
-	static float aspect;
 	static float nearPlane;
 	static float farPlane;
-
-	static float xAngle;
-	static float yAngle;
-	static float zAngle;
-
-	static float xTransLookAt;
-	static float yTransLookAt;
-
-	static float xProj;
-	static float yProj;
-	static float zProj; 
 
 	static float proj_matrix_glproj[16];
 	static ofVec3f proj_loc, proj_fwd, proj_up, proj_trg;
@@ -41,28 +28,15 @@ namespace mapinect {
 		ofxXmlSettings XML;
 		if(XML.loadFile("VM_Config.xml")) {
 
-			screenFov = XML.getValue(VM_CONFIG "SCREEN_FOV", 28.00f);
-			aspect = XML.getValue(VM_CONFIG "ASPECT_RATIO", 1.33f);
 			nearPlane = XML.getValue(VM_CONFIG "NEAR_PLANE", 0.1);
 			farPlane = XML.getValue(VM_CONFIG "FAR_PLANE", 20.0);
-
-			xAngle = XML.getValue(VM_CONFIG "ANGLE_X", 0.0f);
-			yAngle = XML.getValue(VM_CONFIG "ANGLE_Y", 0.0f);
-			zAngle = XML.getValue(VM_CONFIG "ANGLE_Z", 0.0f);
-
-			xTransLookAt = XML.getValue(VM_CONFIG "TRANSLATION_LOOK_AT_X", 31.0f);
-			yTransLookAt = XML.getValue(VM_CONFIG "TRANSLATION_LOOK_AT_Y", -9.0f);
-
-			xProj = XML.getValue(VM_CONFIG "PROJECT_POS_X", 0.0f);
-			yProj = XML.getValue(VM_CONFIG "PROJECT_POS_Y", 24.0f);
-			zProj = XML.getValue(VM_CONFIG "PROJECT_POS_Z", 0.0f);
 
 			VM::proj_calib_file = XML.getValue(VM_CONFIG "PROJ_CALIB", "data/calib/projector_calibration.yml");
 			VM::kinect_calib_file = XML.getValue(VM_CONFIG "KINECT_CALIB", "data/calib/kinect_calibration.yml");
 
 		}
 
-		loadProjCalibData(const_cast<char*>(proj_calib_file.c_str()));
+ 		loadProjCalibData(const_cast<char*>(proj_calib_file.c_str()));
 		
 //		keyPressed('0');
 	}
@@ -218,7 +192,7 @@ namespace mapinect {
 	void VM::endView() {
 		CHECK_ACTIVE;
 		
-		ofPopMatrix();
+		//ofPopMatrix();
 	}
 
 	//--------------------------------------------------------------
@@ -231,36 +205,11 @@ namespace mapinect {
 		CHECK_ACTIVE;
 
 		float var = 0.01f;
-		float varX = 1.0f;
-		float varY = 1.0f;
-		float varZ = 5.0f;
+		float varX = 0.001f;
+		float varY = 0.001f;
+		float varZ = 0.001f;
 
 		switch (key) {
-			/*********************
-			  ADJUST FRUSTUM 
-			*********************
-				FOV_Y	= W+
-				FOV_Y	= S-
-				ASPECT	= A-
-				ASPECT	= D+
-			********************/	
-			case 'w':
-				screenFov += var;
-				printf("screenFov increased: %f \n",screenFov);
-				break;
-			case 's':
-				screenFov -= var;
-				printf("screenFov decreased: %f \n",screenFov);
-				break;
-			case 'a':
-				aspect +=var;
-				printf("aspect increased: %f \n",aspect);
-				break;
-			case 'd':
-				aspect -=var;
-				printf("aspect increased: %f \n",aspect);
-				break;
-
 			/*********************
 				  ADJUST VIEWING 
 					 EYE    = (XPROJ,YPROJ,0)
@@ -280,44 +229,34 @@ namespace mapinect {
 				TRANSYAT= k-
 			********************/	
 			case OF_KEY_UP:
-				yProj += varY;
-				printf("yProj increased: %f \n",yProj);
+				proj_loc.y += varY;
+				proj_trg.y += varY;
+				printf("proj_loc.y increased: %f \n", proj_loc.y);
 				break;
 			case OF_KEY_DOWN:
-				yProj -= varY;
-				printf("yProj decreased: %f \n",yProj);
+				proj_loc.y -= varY;
+				proj_trg.y -= varY;
+				printf("proj_loc.y decreased: %f \n", proj_loc.y);
 				break;
 			case OF_KEY_LEFT:
-				xProj -= varX;
-				printf("xProj decreased: %f \n",xProj);
+				proj_loc.x -= varX;
+				proj_trg.x -= varX;
+				printf("proj_loc.x decreased: %f \n", proj_loc.x);
 				break;
 			case OF_KEY_RIGHT:
-				xProj += varX;
-				printf("xProj increased: %f \n",xProj);
+				proj_loc.x += varX;
+				proj_trg.x += varX;
+				printf("proj_loc.x increased: %f \n", proj_loc.x);
 				break;
 			case '-':
-				zProj -= 10.0f;
-				printf("zProj decreased: %f \n",zProj);
+				proj_loc.z -= varZ;
+				proj_trg.z -= varZ;
+				printf("proj_loc.z decreased: %f \n", proj_loc.z);
 				break;
 			case '+':
-				zProj += 10.0f;
-				printf("zProj increased: %f \n",zProj);
-				break;
-			case 'j':
-				xTransLookAt += varX;
-				printf("xTransLookAt increased: %f \n", xTransLookAt);
-				break;
-			case 'l':
-				xTransLookAt -= varX;
-				printf("xTransLookAt increased: %f \n", xTransLookAt);
-				break;
-			case 'i':
-				yTransLookAt += varY;
-				printf("yTransLookAt increased: %f \n", yTransLookAt);
-				break;
-			case 'k':
-				yTransLookAt -= varY;
-				printf("yTransLookAt increased: %f \n", yTransLookAt);
+				proj_loc.z += varZ;
+				proj_trg.z += varZ;
+				printf("zProj increased: %f \n", proj_loc.z);
 				break;
 
 			/*********************
@@ -339,11 +278,9 @@ namespace mapinect {
 			  SHOW STATUS	 - q
 			*********************/
 			case 'q':
-				printf("Current projection parameters: \n");
-				printf("	aspect: %.4f \n	fov: %.4f \n", aspect, screenFov);
 				printf("Current viewing parameters: \n");
-				printf("	Eye    = (%.2f,%.2f,%.2f) \n", xProj, yProj, zProj);
-				printf("	LookAt = (%.2f,%.2f,%.2f) \n", xProj + xTransLookAt, yProj + yTransLookAt, -900.0);
+				printf("	Eye    = (%.6f,%.6f,%.6f) \n", proj_loc.x, proj_loc.y, proj_loc.z);
+				printf("	LookAt = (%.6f,%.6f,%.6f) \n", proj_trg.x, proj_trg.y, proj_trg.z);
 				break;
 
 		case 'o':
@@ -360,14 +297,7 @@ namespace mapinect {
 				printf("[ %4.4f %4.4f %4.4f %4.4f] i=%d\n",projectionMatrix[i],projectionMatrix[i+1],projectionMatrix[i+2],projectionMatrix[i+3], i);
 			}
 			break;
-	*/	case 'm':
-			zAngle += 1.0f;
-			printf("Angle increased for rotation Z axis: %f \n",zAngle);
-			break;
-		case 'n':
-			zAngle -= 1.0f;
-			printf("Angle decreased for rotation Z axis: %f \n",zAngle);
-			break;
+	*/
 		}
 	}
 

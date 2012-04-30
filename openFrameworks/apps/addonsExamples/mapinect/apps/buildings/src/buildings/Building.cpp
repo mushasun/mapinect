@@ -40,6 +40,7 @@ namespace buildings {
 
 				ofVec3f floorNormal = floor->getModelObject()->getNormal();
 				float prod = abs(q->getNormal().dot(floorNormal));
+				prod = 1.0;
 				if (prod < 0.9)
 				{
 					std::vector<ofVec3f> pts_;

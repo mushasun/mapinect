@@ -29,9 +29,10 @@ namespace buildings {
 		Floor::floorTexture = txManager->loadImageTexture("data/texturas/135367.jpg");
 		Building::buildingTexture = txManager->loadImageTexture("data/texturas/Building_texture.jpg");
 		Building::roofTexture = txManager->loadImageTexture("data/texturas/oba.jpg");
-
+		/*
 		videoTexture = txManager->loadVideoTexture("data/movies/fingers.mov"); // En: mapinect\apps\buildings\bin\data\movies
 		videoTexture2 = txManager->loadVideoTexture("data/movies/MOV05377.MPG");  
+		*/
 	}
 
 	//--------------------------------------------------------------
