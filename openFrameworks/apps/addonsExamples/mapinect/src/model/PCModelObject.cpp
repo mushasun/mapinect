@@ -58,7 +58,7 @@ namespace mapinect {
 		}
 		if (drawPointCloud) {
 			static int colors[] = { kRGBBlue, kRGBGreen, kRGBRed, 0xFFFF00, 0xFF00FF, 0x00FFFF };
-			ofSetColor(colors[getId() % 6]);
+			ofSetHexColor(colors[getId() % 6]);
 			ofVec3f w;
 			glBegin(GL_POINTS);
 			for (size_t i = 0; i < cloud.size(); i++) {

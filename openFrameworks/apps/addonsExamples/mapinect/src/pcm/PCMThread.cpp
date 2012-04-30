@@ -91,7 +91,7 @@ namespace mapinect {
 	void PCMThread::threadedFunction() {
 		while (isThreadRunning()) {
 			if (lock()) {
-				/*
+				
 				if(!baseCloudSetted && gKinect->isFrameNew()) {
 					setInitialPointCloud();
 					baseCloudSetted = true;
@@ -101,7 +101,7 @@ namespace mapinect {
 				{
 					processDiferencesClouds();
 				}
-				*/
+				
 				unlock();
 				ofSleepMillis(WAIT_TIME_MS);
 			}
