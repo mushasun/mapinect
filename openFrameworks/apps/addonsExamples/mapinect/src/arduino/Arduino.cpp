@@ -3,6 +3,8 @@
 #include "Feature.h"
 #include "ofxXmlSettings.h"
 #include <direct.h> // for getcwd
+#include <Eigen/Geometry>
+
 
 namespace mapinect {
 
@@ -285,9 +287,58 @@ namespace mapinect {
 		return convert_3D_spher_to_cart(spher_orig_point);
 	}
 
+	ofVec3f	Arduino::lookAt(ofVec3f point)
+	{
+		return NULL;
+	}
 	bool Arduino::isActive()
 	{
 		return IsFeatureArduinoActive();
 	}
+	ofVec3f	Arduino::lookingAt()
+	{
+		return NULL;
+	}
 
+	void Arduino::getTransformationWorldTransformation()
+	{
+		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
+		//CvMat* mat = cvCreateMat(4,4,CV_32FC1);
+		//primero giramos según el eje vertical (Y)
+		//el angulo es el del motor inferior y la matriz de transformación es:
+		//[cos -sin  0  0]
+		//[sen  cos  0  0]
+		//[ 0    0   1  0]
+		//[ 0    0   0  1]
+		//se la pido a Eigen 8)
+		Eigen::Vector3f axisY (0, 0, 1); //para Eigen el Z es nuestro Y ?
+		Eigen::Affine3f rotationY;
+		rotationY = Eigen::AngleAxis<float>(-angleMotor1, axisY);
+
+		Eigen::Vector3f axisX (1, 0, 0);
+		Eigen::Affine3f rotationX;
+		rotationX = Eigen::AngleAxis<float>(-angleMotor2, axisX);
+
+		Eigen::Vector3f axisZ (0, 1, 0);
+		Eigen::Affine3f rotationZ;
+		rotationZ = Eigen::AngleAxis<float>(-angleMotor4, axisZ);
+
+		//con estas tres matrices tengo todas las rotaciones que preciso, ahora
+		//preciso hallar la traslacion de altura donde esta la camara
+		//y luego la traslacion a lo largo del brazo
+
+		Eigen::Affine3f translationY;
+		translationY = Eigen::Translation<float,3>(0, -5, 0);//puse 5 como un valor cualquiera, hay que ajustarlo
+
+		//luego hay que correrlo el largo del brazo
+		
+		Eigen::Affine3f translationX;
+		translationX = Eigen::Translation<float,3>(-ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
+
+		Eigen::Affine3f composed_matrix;
+		composed_matrix = rotationX * rotationY * rotationZ * translationY * translationX;
+		//return NULL;
+
+
+	}
 }

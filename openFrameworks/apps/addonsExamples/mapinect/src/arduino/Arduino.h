@@ -5,6 +5,7 @@
 #include <map> 
 #include "ofSerial.h"
 #include "ofVec3f.h"
+//#include "ofxOpenCv.h"
 
 namespace mapinect {
 	class Arduino{
@@ -24,6 +25,8 @@ namespace mapinect {
 
 		ofVec3f		getKinect3dCoordinates();
 		ofVec3f		setKinect3dCoordinates(ofVec3f position);
+		ofVec3f		lookAt(ofVec3f point);
+		ofVec3f		lookingAt();
 		
 
 	private:
@@ -50,6 +53,8 @@ namespace mapinect {
 		ofVec3f		convert_3D_spher_to_cart(ofVec3f point);
 		ofVec3f		find_closest_point_to_sphere(ofVec3f point);
 		void		setKinect3dCoordinates(float x, float y, float z);
+		
+		void getTransformation();
 
 	};
 }
