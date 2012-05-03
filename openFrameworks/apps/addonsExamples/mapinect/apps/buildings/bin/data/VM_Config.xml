@@ -2,7 +2,7 @@
 	<NEAR_PLANE>0.1</NEAR_PLANE>
 	<FAR_PLANE>20.0</FAR_PLANE>
 	
-	<PROJ_CALIB><![CDATA[data/calib/projector_calibration.yml]]></PROJ_CALIB>
+	<PROJ_CALIB><![CDATA[data/calib/proj-calib-02May-PNG.yml]]></PROJ_CALIB>
 	<KINECT_CALIB><![CDATA[data/calib/kinect-calib-rodrivero.yml]]></KINECT_CALIB>
 	
 </VMConfig>
