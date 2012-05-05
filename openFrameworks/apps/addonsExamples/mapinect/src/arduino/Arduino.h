@@ -53,6 +53,8 @@ namespace mapinect {
 		ofVec3f		convert_3D_spher_to_cart(ofVec3f point);
 		ofVec3f		find_closest_point_to_sphere(ofVec3f point);
 		void		setKinect3dCoordinates(float x, float y, float z);
+
+		void		getTransformationWorldTransformation();
 		
 		void getTransformation();
 
