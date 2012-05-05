@@ -173,6 +173,8 @@ void ofxFenster::draw(bool force){
 
 		toContext();
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+/*		
 		int w, h;
 		
 		w = width;
@@ -204,7 +206,7 @@ void ofxFenster::draw(bool force){
 		
 		glScalef(1, -1, 1);           // invert Y axis so increasing Y goes down.
 		glTranslatef(0, -h, 0);       // shift origin up to upper-left corner.	
-		
+*/		
 		listener->fensterDraw();
 		static ofxFensterEvent e;
 		e.fenster = this;

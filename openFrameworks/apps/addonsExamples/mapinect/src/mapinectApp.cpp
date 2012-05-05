@@ -93,7 +93,7 @@ namespace mapinect {
 			angle = ofClamp(angle + angleVariation, -30, 30);
 			if (IsFeatureKinectActive())
 			{
-				gKinect->setCameraTiltAngle(angle);
+				//gKinect->setCameraTiltAngle(angle);
 			}
 		}
 		
