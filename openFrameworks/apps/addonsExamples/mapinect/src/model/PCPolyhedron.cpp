@@ -20,8 +20,8 @@
 
 namespace mapinect {
 
-	PCPolyhedron::PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId)
-				: PCModelObject(cloud, extendedCloud, objId)
+	PCPolyhedron::PCPolyhedron(const PCPtr& cloud, int objId)
+				: PCModelObject(cloud, objId)
 	{
 		drawPointCloud = false; 
 		ofVec3f v;
@@ -86,11 +86,13 @@ namespace mapinect {
 		cout << "pols: " << pcpolygons.size() << endl;
 	}
 
-	vector<PCPolygon*> PCPolyhedron::detectPolygons(PointCloud<pcl::PointXYZ>::Ptr cloudTemp, float planeTolerance, float pointsTolerance, bool limitFaces){
+	vector<PCPolygon*> PCPolyhedron::detectPolygons(const PCPtr& cloud, float planeTolerance, float pointsTolerance, bool limitFaces){
+		PCPtr cloudTemp(cloud);
+		
 		float maxFaces = limitFaces ? MAX_FACES : 100;
 		sensor_msgs::PointCloud2::Ptr cloud_blob (new sensor_msgs::PointCloud2());
 		sensor_msgs::PointCloud2::Ptr cloud_filtered_blob (new sensor_msgs::PointCloud2);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>);
+		PCPtr cloud_p (new PC());
 		pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
 		
 		pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
@@ -125,8 +127,8 @@ namespace mapinect {
 			}
 
 			//FIX
-			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_inliers (new pcl::PointCloud<pcl::PointXYZ>());
-			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_outliers (new pcl::PointCloud<pcl::PointXYZ>());
+			PCPtr cloud_filtered_temp_inliers (new PC());
+			PCPtr cloud_filtered_temp_outliers (new PC());
 			if(inliers->indices.size() != cloudTemp->size())
 			{
 				// Extract the inliers
@@ -153,7 +155,7 @@ namespace mapinect {
 			//pcl::io::savePCDFile("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
 			
 			//Remove outliers by clustering
-			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p_filtered (new pcl::PointCloud<pcl::PointXYZ>());
+			PCPtr cloud_p_filtered (new PC());
 			pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
 			tree->setInputCloud (cloud_p);
 
@@ -176,17 +178,8 @@ namespace mapinect {
 
 			//pcl::io::savePCDFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
 
-			vCloudHull.clear();
-			for (int k = 0; k < cloud_p_filtered->size(); k++) {
-				vCloudHull.push_back(POINTXYZ_OFXVEC3F(cloud_p_filtered->at(k)));
-			}
-
-			PCPolygon* pcp = new PCQuadrilateral(*coefficients);
-			static int polygonId = 0;
-			pcp->setId(polygonId++);
-			pcp->detectPolygon(cloud_p_filtered, vCloudHull);
-			PointCloud<PointXYZ>::Ptr cloud_pTemp (new PointCloud<PointXYZ>(*cloud_p_filtered));
-			pcp->setCloud(cloud_pTemp);
+			PCPolygon* pcp = new PCQuadrilateral(*coefficients, cloud_p_filtered);
+			pcp->detectPolygon();
 			nuevos.push_back(pcp);
 			
 			//writer.write<pcl::PointXYZ> ("cloud_pTemp" + ofToString(i) + ".pcd", *cloud_pTemp, false);
@@ -198,8 +191,7 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::detectPrimitives() {
-		PointCloud<PointXYZ>::Ptr cloud_Temp (new PointCloud<PointXYZ>(cloud));
-		vector<PCPolygon*> nuevos = detectPolygons(cloud_Temp); 
+		vector<PCPolygon*> nuevos = detectPolygons(cloud); 
 		mergePolygons(nuevos);
 		unifyVertexs();
 	}
@@ -307,8 +299,7 @@ namespace mapinect {
 		PCModelObject::increaseLod();
 
 		for(vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
-			PointCloud<PointXYZ>::Ptr nuCloud (new PointCloud<PointXYZ>(cloud));
-			(*iter)->increaseLod(nuCloud);
+			(*iter)->increaseLod(cloud);
 		}
 		unifyVertexs();
 	}
@@ -316,7 +307,7 @@ namespace mapinect {
 	vector<PCPolygon*>	PCPolyhedron::discardPolygonsOutOfBox(vector<PCPolygon*> toDiscard)
 	{
 		vector<PCPolygon*> polygonsInBox;
-		PCPolygon* table = getTable();
+		Table* table = gModel->table;
 
 		//pcl::io::savePCDFile("table.pcd",table->getCloud());
 		
@@ -324,7 +315,7 @@ namespace mapinect {
 		{
 			//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
 
-			PointCloud<PointXYZ>::Ptr cloudPtr (new PointCloud<PointXYZ>(toDiscard.at(i)->getCloud()));
+			PCPtr cloudPtr(toDiscard.at(i)->getCloud());
 			if(onTable(cloudPtr,table))
 			{
 				cout << "pol" << ofToString(i) << " On table!" <<endl;
@@ -342,10 +333,9 @@ namespace mapinect {
 		return polygonsInBox;
 	}
 
-	void PCPolyhedron::addToModel(PointCloud<PointXYZ>::Ptr nuCloud)
+	void PCPolyhedron::addToModel(const PCPtr& nuCloud)
 	{
 		PCModelObject::addToModel(nuCloud);
-		PointCloud<PointXYZ>::Ptr cloudPtr (new PointCloud<PointXYZ>(cloud));
 
 		///TODO:
 		/// 1 - Detectar caras de la nueva nube

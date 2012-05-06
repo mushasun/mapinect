@@ -15,8 +15,8 @@ namespace mapinect {
 		typedef pcl::PointCloud<pcl::Normal> SurfaceNormals;
 		typedef pcl::PointCloud<pcl::FPFHSignature33> LocalFeatures;
 		typedef pcl::KdTreeFLANN<pcl::PointXYZ> SearchMethod;
-		TrackedCloud(PointCloud<PointXYZ>::Ptr cloud);
-		TrackedCloud(PointCloud<PointXYZ>::Ptr cloud, bool isHand, bool forceCreate);
+		TrackedCloud(const PCPtr& cloud);
+		TrackedCloud(const PCPtr& cloud, bool isHand, bool forceCreate);
 		TrackedCloud();
 		virtual ~TrackedCloud();
 
@@ -24,12 +24,12 @@ namespace mapinect {
 		void addCounter(int diff);
 		void updateMatching();
 		inline int getCounter() { return counter; }
-		inline PointCloud<PointXYZ>::Ptr getTrackedCloud() { return cloud; }
+		inline const PCPtr& getTrackedCloud() { return cloud; }
 		inline bool hasObject() { return objectInModel != NULL; }
 		inline bool hasMatching() { return matchingCloud != NULL; }
 		inline bool isPotentialHand() { return hand; }
 		void removeMatching();
-		void updateCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster);
+		void updateCloud(const PCPtr& cloud_cluster);
 		bool matchingTrackedObjects(TrackedCloud tracked_temp, Eigen::Affine3f &transformation);
 		bool operator==(const TrackedCloud &other) const ;
 		pcl::PointCloud<pcl::FPFHSignature33>::Ptr getLocalFeatures ();
@@ -46,7 +46,7 @@ namespace mapinect {
 	private:
 		
 
-		PointCloud<PointXYZ>::Ptr	cloud;
+		PCPtr						cloud;
 		int							counter;
 		TrackedCloud				*matchingCloud;
 		PCModelObject				*objectInModel;

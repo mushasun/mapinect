@@ -1,6 +1,7 @@
 #include "Building.h"
 
 #include "ofVecUtils.h"
+#include "Table.h"
 
 namespace buildings {
 

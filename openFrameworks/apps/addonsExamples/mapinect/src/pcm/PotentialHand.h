@@ -1,26 +1,25 @@
-#ifndef POTENTIALHAND_H__
-#define POTENTIALHAND_H__
+#ifndef MAPINECT_POTENTIAL_HAND_H__
+#define MAPINECT_POTENTIAL_HAND_H__
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
+#include "mapinectTypes.h"
 #include "ofVec3f.h"
-#include "utils.h"
-#include <pcl/common/centroid.h>
-using namespace pcl;
 
 namespace mapinect {
 	class PotentialHand {
 	public:
-		PotentialHand(PointCloud<PointXYZ>::Ptr	cloud, ofVec3f centroid);
-		PotentialHand(PointCloud<PointXYZ>::Ptr	cloud);
+		PotentialHand(const PCPtr& cloud, const ofVec3f& centroid);
+		PotentialHand(const PCPtr& cloud);
 
-		PointCloud<PointXYZ>::Ptr	cloud;
-		bool						visited;
-		int							timesVisited;
-		ofVec3f					centroid;
+		PCPtr			cloud;
+		bool			visited;
+		int				timesVisited;
+		ofVec3f			centroid;
 		
-		inline bool operator==(const PotentialHand &rhs) { return (rhs.centroid - this->centroid).length() < 0.005; };
+		inline bool operator==(const PotentialHand &otherPotentialHand)
+		{
+			return (otherPotentialHand.centroid - this->centroid).length() < 0.005;
+		}
 	};
 }
 
-#endif	// POTENTIALHAND
+#endif	// MAPINECT_POTENTIAL_HAND_H__

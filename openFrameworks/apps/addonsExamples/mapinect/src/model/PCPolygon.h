@@ -9,7 +9,7 @@ namespace mapinect {
 
 	class PCPolygon : public PCModelObject {
 		public:
-			PCPolygon();
+			PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId = -1);
 			virtual ~PCPolygon();
 
 			Polygon*			getPolygonModelObject();
@@ -18,10 +18,10 @@ namespace mapinect {
 			
 			virtual void		draw();
 
-			virtual bool		detectPolygon(pcl::PointCloud<PointXYZ>::Ptr cloud, const std::vector<ofVec3f>& vCloud);
+			virtual bool		detectPolygon();
 			void				applyTransformation(Eigen::Affine3f* transformation);
 			virtual void		resetLod();
-			virtual void		increaseLod(PointCloud<PointXYZ>::Ptr nuCloud);
+			virtual void		increaseLod(const PCPtr& nuCloud);
 
 			inline bool			hasMatching()		{ return matched != NULL; }
 			virtual bool		matches(PCPolygon* polygon, PCPolygon*& removed, bool& wasRemoved);

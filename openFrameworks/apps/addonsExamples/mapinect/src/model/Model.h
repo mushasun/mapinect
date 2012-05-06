@@ -6,7 +6,10 @@
 #include <list>
 
 namespace mapinect {
+	class Table;
+
 	class Model {
+
 	public:
 		Model();
 
@@ -14,7 +17,7 @@ namespace mapinect {
 
 		ofxMutex					objectsMutex;
 		std::list<ModelObject*>		objects;
-		ModelObject*				table;
+		Table*						table;
 	};
 }
 

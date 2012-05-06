@@ -10,9 +10,10 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/filters/extract_indices.h>
 #include "AlignmentDetector.h"
+#include "Table.h"
 
 namespace mapinect {
-	TrackedCloud::TrackedCloud(PointCloud<PointXYZ>::Ptr cloud) {
+	TrackedCloud::TrackedCloud(const PCPtr& cloud) {
 		this->cloud = cloud;
 		counter = 2;
 		objectInModel = NULL;
@@ -30,7 +31,7 @@ namespace mapinect {
 		feature_radius_ = 0.02f;
 	}
 
-	TrackedCloud::TrackedCloud(PointCloud<PointXYZ>::Ptr cloud, bool isHand, bool forceCreate) {
+	TrackedCloud::TrackedCloud(const PCPtr& cloud, bool isHand, bool forceCreate) {
 		this->cloud = cloud;
 		objectInModel = NULL;
 		matchingCloud = NULL;
@@ -88,11 +89,11 @@ namespace mapinect {
 			switch(objType)
 			{
 				case HAND:
-					objectInModel = new PCHand(cloud, cloud, objId);
+					objectInModel = new PCHand(cloud, objId);
 					cout << "HAND DETECTED" << endl;
 					break;
 				case BOX:
-					objectInModel = new PCPolyhedron(cloud, cloud, objId);
+					objectInModel = new PCPolyhedron(cloud, objId);
 					cout << "BOX DETECTED" << endl;
 					break;
 				case UNRECOGNIZED:
@@ -125,7 +126,7 @@ namespace mapinect {
 		}
 	}
 
-	void TrackedCloud::updateCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster)
+	void TrackedCloud::updateCloud(const PCPtr& cloud_cluster)
 	{
 		this->cloud = cloud_cluster;
 	}
@@ -162,7 +163,7 @@ namespace mapinect {
 		}
 		else //Si no tiene un objeto asociado, sólo compara las distancias entre las distintas nubes.
 		{
-			PointCloud<PointXYZ>::Ptr difCloud (new PointCloud<PointXYZ>);
+			PCPtr difCloud (new PC());
 			Eigen::Vector4f clusterCentroid;
 			Eigen::Vector4f objCentroid;
 			compute3DCentroid(*trackedCloud->getTrackedCloud(),clusterCentroid);
@@ -229,11 +230,10 @@ namespace mapinect {
 		{
 			PCDWriter writer;
 			ofVec3f vMax,vMin;
-			PointCloud<PointXYZ>::Ptr oldCloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
-			findPointCloudBoundingBox(oldCloud, vMin, vMax);
+			findPointCloudBoundingBox(objectInModel->getCloud(), vMin, vMax);
 
 			int density = CLOUD_RES - objectInModel->getLod();
-			PointCloud<PointXYZ>::Ptr cloud = getCloud(density);
+			PCPtr cloud = getCloud(density);
 			//writer.write<pcl::PointXYZ>("nuObjCloud.pcd", *cloud, false);
 			/*
 			ofVec3f sMin = gKinect->getScreenCoordsFromWorldCoords(vMin);
@@ -241,7 +241,7 @@ namespace mapinect {
 			sMin -= ofVec3f(density + 1, density + 1);
 			sMax += ofVec3f(density + 1, density + 1);
 
-			PointCloud<PointXYZ>::Ptr cloud = getPartialCloudRealCoords(sMin, sMax, density);
+			PCPtr cloud = getPartialCloudRealCoords(sMin, sMax, density);
 			*/
 
 			ofVec3f halo(0.005, 0.005, 0.005);
@@ -260,14 +260,14 @@ namespace mapinect {
 			vector<int> indices;
 
 			pcl::getPointsInBox(*cloud,eMin,eMax,indices);
-			PointCloud<PointXYZ>::Ptr nuCloud (new PointCloud<PointXYZ>());
+			PCPtr nuCloud (new PC());
 			
 			for(int i = 0; i < indices.size(); i++)
 				nuCloud->push_back(cloud->at(indices.at(i)));
 			
 
-			PointCloud<PointXYZ>::Ptr nuCloudFiltered (new PointCloud<PointXYZ>());
-			PointCloud<PointXYZ>::Ptr nuCloudFilteredNoTable (new PointCloud<PointXYZ>());
+			PCPtr nuCloudFiltered (new PC());
+			PCPtr nuCloudFilteredNoTable (new PC());
 
 			PassThrough<PointXYZ> pass;
 			pass.setInputCloud (nuCloud);
@@ -279,7 +279,7 @@ namespace mapinect {
 			//writer.write<pcl::PointXYZ>("nuCloudFiltered.pcd", *nuCloudFiltered, false);
 
 			//Quito los puntos que pertenecen a la mesa
-			PCPolygon* table = getTable();
+			Table* table = gModel->table;
 			ModelCoefficients tableCoef = table->getCoefficients();
 			PointIndices::Ptr tableIdx = adjustPlane(tableCoef,nuCloud);
 
@@ -337,9 +337,9 @@ namespace mapinect {
 		//writer.write<pcl::PointXYZ> ("obj.pcd", *obj_cloud, false);
 		/*writer.write<pcl::PointXYZ> ("cluster.pcd", *cluster, false);
 		*/
-		PointCloud<PointXYZ>::Ptr cluster = tracked_temp.getTrackedCloud();
-		//PointCloud<PointXYZ>::Ptr obj_cloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
-		PointCloud<PointXYZ>::Ptr obj_cloud (new PointCloud<PointXYZ>(*cloud));
+		PCPtr cluster = tracked_temp.getTrackedCloud();
+		//PCPtr obj_cloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
+		PCPtr obj_cloud (new PC(*cloud));
 
 		//Hallo la traslación 
 
@@ -370,19 +370,19 @@ namespace mapinect {
 		//Eigen::Affine3f rotation;
 		//rotation = Eigen::AngleAxis<float>(angle,axis);
 
-		////PointCloud<PointXYZ>::Ptr out (new PointCloud<PointXYZ>());
+		////PCPtr out (new PointCloud<PointXYZ>());
 		//pcl::transformPointCloud(*obj_cloud,*obj_cloud,t);
 		////////////////////////////////////////////////////////////////////////
 
 
-		PointCloud<PointXYZ>::Ptr out2 (new PointCloud<PointXYZ>());
+		PCPtr out2 (new PC());
 		pcl::transformPointCloud(*obj_cloud,*obj_cloud,traslation);
 
 
 		//transformation = traslation*rotation;
 		transformation = traslation;
 
-		/*PointCloud<PointXYZ>::Ptr out3 (new PointCloud<PointXYZ>());
+		/*PCPtr out3 (new PointCloud<PointXYZ>());
 		pcl::transformPointCloud(*cluster,*out3,t2);*/
 
 

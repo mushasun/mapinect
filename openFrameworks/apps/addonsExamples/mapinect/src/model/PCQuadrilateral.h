@@ -15,13 +15,13 @@ namespace mapinect {
 
 	class PCQuadrilateral : public PCPolygon {
 		public:
-			PCQuadrilateral(pcl::ModelCoefficients coefficients);
+			PCQuadrilateral(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId = -1)
+				: PCPolygon(coefficients, cloud, objId) { }
 
-			virtual bool							detectPolygon(pcl::PointCloud<PointXYZ>::Ptr cloud,
-														const std::vector<ofVec3f>& vCloud);
+			virtual bool							detectPolygon();
 
 			inline const pcl::PointIndices::Ptr		getVertexIdxs() { return vertexIdxs; }
-			virtual void							increaseLod(PointCloud<PointXYZ>::Ptr nuCloud);
+			virtual void							increaseLod(const PCPtr& nuCloud);
 		private:
 			pcl::PointIndices::Ptr					vertexIdxs;
 	};
