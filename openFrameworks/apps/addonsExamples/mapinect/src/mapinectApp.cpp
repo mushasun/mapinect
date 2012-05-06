@@ -26,10 +26,11 @@ namespace mapinect {
 			gKinect->init();
 			gKinect->setVerbose(true);
 			gKinect->open();
+			// set Kinect looking down on startup
+			angle = -22;
+			//gKinect->setCameraTiltAngle(angle);
 		}
 
-		// zero the tilt on startup
-		angle = 0;
 
 		gModel = new mapinect::Model();
 		ofSetWindowTitle("mapinect");
@@ -94,6 +95,7 @@ namespace mapinect {
 			if (IsFeatureKinectActive())
 			{
 				//gKinect->setCameraTiltAngle(angle);
+				//printf("Current Kinect tilt angle: %d\n", angle);
 			}
 		}
 		
