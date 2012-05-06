@@ -3,8 +3,7 @@
 
 #define PCD_EXTENSION		".pcd"
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
+#include "mapinectTypes.h"
 #include "ofVec3f.h"
 #include <pcl/segmentation/segment_differences.h>
 #include <pcl/features/normal_3d.h>
@@ -21,52 +20,48 @@ using namespace pcl;
 
 void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z);
 
-void findPointCloudBoundingBox(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointXYZ& min, pcl::PointXYZ& max);
-void findPointCloudBoundingBox(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, ofVec3f& min, ofVec3f& max);
+vector<ofVec3f> pointCloudToOfVecVector(const PCPtr& cloud);
+
+void findPointCloudBoundingBox(const PCPtr& cloud, pcl::PointXYZ& min, pcl::PointXYZ& max);
+void findPointCloudBoundingBox(const PCPtr& cloud, ofVec3f& min, ofVec3f& max);
 
 //Obtiene el punto con menor Z
-float getNearestPoint(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud);
+float getNearestPoint(const PCPtr& cloud);
 
 //Devuelve la cantidad de diferencias entre la nuve cloud1 y cloud2 y devuelve las diferencias en diff
-int getDifferencesCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud1, 
-						pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud2, 
-						pcl::PointCloud<pcl::PointXYZ>::Ptr &diff,
+int getDifferencesCloud(const PCPtr& cloud1, 
+						const PCPtr& cloud2, 
+						PCPtr &diff,
 						float distThreshold);
 
-int getDifferencesCount(pcl::PointCloud<pcl::PointXYZ>::Ptr src, 
-						pcl::PointCloud<pcl::PointXYZ>::Ptr tgt, 
+int getDifferencesCount(const PCPtr& src, 
+						const PCPtr& tgt, 
 						float distanceThreshold);
 
 
 //Estima la normal utilizando un conjunto aleatorio de puntos, la cantidad tomada es especificada por plane->points.size() / NORMAL_ESTIMATION_PERCENT
-ofVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane);
+ofVec3f normalEstimation(const PCPtr& plane);
 
 //Estima la normal utilizando el conjunto de puntos especificado en indicesptr
-ofVec3f normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr);
+ofVec3f normalEstimation(const PCPtr& plane, pcl::PointIndices::Ptr indicesptr);
 
-PointCloud<PointXYZ>::Ptr getPartialCloudRealCoords(ofPoint min, ofPoint max, int density);
+PCPtr getPartialCloudRealCoords(ofPoint min, ofPoint max, int density);
 
-PointCloud<PointXYZ>::Ptr getCloud(int density);
+PCPtr getCloud(int density);
 
-PointCloud<PointXYZ>::Ptr getCloud();
+PCPtr getCloud();
 
-pcl::PointIndices::Ptr adjustPlane(pcl::ModelCoefficients coefficients, PointCloud<pcl::PointXYZ>::Ptr cloudToAdjust);
+pcl::PointIndices::Ptr adjustPlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloudToAdjust);
 
-float evaluatePoint(pcl::ModelCoefficients coefficients, ofVec3f pto);
+float evaluatePoint(const pcl::ModelCoefficients& coefficients, ofVec3f pto);
 
-ObjectType getObjectType(pcl::PointCloud<pcl::PointXYZ>::Ptr src);
+ObjectType getObjectType(const PCPtr& src);
 
-bool isInBorder(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+bool isInBorder(const PCPtr& cloud);
 
-mapinect::PCPolygon* getTable();
+bool onTable(const PCPtr& cloud, mapinect::Table *table);
 
-bool onTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolyhedron *table);
-
-bool onTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolygon *table);
-
-bool tableParallel(mapinect::PCPolygon *polygon, mapinect::PCPolygon *table);
-
-//pcl::PointCloud<pcl::PointXYZ>::Ptr getPointsOverTable(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, mapinect::PCPolyhedron *table,int &handDirection);
+bool tableParallel(mapinect::PCPolygon *polygon, mapinect::Table *table);
 
 void createCloud(ofVec3f pto, string name);
 

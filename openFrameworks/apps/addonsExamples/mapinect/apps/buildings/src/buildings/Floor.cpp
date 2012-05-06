@@ -1,5 +1,7 @@
 #include "Floor.h"
 
+#include "Table.h"
+
 namespace buildings {
 
 	GLuint Floor::floorTexture = 0;

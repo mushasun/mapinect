@@ -6,38 +6,26 @@
 
 
 namespace mapinect {
-	PCModelObject::PCModelObject() {
-		modelObject = NULL;
-		drawPointCloud = true;
-		lod = 1;
-	}
 
-	PCModelObject::PCModelObject(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud)
+	PCModelObject::PCModelObject(const PCPtr& cloud, int objId)
+		: cloud(new PC(*cloud))
 	{
 		drawPointCloud = true;
 		modelObject = NULL;
-		this->cloud = PointCloud<PointXYZ>(*cloud);
-		this->extendedcloud = PointCloud<PointXYZ>(*extendedCloud);
-		//PointCloud<pcl::PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(*cloud));
+		//PCPtr cloudTemp (new PointCloud<PointXYZ>(*cloud));
 		findPointCloudBoundingBox(cloud, vMin, vMax);
 		transformation.setIdentity();
+		if (objId == -1)
+		{
+			static int objectId = 0;
+			objId = objectId++;
+		}
+		setId(objId);
 		lod = 1;
 	}
 
 	PCModelObject::~PCModelObject() {
 
-	}
-	PCModelObject::PCModelObject(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId)
-	{
-		drawPointCloud = true;
-		modelObject = NULL;
-		this->cloud = PointCloud<PointXYZ>(*cloud);
-		this->extendedcloud = PointCloud<PointXYZ>(*extendedCloud);
-		//PointCloud<pcl::PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(*cloud));
-		findPointCloudBoundingBox(cloud, vMin, vMax);
-		transformation.setIdentity();
-		setId(objId);
-		lod = 1;
 	}
 
 	void PCModelObject::detectPrimitives() {
@@ -61,8 +49,8 @@ namespace mapinect {
 			ofSetHexColor(colors[getId() % 6]);
 			ofVec3f w;
 			glBegin(GL_POINTS);
-			for (size_t i = 0; i < cloud.size(); i++) {
-				ofVec3f v = POINTXYZ_OFXVEC3F(cloud.at(i));
+			for (size_t i = 0; i < cloud->size(); i++) {
+				ofVec3f v = POINTXYZ_OFXVEC3F(cloud->at(i));
 				w = gKinect->getScreenCoordsFromWorldCoords(v);
 				glVertex3f(w.x, w.y, 5);
 			}
@@ -71,19 +59,19 @@ namespace mapinect {
 		}
 	}
 
-	void PCModelObject::updateCloud(PointCloud<PointXYZ>::Ptr nuCloud) {
-		cloud = *nuCloud;
+	void PCModelObject::updateCloud(const PCPtr& nuCloud) {
+		cloud = nuCloud;
 		lod++;
 		increaseLod();
 	}
 
 	void PCModelObject::applyTransformation (){
-		PointCloud<PointXYZ> transformed;
-		transformPointCloud(cloud,transformed,transformation);
-		cloud = transformed;
+		PC transformed;
+		transformPointCloud(*cloud, transformed, transformation);
+		*cloud = transformed;
 	}
 
-	void PCModelObject::addToModel(PointCloud<PointXYZ>::Ptr nuCloud){
+	void PCModelObject::addToModel(const PCPtr& nuCloud){
 		//pcl::io::savePCDFileASCII ("pre.pcd", cloud);
 		//pcl::io::savePCDFileASCII ("nu.pcd", *nuCloud);
 		//applyTransformation();

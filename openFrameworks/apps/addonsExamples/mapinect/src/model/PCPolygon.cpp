@@ -5,7 +5,9 @@
 
 namespace mapinect {
 
-	PCPolygon::PCPolygon() {
+	PCPolygon::PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId)
+		: PCModelObject(cloud, objId), coefficients(coefficients)
+	{
 		modelObject = new Polygon();
 		matched = NULL;
 	}
@@ -37,7 +39,7 @@ namespace mapinect {
 		}
 	}
 
-	bool PCPolygon::detectPolygon(pcl::PointCloud<PointXYZ>::Ptr cloud, const std::vector<ofVec3f>& vCloud) {
+	bool PCPolygon::detectPolygon() {
 		// No existing algorithm for a generic poligon detection.
 
 		return false;
@@ -45,16 +47,16 @@ namespace mapinect {
 
 	void PCPolygon::resetLod()
 	{
-		cloud.clear();
+		cloud->clear();
 	}
 
-	void PCPolygon::increaseLod(PointCloud<PointXYZ>::Ptr nuCloud){
+	void PCPolygon::increaseLod(const PCPtr& nuCloud){
 		// No existing algorithm for a generic poligon detection.
 	}
 
 	void PCPolygon::applyTransformation(Eigen::Affine3f* transformation)
 	{
-		pcl::transformPointCloud(cloud,cloud,*transformation);
+		pcl::transformPointCloud(*cloud, *cloud, *transformation);
 		Eigen::Vector3f eVec;
 		vector<ofVec3f> vertexs = getPolygonModelObject()->getVertexs();
 		

@@ -2,7 +2,6 @@
 
 #include "utils.h"
 
-
 namespace buildings {
 	
 	GLuint Buildings::videoTexture = 0;
@@ -55,10 +54,7 @@ namespace buildings {
 		gModel->objectsMutex.lock();
 
 		if (floor == NULL && gModel->table != NULL) {
-			PCPolyhedron* table = dynamic_cast<PCPolyhedron*>(gModel->table);
-			if (table->getPCPolygonSize() > 0) {
-				floor = new Floor(table->getPCPolygon(0));
-			}
+			floor = new Floor(gModel->table);
 		}
 
 		if (floor != NULL) {

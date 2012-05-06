@@ -10,7 +10,7 @@ namespace mapinect {
 
 	class PCPolyhedron : public PCModelObject {
 		public:
-			PCPolyhedron(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId);
+			PCPolyhedron(const PCPtr& cloud, int objId);
 			
 			virtual void		draw();
 			virtual void		detectPrimitives();
@@ -19,16 +19,13 @@ namespace mapinect {
 			int					getPCPolygonSize();
 			virtual void		resetLod();
 			virtual void		increaseLod();
-			virtual void		addToModel(PointCloud<PointXYZ>::Ptr nuCloud);
+			virtual void		addToModel(const PCPtr& nuCloud);
 			
-		protected:
-			//virtual PCPolygon*	createPCPolygon();
-
 		private:
 			void				updatePolygons();
 			virtual void		unifyVertexs();
 			bool				findBestFit(PCPolygon*, PCPolygon*& removed, bool& wasRemoved);
-			vector<PCPolygon*>	detectPolygons(PointCloud<pcl::PointXYZ>::Ptr cloudTemp, float planeTolerance = 0.01, float pointsTolerance = 4.0, bool limitFaces = true);
+			vector<PCPolygon*>	detectPolygons(const PCPtr& cloudTemp, float planeTolerance = 0.01, float pointsTolerance = 4.0, bool limitFaces = true);
 			void				mergePolygons(vector<PCPolygon*> toMerge);
 			vector<PCPolygon*>	discardPolygonsOutOfBox(vector<PCPolygon*> toDiscard);
 			vector<PCPolygon*>	pcpolygons;

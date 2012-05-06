@@ -7,20 +7,19 @@ namespace mapinect {
 
 	class PCHand : public PCModelObject {
 		public:
-			PCHand(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId);
+			PCHand(const PCPtr& cloud, int objId);
 			
 			virtual void		draw();
 			virtual void		detectPrimitives();
 			virtual void		applyTransformation();
-			inline list<ofVec3f>		getFingerTips() { return fingerTips; }
 			virtual void		resetLod();
 			virtual void		increaseLod();
-		protected:
-			//virtual PCPolygon*	createPCPolygon();
+
+			inline const vector<ofVec3f>& getFingerTips() { return fingerTips; }
 
 		private:
 			virtual void		unifyVertexs();
-			list<ofVec3f>		fingerTips;
+			vector<ofVec3f>		fingerTips;
 	};
 }
 

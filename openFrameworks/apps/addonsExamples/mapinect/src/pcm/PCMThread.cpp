@@ -110,9 +110,9 @@ namespace mapinect {
 
 	
 
-	PointCloud<PointXYZ>::Ptr PCMThread::getPartialCloud(ofPoint min, ofPoint max){
+	PCPtr PCMThread::getPartialCloud(ofPoint min, ofPoint max){
 		//Calcular tamaño de la nube
-		PointCloud<PointXYZ>::Ptr partialColud (new pcl::PointCloud<pcl::PointXYZ>);
+		PCPtr partialColud (new PC());
 		partialColud->width    = max.x - min.x;
 		partialColud->height   = max.y - min.y;
 		partialColud->is_dense = false;
@@ -168,9 +168,9 @@ namespace mapinect {
 		currentDiffcloud = cloud;
 	}
 
-	PointCloud<PointXYZ>::Ptr PCMThread::getDifferenceIdx(bool &isDif, int noise_filter) {
-		PointCloud<PointXYZ>::Ptr difCloud (new PointCloud<PointXYZ>());
-		PointCloud<PointXYZ>::Ptr secondCloud = getCloud();
+	PCPtr PCMThread::getDifferenceIdx(bool &isDif, int noise_filter) {
+		PCPtr difCloud (new PC());
+		PCPtr secondCloud = getCloud();
 		isDif = false;
 		int dif;
 
@@ -191,7 +191,7 @@ namespace mapinect {
 	}
 
 
-	void PCMThread::processPotentialHands(vector<PointCloud<PointXYZ>::Ptr> potHands)
+	void PCMThread::processPotentialHands(const vector<PCPtr>& potHands)
 	{
 		if(table != NULL)
 		{
@@ -203,15 +203,15 @@ namespace mapinect {
 		}
 	}
 
-	PointCloud<PointXYZ>::Ptr PCMThread::getTableCluster(){
+	PCPtr PCMThread::getTableCluster(){
 		PCDWriter writer;
-		PointCloud<PointXYZ>::Ptr cloud = getCloud();
+		PCPtr cloud = getCloud();
 		//writer.write<pcl::PointXYZ> ("rawCloud.pcd", *cloud, false);
 		
 		
 		
-		PointCloud<PointXYZ>::Ptr filteredCloud (new PointCloud<PointXYZ>());
-		vector<PointCloud<PointXYZ>::Ptr> potHands;
+		PCPtr filteredCloud (new PC());
+		vector<PCPtr> potHands;
 
 		// Quito los puntos que sean 0
 		PassThrough<PointXYZ> pass;
@@ -243,7 +243,7 @@ namespace mapinect {
 		}
 
 		//Separo en clusters
-		PointCloud<PointXYZ>::Ptr tableCluster (new pcl::PointCloud<pcl::PointXYZ>);
+		PCPtr tableCluster (new PC());
 
 		pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
 		tree->setInputCloud (filteredCloud);
@@ -263,7 +263,7 @@ namespace mapinect {
 		float min_dist = numeric_limits<float>::max();
 		for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 		{
-			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZ>);
+			PCPtr cloud_cluster (new PC());
 			for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++)
 			{
 				pcl::PointXYZ pto = filteredCloud->points[*pit];
@@ -274,7 +274,7 @@ namespace mapinect {
 
 
 			//Debug
-			pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
+			PCPtr cloud_hull (new PC());
 			pcl::ConvexHull<pcl::PointXYZ> chull;
 			chull.setInputCloud (cloud_cluster);
 			chull.reconstruct (*cloud_hull);
@@ -314,7 +314,7 @@ namespace mapinect {
 		//writer.write<pcl::PointXYZ> ("table.pcd", *tableCluster, false);
 
 		//Quito el plano más grande
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>);
+		PCPtr cloud_p (new PC());
 		pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
 		pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
 		pcl::SACSegmentation<pcl::PointXYZ> seg;
@@ -322,7 +322,7 @@ namespace mapinect {
 		std::vector<ofVec3f> vCloudHull;
 
 		//Remover outliers
-		PointCloud<PointXYZ>::Ptr cloudTemp (new PointCloud<PointXYZ>(*tableCluster));
+		PCPtr cloudTemp (new PC(*tableCluster));
 		// Optional
 		seg.setOptimizeCoefficients (true);
 		// Mandatory
@@ -338,13 +338,13 @@ namespace mapinect {
 		if (inliers->indices.size () == 0)
 		{
 			std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
-			PointCloud<PointXYZ>::Ptr empty (new PointCloud<PointXYZ>());
+			PCPtr empty(new PC());
 			return empty;
 		}
 
 		//FIX
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_inliers (new pcl::PointCloud<pcl::PointXYZ>());
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_temp_outliers (new pcl::PointCloud<pcl::PointXYZ>());
+		PCPtr cloud_filtered_temp_inliers (new PC());
+		PCPtr cloud_filtered_temp_outliers (new PC());
 
 		//Obtengo los puntos que son mesa
 		if (inliers->indices.size() != cloudTemp->size()) {
@@ -363,8 +363,8 @@ namespace mapinect {
 			//ofxScopedMutex objectsLock(gModel->objectsMutex);
 			//writer.write<pcl::PointXYZ> ("table.pcd", *cloud_filtered_temp_inliers, false);
 			gModel->objectsMutex.lock();
-			table = new PCPolyhedron(cloud_filtered_temp_inliers, cloud_filtered_temp_inliers, -1);
-			table->detectPrimitives();
+			table = new Table(*coefficients, cloud_filtered_temp_inliers);
+			table->detect();
 			gModel->table = table;
 			gModel->objectsMutex.unlock();
 
@@ -386,11 +386,11 @@ namespace mapinect {
 	void PCMThread::processDiferencesClouds() {
 		bool dif;
 		//nDetectedObjects = openCVService->contourFinder.blobs.size();
-		PointCloud<PointXYZ>::Ptr filteredCloud = getTableCluster();
+		PCPtr filteredCloud = getTableCluster();
 
 		// WORK WITH CLOUD DIFFERENCES
-/*			PointCloud<PointXYZ>::Ptr secondCloud = getCloud();
-		PointCloud<PointXYZ>::Ptr filteredCloud(new PointCloud<PointXYZ>);
+/*			PCPtr secondCloud = getCloud();
+		PCPtr filteredCloud(new PointCloud<PointXYZ>);
 		dif = getDifferencesCloud(cloud,secondCloud,filteredCloud,OCTREE_RES);
 */
 		//Actualizo las detecciones temporales
@@ -431,7 +431,7 @@ namespace mapinect {
 				
 			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 			{
-				pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZ>);
+				PCPtr cloud_cluster (new PC());
 				for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++)
 					cloud_cluster->points.push_back (filteredCloud->points[*pit]); //*
 
@@ -444,7 +444,7 @@ namespace mapinect {
 		}
 
 		//Agrego los cluster que no están tocando la mesa para hacer el tracking de manos
-		for (std::vector<PointCloud<pcl::PointXYZ>::Ptr>::const_iterator it = potentialHands.begin (); it != potentialHands.end (); ++it)
+		for (std::vector<PCPtr>::const_iterator it = potentialHands.begin (); it != potentialHands.end (); ++it)
 		{
 			nuevosClouds.push_back(new TrackedCloud(*it));
 		}
@@ -518,7 +518,7 @@ namespace mapinect {
 			}
 		}
 		//pcl::visualization::CloudViewer viewer ("Simple Cloud Viewer");
-		/*PointCloud<PointXYZ>::Ptr cloud_source_ptr; 
+		/*PCPtr cloud_source_ptr; 
 
 		cloud_source_ptr = cloud->makeShared(); */
 		//viewer.showCloud (cloud);
@@ -531,7 +531,7 @@ namespace mapinect {
 	void PCMThread::savePartialCloud(ofPoint min, ofPoint max, int id, const string& name){
 		//Calcular tamaño de la nube
 		cout << "saving: " << name << "..." << endl;
-		PointCloud<PointXYZ>::Ptr partialColud = getPartialCloud(min,max);
+		PCPtr partialColud = getPartialCloud(min,max);
 		std::stringstream ss;
 		ss << name << "-" << id << PCD_EXTENSION;
 		pcl::io::savePCDFileASCII (ss.str(), *partialColud);
@@ -608,7 +608,7 @@ namespace mapinect {
 		
 
 	//--------------------------------------------------------------
-	ofVec3f PCMThread::normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr){
+	ofVec3f PCMThread::normalEstimation(const PCPtr& plane, pcl::PointIndices::Ptr indicesptr){
 		//Calculo de normales
 		int sampleSize = indicesptr->indices.size();
 		// Create the normal estimation class, and pass the input dataset to it

@@ -20,8 +20,8 @@
 
 namespace mapinect {
 
-	PCHand::PCHand(PointCloud<PointXYZ>::Ptr cloud, PointCloud<PointXYZ>::Ptr extendedCloud, int objId)
-				: PCModelObject(cloud, extendedCloud, objId)
+	PCHand::PCHand(const PCPtr& cloud, int objId)
+				: PCModelObject(cloud, objId)
 	{
 		drawPointCloud = false; 
 		ofVec3f v;
@@ -37,8 +37,7 @@ namespace mapinect {
 
 	
 	void PCHand::detectPrimitives() {
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected (new pcl::PointCloud<pcl::PointXYZ>),
-			cloud_in (new pcl::PointCloud<pcl::PointXYZ>(cloud));
+		PCPtr cloud_projected(new PC()), cloud_in(cloud);
   
 		
 		cloud_projected = cloud_in;
@@ -71,7 +70,7 @@ namespace mapinect {
 		  //proj.filter (*cloud_projected);
 
 		  // Create a Convex Hull representation of the projected inliers
-		  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
+		  PCPtr cloud_hull (new PC());
 		  pcl::ConvexHull<pcl::PointXYZ> chull;
 		  chull.setInputCloud (cloud_projected);
 		  chull.reconstruct (*cloud_hull);
@@ -92,14 +91,14 @@ namespace mapinect {
 
 	void PCHand::unifyVertexs() {
 		vector<vector<ofVec3f>> tmp;
-		list<ofVec3f> final;
+		vector<ofVec3f> final;
 		if(gModel->table != NULL)
 		{
 			PCPolyhedron* hedron = (PCPolyhedron*)(gModel->table);
 			PCPolygon* gon = hedron->getPCPolygon(0);
 			pcl::ModelCoefficients coefficients = gon->getCoefficients();
 			
-			for (list<ofVec3f>::iterator iter = fingerTips.begin(); iter != fingerTips.end(); iter++) {
+			for (vector<ofVec3f>::iterator iter = fingerTips.begin(); iter != fingerTips.end(); iter++) {
 				if(abs(evaluatePoint(coefficients, *iter)) < 0.03)     //<---------- Chequeo de la mesa
 				{
 					bool unified = false;
@@ -139,7 +138,7 @@ namespace mapinect {
 
 	void PCHand::draw() {
 		int i = 1;
-		for (list<ofVec3f>::iterator iter = fingerTips.begin(); iter != fingerTips.end(); iter++) {
+		for (vector<ofVec3f>::iterator iter = fingerTips.begin(); iter != fingerTips.end(); iter++) {
 			ofSetColor(100,255 * i++ / 4.0f,0);
 			ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
 			ofCircle(w.x,w.y,4);

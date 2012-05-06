@@ -10,26 +10,25 @@ using namespace pcl;
 namespace mapinect {
 	class HandDetector {
 	public:
-		void SetPotentialHandCloud(PointCloud<PointXYZ>::Ptr cloud);
-		void SetTable(PCPolygon* table);
-		float IsHand();
-		int GetHandDirection();
+		void				SetPotentialHandCloud(const PCPtr& cloud);
+		void				SetTable(Table* table);
+		float				IsHand();
+		int					GetHandDirection();
 
 	private:
 		void				trimPointsOutsideTable();
 		void				trimHand();
-		vector<ofVec3f>	getFingers();
-		vector<ofVec3f>	unifyHandVertex(PointCloud<PointXYZ>::Ptr handHull);
+		vector<ofVec3f>		getFingers();
+		vector<ofVec3f>		unifyHandVertex(const PCPtr& handHull);
 		float				checkFingers(vector<ofVec3f> fingers);
 		int					findCloserFingerTo(ofVec3f currentFinger,vector<ofVec3f> unifiedHull,int handDirection);
-	
 
-		PointCloud<PointXYZ>::Ptr	hand;
-		PCPolygon*					table;
-		bool						isHand;
-		int							handDirection;
-		PointXYZ					tipPoint;
-		PointXYZ					handCentroid;
+		PCPtr				hand;
+		Table*				table;
+		bool				isHand;
+		int					handDirection;
+		PointXYZ			tipPoint;
+		PointXYZ			handCentroid;
 	};
 }
 

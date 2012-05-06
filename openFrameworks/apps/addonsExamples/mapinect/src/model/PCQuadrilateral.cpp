@@ -9,11 +9,9 @@
 
 namespace mapinect {
 
-	PCQuadrilateral::PCQuadrilateral(pcl::ModelCoefficients coefficients){
-		this->coefficients = coefficients;
-	}
+	bool PCQuadrilateral::detectPolygon() {
+		vector<ofVec3f> vCloud = pointCloudToOfVecVector(cloud);
 
-	bool PCQuadrilateral::detectPolygon(pcl::PointCloud<PointXYZ>::Ptr cloud, const std::vector<ofVec3f>& vCloud) {
 		//ofVec3f vMin, vMax;
 		findOfxVec3fBoundingBox(vCloud, vMin, vMax);
 		ofVec3f center = vMin + vMax;
@@ -113,14 +111,14 @@ namespace mapinect {
 		return true;
 	}
 
-	void PCQuadrilateral::increaseLod(PointCloud<PointXYZ>::Ptr nuCloud)
+	void PCQuadrilateral::increaseLod(const PCPtr& nuCloud)
 	{
 		PCDWriter writer;
 		//writer.write<pcl::PointXYZ> ("nuCloudFace"+ ofToString(this->getId())+".pcd", *nuCloud, false);
 		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
 		//writer.write<pcl::PointXYZ> ("nuCloud.pcd", *nuCloud, false);
 
-		PointCloud<pcl::PointXYZ>::Ptr nuPointsOfFace (new PointCloud<PointXYZ>());
+		PCPtr nuPointsOfFace (new PC());
 
 		//Obtengo los puntos que pertenecen al plano
 		pcl::PointIndices::Ptr inliers = adjustPlane(coefficients,nuCloud);
@@ -160,14 +158,14 @@ namespace mapinect {
 		//ofVec3f center = this->getCenter();
 		//Eigen::Vector4f partialCenter;
 		//float mindist = numeric_limits<float>::max();
-		//pcl::PointCloud<pcl::PointXYZ>::Ptr closest (new pcl::PointCloud<pcl::PointXYZ>());
+		//PCPtr closest (new pcl::PointCloud<pcl::PointXYZ>());
 
 		////Tomo el cluster más cercano al actual
 		//if(cluster_indices.size() > 0)
 		//{
 		//	for(int i = 0; i < cluster_indices.size(); i++)
 		//	{
-		//		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p_filtered (new pcl::PointCloud<pcl::PointXYZ>());
+		//		PCPtr cloud_p_filtered (new pcl::PointCloud<pcl::PointXYZ>());
 		//		cloud_p_filtered->resize(cluster_indices.at(i).indices.size());
 		//		for (std::vector<int>::const_iterator pit = cluster_indices.at(i).indices.begin (); pit != cluster_indices.at(i).indices.end (); pit++)
 		//			cloud_p_filtered->points.push_back (nuPointsOfFace->points[*pit]); //*
@@ -184,17 +182,11 @@ namespace mapinect {
 		
 		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
 		//merge de nubes
-		this->cloud += *nuPointsOfFace;
+		this->cloud->operator+=(*(nuPointsOfFace.get()));
 
 		//writer.write<pcl::PointXYZ> ("nucloudOfFace"+ ofToString(this->getId())+".pcd", cloud, false);
-		std::vector<ofVec3f> vCloud;
-		for (int k = 0; k < cloud.size(); k++) {
-			vCloud.push_back(POINTXYZ_OFXVEC3F(cloud.at(k)));
-		}
-		pcl::PointCloud<PointXYZ>::Ptr cloudPtr(new pcl::PointCloud<PointXYZ>(cloud));
-
-		matched = new PCQuadrilateral(coefficients);
-		matched->detectPolygon(cloudPtr, vCloud);
+		matched = new PCQuadrilateral(coefficients, cloud);
+		matched->detectPolygon();
 		updateMatching();
 	}
 

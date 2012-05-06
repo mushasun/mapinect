@@ -23,7 +23,7 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/segmentation/extract_clusters.h>
-#include "PCPolyhedron.h"
+#include "Table.h"
 
 using namespace pcl;
 
@@ -41,14 +41,14 @@ namespace mapinect {
 		void						savePartialCloud(ofPoint min, ofPoint max, int id, const string& name);
 		PointCloud<PointXYZ>*		loadCloud(const string& name);
 
-		PointCloud<PointXYZ>::Ptr	getPartialCloud(ofPoint min, ofPoint max);
+		PCPtr						getPartialCloud(ofPoint min, ofPoint max);
 
-		PointCloud<PointXYZ>::Ptr	cloud;
-		PointCloud<PointXYZ>::Ptr	currentDiffcloud;
+		PCPtr						cloud;
+		PCPtr						currentDiffcloud;
 		octree::OctreePointCloudChangeDetector<PointXYZ>	*octree;
 
 		void						setInitialPointCloud();
-		PointCloud<PointXYZ>::Ptr	getDifferenceIdx(bool &dif, int noise_filter = 7);
+		PCPtr						getDifferenceIdx(bool &dif, int noise_filter = 7);
 		void						processDiferencesClouds();
 		void						reset();
 
@@ -60,18 +60,18 @@ namespace mapinect {
 		bool						detectMode;
 
 	private:
-		void						processPotentialHands(vector<PointCloud<PointXYZ>::Ptr> potHands);
-		ofVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane);
-		ofVec3f					normalEstimation(pcl::PointCloud<pcl::PointXYZ>::Ptr plane, pcl::PointIndices::Ptr indicesptr);
+		void						processPotentialHands(const vector<PCPtr>& potHands);
+		ofVec3f						normalEstimation(const PCPtr& plane);
+		ofVec3f						normalEstimation(const PCPtr& plane, pcl::PointIndices::Ptr indicesptr);
 		int							getSlotForTempObj();
-		PointCloud<PointXYZ>::Ptr	getTableCluster();
+		PCPtr						getTableCluster();
 		int							noDifferencesCount;
 		bool						findBestFit(TrackedCloud* trackedCloud, TrackedCloud*& removedCloud, bool &removed);
 		std::list<TrackedCloud>		trackedClouds;
-		PCPolyhedron*				table;
+		Table*						table;
 		float						tableClusterLastDist;
 		bool						handSetted;
-		vector<PointCloud<PointXYZ>::Ptr>	potentialHands;
+		vector<PCPtr>				potentialHands;
 
 	};
 }

@@ -4,14 +4,15 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/surface/convex_hull.h>
+#include "Table.h"
 
 namespace mapinect {
-	void HandDetector::SetPotentialHandCloud(PointCloud<PointXYZ>::Ptr cloud)
+	void HandDetector::SetPotentialHandCloud(const PCPtr& cloud)
 	{
 		this->hand = cloud;
 	}
 
-	void HandDetector::SetTable(PCPolygon* table)
+	void HandDetector::SetTable(Table* table)
 	{
 		this->table = table;
 	}
@@ -28,7 +29,7 @@ namespace mapinect {
 		int idx_minDif_maxX = -1;
 
 		ofVec3f min2, max2;
-		pcl::PointCloud<pcl::PointXYZ>::Ptr tableCloud (new pcl::PointCloud<pcl::PointXYZ>(table->getCloud()));
+		PCPtr tableCloud (table->getCloud());
 		findPointCloudBoundingBox(tableCloud, min2, max2);
 		//createCloud(min2, "min2.pcd");
 		//createCloud(max2, "max2.pcd");
@@ -44,7 +45,7 @@ namespace mapinect {
 
 		//pcl::io::savePCDFileASCII ("hand_preCliped.pcd", *hand); 
 
-		pcl::PointCloud<pcl::PointXYZ>::Ptr filteredcloud (new pcl::PointCloud<pcl::PointXYZ>);
+		PCPtr filteredcloud (new PC());
 		for(int i = 0; i < hand->size(); i ++)
 		{
 			PointXYZ pto = hand->at(i);
@@ -99,7 +100,7 @@ namespace mapinect {
 			//pcl::io::savePCDFileASCII ("hand.pcd", *hand);
 	}
 
-	vector<ofVec3f> HandDetector::unifyHandVertex(PointCloud<PointXYZ>::Ptr handHull)
+	vector<ofVec3f> HandDetector::unifyHandVertex(const PCPtr& handHull)
 		{
 			//cout << "pre unify: " << handHull->size() << endl;
 			vector<vector<ofVec3f>> tmp;
@@ -152,7 +153,7 @@ namespace mapinect {
 		//pcl::io::savePCDFileASCII ("handflat.pcd", *hand);
 
 		//Calculo convex hull
-		pcl::PointCloud<pcl::PointXYZ>::Ptr hand_hull (new pcl::PointCloud<pcl::PointXYZ>);
+		PCPtr hand_hull (new PC());
 		pcl::ConvexHull<pcl::PointXYZ> chull;
 		chull.setInputCloud (hand);
 		chull.reconstruct (*hand_hull);
@@ -162,7 +163,7 @@ namespace mapinect {
 		Eigen::Vector4f vHandCentroid;
 		compute3DCentroid(*hand,vHandCentroid);
 		handCentroid = PointXYZ(vHandCentroid.x(),vHandCentroid.y(),vHandCentroid.z());
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_centroid (new pcl::PointCloud<pcl::PointXYZ>);
+		PCPtr cloud_centroid (new PC());
 		cloud_centroid->push_back(handCentroid);
 		//pcl::io::savePCDFileASCII ("handCentroid.pcd", *cloud_centroid);
 
