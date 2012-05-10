@@ -20,8 +20,8 @@ namespace mapinect {
 		removeMatching();
 	}
 
-	const PolygonPtr PCPolygon::getPolygonModelObject() {
-		return PolygonPtr((Polygon*)modelObject.get());
+	Polygon* PCPolygon::getPolygonModelObject() {
+		return (Polygon*)modelObject.get();
 	}
 
 	ofVec3f PCPolygon::getNormal() {

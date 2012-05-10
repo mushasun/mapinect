@@ -92,12 +92,15 @@ namespace mapinect {
 		ofVec3f v3D(vCloud.at(ixD));
 
 		//cout << "max distance to triangle: " << distanceD << endl;
-		getPolygonModelObject()->resetVertex();
-		getPolygonModelObject()->addVertex(v3A);
-		getPolygonModelObject()->addVertex(v3B);
-		getPolygonModelObject()->addVertex(v3C);
-		getPolygonModelObject()->addVertex(v3D);
-		getPolygonModelObject()->sortVertexs();
+		{
+			Polygon* p = getPolygonModelObject();
+			p->resetVertex();
+			p->addVertex(v3A);
+			p->addVertex(v3B);
+			p->addVertex(v3C);
+			p->addVertex(v3D);
+			p->sortVertexs();
+		}
 
 		std::vector<int> indices (4);
 		indices[0] = ixA;

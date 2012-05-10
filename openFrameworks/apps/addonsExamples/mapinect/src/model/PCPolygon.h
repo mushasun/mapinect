@@ -17,9 +17,9 @@ namespace mapinect {
 			PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId = -1);
 			virtual ~PCPolygon();
 
-			const PolygonPtr	getPolygonModelObject();
+			Polygon*			getPolygonModelObject();
 
-			ofVec3f		getNormal();
+			ofVec3f				getNormal();
 			
 			virtual void		draw();
 

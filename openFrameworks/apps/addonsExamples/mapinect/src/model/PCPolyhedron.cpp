@@ -180,6 +180,8 @@ namespace mapinect {
 			}
 
 			//pcl::io::savePCDFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
+			if (cloud_p_filtered->size() < 4)
+				break;
 
 			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, cloud_p_filtered));
 			pcp->detectPolygon();
@@ -214,7 +216,7 @@ namespace mapinect {
 
 		for (vector<PCPolygonPtr>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end();) {
 			vector<PCPolygonPtr>::iterator iter = nextIter++;
-			PolygonPtr polygon = (*iter)->getPolygonModelObject();
+			Polygon* polygon = (*iter)->getPolygonModelObject();
 
 			if (polygon == NULL) {
 				// No model object is available yet, quit!
@@ -230,7 +232,7 @@ namespace mapinect {
 				ofVec3f v(polygon->getVertex(j));
 
 				for (vector<PCPolygonPtr>::iterator iter2 = iter; iter2 != pcpolygons.end(); iter2++) {
-					PolygonPtr polygon2 = (*iter2)->getPolygonModelObject();
+					Polygon* polygon2 = (*iter2)->getPolygonModelObject();
 					for (int k = 0; k < polygon2->getVertexCount(); k++) {
 						ofVec3f v2(polygon2->getVertex(k));
 						if (!(v == v2)
