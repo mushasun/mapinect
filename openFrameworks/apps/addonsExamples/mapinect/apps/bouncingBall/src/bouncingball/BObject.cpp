@@ -1,14 +1,12 @@
 #include "BObject.h"
 
 namespace bouncing {
-	BObject::BObject(std::vector<Segment3D> segments, ofVec3f color, int id, int soundId)
+	BObject::BObject(const vector<Segment3D>& segments, ofVec3f color, int id, int soundId)
+		: segments(segments), color(color), id(id)
 	{
-		this->segments = segments;
-		this->color = color;
-		this->id = id;
-		this->visited = true;
+		visited = true;
 		sound.loadSound("sounds/sound" + ofToString(soundId) + ".mp3");
-		this->polyhedron = NULL;
+		modelObject = NULL;
 		lastTime = 0;
 		colorBoost = 0;
 	}
@@ -42,19 +40,15 @@ namespace bouncing {
 
 	void BObject::draw()
 	{
-		if(polyhedron != NULL)
+		if(modelObject != NULL)
 		{
-			for (int i = 0; i < this->polyhedron->getPCPolygonSize(); i++)
-			{
-				PCPolygon* gon = polyhedron->getPCPolygon(i);
-				if (gon->hasObject()) 
-				{
-					mapinect::Polygon* q = gon->getPolygonModelObject();
-					ofVec3f boostedColor = color + colorBoost;
-					ofSetColor(boostedColor.x,boostedColor.y,boostedColor.z);
-					ofDrawQuadTextured(q->getVertex(0), q->getVertex(1), q->getVertex(2), q->getVertex(3));
-				}			
-			}
+			ofVec3f boostedColor = color + colorBoost;
+			ofSetHexColor(boostedColor.x, boostedColor.y, boostedColor.z);
+			ofDrawQuadTextured(
+				modelObject->getVertex(0),
+				modelObject->getVertex(1),
+				modelObject->getVertex(2),
+				modelObject->getVertex(3));
 		}
 	}
 

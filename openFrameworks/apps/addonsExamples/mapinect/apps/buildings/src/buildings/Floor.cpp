@@ -13,7 +13,7 @@ namespace buildings {
 	{
 		if (modelObject->hasObject()) 
 		{
-			mapinect::PolygonPtr q = modelObject->getPolygonModelObject();
+			mapinect::Polygon* q = modelObject->getPolygonModelObject();
 
 			txManager->enableTextures();
 			txManager->bindTexture(Floor::floorTexture);

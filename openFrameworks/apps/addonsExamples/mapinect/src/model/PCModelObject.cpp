@@ -43,7 +43,7 @@ namespace mapinect {
 	}
 
 	void PCModelObject::draw(){
-		if (modelObject != NULL) {
+		if (modelObject.get() != NULL) {
 			modelObject->draw();
 		}
 		if (drawPointCloud) {

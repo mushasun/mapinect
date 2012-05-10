@@ -32,7 +32,7 @@ namespace buildings {
 			if (polygon->hasObject()) 
 			{
 				txManager->enableTextures();
-				mapinect::PolygonPtr q = polygon->getPolygonModelObject();
+				mapinect::Polygon* q = polygon->getPolygonModelObject();
 
 				static ofVec3f vA,vB,vC,vD;
 

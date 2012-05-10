@@ -148,45 +148,40 @@ namespace bouncing {
 		{
 			if(gModel->table != NULL)
 			{
-				PCPolyhedron* hedron = dynamic_cast<PCPolyhedron*>(gModel->table);
-				PCPolygon* gon = hedron->getPCPolygon(0);
-				if (gon->hasObject()) 
-				{
-					mapinect::Polygon* q = gon->getPolygonModelObject();
-					ofVec3f vA, vB, vC, vD;
-					vA = q->getVertex(0);
-					vB = q->getVertex(1);
-					vC = q->getVertex(2);
-					vD = q->getVertex(3);
+				mapinect::Table* t = gModel->table;
+				ofVec3f vA, vB, vC, vD;
+				vA = t->getVertex(0);
+				vB = t->getVertex(1);
+				vC = t->getVertex(2);
+				vD = t->getVertex(3);
 					
-					ofVec3f center = hedron->getCenter();
-					ofVec3f w = ((vA - vC).getCrossed(vA - vD)).normalize();//gon->getNormal();
-					tableNormal = w;
-					tableCenter = center;
+				ofVec3f center = t->getCenter();
+				ofVec3f w = ((vA - vC).getCrossed(vA - vD)).normalize();//gon->getNormal();
+				tableNormal = w;
+				tableCenter = center;
 
-					ofVec3f ballDir = w;
-					ballDir.cross(vC - vA);
-					ballDir.rotate(10,w);
-					ballDir *= -1;
-						//-(w.cross(vC - vA)).rotate(10,w);
+				ofVec3f ballDir = w;
+				ballDir.cross(vC - vA);
+				ballDir.rotate(10,w);
+				ballDir *= -1;
+					//-(w.cross(vC - vA)).rotate(10,w);
 					
-					ball = Tejo(center,0.01,ballDir,0.005,w,tableCenter);
-					Segment3D s1(vA,vB,w,center);
-					Segment3D s2(vB,vC,w,center);
-					Segment3D s3(vC,vD,w,center);
-					Segment3D s4(vD,vA,w,center);
+				ball = Tejo(center,0.01,ballDir,0.005,w,tableCenter);
+				Segment3D s1(vA,vB,w,center);
+				Segment3D s2(vB,vC,w,center);
+				Segment3D s3(vC,vD,w,center);
+				Segment3D s4(vD,vA,w,center);
 					
-					tableSegment3Ds.push_back(s1);
-					tableSegment3Ds.push_back(s2);
-					tableSegment3Ds.push_back(s3);
-					tableSegment3Ds.push_back(s4);
-					table = new BObject(tableSegment3Ds, ofVec3f(255,255,255), -1,0);
-					table->setPolyhedron(hedron);
-					//segments.push_back(s5);
-					//segments.push_back(s6);
-					bobjects.push_back(table);
-					tableSetted = true;
-				}	
+				tableSegment3Ds.push_back(s1);
+				tableSegment3Ds.push_back(s2);
+				tableSegment3Ds.push_back(s3);
+				tableSegment3Ds.push_back(s4);
+				table = new BObject(tableSegment3Ds, ofVec3f(255,255,255), -1,0);
+				table->setTable(t);
+				//segments.push_back(s5);
+				//segments.push_back(s6);
+				bobjects.push_back(table);
+				tableSetted = true;
 			}
 		}
 		else
@@ -200,14 +195,14 @@ namespace bouncing {
 				for(list<mapinect::ModelObject*>::iterator k = gModel->objects.begin(); 
 					k != gModel->objects.end(); k++)
 				{
-					PCPolyhedron* hedron = (PCPolyhedron*)(*k);
-					int hedronId = hedron->getId();
+					PCPolyhedron* t = (PCPolyhedron*)(*k);
+					int tableId = t->getId();
 					BObject* curObj = getBObject(hedronId);
 					curObj->clearSegments();
 					curObj->update();
 					vector<ofVec3f> vecsproj;
 					
-					curObj->setPolyhedron(hedron);
+					curObj->setTable(t);
 					for (int i=0; i<hedron->getPCPolygonSize();i++)
 					{
 						ofVec3f objCenter = hedron->getCenter();
