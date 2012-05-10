@@ -1,50 +1,61 @@
 #include "TrackedCloud.h"
 
-#include "utils.h"
+#include <pcl/common/common.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/registration/transformation_estimation.h>
+
+#include "AlignmentDetector.h"
+#include "Constants.h"
+#include "Model.h"
+#include "Globals.h"
 #include "objectTypesEnum.h"
 #include "PCPolyhedron.h"
 #include "PCHand.h"
 #include "pointUtils.h"
-#include <pcl/registration/transformation_estimation.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/filters/extract_indices.h>
-#include "AlignmentDetector.h"
 #include "Table.h"
+#include "utils.h"
 
 namespace mapinect {
-	TrackedCloud::TrackedCloud(const PCPtr& cloud) {
-		this->cloud = cloud;
-		counter = 2;
-		objectInModel = NULL;
-		matchingCloud = NULL;
+
+	void TrackedCloud::init()
+	{
+		objectInModel.reset();
+		matchingCloud.reset();
 		nearest = numeric_limits<int>::max();
 		minPointDif = numeric_limits<int>::max();
 		needApplyTransformation = false;
 		needRecalculateFaces = false;
 		hand = false;
-
-
-		features_computed = false;
-		search_method_xyz_ = pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr();
-		normal_radius_ = 0.02f;
-		feature_radius_ = 0.02f;
 	}
 
-	TrackedCloud::TrackedCloud(const PCPtr& cloud, bool isHand, bool forceCreate) {
+	TrackedCloud::TrackedCloud()
+	{
+		init();
+	}
+
+	TrackedCloud::TrackedCloud(const PCPtr& cloud)
+	{
+		init();
 		this->cloud = cloud;
-		objectInModel = NULL;
-		matchingCloud = NULL;
-		nearest = numeric_limits<int>::max();
-		minPointDif = numeric_limits<int>::max();
-		needApplyTransformation = false;
-		needRecalculateFaces = false;
+		counter = 2;
+
+		features_computed = false;
+		normal_radius = 0.02f;
+		feature_radius = 0.02f;
+	}
+
+	TrackedCloud::TrackedCloud(const PCPtr& cloud, bool isHand, bool forceCreate)
+	{
+		init();
+		this->cloud = cloud;
 		hand = isHand;
 
 		if(isHand)
 		{
 			//Fuerzo crear el objeto
-			counter = TIMES_TO_CREATE_OBJ;
+			counter = mapinect::TIMES_TO_CREATE_OBJ;
 			if(forceCreate)
 				addCounter(0);
 		}
@@ -53,17 +64,8 @@ namespace mapinect {
 		
 	}
 
-	TrackedCloud::TrackedCloud() {
-		objectInModel = NULL;
-		matchingCloud = NULL;
-		nearest = numeric_limits<int>::max();
-		minPointDif = numeric_limits<int>::max();
-		needApplyTransformation = false;
-		needRecalculateFaces = false;
-		hand = false;
-	}
-
-	TrackedCloud::~TrackedCloud() {
+	TrackedCloud::~TrackedCloud()
+	{
 
 	}
 
@@ -73,14 +75,21 @@ namespace mapinect {
 		if (counter <= 0) {
 			if (hasObject()) {
 				gModel->objectsMutex.lock();
-					gModel->objects.remove(objectInModel);
-					delete objectInModel;
-					objectInModel = NULL;
+					for (vector<ModelObjectPtr>::iterator iter = gModel->objects.begin();
+							iter != gModel->objects.end(); ++iter)
+					{
+						if ((*iter).get() == objectInModel.get())
+						{
+							gModel->objects.erase(iter, iter + 1);
+							break;
+						}
+					}
+					objectInModel.reset();
 				gModel->objectsMutex.unlock();
 			}
 		}
-		else if(counter >= TIMES_TO_CREATE_OBJ && !hasObject()) {
-			counter = TIMES_TO_CREATE_OBJ + 2;
+		else if(counter >= mapinect::TIMES_TO_CREATE_OBJ && !hasObject()) {
+			counter = mapinect::TIMES_TO_CREATE_OBJ + 2;
 				
 			
 				//////////////Para identificar si es un objeto o una mano/////////////////
@@ -89,11 +98,11 @@ namespace mapinect {
 			switch(objType)
 			{
 				case HAND:
-					objectInModel = new PCHand(cloud, objId);
+					objectInModel = PCModelObjectPtr(new PCHand(cloud, objId));
 					cout << "HAND DETECTED" << endl;
 					break;
 				case BOX:
-					objectInModel = new PCPolyhedron(cloud, objId);
+					objectInModel = PCModelObjectPtr(new PCPolyhedron(cloud, objId));
 					cout << "BOX DETECTED" << endl;
 					break;
 				case UNRECOGNIZED:
@@ -132,8 +141,7 @@ namespace mapinect {
 	}
 
 	void TrackedCloud::removeMatching(){
-		 delete matchingCloud;
-		 matchingCloud = NULL;
+		 matchingCloud.reset();
 		 nearest = numeric_limits<int>::max();
 		 minPointDif = numeric_limits<int>::max();
 	}
@@ -141,13 +149,13 @@ namespace mapinect {
 	//Compara si trackedCloud se corresponde con la TrackedCloud actual
 	//En caso de tener una correspondencia (matchingCloud) previamente asociada, la devuelve en removedCloud
 	//y setea removed a false
-	bool TrackedCloud::matches(TrackedCloud* trackedCloud, TrackedCloud*& removedCloud, bool &removed)
+	bool TrackedCloud::matches(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud, bool &removed)
 	{
 		removed = false;
 		if(this->hasObject())
 		{
 			Eigen::Affine3f transformation;
-			if(matchingTrackedObjects(*trackedCloud,transformation))
+			if(matchingTrackedObjects(trackedCloud, transformation))
 			{
 				objectInModel->setTransformation(&transformation);
 				
@@ -210,7 +218,7 @@ namespace mapinect {
 			{
 				cloud = matchingCloud->getTrackedCloud();
 				gModel->objectsMutex.lock();
-				if(objectInModel != NULL)
+				if(objectInModel.get() != NULL)
 				{
 					/* Metodo viejo
 					objectInModel->resetLod();
@@ -279,7 +287,7 @@ namespace mapinect {
 			//writer.write<pcl::PointXYZ>("nuCloudFiltered.pcd", *nuCloudFiltered, false);
 
 			//Quito los puntos que pertenecen a la mesa
-			Table* table = gModel->table;
+			TablePtr table = gModel->table;
 			ModelCoefficients tableCoef = table->getCoefficients();
 			PointIndices::Ptr tableIdx = adjustPlane(tableCoef,nuCloud);
 
@@ -297,11 +305,11 @@ namespace mapinect {
 		}
 	}
 
-	bool TrackedCloud::operator==(const TrackedCloud &other) const {
-		return &other == this;
+	bool TrackedCloud::operator==(const TrackedCloudPtr& other) const {
+		return other.get() == this;
 	}
 
-	bool TrackedCloud::matchingTrackedObjects(TrackedCloud tracked_temp, Eigen::Affine3f &transformation)
+	bool TrackedCloud::matchingTrackedObjects(const TrackedCloudPtr& tracked_temp, Eigen::Affine3f &transformation)
 	{
 		///////////////////////////Metodo con Alignment////////////////////////
 		//AlignmentDetector ad;
@@ -337,7 +345,7 @@ namespace mapinect {
 		//writer.write<pcl::PointXYZ> ("obj.pcd", *obj_cloud, false);
 		/*writer.write<pcl::PointXYZ> ("cluster.pcd", *cluster, false);
 		*/
-		PCPtr cluster = tracked_temp.getTrackedCloud();
+		PCPtr cluster = tracked_temp->getTrackedCloud();
 		//PCPtr obj_cloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
 		PCPtr obj_cloud (new PC(*cloud));
 
@@ -414,7 +422,7 @@ namespace mapinect {
 		{
 			processInput ();
 		}
-		return features_;
+		return features;
 	}
 
 	void TrackedCloud::processInput()
@@ -426,27 +434,27 @@ namespace mapinect {
 	 // Compute the surface normals
     void TrackedCloud::computeSurfaceNormals ()
     {
-      normals_ = SurfaceNormals::Ptr (new SurfaceNormals);
+      normals = SurfaceNormalsPtr (new SurfaceNormals());
 
       pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> norm_est;
       norm_est.setInputCloud (cloud);
 	  pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>());
-      norm_est.setSearchMethod (tree);
-      norm_est.setRadiusSearch (normal_radius_);
-      norm_est.compute (*normals_);
+      norm_est.setSearchMethod(tree);
+      norm_est.setRadiusSearch(normal_radius);
+      norm_est.compute(*normals);
     }
 
     // Compute the local feature descriptors
     void TrackedCloud::computeLocalFeatures ()
     {
-      features_ = LocalFeatures::Ptr (new LocalFeatures);
+		features = LocalFeaturesPtr(new LocalFeatures());
 
-      pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::FPFHSignature33> fpfh_est;
-      fpfh_est.setInputCloud (cloud);
-      fpfh_est.setInputNormals (normals_);
-	  pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>());
-      fpfh_est.setSearchMethod (tree);
-      fpfh_est.setRadiusSearch (feature_radius_);
-      fpfh_est.compute (*features_);
+		pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::FPFHSignature33> fpfh_est;
+		fpfh_est.setInputCloud (cloud);
+		fpfh_est.setInputNormals (normals);
+		pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new SearchMethod());
+		fpfh_est.setSearchMethod (tree);
+		fpfh_est.setRadiusSearch (feature_radius);
+		fpfh_est.compute (*features);
     }
 }

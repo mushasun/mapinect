@@ -1,20 +1,21 @@
 #include "PCHand.h"
 
 #include <pcl/ModelCoefficients.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/passthrough.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/filters/extract_indices.h>
+#include <pcl/surface/convex_hull.h>
 
+#include "Constants.h"
+#include "Globals.h"
+#include "ofVecUtils.h"
 #include "PCQuadrilateral.h"
 #include "pointUtils.h"
 #include "utils.h"
-#include "ofVecUtils.h"
-#include "PCPolyhedron.h"
-#include <pcl/filters/passthrough.h>
-#include <pcl/surface/convex_hull.h>
 
 #define MAX_FINGERS		5
 
@@ -82,8 +83,8 @@ namespace mapinect {
 		  fingerTips.clear();
 		  for(int i = 0; i < cloud_hull->size(); i++)
 		  {
-			  PointXYZ pto = cloud_hull->at(i);
-			  fingerTips.push_back(ofVec3f(pto.x,pto.y,pto.z));
+			  pcl::PointXYZ pto = cloud_hull->at(i);
+			  fingerTips.push_back(POINTXYZ_OFXVEC3F(pto));
 		  }
 		  
 		  unifyVertexs();
@@ -94,9 +95,7 @@ namespace mapinect {
 		vector<ofVec3f> final;
 		if(gModel->table != NULL)
 		{
-			PCPolyhedron* hedron = (PCPolyhedron*)(gModel->table);
-			PCPolygon* gon = hedron->getPCPolygon(0);
-			pcl::ModelCoefficients coefficients = gon->getCoefficients();
+			pcl::ModelCoefficients coefficients = gModel->table->getCoefficients();
 			
 			for (vector<ofVec3f>::iterator iter = fingerTips.begin(); iter != fingerTips.end(); iter++) {
 				if(abs(evaluatePoint(coefficients, *iter)) < 0.03)     //<---------- Chequeo de la mesa

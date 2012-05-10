@@ -3,10 +3,11 @@
 
 #include "ModelObject.h"
 
-#include "ofVec3f.h"
-#include <vector>
-
 namespace mapinect {
+
+	class Polygon;
+
+	typedef boost::shared_ptr<Polygon> PolygonPtr;
 
 	class Polygon : public ModelObject {
 		public:
@@ -23,13 +24,13 @@ namespace mapinect {
 			void				sortVertexs();
 
 			float				calculateArea();
-			ofVec3f			project(const ofVec3f&);
+			ofVec3f				project(const ofVec3f&);
 			void				resetVertex();
 			virtual void		draw();
 		
 		private:
-			vector<ofVec3f>	vertexs;
-			ofVec3f			normal;
+			vector<ofVec3f>		vertexs;
+			ofVec3f				normal;
 	};
 }
 

@@ -1,7 +1,9 @@
 #include "mapinectApp.h"
 
 #include "Feature.h"
-#include "utils.h"
+#include "Globals.h"
+#include "Model.h"
+#include "ofxKinect.h"
 #include "TxManager.h"
 
 namespace mapinect {

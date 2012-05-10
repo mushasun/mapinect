@@ -11,11 +11,11 @@ namespace buildings {
 
 	class Building {
 	public:
-		Building(int id, PCPolyhedron* polyhedron);
+		Building(int id, const PCPolyhedronPtr& polyhedron);
 		virtual ~Building();
 
 		void update();
-		void draw(const ITxManager* txManager, const Floor* floor);
+		void draw(const ITxManager* txManager, const Floor& floor);
 
 		static GLuint	buildingTexture;
 		static GLuint	roofTexture;
@@ -23,7 +23,7 @@ namespace buildings {
 	private:
 		int				id;
 		float			progress;
-		PCPolyhedron*	polyhedron;
+		PCPolyhedronPtr	polyhedron;
 	};
 }
 

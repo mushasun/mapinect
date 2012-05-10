@@ -11,17 +11,17 @@ namespace buildings {
 
 	class Floor {
 	public:
-		Floor(Table* modelObject)				{ this->modelObject = modelObject; }
+		Floor(const TablePtr& modelObject)				{ this->modelObject = modelObject; }
 		virtual ~Floor()						{ }
 
-		inline const Table* getModelObject() const { return modelObject; }
+		inline const TablePtr& getModelObject() const { return modelObject; }
 
 		virtual void	draw(const ITxManager* txManager);
 
 		static GLuint	floorTexture;
 
 	private:
-		Table*		modelObject;
+		TablePtr		modelObject;
 	};
 }
 

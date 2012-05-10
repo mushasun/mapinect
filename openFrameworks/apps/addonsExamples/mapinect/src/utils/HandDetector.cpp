@@ -1,18 +1,22 @@
 #include "HandDetector.h"
-#include "pointUtils.h"
-#include "utils.h"
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/surface/convex_hull.h>
+
+#include "Constants.h"
+#include "pointUtils.h"
 #include "Table.h"
+#include "utils.h"
 
 namespace mapinect {
+
 	void HandDetector::SetPotentialHandCloud(const PCPtr& cloud)
 	{
 		this->hand = cloud;
 	}
 
-	void HandDetector::SetTable(Table* table)
+	void HandDetector::SetTable(const TablePtr& table)
 	{
 		this->table = table;
 	}
@@ -48,7 +52,7 @@ namespace mapinect {
 		PCPtr filteredcloud (new PC());
 		for(int i = 0; i < hand->size(); i ++)
 		{
-			PointXYZ pto = hand->at(i);
+			pcl::PointXYZ pto = hand->at(i);
 			if(pto.x < max_x && pto.x > min_x &&	// Chequeo que esté dentro del BB
 			   pto.z < max_z && pto.z > min_z)		//
 			{
@@ -86,7 +90,7 @@ namespace mapinect {
 	void HandDetector::trimHand()
 	{
 			float maxXFilter = tipPoint.x;
-			float minXFilter = tipPoint.x + (HAND_SIZE * handDirection);
+			float minXFilter = tipPoint.x + (mapinect::HAND_SIZE * handDirection);
 
 			pcl::PassThrough<pcl::PointXYZ> pass;
 			pass.setInputCloud (hand);
@@ -114,7 +118,7 @@ namespace mapinect {
 				{
 					vector<ofVec3f> inTmp = tmp.at(j);
 					if(inTmp.size() > 0 && 
-						inTmp.at(0).distance(pto) < MAX_UNIFYING_DISTANCE_PROJECTION)
+						inTmp.at(0).distance(pto) < mapinect::MAX_UNIFYING_DISTANCE_PROJECTION)
 					{
 						inTmp.push_back(pto);
 						unified = true;
@@ -162,7 +166,7 @@ namespace mapinect {
 		//Calculo el centroide
 		Eigen::Vector4f vHandCentroid;
 		compute3DCentroid(*hand,vHandCentroid);
-		handCentroid = PointXYZ(vHandCentroid.x(),vHandCentroid.y(),vHandCentroid.z());
+		handCentroid = pcl::PointXYZ(vHandCentroid.x(),vHandCentroid.y(),vHandCentroid.z());
 		PCPtr cloud_centroid (new PC());
 		cloud_centroid->push_back(handCentroid);
 		//pcl::io::savePCDFileASCII ("handCentroid.pcd", *cloud_centroid);
@@ -173,7 +177,7 @@ namespace mapinect {
 	}
 
 	//Busco el dedo más cercano al dedo pasado por parámetro
-	int HandDetector::findCloserFingerTo(ofVec3f currentFinger,vector<ofVec3f> unifiedHull,int handDirection)
+	int HandDetector::findCloserFingerTo(const ofVec3f& currentFinger, const vector<ofVec3f>& unifiedHull, int handDirection)
 	{
 		int idx = -1;
 		float minDist = numeric_limits<float>::max( );
@@ -190,7 +194,7 @@ namespace mapinect {
 	}
 
 	//Chequeo la cantidad de dedos y el ángulo
-	float HandDetector::checkFingers(vector<ofVec3f> fingers)
+	float HandDetector::checkFingers(vector<ofVec3f>& fingers)
 	{
 		bool saveToFile = false;
 		//cout << "check finger" << endl;
@@ -318,7 +322,7 @@ namespace mapinect {
 
 	float HandDetector::IsHand()
 	{
-		if(!onTable(hand, table))
+		if(!table->isOnTable(hand))
 		{
 			//Elimino puntos por fuera de la mesa
 			//Busco el extremo de la mano

@@ -1,8 +1,11 @@
 #include "Polygon.h"
 
 #include <algorithm>
-#include "utils.h"
+
+#include "Globals.h"
+#include "ofGraphicsUtils.h"
 #include "ofVecUtils.h"
+#include "utils.h"
 
 namespace mapinect {
 
@@ -118,7 +121,7 @@ namespace mapinect {
 		
 		int i = 1;
 		for (vector<ofVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
-			ofSetColor(0,255 * i++ / 4.0f,0);
+			ofSetColor(0, 255 * i++ / 4.0f, 0);
 			ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
 			ofCircle(w.x,w.y,4);
 		}

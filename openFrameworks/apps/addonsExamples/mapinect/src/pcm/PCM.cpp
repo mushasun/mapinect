@@ -1,6 +1,8 @@
 #include "PCM.h"
 
 #include "Feature.h"
+#include "Globals.h"
+#include "ofGraphicsUtils.h"
 #include "utils.h"
 
 #define DEFAULT_NAME		"test"
@@ -48,7 +50,7 @@ namespace mapinect {
 			gModel->objectsMutex.lock();
 			/*glTranslatef(320, 240, 0);
 			glScalef(1, 1, 1);*/
-			for (list<ModelObject*>::iterator iter = gModel->objects.begin();
+			for (vector<ModelObjectPtr>::iterator iter = gModel->objects.begin();
 				iter != gModel->objects.end(); iter++) {
 					(*iter)->drawObject();
 			}

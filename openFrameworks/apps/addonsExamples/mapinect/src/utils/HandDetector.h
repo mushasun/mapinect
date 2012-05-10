@@ -1,17 +1,13 @@
 #ifndef MAPINECT_HANDDETECTOR_H__
 #define MAPINECT_HANDDETECTOR_H__
 
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
-#include "PCPolygon.h"
-
-using namespace pcl;
+#include "mapinectTypes.h"
 
 namespace mapinect {
 	class HandDetector {
 	public:
 		void				SetPotentialHandCloud(const PCPtr& cloud);
-		void				SetTable(Table* table);
+		void				SetTable(const TablePtr& table);
 		float				IsHand();
 		int					GetHandDirection();
 
@@ -20,15 +16,15 @@ namespace mapinect {
 		void				trimHand();
 		vector<ofVec3f>		getFingers();
 		vector<ofVec3f>		unifyHandVertex(const PCPtr& handHull);
-		float				checkFingers(vector<ofVec3f> fingers);
-		int					findCloserFingerTo(ofVec3f currentFinger,vector<ofVec3f> unifiedHull,int handDirection);
+		float				checkFingers(vector<ofVec3f>& fingers);
+		int					findCloserFingerTo(const ofVec3f& currentFinger, const vector<ofVec3f>& unifiedHull, int handDirection);
 
 		PCPtr				hand;
-		Table*				table;
+		TablePtr			table;
 		bool				isHand;
 		int					handDirection;
-		PointXYZ			tipPoint;
-		PointXYZ			handCentroid;
+		pcl::PointXYZ		tipPoint;
+		pcl::PointXYZ		handCentroid;
 	};
 }
 

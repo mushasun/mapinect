@@ -1,5 +1,6 @@
 #include "Building.h"
 
+#include "ofGraphicsUtils.h"
 #include "ofVecUtils.h"
 #include "Table.h"
 
@@ -8,7 +9,8 @@ namespace buildings {
 	GLuint Building::buildingTexture = 0;
 	GLuint Building::roofTexture = 0;
 
-	Building::Building(int id, PCPolyhedron* polyhedron) {
+	Building::Building(int id, const PCPolyhedronPtr& polyhedron)
+	{
 		this->id = id;
 		this->polyhedron = polyhedron;
 		progress = 0;
@@ -18,7 +20,7 @@ namespace buildings {
 
 	}
 
-	void Building::draw(const ITxManager* txManager, const Floor* floor)
+	void Building::draw(const ITxManager* txManager, const Floor& floor)
 	{
 		if (progress < 1.0f) {
 			progress += 0.002f;
@@ -26,11 +28,11 @@ namespace buildings {
 
 		for (int i = 0; i < polyhedron->getPCPolygonSize(); i++)
 		{
-			PCPolygon* polygon = polyhedron->getPCPolygon(i);
+			PCPolygonPtr polygon = polyhedron->getPCPolygon(i);
 			if (polygon->hasObject()) 
 			{
 				txManager->enableTextures();
-				mapinect::Polygon* q = polygon->getPolygonModelObject();
+				mapinect::PolygonPtr q = polygon->getPolygonModelObject();
 
 				static ofVec3f vA,vB,vC,vD;
 
@@ -39,7 +41,7 @@ namespace buildings {
 				vC = q->getVertex(2);
 				vD = q->getVertex(3);
 
-				ofVec3f floorNormal = floor->getModelObject()->getNormal();
+				ofVec3f floorNormal = floor.getModelObject()->getNormal();
 				float prod = abs(q->getNormal().dot(floorNormal));
 				prod = 1.0;
 				if (prod < 0.9)

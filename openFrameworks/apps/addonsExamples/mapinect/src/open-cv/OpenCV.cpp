@@ -1,8 +1,9 @@
 #include "OpenCV.h"
 
 #include "Feature.h"
-#include "utils.h"
+#include "Globals.h"
 #include "ofGraphicsUtils.h"
+#include "utils.h"
 
 namespace mapinect {
 

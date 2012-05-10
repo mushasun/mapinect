@@ -1,11 +1,13 @@
 #include "PCQuadrilateral.h"
 
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/project_inliers.h>
+#include <pcl/segmentation/extract_clusters.h>
+
 #include "Triangle2D.h"
 #include "ofVecUtils.h"
 #include "PointUtils.h"
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/project_inliers.h>
-#include <pcl/segmentation/extract_clusters.h>
 
 namespace mapinect {
 
@@ -113,7 +115,7 @@ namespace mapinect {
 
 	void PCQuadrilateral::increaseLod(const PCPtr& nuCloud)
 	{
-		PCDWriter writer;
+		pcl::PCDWriter writer;
 		//writer.write<pcl::PointXYZ> ("nuCloudFace"+ ofToString(this->getId())+".pcd", *nuCloud, false);
 		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
 		//writer.write<pcl::PointXYZ> ("nuCloud.pcd", *nuCloud, false);
@@ -185,7 +187,7 @@ namespace mapinect {
 		this->cloud->operator+=(*(nuPointsOfFace.get()));
 
 		//writer.write<pcl::PointXYZ> ("nucloudOfFace"+ ofToString(this->getId())+".pcd", cloud, false);
-		matched = new PCQuadrilateral(coefficients, cloud);
+		matched = PCPolygonPtr(new PCQuadrilateral(coefficients, cloud));
 		matched->detectPolygon();
 		updateMatching();
 	}

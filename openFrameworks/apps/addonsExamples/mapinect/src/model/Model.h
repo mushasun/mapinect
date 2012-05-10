@@ -3,21 +3,20 @@
 
 #include "ModelObject.h"
 #include "ofxMutex.h"
-#include <list>
+#include <vector>
+#include "Table.h"
 
 namespace mapinect {
-	class Table;
-
 	class Model {
 
 	public:
 		Model();
 
-		ModelObject*				getObjectAt(int index);
+		ModelObjectPtr					getObjectAt(int index);
 
-		ofxMutex					objectsMutex;
-		std::list<ModelObject*>		objects;
-		Table*						table;
+		ofxMutex						objectsMutex;
+		vector<ModelObjectPtr>			objects;
+		TablePtr						table;
 	};
 }
 

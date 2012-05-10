@@ -2,6 +2,8 @@
 
 #include "Table.h"
 
+#include "ofGraphicsUtils.h"
+
 namespace buildings {
 
 	GLuint Floor::floorTexture = 0;
@@ -11,7 +13,7 @@ namespace buildings {
 	{
 		if (modelObject->hasObject()) 
 		{
-			mapinect::Polygon* q = modelObject->getPolygonModelObject();
+			mapinect::PolygonPtr q = modelObject->getPolygonModelObject();
 
 			txManager->enableTextures();
 			txManager->bindTexture(Floor::floorTexture);

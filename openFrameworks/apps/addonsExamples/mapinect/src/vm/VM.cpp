@@ -3,6 +3,7 @@
 #include "Feature.h"
 #include "ofxXmlSettings.h"
 #include "ofVec3f.h"
+#include "utils.h"
 #include "winUtils.h"
 #include "ofxOpenCv.h"
 
@@ -113,15 +114,21 @@ namespace mapinect {
 			proj_matrix_RT[j] = (float) cvGetReal2D(projector_R, 0, i);
 			proj_matrix_RT[j+1] = (float) cvGetReal2D(projector_R, 1, i);
 			proj_matrix_RT[j+2] = (float) cvGetReal2D(projector_R, 2, i);
+			proj_matrix_RT[j+3] = 0;
 			j+=4;
 		}
-		proj_matrix_RT[3] = 0;
-		proj_matrix_RT[7] = 0;
-		proj_matrix_RT[11] = 0;
 		for(int i=0; i<3; i++){
-			proj_matrix_RT[i+12] = (float) cvGetReal2D(projector_T,i,0);
+			proj_matrix_RT[j] = (float) cvGetReal2D(projector_T,i,0);
+			j++;
 		}
 		proj_matrix_RT[15] = 1;
+
+		const int NEGATE_COUNT = 3;
+		int negate_indices[NEGATE_COUNT] = { 8, 10, 12 };
+		for (int i = 0; i < NEGATE_COUNT; i++)
+		{
+			proj_matrix_RT[negate_indices[i]] *= -1;
+		}
 
 		// Set projector vectors for viewing
 		proj_loc = ofVec3f(proj_matrix_RT[12], proj_matrix_RT[13], proj_matrix_RT[14]); // tx ty tz	
@@ -142,11 +149,9 @@ namespace mapinect {
 	
 		CHECK_ACTIVE;
 
-/*		int w = ofGetWidth();
-		int h = ofGetHeight();
+		int w = 1280;
+		int h = 768;
 		glViewport(0, 0, w, h);
-*/
-		glViewport(0, 0, 1280, 768);
 
 		glMatrixMode(GL_PROJECTION);
 //		ofPushMatrix();
@@ -158,10 +163,12 @@ namespace mapinect {
 		glMatrixMode(GL_MODELVIEW);
 //		ofPushMatrix();
 			glLoadIdentity();
-			glScalef(-1, -1, 1);	
+			glScalef(-1, -1, 1);
 			gluLookAt(proj_loc.x, proj_loc.y, proj_loc.z,	//loc
 						proj_trg.x, proj_trg.y, proj_trg.z,	//target
 						proj_up.x, proj_up.y, proj_up.z);	//up
+			GLfloat model[16]; 
+			glGetFloatv(GL_MODELVIEW_MATRIX, model);
 //		ofPopMatrix();
 
 
@@ -186,6 +193,17 @@ namespace mapinect {
 	void VM::draw() {
 		CHECK_ACTIVE;
 
+		/*
+		glColor3f(1.f, 1.f, 1.f);
+		for (int i = 0; i < KINECT_WIDTH; i += 5)
+		{
+			for (int j = 0; j < KINECT_HEIGHT; j += 5)
+			{
+				ofVec3f pt = gKinect->getWorldCoordinateFor(i, j);
+				ofCircle(pt.x, pt.y, pt.z, 0.005f);
+			}
+		}
+		*/
 	}
 
 	//--------------------------------------------------------------

@@ -1,5 +1,6 @@
 #include "Buildings.h"
 
+#include "Globals.h"
 #include "utils.h"
 
 namespace buildings {
@@ -62,15 +63,15 @@ namespace buildings {
 		}
 
 
-		for (list<mapinect::ModelObject*>::iterator iter = gModel->objects.begin(); iter != gModel->objects.end(); iter++) {
+		for (vector<mapinect::ModelObjectPtr>::iterator iter = gModel->objects.begin(); iter != gModel->objects.end(); iter++) {
 			int id = (*iter)->getId();
 			if (buildings.find(id) == buildings.end()) {
-				buildings[id] = new Building(id, dynamic_cast<PCPolyhedron*>(*iter));
+				buildings[id] = new Building(id, PCPolyhedronPtr(dynamic_cast<PCPolyhedron*>(iter->get())));
 			}
 		}
 
 		for (map<int, Building*>::iterator iter = buildings.begin(); iter != buildings.end(); iter++) {
-			(iter->second)->draw(txManager, floor);
+			(iter->second)->draw(txManager, *floor);
 		}
 
 		gModel->objectsMutex.unlock();

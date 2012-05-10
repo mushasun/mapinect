@@ -39,13 +39,13 @@ namespace mapinect {
 
 		void						saveCloud(const string& name);
 		void						savePartialCloud(ofPoint min, ofPoint max, int id, const string& name);
-		PointCloud<PointXYZ>*		loadCloud(const string& name);
+		PCPtr						loadCloud(const string& name);
 
 		PCPtr						getPartialCloud(ofPoint min, ofPoint max);
 
 		PCPtr						cloud;
 		PCPtr						currentDiffcloud;
-		octree::OctreePointCloudChangeDetector<PointXYZ>	*octree;
+		octree::OctreePointCloudChangeDetector<PointXYZ>::Ptr octree;
 
 		void						setInitialPointCloud();
 		PCPtr						getDifferenceIdx(bool &dif, int noise_filter = 7);
@@ -65,10 +65,11 @@ namespace mapinect {
 		ofVec3f						normalEstimation(const PCPtr& plane, pcl::PointIndices::Ptr indicesptr);
 		int							getSlotForTempObj();
 		PCPtr						getTableCluster();
+		bool						findBestFit(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud, bool &removed);
+
 		int							noDifferencesCount;
-		bool						findBestFit(TrackedCloud* trackedCloud, TrackedCloud*& removedCloud, bool &removed);
-		std::list<TrackedCloud>		trackedClouds;
-		Table*						table;
+		list<TrackedCloudPtr>		trackedClouds;
+		TablePtr					table;
 		float						tableClusterLastDist;
 		bool						handSetted;
 		vector<PCPtr>				potentialHands;

@@ -5,6 +5,7 @@
 
 #include "Floor.h"
 #include "Building.h"
+#include <map>
 
 namespace buildings {
 
