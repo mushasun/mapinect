@@ -7,13 +7,18 @@
 #include <vector>
 
 namespace mapinect {
+
+	class Polyhedron;
+
+	typedef boost::shared_ptr<Polyhedron> PolyhedronPtr;
+
 	class Polyhedron : public ModelObject {
 		public:
 			Polyhedron() { }
 			virtual				~Polyhedron() { }
 
-			void				addPolygon(Polygon*);
-			Polygon*			getPolygonAt(int index);
+			void				addPolygon(const PolygonPtr&);
+			const PolygonPtr&	getPolygonAt(int index);
 			inline int			polygonCount()				{ return polygons.size(); }
 
 			const ofVec3f&		getVertex(int index);
@@ -21,7 +26,7 @@ namespace mapinect {
 			virtual void		draw();
 			
 		private:
-			vector<Polygon*>	polygons;
+			vector<PolygonPtr>	polygons;
 		
 	};
 }

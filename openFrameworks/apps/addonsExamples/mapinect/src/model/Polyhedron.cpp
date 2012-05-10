@@ -2,11 +2,11 @@
 
 namespace mapinect {
 
-	void Polyhedron::addPolygon(Polygon* polygon) {
+	void Polyhedron::addPolygon(const PolygonPtr& polygon) {
 		polygons.push_back(polygon);
 	}
 
-	Polygon* Polyhedron::getPolygonAt(int index) {
+	const PolygonPtr& Polyhedron::getPolygonAt(int index) {
 		return polygons.at(index);
 	}
 
@@ -15,7 +15,7 @@ namespace mapinect {
 	}
 
 	void Polyhedron::draw() {
-		for (vector<Polygon*>::iterator iter = polygons.begin(); iter != polygons.end(); iter++) {
+		for (vector<PolygonPtr>::iterator iter = polygons.begin(); iter != polygons.end(); iter++) {
 			(*iter)->drawObject();
 		}
 	}

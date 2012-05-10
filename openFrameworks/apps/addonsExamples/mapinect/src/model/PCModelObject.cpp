@@ -1,8 +1,12 @@
 #include "PCModelObject.h"
-#include "pointUtils.h"
-#include "utils.h"
+
 #include <pcl/registration/transformation_estimation.h>
 #include <pcl/io/pcd_io.h>
+
+#include "Globals.h"
+#include "ofGraphicsUtils.h"
+#include "pointUtils.h"
+#include "utils.h"
 
 
 namespace mapinect {
@@ -11,8 +15,6 @@ namespace mapinect {
 		: cloud(new PC(*cloud))
 	{
 		drawPointCloud = true;
-		modelObject = NULL;
-		//PCPtr cloudTemp (new PointCloud<PointXYZ>(*cloud));
 		findPointCloudBoundingBox(cloud, vMin, vMax);
 		transformation.setIdentity();
 		if (objId == -1)

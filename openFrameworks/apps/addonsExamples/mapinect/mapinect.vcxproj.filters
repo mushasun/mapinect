@@ -100,12 +100,6 @@
     <ClCompile Include="src\math\Triangle2D.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="src\lpmt\LPMT.cpp">
-      <Filter>lpmt</Filter>
-    </ClCompile>
-    <ClCompile Include="src\lpmt\quad.cpp">
-      <Filter>lpmt</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\pointUtils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -126,9 +120,6 @@
     </ClCompile>
     <ClCompile Include="src\open-cv\OpenCV.cpp">
       <Filter>open-cv</Filter>
-    </ClCompile>
-    <ClCompile Include="src\lpmt\monitor.cpp">
-      <Filter>lpmt</Filter>
     </ClCompile>
     <ClCompile Include="src\model\Box.cpp">
       <Filter>model</Filter>
@@ -183,21 +174,18 @@
     <ClCompile Include="src\utils\objectTypesEnum.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\pcm\PotentialHand.h">
-      <Filter>pcm</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\addons\ofxMutex\src\ofxMutex.cpp">
       <Filter>addons\ofxMutex\src</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\ofVecUtils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\HandDetector.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
     <ClCompile Include="src\Feature.cpp" />
     <ClCompile Include="src\model\Table.cpp">
       <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\HandDetector.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -324,15 +312,6 @@
     <ClInclude Include="src\math\Triangle2D.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="src\lpmt\ball.h">
-      <Filter>lpmt</Filter>
-    </ClInclude>
-    <ClInclude Include="src\lpmt\LPMT.h">
-      <Filter>lpmt</Filter>
-    </ClInclude>
-    <ClInclude Include="src\lpmt\quad.h">
-      <Filter>lpmt</Filter>
-    </ClInclude>
     <ClInclude Include="src\utils\ofGraphicsUtils.h">
       <Filter>utils</Filter>
     </ClInclude>
@@ -359,9 +338,6 @@
     </ClInclude>
     <ClInclude Include="src\open-cv\OpenCV.h">
       <Filter>open-cv</Filter>
-    </ClInclude>
-    <ClInclude Include="src\lpmt\monitor.h">
-      <Filter>lpmt</Filter>
     </ClInclude>
     <ClInclude Include="src\model\Box.h">
       <Filter>model</Filter>
@@ -426,14 +402,16 @@
     <ClInclude Include="src\model\AlignmentDetector.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="src\model\HandDetector.h">
-      <Filter>model</Filter>
-    </ClInclude>
     <ClInclude Include="src\Feature.h" />
     <ClInclude Include="src\model\Table.h">
       <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="src\mapinectTypes.h" />
+    <ClInclude Include="src\utils\HandDetector.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Constants.h" />
+    <ClInclude Include="src\Globals.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -489,9 +467,6 @@
     </Filter>
     <Filter Include="pcm">
       <UniqueIdentifier>{67b6a74c-f901-4bd8-9a5b-b31c145357ab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lpmt">
-      <UniqueIdentifier>{087d0a5a-0661-4f2d-a12e-a79fcdc89cdb}</UniqueIdentifier>
     </Filter>
     <Filter Include="model">
       <UniqueIdentifier>{122a32e6-cf85-4619-8880-c6122cba6b2f}</UniqueIdentifier>

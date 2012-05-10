@@ -14,6 +14,10 @@ namespace mapinect {
 			{
 				return detectPolygon();
 			}
+
+			bool isOnTable(const PCPtr& cloud);
+			bool isParallelToTable(const mapinect::PCPolygonPtr& polygon);
+
 	};
 }
 

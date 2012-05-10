@@ -8,19 +8,29 @@
 #include <pcl/kdtree/kdtree_flann.h>
 
 using namespace pcl;
+
+typedef pcl::PointCloud<pcl::Normal>				SurfaceNormals;
+typedef SurfaceNormals::Ptr							SurfaceNormalsPtr;
+typedef pcl::PointCloud<pcl::FPFHSignature33>		LocalFeatures;
+typedef LocalFeatures::Ptr							LocalFeaturesPtr;
+typedef pcl::KdTreeFLANN<pcl::PointXYZ>				SearchMethod;
+typedef SearchMethod::Ptr							SearchMethodPtr;
+
 namespace mapinect {
+
+	class TrackedCloud;
+
+	typedef boost::shared_ptr<TrackedCloud> TrackedCloudPtr;
+
 	class TrackedCloud {
 	
 	public:
-		typedef pcl::PointCloud<pcl::Normal> SurfaceNormals;
-		typedef pcl::PointCloud<pcl::FPFHSignature33> LocalFeatures;
-		typedef pcl::KdTreeFLANN<pcl::PointXYZ> SearchMethod;
+		TrackedCloud();
 		TrackedCloud(const PCPtr& cloud);
 		TrackedCloud(const PCPtr& cloud, bool isHand, bool forceCreate);
-		TrackedCloud();
 		virtual ~TrackedCloud();
 
-		bool matches(TrackedCloud* trackedCloud, TrackedCloud*& removedCloud, bool &removed);
+		bool matches(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud, bool &removed);
 		void addCounter(int diff);
 		void updateMatching();
 		inline int getCounter() { return counter; }
@@ -30,8 +40,8 @@ namespace mapinect {
 		inline bool isPotentialHand() { return hand; }
 		void removeMatching();
 		void updateCloud(const PCPtr& cloud_cluster);
-		bool matchingTrackedObjects(TrackedCloud tracked_temp, Eigen::Affine3f &transformation);
-		bool operator==(const TrackedCloud &other) const ;
+		bool matchingTrackedObjects(const TrackedCloudPtr& tracked_temp, Eigen::Affine3f &transformation);
+		bool operator==(const TrackedCloudPtr& other) const ;
 		pcl::PointCloud<pcl::FPFHSignature33>::Ptr getLocalFeatures ();
 		//bool matchingTrackedObjects(TrackedCloud tracked_temp, TrackedCloud tracked_obj, Eigen::Affine3f &transformation);
 	protected:
@@ -43,26 +53,28 @@ namespace mapinect {
 
 		// Compute the local feature descriptors
 		void computeLocalFeatures ();
+
 	private:
-		
+		void						init();
 
 		PCPtr						cloud;
 		int							counter;
-		TrackedCloud				*matchingCloud;
-		PCModelObject				*objectInModel;
+		TrackedCloudPtr				matchingCloud;
+		PCModelObjectPtr			objectInModel;
 		int							minPointDif;
 		float						nearest;
 		bool						needApplyTransformation;
 		bool						needRecalculateFaces;
 		bool						hand;
 
-		pcl::PointCloud<pcl::Normal>::Ptr				normals_;
-		pcl::PointCloud<pcl::FPFHSignature33>::Ptr		features_;
-		pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr			search_method_xyz_;
+		SurfaceNormalsPtr			normals;
+		LocalFeaturesPtr			features;
+		SearchMethodPtr				search_method_xyz;
 		bool						features_computed;
 		// Parameters
-		float normal_radius_;
-		float feature_radius_;
+		float						normal_radius;
+		float						feature_radius;
 	};
+
 }
 #endif	// MAPINECT_TRACKEDCLOUD_H__

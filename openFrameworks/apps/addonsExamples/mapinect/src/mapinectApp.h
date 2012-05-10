@@ -6,7 +6,6 @@
 
 #include "OpenCV.h"
 #include "PCM.h"
-#include "LPMT.h"
 #include "VM.h"
 #include "Arduino.h"
 
@@ -60,7 +59,6 @@ namespace mapinect {
 		/// </summary>
 		OpenCV			cv;
 		PCM				pcm;
-		LPMT			lpmt;
 		VM				vm;
 		Arduino			arduino;
 

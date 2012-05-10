@@ -6,17 +6,19 @@
 
 #include "ModelObject.h"
 
-#include "ofVec3f.h"
 #include "mapinectTypes.h"
-#include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/ModelCoefficients.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/sample_consensus/method_types.h>
-#include "ofGraphicsUtils.h"
-
-using namespace pcl;
+//#include <pcl/filters/statistical_outlier_removal.h>
+//#include <pcl/ModelCoefficients.h>
+//#include <pcl/segmentation/sac_segmentation.h>
+//#include <pcl/sample_consensus/method_types.h>
+//#include "ofGraphicsUtils.h"
 
 namespace mapinect {
+
+	class PCModelObject;
+
+	typedef boost::shared_ptr<PCModelObject> PCModelObjectPtr;
+
 	class PCModelObject : public ModelObject {
 	public:
 		PCModelObject(const PCPtr& cloud, int objId = -1);
@@ -48,7 +50,7 @@ namespace mapinect {
 		ofVec3f						vMax;
 		Eigen::Affine3f				transformation;
 		PCPtr						cloud;
-		ModelObject*				modelObject;
+		ModelObjectPtr				modelObject;
 		int							lod;
 
 		virtual void				applyTransformation();

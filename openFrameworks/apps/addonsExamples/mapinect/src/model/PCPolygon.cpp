@@ -1,27 +1,30 @@
 #include "PCPolygon.h"
 
 #include <pcl/registration/transformation_estimation.h>
+
+#include "ofGraphicsUtils.h"
+
+#include "Globals.h"
 #include "ofVecUtils.h"
+#include "utils.h"
 
 namespace mapinect {
 
 	PCPolygon::PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId)
 		: PCModelObject(cloud, objId), coefficients(coefficients)
 	{
-		modelObject = new Polygon();
-		matched = NULL;
+		modelObject = ModelObjectPtr(new Polygon());
 	}
 
 	PCPolygon::~PCPolygon() {
 		removeMatching();
-		delete modelObject;
 	}
 
-	Polygon* PCPolygon::getPolygonModelObject() {
-		return (Polygon*)modelObject;
+	const PolygonPtr PCPolygon::getPolygonModelObject() {
+		return PolygonPtr((Polygon*)modelObject.get());
 	}
 
-	ofVec3f PCPolygon::getNormal() const {
+	ofVec3f PCPolygon::getNormal() {
 		ofVec3f normal(coefficients.values[0], coefficients.values[1], coefficients.values[2]);
 		normal.normalize();
 		return normal;
@@ -92,7 +95,7 @@ namespace mapinect {
 	}
 
 
-	bool PCPolygon::matches(PCPolygon* polygon, PCPolygon*& removed, bool& wasRemoved)
+	bool PCPolygon::matches(const PCPolygonPtr& polygon, PCPolygonPtr& removed, bool& wasRemoved)
 	{
 		bool result = true;
 		wasRemoved = false;
@@ -140,8 +143,7 @@ namespace mapinect {
 	
 	void PCPolygon::removeMatching() {
 		if (hasMatching()) {
-			delete matched;
-			matched = NULL;
+			matched.reset();
 			matchedEstimator = MAX_FLOAT;
 		}
 	}

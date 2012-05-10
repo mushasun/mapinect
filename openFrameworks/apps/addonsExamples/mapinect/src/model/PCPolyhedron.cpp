@@ -1,19 +1,25 @@
 #include "PCPolyhedron.h"
 
 #include <pcl/ModelCoefficients.h>
+#include <pcl/common/centroid.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/filters/extract_indices.h>
 #include <pcl/segmentation/extract_clusters.h>
 
+#include "ofUtils.h"
+
+#include "Constants.h"
+#include "Globals.h"
+#include "ofVecUtils.h"
 #include "PCQuadrilateral.h"
 #include "pointUtils.h"
 #include "utils.h"
-#include "ofVecUtils.h"
-#include <pcl/io/pcd_io.h>
 
 
 #define MAX_FACES		3
@@ -35,18 +41,18 @@ namespace mapinect {
 		this->setCenter(v);
 	}
 
-	bool hasNoMatching(PCPolygon* p) {
+	bool hasNoMatching(const PCPolygonPtr& p) {
 		return !(p->hasMatching());
 	}
 
-	void PCPolyhedron::mergePolygons(vector<PCPolygon*> toMerge) {
-		vector<PCPolygon*> aAgregar;
-		vector<PCPolygon*> aProcesar;
+	void PCPolyhedron::mergePolygons(vector<PCPolygonPtr>& toMerge) {
+		vector<PCPolygonPtr> aAgregar;
+		vector<PCPolygonPtr> aProcesar;
 
 		int remainingIters = 10;
 		do {
 			for (int i = 0; i < toMerge.size(); i++) {
-				PCPolygon*	removed = NULL;
+				PCPolygonPtr removed;
 				bool		wasRemoved = false;
 				bool		fitted = findBestFit(toMerge[i], removed, wasRemoved);
 
@@ -62,12 +68,9 @@ namespace mapinect {
 			remainingIters--;
 		} while (toMerge.size() > 0 && remainingIters > 0);
 
-		vector<PCPolygon*> keep;
-		for (vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
-			if (!(*iter)->hasMatching()) {
-				delete *iter;				//Puede no tener que borrarse, puede pasar a ser una cara oculta
-			}
-			else {
+		vector<PCPolygonPtr> keep;
+		for (vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
+			if ((*iter)->hasMatching()) {
 				keep.push_back(*iter);
 			}
 		}
@@ -86,7 +89,7 @@ namespace mapinect {
 		cout << "pols: " << pcpolygons.size() << endl;
 	}
 
-	vector<PCPolygon*> PCPolyhedron::detectPolygons(const PCPtr& cloud, float planeTolerance, float pointsTolerance, bool limitFaces){
+	vector<PCPolygonPtr> PCPolyhedron::detectPolygons(const PCPtr& cloud, float planeTolerance, float pointsTolerance, bool limitFaces){
 		PCPtr cloudTemp(cloud);
 		
 		float maxFaces = limitFaces ? MAX_FACES : 100;
@@ -112,7 +115,7 @@ namespace mapinect {
 		int i = 0, nr_points = cloudTemp->points.size ();
 		// mientras 7% de la nube no se haya procesado
 
-		vector<PCPolygon*> nuevos;
+		vector<PCPolygonPtr> nuevos;
 
 		int numFaces = 0;
 		while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < maxFaces)
@@ -178,7 +181,7 @@ namespace mapinect {
 
 			//pcl::io::savePCDFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
 
-			PCPolygon* pcp = new PCQuadrilateral(*coefficients, cloud_p_filtered);
+			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, cloud_p_filtered));
 			pcp->detectPolygon();
 			nuevos.push_back(pcp);
 			
@@ -191,7 +194,7 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::detectPrimitives() {
-		vector<PCPolygon*> nuevos = detectPolygons(cloud); 
+		vector<PCPolygonPtr> nuevos = detectPolygons(cloud); 
 		mergePolygons(nuevos);
 		unifyVertexs();
 	}
@@ -209,9 +212,9 @@ namespace mapinect {
 		} VertexInPCPolygon;
 		vector<VertexInPCPolygon> updateVertexs;
 
-		for (vector<PCPolygon*>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end();) {
-			vector<PCPolygon*>::iterator iter = nextIter++;
-			Polygon* polygon = (*iter)->getPolygonModelObject();
+		for (vector<PCPolygonPtr>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end();) {
+			vector<PCPolygonPtr>::iterator iter = nextIter++;
+			PolygonPtr polygon = (*iter)->getPolygonModelObject();
 
 			if (polygon == NULL) {
 				// No model object is available yet, quit!
@@ -221,19 +224,19 @@ namespace mapinect {
 			for (int j = 0; j < polygon->getVertexCount(); j++) {
 				updateVertexs.clear();
 				VertexInPCPolygon vpp;
-				vpp.pcp = *iter;
+				vpp.pcp = iter->get();
 				vpp.vertex = j;
 				updateVertexs.push_back(vpp);
 				ofVec3f v(polygon->getVertex(j));
 
-				for (vector<PCPolygon*>::iterator iter2 = iter; iter2 != pcpolygons.end(); iter2++) {
-					Polygon* polygon2 = (*iter2)->getPolygonModelObject();
+				for (vector<PCPolygonPtr>::iterator iter2 = iter; iter2 != pcpolygons.end(); iter2++) {
+					PolygonPtr polygon2 = (*iter2)->getPolygonModelObject();
 					for (int k = 0; k < polygon2->getVertexCount(); k++) {
 						ofVec3f v2(polygon2->getVertex(k));
 						if (!(v == v2)
 							&& polygon->getVertex(j).distance(polygon2->getVertex(k)) <= MAX_UNIFYING_DISTANCE) {
 							VertexInPCPolygon vpp2;
-							vpp2.pcp = *iter2;
+							vpp2.pcp = iter2->get();
 							vpp2.vertex = k;
 							updateVertexs.push_back(vpp2);
 						}
@@ -254,7 +257,7 @@ namespace mapinect {
 		}
 	}
 
-	bool PCPolyhedron::findBestFit(PCPolygon* polygon, PCPolygon*& removed, bool& wasRemoved)
+	bool PCPolyhedron::findBestFit(const PCPolygonPtr& polygon, PCPolygonPtr& removed, bool& wasRemoved)
 	{
 		for (int i = 0; i < pcpolygons.size(); i++) {
 			if (pcpolygons[i]->matches(polygon, removed, wasRemoved)) {
@@ -265,7 +268,7 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::draw() {
-		for (vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
+		for (vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
 			(*iter)->draw();
 		}
 	}
@@ -273,12 +276,12 @@ namespace mapinect {
 	void PCPolyhedron::applyTransformation()
 	{
 		PCModelObject::applyTransformation();
-		for(vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
+		for(vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
 			(*iter)->applyTransformation(&transformation);
 		}
 	}
 
-	PCPolygon*	PCPolyhedron::getPCPolygon(int index)
+	const PCPolygonPtr& PCPolyhedron::getPCPolygon(int index)
 	{
 		return pcpolygons[index];
 	}
@@ -298,16 +301,16 @@ namespace mapinect {
 	void PCPolyhedron::increaseLod() {
 		PCModelObject::increaseLod();
 
-		for(vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
+		for(vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
 			(*iter)->increaseLod(cloud);
 		}
 		unifyVertexs();
 	}
 
-	vector<PCPolygon*>	PCPolyhedron::discardPolygonsOutOfBox(vector<PCPolygon*> toDiscard)
+	vector<PCPolygonPtr>	PCPolyhedron::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard)
 	{
-		vector<PCPolygon*> polygonsInBox;
-		Table* table = gModel->table;
+		vector<PCPolygonPtr> polygonsInBox;
+		TablePtr table = gModel->table;
 
 		//pcl::io::savePCDFile("table.pcd",table->getCloud());
 		
@@ -316,12 +319,12 @@ namespace mapinect {
 			//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
 
 			PCPtr cloudPtr(toDiscard.at(i)->getCloud());
-			if(onTable(cloudPtr,table))
+			if(table->isOnTable(cloudPtr))
 			{
 				cout << "pol" << ofToString(i) << " On table!" <<endl;
 				polygonsInBox.push_back(toDiscard.at(i));
 			}
-			else if(tableParallel(toDiscard.at(i), table))
+			else if(table->isParallelToTable(toDiscard.at(i)))
 			{
 				cout << "pol" << ofToString(i) << " parallel table!" <<endl;
 				polygonsInBox.push_back(toDiscard.at(i));
@@ -344,11 +347,11 @@ namespace mapinect {
 		/// 4 - Estimar caras ocultas (?)
 		
 		//Detecto nuevas caras
-		vector<PCPolygon*> nuevos = detectPolygons(nuCloud,0.003,2.6,false); 
+		vector<PCPolygonPtr> nuevos = detectPolygons(nuCloud,0.003,2.6,false); 
 
 		cout << "pre discard: " << nuevos.size() << endl;
 		//Descarto caras fuera del objeto
-		vector<PCPolygon*> inBox = discardPolygonsOutOfBox(nuevos);
+		vector<PCPolygonPtr> inBox = discardPolygonsOutOfBox(nuevos);
 		
 		cout << "post discard: " << inBox.size() << endl;
 
@@ -357,7 +360,7 @@ namespace mapinect {
 
 
 		//*nuCloud += *cloudPtr;
-		//for(vector<PCPolygon*>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
+		//for(vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
 		//	//(*iter)->applyTransformation(&transformation);
 		//	(*iter)->increaseLod(nuCloud);
 		//}

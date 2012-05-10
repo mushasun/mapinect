@@ -3,6 +3,8 @@
 
 #include "ofVec3f.h"
 #include "ofVec2f.h"
+#include "ofPoint.h"
+
 #include "utils.h"
 
 void findOfxVec3fBoundingBox(const std::vector<ofVec3f>& v, ofVec3f &vMin, ofVec3f &vMax);
@@ -17,6 +19,22 @@ enum DiscardCoordinate {
 DiscardCoordinate calculateDiscardCoordinate(const ofVec3f& v);
 DiscardCoordinate calculateDiscardCoordinate(const ofVec3f& min, const ofVec3f& max);
 ofVec2f discardCoordinateOfxVec3f(const ofVec3f& v, DiscardCoordinate discard);
+
+
+struct ofPolar {
+	float ro, theta;
+};
+
+inline ofVec3f scaleFromMtsToMms(const ofVec3f& p) { return p * 1000; }
+
+ofPolar cartesianToPolar(const ofPoint& c);
+
+bool sortOnY(const ofVec3f& l, const ofVec3f& r);
+
+bool sortOnX(const ofVec3f& l, const ofVec3f& r);
+
+bool sortOnZ(const ofVec3f& l, const ofVec3f& r);
+
 
 template<class T>
 int indexOf(const std::vector<T>& v, const T& t)

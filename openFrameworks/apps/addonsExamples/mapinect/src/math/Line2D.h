@@ -20,10 +20,10 @@ namespace mapinect {
 		inline const ofVec2f &getOrigin() { return pOrigin; }
 		inline const ofVec3f getCoefficients() { return ofVec3f(pA,pB,pC); }
 
-		double distance(const ofVec2f &v);
-		double calculateValue(const ofVec2f &v);
-		ofVec2f projectTo(const ofVec2f &v);
-		PositionToLine positionTo(const ofVec2f &f);
+		double distance(const ofVec2f &v) const;
+		double calculateValue(const ofVec2f &v) const;
+		ofVec2f projectTo(const ofVec2f &v) const;
+		PositionToLine positionTo(const ofVec2f &f) const;
 
 	private:
 		ofVec2f pOrigin;

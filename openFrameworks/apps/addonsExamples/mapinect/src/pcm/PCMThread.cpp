@@ -1,17 +1,21 @@
 #include "PCMThread.h"
 
+#include <math.h>
+
 #include "ofMain.h"
-#include "pointUtils.h"
-#include "ofVecUtils.h"
 #include "ofGraphicsUtils.h"
+#include "ofVec2f.h"
+#include "ofVecUtils.h"
 #include "ofxXmlSettings.h"
+
+#include "Constants.h"
+#include "Globals.h"
+#include "HandDetector.h"
+#include "Line2D.h"
+#include "PCHand.h"
+#include "pointUtils.h"
 #include "Timer.h"
 #include "utils.h"
-#include "PCHand.h"
-#include "Line2D.h"
-#include "ofVec2f.h"
-#include "HandDetector.h"
-#include <math.h>
 
 using namespace std;
 
@@ -54,10 +58,10 @@ namespace mapinect {
 			MAX_UNIFYING_DISTANCE_PROJECTION = XML.getValue("PCMConfig:MAX_UNIFYING_DISTANCE_PROJECTION", 0.01);
 			HAND_SIZE = XML.getValue("PCMConfig:HAND_SIZE", 0.20);
 
-			MIN_ANGLES_FINGERS = parceArray(XML.getValue("PCMConfig:MIN_ANGLES_FINGERS", "51.5,22.1,21.6,26.7"));
-			MAX_ANGLES_FINGERS = parceArray(XML.getValue("PCMConfig:MAX_ANGLES_FINGERS", "55,31,23.3,29.2"));
-			MIN_LENGTH_FINGERS = parceArray(XML.getValue("PCMConfig:MIN_LENGTH_FINGERS", ".079,.097,.099,.103,.086"));
-			MAX_LENGTH_FINGERS = parceArray(XML.getValue("PCMConfig:MAX_LENGTH_FINGERS", ".089,.106,.109,.109,.95"));
+			MIN_ANGLES_FINGERS = parseArray(XML.getValue("PCMConfig:MIN_ANGLES_FINGERS", "51.5,22.1,21.6,26.7"));
+			MAX_ANGLES_FINGERS = parseArray(XML.getValue("PCMConfig:MAX_ANGLES_FINGERS", "55,31,23.3,29.2"));
+			MIN_LENGTH_FINGERS = parseArray(XML.getValue("PCMConfig:MIN_LENGTH_FINGERS", ".079,.097,.099,.103,.086"));
+			MAX_LENGTH_FINGERS = parseArray(XML.getValue("PCMConfig:MAX_LENGTH_FINGERS", ".089,.106,.109,.109,.95"));
 		}
 
 		// Initialize point cloud
@@ -69,7 +73,8 @@ namespace mapinect {
 		cloud->points.resize (CLOUD_POINTS);
 
 		// Inicializo octree
-		octree = new octree::OctreePointCloudChangeDetector<PointXYZ>(OCTREE_RES); //Valor de resolucion sacado del ejemplo
+		octree = octree::OctreePointCloudChangeDetector<PointXYZ>::Ptr(
+					new octree::OctreePointCloudChangeDetector<PointXYZ>(OCTREE_RES)); //Valor de resolucion sacado del ejemplo
 
 		timer = 0;
 		baseCloudSetted = false;
@@ -77,8 +82,6 @@ namespace mapinect {
 		detectMode = false;
 		objId = 0;
 		startThread(true, false);
-		table = NULL;
-		gModel->table = NULL;
 		handSetted = false;
 	}
 
@@ -186,8 +189,8 @@ namespace mapinect {
 	}
 
 
-	bool countIsZero(const TrackedCloud &trackedCloud) {
-		return ((TrackedCloud)trackedCloud).getCounter() == 0;
+	bool countIsZero(const TrackedCloudPtr &trackedCloud) {
+		return trackedCloud->getCounter() == 0;
 	}
 
 
@@ -220,22 +223,6 @@ namespace mapinect {
 		pass.setFilterLimits (0.001, 4.0);
 		pass.filter (*filteredCloud);
 		
-		///////////SACAR!!!!!!!!
-		//PointCloud<PointXYZRGB>::Ptr cloudColor = getPartialColorCloudRealCoords(ofPoint(0,0), ofPoint(639,479), 4);
-		//writer.write<pcl::PointXYZRGB> ("rawColor.pcd", *cloudColor, false);
-		
-		/*PointCloud<PointXYZRGB>::Ptr filteredCloudColor (new PointCloud<PointXYZRGB>());
-		PassThrough<PointXYZRGB> pass2;
-		pass2.setInputCloud (cloudColor);
-		pass2.setFilterFieldName ("z");
-		pass2.setFilterLimits (0.001, 4.0);
-		pass2.filter (*filteredCloudColor);*/
-		//writer.write<pcl::PointXYZRGB> ("filteredColor.pcd", *filteredCloudColor, false);
-		
-
-		//filteredCloud = cloud;
-		//////////////
-
 		//writer.write<pcl::PointXYZ> ("filteredCloud.pcd", *filteredCloud, false);
 
 		if (filteredCloud->size() == 0) {
@@ -363,7 +350,7 @@ namespace mapinect {
 			//ofxScopedMutex objectsLock(gModel->objectsMutex);
 			//writer.write<pcl::PointXYZ> ("table.pcd", *cloud_filtered_temp_inliers, false);
 			gModel->objectsMutex.lock();
-			table = new Table(*coefficients, cloud_filtered_temp_inliers);
+			table = TablePtr(new Table(*coefficients, cloud_filtered_temp_inliers));
 			table->detect();
 			gModel->table = table;
 			gModel->objectsMutex.unlock();
@@ -394,8 +381,8 @@ namespace mapinect {
 		dif = getDifferencesCloud(cloud,secondCloud,filteredCloud,OCTREE_RES);
 */
 		//Actualizo las detecciones temporales
-		for (list<TrackedCloud>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			iter->addCounter(-1);
+		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
+			(*iter)->addCounter(-1);
 		}
 		trackedClouds.remove_if(countIsZero);
 		
@@ -405,7 +392,7 @@ namespace mapinect {
 			return;
 		}
 
-		list<TrackedCloud*> nuevosClouds;
+		list<TrackedCloudPtr> nuevosClouds;
 		int debugCounter = 0;
 
 		if(!filteredCloud->empty())
@@ -438,7 +425,7 @@ namespace mapinect {
 
 				//writer.write<pcl::PointXYZ> ("cluster" + ofToString(debugCounter) + ".pcd", *cloud_cluster, false);
 
-				nuevosClouds.push_back(new TrackedCloud(cloud_cluster));
+				nuevosClouds.push_back(TrackedCloudPtr(new TrackedCloud(cloud_cluster)));
 				debugCounter++;
 			}
 		}
@@ -446,22 +433,22 @@ namespace mapinect {
 		//Agrego los cluster que no están tocando la mesa para hacer el tracking de manos
 		for (std::vector<PCPtr>::const_iterator it = potentialHands.begin (); it != potentialHands.end (); ++it)
 		{
-			nuevosClouds.push_back(new TrackedCloud(*it));
+			nuevosClouds.push_back(TrackedCloudPtr(new TrackedCloud(*it)));
 		}
 		potentialHands.clear();
 
 		//Itero en todas las nuves encontradas buscando el mejor ajuste con un objeto encontrado
-		list<TrackedCloud*> aProcesarClouds;
-		list<TrackedCloud*> aAgregarClouds;
+		list<TrackedCloudPtr> aProcesarClouds;
+		list<TrackedCloudPtr> aAgregarClouds;
 
 		debugCounter = 0;
 		int max_iter = 10;
 		do{
-			for (list<TrackedCloud*>::iterator iter = nuevosClouds.begin(); iter != nuevosClouds.end(); iter++) {
+			for (list<TrackedCloudPtr>::iterator iter = nuevosClouds.begin(); iter != nuevosClouds.end(); iter++) {
 				//PCDWriter writer;
 
 				//writer.write<pcl::PointXYZ> ("vector" + ofToString(debugCounter) + ".pcd", *(*iter)->getTrackedCloud(), false);
-				TrackedCloud *removedCloud;
+				TrackedCloudPtr removedCloud;
 				bool removed = false;
 				//Busco el mejor ajuste
 				bool fitted = findBestFit(*iter, removedCloud, removed);
@@ -481,10 +468,10 @@ namespace mapinect {
 		////Actualizo los objetos con las nubes de mejor ajuste
 		updateDetectedObjects();
 
-		for (list<TrackedCloud*>::iterator iter = aAgregarClouds.begin(); iter != aAgregarClouds.end(); iter++) {
-			trackedClouds.push_back(TrackedCloud(**iter));
+		for (list<TrackedCloudPtr>::iterator iter = aAgregarClouds.begin(); iter != aAgregarClouds.end(); iter++) {
+			trackedClouds.push_back(TrackedCloudPtr(new TrackedCloud(**iter)));
 		}
-		////Los TrackedCloud* de aAgregarClouds quedan colgados?
+		////Los TrackedCloudPtr de aAgregarClouds quedan colgados?
 		aAgregarClouds.clear();
 	}
 
@@ -538,18 +525,18 @@ namespace mapinect {
 		std::cerr << "Saved " << partialColud->points.size () << " data points to " << ss.str() << std::endl;
 	}
 
-	PointCloud<PointXYZ>* PCMThread::loadCloud(const string& name) {
+	PCPtr PCMThread::loadCloud(const string& name) {
 		cout << "loading: " << name << "..." << endl;
-		pcl::PointCloud<pcl::PointXYZ>* tmpCloud = new pcl::PointCloud<PointXYZ>();
+		PCPtr tmpCloud(new PC());
 		string filename = name + PCD_EXTENSION;
 		pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *tmpCloud);
 		cout << name << " loaded!" << endl;
 		return tmpCloud;
 	}
 
-	bool PCMThread::findBestFit(TrackedCloud* trackedCloud, TrackedCloud*& removedCloud, bool &removed) {
-		for (list<TrackedCloud>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			if (iter->matches(trackedCloud, removedCloud, removed))
+	bool PCMThread::findBestFit(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud, bool &removed) {
+		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
+			if ((*iter)->matches(trackedCloud, removedCloud, removed))
 			{
 				return true;
 			}
@@ -559,18 +546,18 @@ namespace mapinect {
 
 	void PCMThread::updateDetectedObjects() {
 		handSetted = false;
-		for (list<TrackedCloud>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			if (iter->hasMatching())
+		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
+			if ((*iter)->hasMatching())
 			{
-				iter->updateMatching();
-				if (!(iter->hasObject())) {
-					iter->addCounter(2);
+				(*iter)->updateMatching();
+				if (!((*iter)->hasObject())) {
+					(*iter)->addCounter(2);
 				}
 				else
-					iter->addCounter(1);
-				iter->removeMatching();
+					(*iter)->addCounter(1);
+				(*iter)->removeMatching();
 			}
-			if(iter->isPotentialHand())
+			if((*iter)->isPotentialHand())
 				handSetted = true;
 		}
 	}
