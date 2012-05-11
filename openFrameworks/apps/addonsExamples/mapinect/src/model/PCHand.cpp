@@ -160,4 +160,10 @@ namespace mapinect {
 	void PCHand::increaseLod() {
 		
 	}
+
+	void PCHand::addToModel(const PCPtr& cloud)
+	{
+		this->cloud = cloud;
+		this->detectPrimitives();
+	}
 }

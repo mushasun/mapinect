@@ -28,4 +28,32 @@ namespace mapinect
 		return dot > 0.9;
 	}
 
+	bool Table::isOverTable(const PCPtr& cloud)
+	{
+		ofVec3f tableNorm = this->getNormal();
+	
+		ofVec3f minV, maxV;
+		minV = this->getvMin();
+		maxV = this->getvMax();
+
+		maxV += tableNorm;
+	
+		/*createCloud(maxV,"maxt.pcd");
+		createCloud(minV,"mint.pcd");
+		pcl::io::savePCDFile("table.pcd",*table->getCloud());
+		pcl::io::savePCDFile("hand.pcd",*cloud);*/
+		//Alcanza con que un punto esté sobre la mesa
+	
+		for(int i = 0; i < cloud->size(); i++)
+		{
+			pcl::PointXYZ pto = cloud->at(i);
+			if((pto.x > min(minV.x,maxV.x) && pto.x < max(maxV.x,minV.x)) &&
+			   (pto.y > min(minV.y,maxV.y) && pto.y < max(maxV.y,minV.y)) &&
+			   (pto.z > min(minV.z,maxV.z) && pto.z < max(maxV.z,minV.z)))
+			   return true;
+		}
+	
+		return false;
+
+	}
 }

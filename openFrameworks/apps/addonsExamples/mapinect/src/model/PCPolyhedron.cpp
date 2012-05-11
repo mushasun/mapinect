@@ -29,7 +29,7 @@ namespace mapinect {
 	PCPolyhedron::PCPolyhedron(const PCPtr& cloud, int objId)
 				: PCModelObject(cloud, objId)
 	{
-		drawPointCloud = false; 
+		drawPointCloud = true; 
 		ofVec3f v;
 		Eigen::Vector4f eCenter;
 		pcl::compute3DCentroid(*cloud,eCenter);
@@ -191,7 +191,6 @@ namespace mapinect {
 			i++;
 			numFaces++;
 		}
-
 		return nuevos;
 	}
 
@@ -359,7 +358,18 @@ namespace mapinect {
 
 		mergePolygons(inBox);
 		unifyVertexs();
+	}
 
+	void PCPolyhedron::setAndUpdateCloud(const PCPtr& cloud)
+	{
+		PCModelObject::setCloud(cloud);
+		ofVec3f v;
+		Eigen::Vector4f eCenter;
+		pcl::compute3DCentroid(*cloud,eCenter);
+		
+		v.x = eCenter[0];
+		v.y = eCenter[1];
+		v.z = eCenter[2];
 
 		//*nuCloud += *cloudPtr;
 		//for(vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){

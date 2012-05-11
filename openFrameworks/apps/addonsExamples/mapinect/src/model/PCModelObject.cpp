@@ -47,8 +47,8 @@ namespace mapinect {
 			modelObject->draw();
 		}
 		if (drawPointCloud) {
-			static int colors[] = { kRGBBlue, kRGBGreen, kRGBRed, 0xFFFF00, 0xFF00FF, 0x00FFFF };
-			ofSetHexColor(colors[getId() % 6]);
+			static ofColor colors[] = { ofColor(0,0,255), ofColor(0,255,0), ofColor(255,0,0), ofColor(255,255,0), ofColor(255,0,255), ofColor(0,255,255) };
+			ofSetColor(colors[getId() % 6]);
 			ofVec3f w;
 			glBegin(GL_POINTS);
 			for (size_t i = 0; i < cloud->size(); i++) {
@@ -79,6 +79,19 @@ namespace mapinect {
 		//applyTransformation();
 		/*cloud += *nuCloud;*/
 		//pcl::io::savePCDFileASCII ("transformed.pcd", cloud);
+	}
+
+	void PCModelObject::setAndUpdateCloud(const PCPtr& cloud)
+	{
+		this->cloud = cloud;
+		findPointCloudBoundingBox(cloud, vMin, vMax);
+		transformation.setIdentity();
+		lod = 1;
+	}
+
+	void PCModelObject::setDrawPointCloud(bool draw)		
+	{ 
+		drawPointCloud = draw; 
 	}
 }
 

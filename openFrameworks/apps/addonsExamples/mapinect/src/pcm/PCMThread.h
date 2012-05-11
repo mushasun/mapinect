@@ -70,7 +70,7 @@ namespace mapinect {
 		int							noDifferencesCount;
 		list<TrackedCloudPtr>		trackedClouds;
 		TablePtr					table;
-		float						tableClusterLastDist;
+		Eigen::Vector4f				tableClusterLastCentroid;
 		bool						handSetted;
 		vector<PCPtr>				potentialHands;
 

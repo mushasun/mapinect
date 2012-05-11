@@ -16,6 +16,7 @@ namespace mapinect {
 			}
 
 			bool isOnTable(const PCPtr& cloud);
+			bool isOverTable(const PCPtr& cloud);
 			bool isParallelToTable(const mapinect::PCPolygonPtr& polygon);
 
 	};

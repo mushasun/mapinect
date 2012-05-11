@@ -16,7 +16,7 @@ namespace mapinect {
 			virtual void		increaseLod();
 
 			inline const vector<ofVec3f>& getFingerTips() { return fingerTips; }
-
+			void				addToModel(const PCPtr& cloud);
 		private:
 			virtual void		unifyVertexs();
 			vector<ofVec3f>		fingerTips;

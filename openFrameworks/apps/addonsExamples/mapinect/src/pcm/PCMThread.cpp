@@ -83,6 +83,7 @@ namespace mapinect {
 		objId = 0;
 		startThread(true, false);
 		handSetted = false;
+		//tableClusterLastCentroid.Identity();
 	}
 
 	//--------------------------------------------------------------
@@ -248,6 +249,7 @@ namespace mapinect {
 		//Busco el cluster más cercano
 		int count = 1;
 		float min_dist = numeric_limits<float>::max();
+		Eigen::Vector4f tableClusterNewCentroid;// = numeric_limits<float>::max();
 		for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 		{
 			PCPtr cloud_cluster (new PC());
@@ -271,13 +273,14 @@ namespace mapinect {
 			Eigen::Vector4f clusterCentroid;
 			compute3DCentroid(*cloud_cluster,clusterCentroid);
 			ofVec3f ptoCentroid = ofVec3f(clusterCentroid.x(),clusterCentroid.y(),clusterCentroid.z());
+			
 			if(table == NULL)
 			{
-				if(clusterCentroid.norm() < min_dist)
+				if(clusterCentroid.norm() < tableClusterLastCentroid.norm())
 				{
 					if(tableCluster->size() > 0)
 						potHands.push_back(tableCluster);
-					min_dist = clusterCentroid.norm();
+					tableClusterLastCentroid = clusterCentroid;
 					tableCluster = cloud_cluster;
 				}
 				else
@@ -285,14 +288,15 @@ namespace mapinect {
 			}
 			else
 			{
-				if(abs(clusterCentroid.norm() - tableClusterLastDist) < min_dist)
+				if((clusterCentroid - tableClusterLastCentroid).norm() < min_dist)
 				{
 					if(tableCluster->size() > 0)
 						potHands.push_back(tableCluster);
-					min_dist = abs(clusterCentroid.norm() - tableClusterLastDist);
+					min_dist = (clusterCentroid - tableClusterLastCentroid).norm();
 					tableCluster = cloud_cluster;
+					tableClusterNewCentroid = clusterCentroid;
 				}
-				else
+				else if(table->isOverTable(cloud_cluster))
 					potHands.push_back(cloud_cluster);
 			}
 		}
@@ -352,12 +356,23 @@ namespace mapinect {
 			gModel->objectsMutex.lock();
 			table = TablePtr(new Table(*coefficients, cloud_filtered_temp_inliers));
 			table->detect();
+			table->setDrawPointCloud(false);
 			gModel->table = table;
 			gModel->objectsMutex.unlock();
-
-			tableClusterLastDist = min_dist;
 		}
-			
+		/* Actualización de la mesa
+		else if((tableClusterLastCentroid - tableClusterNewCentroid).norm() > 0.02)
+		{
+			cout << "table updated! -- " << min_dist <<endl;
+			gModel->objectsMutex.lock();
+			table->setCloud(cloud_filtered_temp_inliers);
+			//table = new PCPolyhedron(cloud_filtered_temp_inliers, cloud_filtered_temp_inliers, -1);
+			table->detectPrimitives();
+			//table->setDrawPointCloud(false);
+			gModel->table = table;
+			tableClusterLastCentroid = tableClusterNewCentroid;
+		}
+			*/
 		// Quito los puntos que no son mesa
 		extract.setInputCloud (cloudTemp);
 		extract.setIndices (inliers);
@@ -372,7 +387,6 @@ namespace mapinect {
 
 	void PCMThread::processDiferencesClouds() {
 		bool dif;
-		//nDetectedObjects = openCVService->contourFinder.blobs.size();
 		PCPtr filteredCloud = getTableCluster();
 
 		// WORK WITH CLOUD DIFFERENCES
@@ -388,7 +402,6 @@ namespace mapinect {
 		
 		if(filteredCloud->empty() && potentialHands.empty())
 		{
-			//cout << "cluster vacio!" << endl;
 			return;
 		}
 
@@ -411,9 +424,9 @@ namespace mapinect {
 			ec.setInputCloud(filteredCloud);
 			ec.extract (cluster_indices);
 
-			PCDWriter writer;
-			/*writer.write<pcl::PointXYZ> ("tableTop.pcd", *filteredCloud, false);
-*/
+			//PCDWriter writer;
+			//writer.write<pcl::PointXYZ> ("tableTop.pcd", *filteredCloud, false);
+
 			//separo en clusters
 				
 			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
