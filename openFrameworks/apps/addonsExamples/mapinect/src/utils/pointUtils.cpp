@@ -22,6 +22,7 @@
 #include "HandDetector.h"
 #include "Line2D.h"
 #include "Model.h"
+#include <algorithm>
 #include "Table.h"
 #include "utils.h"
 
@@ -351,6 +352,7 @@ float boxProbability(const PCPtr& cloud)
 	mapinect::TablePtr table = getTable();
 	if(table != NULL && table->isOnTable(cloud))
 	{
+		//pcl::io::savePCDFile("isBox.pcd",*cloud);
 		vector<ofVec3f> normals;
 		float totalPoints = cloud->size();
 		float pointsInPlanes = 0;
@@ -496,7 +498,7 @@ ObjectType getObjectType(const PCPtr& cloud)
 	
 	float max_prob = max(hand_prob, box_prob);
 
-	if(max_prob > .80)
+	if(max_prob > .50)
 	{
 		if(hand_prob == max_prob)
 			return ret = HAND;
@@ -549,4 +551,3 @@ void createCloud(const ofVec3f& pto, const string& name)
 	cloud->push_back(OFXVEC3F_POINTXYZ(pto));
 	writer.write<pcl::PointXYZ>(name, *cloud, false);
 }
-

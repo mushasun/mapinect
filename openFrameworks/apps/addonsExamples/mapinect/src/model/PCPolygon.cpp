@@ -137,6 +137,8 @@ namespace mapinect {
 			coefficients.header = matched->coefficients.header;
 			coefficients.values = matched->coefficients.values;
 
+			this->cloud = matched->getCloud();
+
 			removeMatching();
 		}
 	}

@@ -28,7 +28,8 @@ namespace mapinect {
 
 		inline void					setTransformation (Eigen::Affine3f *_transformation) { transformation = *_transformation ;}
 		inline void					setCloud (const PCPtr& nuCloud)		{ cloud = nuCloud ;}
-		inline void					setDrawPointCloud(bool draw)		{ drawPointCloud = draw; }
+		virtual void				setAndUpdateCloud (const PCPtr& cloud);
+		void						setDrawPointCloud(bool draw);
 		inline const PCPtr&			getCloud()							{ return cloud; }
 		inline bool					hasObject()							{ return modelObject != NULL; }
 		inline int					getLod()							{ return lod; }
@@ -44,7 +45,7 @@ namespace mapinect {
 
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 	protected:
-		bool						drawPointCloud;
+		bool					drawPointCloud;
 
 		ofVec3f						vMin;
 		ofVec3f						vMax;
@@ -53,7 +54,7 @@ namespace mapinect {
 		ModelObjectPtr				modelObject;
 		int							lod;
 
-		virtual void				applyTransformation();
+		virtual void			applyTransformation();
 
 	};
 }

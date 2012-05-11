@@ -24,7 +24,7 @@ namespace mapinect {
 			virtual void			resetLod();
 			virtual void			increaseLod();
 			virtual void			addToModel(const PCPtr& nuCloud);
-			
+			virtual void			setAndUpdateCloud(const PCPtr& cloud);
 		private:
 			void					updatePolygons();
 			virtual void			unifyVertexs();
@@ -33,6 +33,7 @@ namespace mapinect {
 			void					mergePolygons(vector<PCPolygonPtr>& toMerge);
 			vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
 			vector<PCPolygonPtr>	pcpolygons;
+			
 
 	};
 }
