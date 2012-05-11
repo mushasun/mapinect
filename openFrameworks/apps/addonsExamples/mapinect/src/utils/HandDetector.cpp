@@ -1,8 +1,11 @@
 #include "HandDetector.h"
 
+#include <pcl/common/centroid.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/surface/convex_hull.h>
+
+#include "ofGraphics.h"
 
 #include "Constants.h"
 #include "pointUtils.h"
@@ -83,7 +86,7 @@ namespace mapinect {
 		}
 
 		hand = filteredcloud;
-		//pcl::io::savePCDFileASCII ("hand_Cliped.pcd", *filteredcloud);
+		pcl::io::savePCDFileASCII ("hand_Cliped.pcd", *filteredcloud);
 	}
 
 	//Corta la mano desde la punta hasta X cm
@@ -154,7 +157,7 @@ namespace mapinect {
 		for(int i = 0; i < hand->size(); i ++)
 			hand->at(i).z = 0;
 
-		//pcl::io::savePCDFileASCII ("handflat.pcd", *hand);
+		pcl::io::savePCDFileASCII ("handflat.pcd", *hand);
 
 		//Calculo convex hull
 		PCPtr hand_hull (new PC());
@@ -165,7 +168,7 @@ namespace mapinect {
 
 		//Calculo el centroide
 		Eigen::Vector4f vHandCentroid;
-		compute3DCentroid(*hand,vHandCentroid);
+		pcl::compute3DCentroid(*hand,vHandCentroid);
 		handCentroid = pcl::PointXYZ(vHandCentroid.x(),vHandCentroid.y(),vHandCentroid.z());
 		PCPtr cloud_centroid (new PC());
 		cloud_centroid->push_back(handCentroid);
@@ -227,7 +230,7 @@ namespace mapinect {
 
 		ofVec3f vCentroid = ofVec3f(handCentroid.x,handCentroid.y, handCentroid.z);
 		ofVec3f thumbTip = fingers.at(minDistIdx);
-		//createCloud(thumbTip, "thumb.pcd");
+		createCloud(thumbTip, "thumb.pcd");
 
 		//cout << "thumb x " << thumbTip.x << endl ;
 		//Quito el pulgar del hull
@@ -275,7 +278,7 @@ namespace mapinect {
 				if(fingerIdx != -1)
 				{
 					currentFingerTip = fingers.at(fingerIdx);
-					//createCloud(fingers.at(fingerIdx), "finger" + ofToString(fingersFound) + ".pcd");
+					createCloud(fingers.at(fingerIdx), "finger" + ofToString(fingersFound) + ".pcd");
 					ofVec3f newFinger = vCentroid - currentFingerTip;
 					double angle = (acos(currentFinger.dot(newFinger)/(currentFinger.length()*newFinger.length()))*180)/PI;
 					if(saveToFile)
