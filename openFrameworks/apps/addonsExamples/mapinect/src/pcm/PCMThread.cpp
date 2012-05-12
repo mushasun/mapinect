@@ -233,7 +233,7 @@ namespace mapinect {
 		//Separo en clusters
 		PCPtr tableCluster (new PC());
 
-		pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
+		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
 		tree->setInputCloud (filteredCloud);
 
 		std::vector<pcl::PointIndices> cluster_indices;
@@ -412,7 +412,7 @@ namespace mapinect {
 		{
 			//Subdivido la nube de diferencias en clusters
 			// Creating the KdTree object for the search method of the extraction
-			pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
+			pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
 			tree->setInputCloud (filteredCloud);
 
 			std::vector<pcl::PointIndices> cluster_indices;
@@ -614,7 +614,7 @@ namespace mapinect {
 		// Create the normal estimation class, and pass the input dataset to it
 		pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
 		ne.setInputCloud (plane);
-		pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ> ());
+		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
 		ne.setSearchMethod (tree);
 
 		ne.setIndices(indicesptr);

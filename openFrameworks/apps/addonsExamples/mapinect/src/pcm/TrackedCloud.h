@@ -13,7 +13,7 @@ typedef pcl::PointCloud<pcl::Normal>				SurfaceNormals;
 typedef SurfaceNormals::Ptr							SurfaceNormalsPtr;
 typedef pcl::PointCloud<pcl::FPFHSignature33>		LocalFeatures;
 typedef LocalFeatures::Ptr							LocalFeaturesPtr;
-typedef pcl::KdTreeFLANN<pcl::PointXYZ>				SearchMethod;
+typedef pcl::search::KdTree<pcl::PointXYZ>			SearchMethod;
 typedef SearchMethod::Ptr							SearchMethodPtr;
 
 namespace mapinect {

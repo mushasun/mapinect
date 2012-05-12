@@ -1,6 +1,7 @@
 #include "PCHand.h"
 
 #include <pcl/ModelCoefficients.h>
+#include <pcl/common/centroid.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/io/pcd_io.h>
