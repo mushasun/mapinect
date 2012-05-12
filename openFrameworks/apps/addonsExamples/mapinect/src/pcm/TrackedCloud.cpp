@@ -438,7 +438,7 @@ namespace mapinect {
 
       pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> norm_est;
       norm_est.setInputCloud (cloud);
-	  pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>());
+	  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>());
       norm_est.setSearchMethod(tree);
       norm_est.setRadiusSearch(normal_radius);
       norm_est.compute(*normals);
@@ -452,7 +452,7 @@ namespace mapinect {
 		pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::FPFHSignature33> fpfh_est;
 		fpfh_est.setInputCloud (cloud);
 		fpfh_est.setInputNormals (normals);
-		pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new SearchMethod());
+		SearchMethodPtr tree (new SearchMethod());
 		fpfh_est.setSearchMethod (tree);
 		fpfh_est.setRadiusSearch (feature_radius);
 		fpfh_est.compute (*features);

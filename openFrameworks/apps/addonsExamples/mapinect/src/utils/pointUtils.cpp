@@ -227,7 +227,7 @@ ofVec3f normalEstimation(const PCPtr& plane, const pcl::PointIndices::Ptr& indic
 	// Create the normal estimation class, and pass the input dataset to it
 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
 	ne.setInputCloud (plane);
-	pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ> ());
+	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
 	ne.setSearchMethod (tree);
 	
 	ne.setIndices(indicesptr);

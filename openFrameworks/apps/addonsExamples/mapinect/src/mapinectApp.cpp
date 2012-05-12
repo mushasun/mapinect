@@ -79,6 +79,12 @@ namespace mapinect {
 		cv.draw();
 		pcm.draw();
 		app->debugDraw();
+
+		ofSetHexColor(0);
+		stringstream reportStream;
+		reportStream
+			<< "fps: " << ofGetFrameRate() << endl;
+		ofDrawBitmapString(reportStream.str(),20,646);
 	}
 
 	//--------------------------------------------------------------

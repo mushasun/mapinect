@@ -159,7 +159,7 @@ namespace mapinect {
 			
 			//Remove outliers by clustering
 			PCPtr cloud_p_filtered (new PC());
-			pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
+			pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
 			tree->setInputCloud (cloud_p);
 
 			std::vector<pcl::PointIndices> cluster_indices;
