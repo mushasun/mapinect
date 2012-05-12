@@ -14,6 +14,7 @@ namespace mapinect {
 			virtual int				getColor() = 0;
 			virtual int				getId() = 0;
 
+			virtual 
 	};
 }
 
