@@ -378,11 +378,7 @@
     <ClInclude Include="src\vm\VM.h">
       <Filter>vm</Filter>
     </ClInclude>
-    <ClInclude Include="src\IApplication.h" />
     <ClInclude Include="src\helpers\TxManager.h">
-      <Filter>helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="src\helpers\ITxManager.h">
       <Filter>helpers</Filter>
     </ClInclude>
     <ClInclude Include="src\mapinect.h" />
@@ -412,6 +408,18 @@
     </ClInclude>
     <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\interfaces\IApplication.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\ITxManager.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\IObject.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\IPolygon.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -488,6 +496,9 @@
     </Filter>
     <Filter Include="addons\ofxMutex\src">
       <UniqueIdentifier>{7ddb906a-1a47-44c6-a34e-e15b5e506bb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interfaces">
+      <UniqueIdentifier>{db5971d0-36d6-4b5a-ac65-a9d42bedf2b7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
