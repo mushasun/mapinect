@@ -1,13 +1,12 @@
 #ifndef I_POLYGON_H__
 #define I_POLYGON_H__
 
-#include "IObject.h"
-
+#include "ofVec3f.h"
 #include <vector>
 
 namespace mapinect {
 
-	class IPolygon : public IObject {
+	class IPolygon {
 		public:
 
 			virtual const ofVec3f&			getVertex(int vertexNum) = 0;

@@ -41,10 +41,13 @@ namespace mapinect {
 		PCPtr cloud_projected(new PC()), cloud_in(cloud);
   
 		
-		cloud_projected = cloud_in;
+		//cloud_projected = cloud_in;
 		//Elimino la componente z
-		/*for(int i = 0; i < cloud_projected->points.size(); i++)
-			cloud_projected->points[i].z = 0;*/
+		for(int i = 0; i < cloud_in->points.size(); i++)
+		{
+			cloud_projected->points.push_back(cloud_in->at(i));
+			//cloud_projected->at(i).z = 0;
+		}
 
 
 
@@ -84,6 +87,16 @@ namespace mapinect {
 		  for(int i = 0; i < cloud_hull->size(); i++)
 		  {
 			  pcl::PointXYZ pto = cloud_hull->at(i);
+			 /* for(int j = 0; j < cloud_in->size(); j ++)
+			  {
+				  if(cloud_in->at(j).x == pto.x && 
+					  cloud_in->at(j).y == pto.y)
+				  {
+					  pto = cloud_in->at(j);
+					  break;
+				  }
+			  }*/
+			  
 			  fingerTips.push_back(POINTXYZ_OFXVEC3F(pto));
 		  }
 		  

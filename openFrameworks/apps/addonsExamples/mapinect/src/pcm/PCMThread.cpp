@@ -83,7 +83,7 @@ namespace mapinect {
 		objId = 0;
 		startThread(true, false);
 		handSetted = false;
-		//tableClusterLastCentroid.Identity();
+		tableClusterLastCentroid = Eigen::Vector4f(1000,1000,1000,1);
 	}
 
 	//--------------------------------------------------------------
