@@ -1,6 +1,8 @@
 #ifndef MAPINECT_MODELOBJECT_H__
 #define MAPINECT_MODELOBJECT_H__
 
+#include "IObject.h"
+
 #include "mapinectTypes.h"
 
 namespace mapinect {
@@ -9,7 +11,7 @@ namespace mapinect {
 
 	typedef boost::shared_ptr<ModelObject> ModelObjectPtr;
 
-	class ModelObject {
+	class ModelObject : public IObject {
 		public:
 			ModelObject();
 			virtual ~ModelObject(void) { }
