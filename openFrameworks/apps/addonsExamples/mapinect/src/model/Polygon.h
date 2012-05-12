@@ -2,6 +2,7 @@
 #define MAPINECT_POLYGON_H__
 
 #include "ModelObject.h"
+#include "IPolygon.h"
 
 namespace mapinect {
 
@@ -9,7 +10,7 @@ namespace mapinect {
 
 	typedef boost::shared_ptr<Polygon> PolygonPtr;
 
-	class Polygon : public ModelObject {
+	class Polygon : public ModelObject, public IPolygon {
 		public:
 			Polygon() : vertexs() { }
 			virtual ~Polygon() { }
