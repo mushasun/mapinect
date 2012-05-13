@@ -1,9 +1,9 @@
-#ifndef BOUNCING_BALL_H__
-#define BOUNCING_BALL_H__
+#ifndef PHOTO_MANAGER_H__
+#define PHOTO_MANAGER_H__
 
 #include "IApplication.h"
 
-#include "ofxVecUtils.h"
+#include "ofVecUtils.h"
 #include "Photo.h"
 #include "Grab.h"
 
@@ -33,4 +33,4 @@ namespace photo {
 	};
 }
 
-#endif	// BOUNCING_BALL_H__
+#endif	// PHOTO_MANAGER_H__

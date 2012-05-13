@@ -1,7 +1,10 @@
 #include "BObject.h"
 
-namespace bouncing {
-	BObject::BObject(const vector<Segment3D>& segments, ofVec3f color, int id, int soundId)
+#include "ofGraphicsUtils.h"
+
+namespace bouncing
+{
+	BObject::BObject(const vector<Segment3D>& segments, const ofVec3f& color, int id, int soundId)
 		: segments(segments), color(color), id(id)
 	{
 		visited = true;
@@ -42,13 +45,17 @@ namespace bouncing {
 	{
 		if(modelObject != NULL)
 		{
-			ofVec3f boostedColor = color + colorBoost;
-			ofSetHexColor(boostedColor.x, boostedColor.y, boostedColor.z);
-			ofDrawQuadTextured(
-				modelObject->getVertex(0),
-				modelObject->getVertex(1),
-				modelObject->getVertex(2),
-				modelObject->getVertex(3));
+			for (int i = 0; i < modelObject->getPCPolygonSize(); i++)
+			{
+				mapinect::Polygon* poly = modelObject->getPCPolygon(i)->getPolygonModelObject();
+				ofVec3f boostedColor = color + colorBoost;
+				ofSetColor(boostedColor.x, boostedColor.y, boostedColor.z);
+				ofDrawQuadTextured(
+					poly->getVertex(0),
+					poly->getVertex(1),
+					poly->getVertex(2),
+					poly->getVertex(3));
+			}
 		}
 	}
 

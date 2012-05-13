@@ -1,4 +1,4 @@
-#include "photomanager\PhotoManager.h"
+#include "PhotoManager.h"
 #include "mapinect.h"
 
 //========================================================================

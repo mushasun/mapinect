@@ -1,8 +1,7 @@
 #include "BouncingBall.h"
 
-#include "utils.h"
-#include "winUtils.h"
-#include "Model.h"
+#include "Constants.h"
+#include "Globals.h"
 #include "PCPolyhedron.h"
 
 namespace bouncing {
@@ -17,7 +16,7 @@ namespace bouncing {
 			ofVec3f pto = lst.at(i);
 			for(int j = 0; j < retList.size(); j++)
 			{
-				if(pto.distance(retList.at(j)) < MAX_UNIFYING_DISTANCE_PROJECTION)
+				if(pto.distance(retList.at(j)) < mapinect::MAX_UNIFYING_DISTANCE_PROJECTION)
 					unified = true;
 			}
 			if(!unified)
@@ -148,7 +147,7 @@ namespace bouncing {
 		{
 			if(gModel->table != NULL)
 			{
-				mapinect::Table* t = gModel->table;
+				mapinect::Polygon* t = gModel->table->getPolygonModelObject();
 				ofVec3f vA, vB, vC, vD;
 				vA = t->getVertex(0);
 				vB = t->getVertex(1);
@@ -177,7 +176,7 @@ namespace bouncing {
 				tableSegment3Ds.push_back(s3);
 				tableSegment3Ds.push_back(s4);
 				table = new BObject(tableSegment3Ds, ofVec3f(255,255,255), -1,0);
-				table->setTable(t);
+				table->setModelObject(gModel->table.get());
 				//segments.push_back(s5);
 				//segments.push_back(s6);
 				bobjects.push_back(table);
@@ -192,21 +191,21 @@ namespace bouncing {
 			if (gModel->objects.size() > 0) 
 			{
 				int objs = 1;
-				for(list<mapinect::ModelObject*>::iterator k = gModel->objects.begin(); 
+				for(vector<mapinect::ModelObjectPtr>::iterator k = gModel->objects.begin(); 
 					k != gModel->objects.end(); k++)
 				{
-					PCPolyhedron* t = (PCPolyhedron*)(*k);
-					int tableId = t->getId();
+					PCPolyhedron* hedron = (PCPolyhedron*)(k->get());
+					int hedronId = hedron->getId();
 					BObject* curObj = getBObject(hedronId);
 					curObj->clearSegments();
 					curObj->update();
 					vector<ofVec3f> vecsproj;
 					
-					curObj->setTable(t);
+					curObj->setModelObject(hedron);
 					for (int i=0; i<hedron->getPCPolygonSize();i++)
 					{
 						ofVec3f objCenter = hedron->getCenter();
-						PCPolygon* gon = hedron->getPCPolygon(i);
+						PCPolygonPtr gon = hedron->getPCPolygon(i);
 						if (gon->hasObject()) 
 						{
 							mapinect::Polygon* q = gon->getPolygonModelObject();
@@ -231,14 +230,14 @@ namespace bouncing {
 							for(int j = i + 1; j < vecsprojunified.size(); j++)
 							{
 								Segment3D s1 = Segment3D(vecsprojunified.at(i),vecsprojunified.at(j),tableNormal,centroid,true);			
-								curObj->pushSegment(s1);
+								curObj->addSegment(s1);
 							}
 						}
 					}
 					else if (vecsprojunified.size() == 2)
 					{
 						Segment3D s1 = Segment3D(vecsprojunified.at(0),vecsprojunified.at(1),tableNormal,tableCenter,true,true);			
-						curObj->pushSegment(s1);
+						curObj->addSegment(s1);
 					}
 				}
 			}
@@ -276,18 +275,16 @@ namespace bouncing {
 			//segments.push_back(s4);
 			if(gModel->table != NULL)
 			{
-				PCPolyhedron* hedron = (PCPolyhedron*)(gModel->table);
-				PCPolygon* gon = hedron->getPCPolygon(0);
-				if (gon->hasObject()) 
+				if (gModel->table->hasObject()) 
 				{
-					mapinect::Polygon* q = gon->getPolygonModelObject();
+					mapinect::Polygon* q = gModel->table->getPolygonModelObject();
 					ofVec3f vA, vB, vC, vD;
 					vA = q->getVertex(0);
 					vB = q->getVertex(1);
 					vC = q->getVertex(2);
 					vD = q->getVertex(3);
 					
-					ofVec3f center = hedron->getCenter();
+					ofVec3f center = gModel->table->getCenter();
 					ofVec3f w = ((vA - vC).cross(vA - vD)).normalize();//gon->getNormal();
 					
 					ofVec3f ballDir = w;
