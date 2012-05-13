@@ -3,6 +3,7 @@
 
 #include "ofVec3f.h"
 #include "Segment3D.h"
+#include "PCPolyhedron.h"
 #include "PCPolygon.h"
 #include "ofSoundPlayer.h"
 
@@ -15,22 +16,24 @@ namespace bouncing {
 
 			void draw();
 			void update();
-			inline void clearSegments()						{ segments.clear(); }
-			inline void addSegment(const Segment3D& s)		{ segments.push_back(s); }
-			inline int getId()								{ return id; }
-			inline void setModelObject(PCPolygon* p)		{ modelObject = p; }
-			inline const vector<Segment3D>& getSegments()	{ return segments; }
+			inline void clearSegments()								{ segments.clear(); }
+			inline void addSegment(const Segment3D& s)				{ segments.push_back(s); }
+			inline int getId()										{ return id; }
+			inline void setModelObject(PCPolyhedron* p)				{ modelObject = p; }
+			inline void setModelObject(PCPolygon* t)					{ modelObjectTable = t; }
+			inline const vector<Segment3D>& getSegments()			{ return segments; }
 			bool visited;
 			ofSoundPlayer sound;
 		
-			inline int getColorBoost()						{ return colorBoost; }
+			inline int getColorBoost()								{ return colorBoost; }
 			void setColorBoost(int boost);
 
 		private:
 			vector<Segment3D>		segments;
 			ofVec3f					color;
 			int						id;
-			PCPolygon*				modelObject;
+			PCPolyhedron*			modelObject;
+			PCPolygon*				modelObjectTable;
 			int						colorBoost;
 			float					lastTime;
 			//string				sound;

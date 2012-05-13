@@ -1,6 +1,6 @@
 #include "ColorBalancing.h"
 
-#include "utils.h"
+#include "Globals.h"
 
 namespace colorbalancing {
 #define KWIDTH		640
