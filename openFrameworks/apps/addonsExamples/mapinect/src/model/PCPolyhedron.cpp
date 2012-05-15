@@ -29,16 +29,6 @@ namespace mapinect {
 	PCPolyhedron::PCPolyhedron(const PCPtr& cloud, int objId)
 				: PCModelObject(cloud, objId)
 	{
-		drawPointCloud = true; 
-		ofVec3f v;
-		Eigen::Vector4f eCenter;
-		pcl::compute3DCentroid(*cloud,eCenter);
-		
-		v.x = eCenter[0];
-		v.y = eCenter[1];
-		v.z = eCenter[2];
-
-		this->setCenter(v);
 	}
 
 	bool hasNoMatching(const PCPolygonPtr& p) {
@@ -362,14 +352,7 @@ namespace mapinect {
 
 	void PCPolyhedron::setAndUpdateCloud(const PCPtr& cloud)
 	{
-		PCModelObject::setCloud(cloud);
-		ofVec3f v;
-		Eigen::Vector4f eCenter;
-		pcl::compute3DCentroid(*cloud,eCenter);
-		
-		v.x = eCenter[0];
-		v.y = eCenter[1];
-		v.z = eCenter[2];
+		setCloud(cloud);
 
 		//*nuCloud += *cloudPtr;
 		//for(vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){

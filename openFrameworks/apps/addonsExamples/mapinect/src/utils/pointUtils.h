@@ -47,6 +47,8 @@ PCPtr getCloud();
 
 pcl::PointIndices::Ptr adjustPlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloudToAdjust);
 
+ofVec3f computeCentroid(const PCPtr& cloud);
+
 float evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& pto);
 
 ObjectType getObjectType(const PCPtr& src);

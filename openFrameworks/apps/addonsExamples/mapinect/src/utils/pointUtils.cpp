@@ -1,5 +1,6 @@
 #include "pointUtils.h"
 
+#include <pcl/common/centroid.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/range_image_border_extractor.h>
 #include <pcl/filters/extract_indices.h>
@@ -332,6 +333,14 @@ pcl::PointIndices::Ptr adjustPlane(const pcl::ModelCoefficients& coefficients, c
 			inliers->indices.push_back(k);
 	}
 	return inliers;
+}
+
+ofVec3f computeCentroid(const PCPtr& cloud)
+{
+	Eigen::Vector4f eigenCentroid;
+	pcl::compute3DCentroid(*cloud, eigenCentroid);
+		
+	return ofVec3f(eigenCentroid[0], eigenCentroid[1], eigenCentroid[2]);
 }
 
 float evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& pto)

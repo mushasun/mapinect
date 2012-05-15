@@ -57,6 +57,17 @@ namespace bouncing
 					poly->getVertex(3));
 			}
 		}
+		else if (modelObjectTable != NULL)
+		{
+			ofVec3f boostedColor = color + colorBoost;
+			ofSetColor(boostedColor.x, boostedColor.y, boostedColor.z);
+			mapinect::Polygon* poly = modelObjectTable->getPolygonModelObject();
+			ofDrawQuadTextured(
+				poly->getVertex(0),
+				poly->getVertex(1),
+				poly->getVertex(2),
+				poly->getVertex(3));
+		}
 	}
 
 }

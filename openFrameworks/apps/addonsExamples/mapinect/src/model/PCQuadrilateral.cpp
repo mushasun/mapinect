@@ -100,6 +100,7 @@ namespace mapinect {
 			p->addVertex(v3C);
 			p->addVertex(v3D);
 			p->sortVertexs();
+			p->setCenter(computeCentroid(cloud));
 		}
 
 		std::vector<int> indices (4);
