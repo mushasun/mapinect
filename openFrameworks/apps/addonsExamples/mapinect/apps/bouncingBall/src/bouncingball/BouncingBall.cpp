@@ -165,7 +165,7 @@ namespace bouncing {
 				ballDir *= -1;
 					//-(w.cross(vC - vA)).rotate(10,w);
 					
-				ball = Tejo(center,0.01,ballDir,0.005,w,tableCenter);
+				ball = Tejo(center,0.005,ballDir,0.0025,w,tableCenter);
 				Segment3D s1(vA,vB,w,center);
 				Segment3D s2(vB,vC,w,center);
 				Segment3D s3(vC,vD,w,center);

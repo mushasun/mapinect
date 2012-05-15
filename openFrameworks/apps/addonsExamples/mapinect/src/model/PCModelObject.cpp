@@ -1,7 +1,7 @@
 #include "PCModelObject.h"
 
-#include <pcl/registration/transformation_estimation.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/registration/transformation_estimation.h>
 
 #include "Globals.h"
 #include "ofGraphicsUtils.h"
@@ -24,6 +24,8 @@ namespace mapinect {
 		}
 		setId(objId);
 		lod = 1;
+
+		this->setCenter(computeCentroid(cloud));
 	}
 
 	PCModelObject::~PCModelObject() {
@@ -83,8 +85,11 @@ namespace mapinect {
 
 	void PCModelObject::setAndUpdateCloud(const PCPtr& cloud)
 	{
-		this->cloud = cloud;
+		setCloud(cloud);
 		findPointCloudBoundingBox(cloud, vMin, vMax);
+		
+		this->setCenter(computeCentroid(cloud));
+
 		transformation.setIdentity();
 		lod = 1;
 	}
