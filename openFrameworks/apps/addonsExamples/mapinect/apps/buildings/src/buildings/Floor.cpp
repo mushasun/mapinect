@@ -18,7 +18,7 @@ namespace buildings {
 			txManager->enableTextures();
 			txManager->bindTexture(Floor::floorTexture);
 
-			ofDrawQuadTextured(q->getVertex(0), q->getVertex(1), q->getVertex(2), q->getVertex(3));
+			ofDrawQuadTextured(q->getVertexs()[0], q->getVertexs()[1], q->getVertexs()[2], q->getVertexs()[3]);
 
 			txManager->disableTextures();
 		}			

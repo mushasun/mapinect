@@ -1,5 +1,7 @@
 #define NOMINMAX
 
+#include "IMapinect.h"
+
 #include "ofMain.h"
 #include "mapinectApp.h"
 #include "ofAppGlutWindow.h"

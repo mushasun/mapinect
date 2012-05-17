@@ -1,6 +1,10 @@
 #ifndef I_APPLICATION_H__
 #define I_APPLICATION_H__
 
+#include "DataMovement.h"
+#include "DataTouch.h"
+#include "IArmController.h"
+#include "IObject.h"
 #include "ITxManager.h"
 
 namespace mapinect {
@@ -27,11 +31,18 @@ namespace mapinect {
 
 		virtual void debugDraw() = 0;
 
+		virtual void objectDetected(const IObject*)								{ }
+		virtual void objectLost(const IObject*)									{ }
+		virtual void objectMoved(const IObject*, const DataMovement&)			{ }
+		virtual void objectTouched(const IObject*, const vector<DataTouch>&)	{ }
+
 		/// <summary>
 		/// Interface for handling texture. Loading, binding and enabling
 		/// should be called through this object.
 		/// </summary>
-		ITxManager* txManager;
+		ITxManager*		txManager;
+
+		IArmController*	armController;
 	};
 }
 

@@ -1,5 +1,7 @@
 #include "mapinectApp.h"
 
+#include "ArmController.h"
+#include "EventManager.h"
 #include "Feature.h"
 #include "Globals.h"
 #include "Model.h"
@@ -40,7 +42,8 @@ namespace mapinect {
 		pcm.setup();
 		arduino.setup();
 
-		app->txManager = new TxManager(this->fenster);
+		app->txManager = new TxManager(fenster);
+		app->armController = new ArmController(&arduino);
 		app->setup();
 
 	}
@@ -71,6 +74,10 @@ namespace mapinect {
 		cv.update(isKinectFrameNew);
 		pcm.update(isKinectFrameNew);
 		arduino.update();
+
+		EventManager::fireEvents(app);
+
+		app->update();
 	}
 
 	//--------------------------------------------------------------

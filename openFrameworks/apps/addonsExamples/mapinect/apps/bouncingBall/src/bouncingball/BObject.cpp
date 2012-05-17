@@ -51,10 +51,10 @@ namespace bouncing
 				ofVec3f boostedColor = color + colorBoost;
 				ofSetColor(boostedColor.x, boostedColor.y, boostedColor.z);
 				ofDrawQuadTextured(
-					poly->getVertex(0),
-					poly->getVertex(1),
-					poly->getVertex(2),
-					poly->getVertex(3));
+					poly->getVertexs()[0],
+					poly->getVertexs()[1],
+					poly->getVertexs()[2],
+					poly->getVertexs()[3]);
 			}
 		}
 		else if (modelObjectTable != NULL)
@@ -63,10 +63,10 @@ namespace bouncing
 			ofSetColor(boostedColor.x, boostedColor.y, boostedColor.z);
 			mapinect::Polygon* poly = modelObjectTable->getPolygonModelObject();
 			ofDrawQuadTextured(
-				poly->getVertex(0),
-				poly->getVertex(1),
-				poly->getVertex(2),
-				poly->getVertex(3));
+				poly->getVertexs()[0],
+				poly->getVertexs()[1],
+				poly->getVertexs()[2],
+				poly->getVertexs()[3]);
 		}
 	}
 

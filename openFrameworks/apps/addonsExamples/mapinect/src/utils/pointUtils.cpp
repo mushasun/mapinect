@@ -276,7 +276,7 @@ PCPtr getPartialCloudRealCoords(const ofVec3f& min, const ofVec3f& max, int dens
 		int cloud_idx = 0;
 		for(int v = min.y; v < max.y; v += density) {
 			for(register int u = min.x; u < max.x; u += density) {
-				depth_idx = v * 640 + u;
+				depth_idx = v * KINECT_DEFAULT_WIDTH + u;
 
 				pcl::PointXYZ& pt = partialColud->points[cloud_idx];
 				cloud_idx++;
