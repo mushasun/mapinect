@@ -1,5 +1,5 @@
 #include "Buildings.h"
-#include "mapinect.h"
+#include "IMapinect.h"
 
 //========================================================================
 int main() {

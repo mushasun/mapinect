@@ -9,10 +9,6 @@
 
 namespace mapinect {
 
-	const ofVec3f& Polygon::getVertex(int vertexNum) {
-		return vertexs.at(vertexNum);
-	}
-
 	void Polygon::setVertex(int vertexNum, const ofVec3f& v) {
 		vertexs[vertexNum] = v;
 	}

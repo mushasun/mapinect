@@ -149,10 +149,10 @@ namespace bouncing {
 			{
 				mapinect::Polygon* t = gModel->table->getPolygonModelObject();
 				ofVec3f vA, vB, vC, vD;
-				vA = t->getVertex(0);
-				vB = t->getVertex(1);
-				vC = t->getVertex(2);
-				vD = t->getVertex(3);
+				vA = t->getVertexs()[0];
+				vB = t->getVertexs()[1];
+				vC = t->getVertexs()[2];
+				vD = t->getVertexs()[3];
 					
 				ofVec3f center = t->getCenter();
 				ofVec3f w = ((vA - vC).getCrossed(vA - vD)).normalize();//gon->getNormal();
@@ -212,7 +212,7 @@ namespace bouncing {
 							
 							for(int i = 0; i < 4;i++)
 							{
-								ofVec3f v = q->getVertex(i);
+								ofVec3f v = q->getVertexs()[i];
 
 								ofVec3f dif = v - tableCenter;
 								ofVec3f proj = dif.dot(tableNormal) * tableNormal;
@@ -279,10 +279,10 @@ namespace bouncing {
 				{
 					mapinect::Polygon* q = gModel->table->getPolygonModelObject();
 					ofVec3f vA, vB, vC, vD;
-					vA = q->getVertex(0);
-					vB = q->getVertex(1);
-					vC = q->getVertex(2);
-					vD = q->getVertex(3);
+					vA = q->getVertexs()[0];
+					vB = q->getVertexs()[1];
+					vC = q->getVertexs()[2];
+					vD = q->getVertexs()[3];
 					
 					ofVec3f center = gModel->table->getCenter();
 					ofVec3f w = ((vA - vC).cross(vA - vD)).normalize();//gon->getNormal();

@@ -11,7 +11,7 @@ namespace mapinect {
 
 	typedef boost::shared_ptr<ModelObject> ModelObjectPtr;
 
-	class ModelObject : public IObject {
+	class ModelObject {
 		public:
 			ModelObject();
 			virtual ~ModelObject(void) { }
@@ -19,21 +19,21 @@ namespace mapinect {
 			void drawObject();
 			virtual void draw() = 0;
 
-			inline const ofVec3f&	getCenter()								{ return vCenter; }
-			inline void				setCenter(const ofVec3f& center)		{ vCenter = center; }
-			inline const ofVec3f&	getScale()								{ return vScale; }
-			inline void				setScale(const ofVec3f& scale)			{ vScale = scale; }
-			inline const ofVec3f&	getRotation()							{ return vRotation; }
-			inline void				setRotation(const ofVec3f& rotation)	{ vRotation = rotation; }
-			inline int				getColor()								{ return color; }
-			inline void				setColor(int color)						{ this->color = color; }
-			inline int				getId()									{ return objId; }
-			inline void				setId(int id)							{ objId = id; }
+			inline virtual const ofVec3f&	getCenter()								{ return vCenter; }
+			inline void						setCenter(const ofVec3f& center)		{ vCenter = center; }
+			inline virtual const ofVec3f&	getScale()								{ return vScale; }
+			inline void						setScale(const ofVec3f& scale)			{ vScale = scale; }
+			inline virtual const ofVec3f&	getRotation()							{ return vRotation; }
+			inline void						setRotation(const ofVec3f& rotation)	{ vRotation = rotation; }
+			inline int						getColor()								{ return color; }
+			inline void						setColor(int color)						{ this->color = color; }
+			inline virtual int				getId()									{ return objId; }
+			inline void						setId(int id)							{ objId = id; }
 
 		private:
-			ofVec3f					vCenter, vScale, vRotation;
-			int						color;
-			int						objId;
+			ofVec3f							vCenter, vScale, vRotation;
+			int								color;
+			int								objId;
 		
 	};
 }

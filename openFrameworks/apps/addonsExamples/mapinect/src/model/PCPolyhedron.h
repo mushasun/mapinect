@@ -2,6 +2,7 @@
 #define MAPINECT_PC_POLYHEDRON_H__
 
 #include "PCModelObject.h"
+#include "IObject.h"
 
 #include "Polyhedron.h"
 #include "PCPolygon.h"
@@ -12,7 +13,7 @@ namespace mapinect {
 
 	typedef boost::shared_ptr<PCPolyhedron> PCPolyhedronPtr;
 
-	class PCPolyhedron : public PCModelObject {
+	class PCPolyhedron : public PCModelObject, public IObject {
 		public:
 			PCPolyhedron(const PCPtr& cloud, int objId);
 			
@@ -25,6 +26,16 @@ namespace mapinect {
 			virtual void			increaseLod();
 			virtual void			addToModel(const PCPtr& nuCloud);
 			virtual void			setAndUpdateCloud(const PCPtr& cloud);
+
+			inline int						getId()							{ return PCModelObject::getId(); }
+
+			inline const ofVec3f&			getCenter()						{ return PCModelObject::getCenter(); }
+			inline const ofVec3f&			getScale()						{ return PCModelObject::getScale(); }
+			inline const ofVec3f&			getRotation()					{ return PCModelObject::getRotation(); }
+
+			const IPolygon*					getPolygon(const IPolygonName&);
+			inline const vector<IPolygon*>	getPolygons()					{ return polygonsCache; }
+			
 		private:
 			void					updatePolygons();
 			virtual void			unifyVertexs();
@@ -32,8 +43,9 @@ namespace mapinect {
 			vector<PCPolygonPtr>	detectPolygons(const PCPtr& cloudTemp, float planeTolerance = 0.01, float pointsTolerance = 4.0, bool limitFaces = true);
 			void					mergePolygons(vector<PCPolygonPtr>& toMerge);
 			vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
+
 			vector<PCPolygonPtr>	pcpolygons;
-			
+			vector<IPolygon*>		polygonsCache;
 
 	};
 }

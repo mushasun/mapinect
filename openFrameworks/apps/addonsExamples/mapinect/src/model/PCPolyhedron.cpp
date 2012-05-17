@@ -77,6 +77,12 @@ namespace mapinect {
 		aAgregar.clear();
 
 		cout << "pols: " << pcpolygons.size() << endl;
+
+		polygonsCache.clear();
+		for (vector<PCPolygonPtr>::iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
+		{
+			polygonsCache.push_back((*p)->getPolygonModelObject());
+		}
 	}
 
 	vector<PCPolygonPtr> PCPolyhedron::detectPolygons(const PCPtr& cloud, float planeTolerance, float pointsTolerance, bool limitFaces){
@@ -175,6 +181,7 @@ namespace mapinect {
 
 			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, cloud_p_filtered));
 			pcp->detectPolygon();
+			pcp->getPolygonModelObject()->setContainer(this);
 			nuevos.push_back(pcp);
 			
 			//writer.write<pcl::PointXYZ> ("cloud_pTemp" + ofToString(i) + ".pcd", *cloud_pTemp, false);
@@ -212,20 +219,20 @@ namespace mapinect {
 				return;
 			}
 
-			for (int j = 0; j < polygon->getVertexCount(); j++) {
+			for (int j = 0; j < polygon->getVertexs().size(); j++) {
 				updateVertexs.clear();
 				VertexInPCPolygon vpp;
 				vpp.pcp = iter->get();
 				vpp.vertex = j;
 				updateVertexs.push_back(vpp);
-				ofVec3f v(polygon->getVertex(j));
+				ofVec3f v(polygon->getVertexs()[j]);
 
 				for (vector<PCPolygonPtr>::iterator iter2 = iter; iter2 != pcpolygons.end(); iter2++) {
 					Polygon* polygon2 = (*iter2)->getPolygonModelObject();
-					for (int k = 0; k < polygon2->getVertexCount(); k++) {
-						ofVec3f v2(polygon2->getVertex(k));
+					for (int k = 0; k < polygon2->getVertexs().size(); k++) {
+						ofVec3f v2(polygon2->getVertexs()[k]);
 						if (!(v == v2)
-							&& polygon->getVertex(j).distance(polygon2->getVertex(k)) <= MAX_UNIFYING_DISTANCE) {
+							&& polygon->getVertexs()[j].distance(polygon2->getVertexs()[k]) <= MAX_UNIFYING_DISTANCE) {
 							VertexInPCPolygon vpp2;
 							vpp2.pcp = iter2->get();
 							vpp2.vertex = k;
@@ -237,7 +244,7 @@ namespace mapinect {
 				if (updateVertexs.size() > 1) {
 					ofVec3f avg(0, 0, 0);
 					for (int i = 0; i < updateVertexs.size(); i++) {
-						avg += updateVertexs.at(i).pcp->getPolygonModelObject()->getVertex(updateVertexs.at(i).vertex);
+						avg += updateVertexs.at(i).pcp->getPolygonModelObject()->getVertexs()[updateVertexs.at(i).vertex];
 					}
 					avg /= updateVertexs.size();
 					for (int i = 0; i < updateVertexs.size(); i++) {
@@ -363,4 +370,17 @@ namespace mapinect {
 		//pcl::io::savePCDFileASCII ("merged.pcd", *nuCloud);
 
 	}
+
+	const IPolygon* PCPolyhedron::getPolygon(const IPolygonName& name)
+	{
+		for (vector<IPolygon*>::iterator iter = polygonsCache.begin(); iter != polygonsCache.end(); ++iter)
+		{
+			if ((*iter)->getName() == name)
+			{
+				return *iter;
+			}
+		}
+		return NULL;
+	}
+
 }

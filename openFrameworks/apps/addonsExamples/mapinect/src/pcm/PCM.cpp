@@ -44,7 +44,7 @@ namespace mapinect {
 			ofPopMatrix();
 		}
 		else {
-			gKinect->drawDepth(0, 0, 640, 480);
+			gKinect->drawDepth(0, 0, KINECT_DEFAULT_WIDTH, KINECT_DEFAULT_HEIGHT);
 			ofResetColor();
 			ofPushMatrix();
 			gModel->objectsMutex.lock();
@@ -67,8 +67,8 @@ namespace mapinect {
 		CHECK_ACTIVE;
 
 		ofScale(400, 400, 400);
-		int w = 640;
-		int h = 480;
+		int w = KINECT_DEFAULT_WIDTH;
+		int h = KINECT_DEFAULT_HEIGHT;
 
 		ofRotateY(pointCloudRotationY);
 		float* distancePixels = gKinect->getDistancePixels();

@@ -166,8 +166,6 @@
     <ClCompile Include="src\utils\ofGraphicsUtils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\mapinect.cpp" />
-    <ClCompile Include="src\mapinectApp.cpp" />
     <ClCompile Include="src\model\PCHand.cpp">
       <Filter>model</Filter>
     </ClCompile>
@@ -180,12 +178,26 @@
     <ClCompile Include="src\utils\ofVecUtils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\Feature.cpp" />
     <ClCompile Include="src\model\Table.cpp">
       <Filter>model</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\HandDetector.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\helpers\Feature.cpp">
+      <Filter>helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\helpers\mapinect.cpp">
+      <Filter>helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\helpers\mapinectApp.cpp">
+      <Filter>helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\helpers\EventManager.cpp">
+      <Filter>helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\helpers\ArmController.cpp">
+      <Filter>helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -381,8 +393,6 @@
     <ClInclude Include="src\helpers\TxManager.h">
       <Filter>helpers</Filter>
     </ClInclude>
-    <ClInclude Include="src\mapinect.h" />
-    <ClInclude Include="src\mapinectApp.h" />
     <ClInclude Include="src\model\PCHand.h">
       <Filter>model</Filter>
     </ClInclude>
@@ -398,16 +408,12 @@
     <ClInclude Include="src\model\AlignmentDetector.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="src\Feature.h" />
     <ClInclude Include="src\model\Table.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="src\mapinectTypes.h" />
     <ClInclude Include="src\utils\HandDetector.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\Constants.h" />
-    <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\interfaces\IApplication.h">
       <Filter>interfaces</Filter>
     </ClInclude>
@@ -419,6 +425,39 @@
     </ClInclude>
     <ClInclude Include="src\interfaces\IPolygon.h">
       <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\Feature.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\Constants.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\Globals.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\mapinectApp.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\mapinectTypes.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\IMapinect.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\EventManager.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\DataMovement.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\DataTouch.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\IArmController.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\ArmController.h">
+      <Filter>helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

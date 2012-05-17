@@ -1,5 +1,5 @@
 #include "ColorBalancing\ColorBalancing.h"
-#include "mapinect.h"
+#include "IMapinect.h"
 
 //========================================================================
 int main() {

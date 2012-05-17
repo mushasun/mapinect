@@ -36,10 +36,10 @@ namespace buildings {
 
 				static ofVec3f vA,vB,vC,vD;
 
-				vA = q->getVertex(0);
-				vB = q->getVertex(1);
-				vC = q->getVertex(2);
-				vD = q->getVertex(3);
+				vA = q->getVertexs()[0];
+				vB = q->getVertexs()[1];
+				vC = q->getVertexs()[2];
+				vD = q->getVertexs()[3];
 
 				ofVec3f floorNormal = floor.getModelObject()->getNormal();
 				float prod = abs(q->getNormal().dot(floorNormal));
