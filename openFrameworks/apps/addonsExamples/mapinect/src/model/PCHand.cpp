@@ -41,8 +41,6 @@ namespace mapinect {
 	void PCHand::detectPrimitives() {
 		PCPtr cloud_projected(new PC()), cloud_in(cloud);
   
-		
-		//cloud_projected = cloud_in;
 		//Elimino la componente z
 		for(int i = 0; i < cloud_in->points.size(); i++)
 		{
@@ -50,58 +48,21 @@ namespace mapinect {
 			//cloud_projected->at(i).z = 0;
 		}
 
-
-
-
-		  //pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-		  //pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
-		  //// Create the segmentation object
-		  //pcl::SACSegmentation<pcl::PointXYZ> seg;
-		  //// Optional
-		  //seg.setOptimizeCoefficients (true);
-		  //// Mandatory
-		  //seg.setModelType (pcl::SACMODEL_PLANE);
-		  //seg.setMethodType (pcl::SAC_RANSAC);
-		  //seg.setDistanceThreshold (0.01);
-
-		  //seg.setInputCloud (cloud_in);
-		  //seg.segment (*inliers, *coefficients);
-
-		  //// Project the model inliers 
-		  //pcl::ProjectInliers<pcl::PointXYZ> proj;
-		  //proj.setModelType (pcl::SACMODEL_PLANE);
-		  //proj.setInputCloud (cloud_in);
-		  //proj.setModelCoefficients (coefficients);
-		  //proj.filter (*cloud_projected);
-
-		  // Create a Convex Hull representation of the projected inliers
-		  PCPtr cloud_hull (new PC());
-		  pcl::ConvexHull<pcl::PointXYZ> chull;
-		  chull.setInputCloud (cloud_projected);
-		  chull.reconstruct (*cloud_hull);
-		  //PCDWriter writer;
-		  //writer.write<pcl::PointXYZ> ("handprojected.pcd", *cloud_projected, false);
-		  //writer.write<pcl::PointXYZ> ("convexHull.pcd", *cloud_hull, false);
-
-
-		  fingerTips.clear();
-		  for(int i = 0; i < cloud_hull->size(); i++)
-		  {
-			  pcl::PointXYZ pto = cloud_hull->at(i);
-			 /* for(int j = 0; j < cloud_in->size(); j ++)
-			  {
-				  if(cloud_in->at(j).x == pto.x && 
-					  cloud_in->at(j).y == pto.y)
-				  {
-					  pto = cloud_in->at(j);
-					  break;
-				  }
-			  }*/
-			  
-			  fingerTips.push_back(POINTXYZ_OFXVEC3F(pto));
-		  }
+		// Create a Convex Hull representation of the projected inliers
+		PCPtr cloud_hull (new PC());
+		pcl::ConvexHull<pcl::PointXYZ> chull;
+		chull.setInputCloud (cloud_projected);
+		chull.setDimension(3);
+		chull.reconstruct (*cloud_hull);
+		
+		fingerTips.clear();
+		for(int i = 0; i < cloud_hull->size(); i++)
+		{
+			pcl::PointXYZ pto = cloud_hull->at(i);
+			fingerTips.push_back(POINTXYZ_OFXVEC3F(pto));
+		}
 		  
-		  unifyVertexs();
+		unifyVertexs();
 	}
 
 	void PCHand::unifyVertexs() {

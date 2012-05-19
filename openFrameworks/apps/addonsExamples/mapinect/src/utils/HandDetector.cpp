@@ -86,7 +86,7 @@ namespace mapinect {
 		}
 
 		hand = filteredcloud;
-		pcl::io::savePCDFileASCII ("hand_Cliped.pcd", *filteredcloud);
+		saveCloudAsFile ("hand_Cliped.pcd", *filteredcloud);
 	}
 
 	//Corta la mano desde la punta hasta X cm
@@ -163,6 +163,7 @@ namespace mapinect {
 		PCPtr hand_hull (new PC());
 		pcl::ConvexHull<pcl::PointXYZ> chull;
 		chull.setInputCloud (hand);
+		chull.setDimension(2);
 		chull.reconstruct (*hand_hull);
 		//writer.write<pcl::PointXYZ> ("handhull.pcd", *hand_hull, false);
 

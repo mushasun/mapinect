@@ -36,16 +36,21 @@ namespace mapinect {
 			const IPolygon*					getPolygon(const IPolygonName&);
 			inline const vector<IPolygon*>	getPolygons()					{ return polygonsCache; }
 			
+			vector<PCPolygonPtr>	PCPolyhedron::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons);
 		private:
 			void					updatePolygons();
 			virtual void			unifyVertexs();
 			bool					findBestFit(const PCPolygonPtr&, PCPolygonPtr& removed, bool& wasRemoved);
 			vector<PCPolygonPtr>	detectPolygons(const PCPtr& cloudTemp, float planeTolerance = 0.01, float pointsTolerance = 4.0, bool limitFaces = true);
 			void					mergePolygons(vector<PCPolygonPtr>& toMerge);
+			PCPolygonPtr			duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons);
+
 			vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
 
 			vector<PCPolygonPtr>	pcpolygons;
 			vector<IPolygon*>		polygonsCache;
+			PCPtr					getCurrentVertex();
+			
 
 	};
 }

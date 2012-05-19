@@ -1,18 +1,29 @@
 #include "PCPolygon.h"
 
 #include <pcl/registration/transformation_estimation.h>
+#include <pcl/features/normal_3d.h>
 
 #include "ofGraphicsUtils.h"
 
 #include "Globals.h"
 #include "ofVecUtils.h"
 #include "utils.h"
+#include "pointUtils.h"
+
 
 namespace mapinect {
 
-	PCPolygon::PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId)
-		: PCModelObject(cloud, objId), coefficients(coefficients)
+	PCPolygon::PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId, bool estimated)
+		: PCModelObject(cloud, objId)
 	{
+		//Corrijo normal
+		this->coefficients = coefficients;
+
+		if(!estimated)
+			pcl::flipNormalTowardsViewpoint(cloud->at(0),
+										0,0,0,
+										this->coefficients.values[0], this->coefficients.values[1], this->coefficients.values[2]);
+
 		modelObject = ModelObjectPtr(new Polygon());
 	}
 
@@ -50,7 +61,7 @@ namespace mapinect {
 
 	void PCPolygon::resetLod()
 	{
-		cloud->clear();
+		//cloud->clear();
 	}
 
 	void PCPolygon::increaseLod(const PCPtr& nuCloud){
@@ -59,16 +70,14 @@ namespace mapinect {
 
 	void PCPolygon::applyTransformation(Eigen::Affine3f* transformation)
 	{
+		saveCloudAsFile("preTransform.pcd",*cloud);
 		pcl::transformPointCloud(*cloud, *cloud, *transformation);
-		Eigen::Vector3f eVec;
+		saveCloudAsFile("postTransform.pcd",*cloud);
+
+		Eigen::Vector3f eVec(coefficients.values.at(0),coefficients.values.at(1),coefficients.values.at(2));
 		vector<ofVec3f> vertexs = getPolygonModelObject()->getVertexs();
 		
 		Eigen::Vector3f pointInPlane(0,0,-coefficients.values.at(3)/coefficients.values.at(2));//(0,0,-d/c)
-
-		eVec.x() = coefficients.values.at(0);
-		eVec.y() = coefficients.values.at(1);
-		eVec.z() = coefficients.values.at(2);
-		//eVec.w() = coefficients.values.at(3);
 
 		eVec = (*transformation) * eVec;
 		pointInPlane = (*transformation) * pointInPlane;
@@ -80,6 +89,7 @@ namespace mapinect {
 								    - coefficients.values.at(1)*pointInPlane.y()
 									- coefficients.values.at(2)*pointInPlane.z();
 
+		detectPolygon();
 		/*for(int i = 0; i < vertexs.size(); i++)
 		{
 			eVec.x() = vertexs.at(i).x;
@@ -102,15 +112,26 @@ namespace mapinect {
 		
 		ofVec3f myNormal = getNormal();
 		ofVec3f yourNormal = polygon->getNormal();
+		ofVec3f axis = gModel->table->getNormal();//(0,1,0);//= yourNormal.getCrossed(myNormal);
 		float angle = acos(myNormal.dot(yourNormal));
 		float estimator = fabsf(fabsf(angle - PI * 0.5) - PI * 0.5);
 		const float NORMAL_TOLERANCE = PI / 4.0;
-		if (estimator < NORMAL_TOLERANCE) {
+		bool sameDirection = (myNormal + yourNormal).length() > 1;
+		if (estimator < NORMAL_TOLERANCE && sameDirection) {
 			if (matched == NULL || estimator < matchedEstimator) {
 				wasRemoved = matched != NULL;
 				removed = matched;
 				matched = polygon;
 				matchedEstimator = estimator;
+				
+				//Establezco la transformacion
+				Eigen::Vector4f myCentroid, yourCentroid;
+				pcl::compute3DCentroid(*cloud,myCentroid);
+				pcl::compute3DCentroid(*polygon->getCloud(),yourCentroid);
+				Eigen::Vector4f dif = myCentroid - yourCentroid;
+				matchingTransformation = Eigen::AngleAxisf(angle,Eigen::Vector3f(axis.x,axis.y,axis.z));
+				//matchingTransformation = Eigen::Translation3f(Eigen::Vector3f(dif.x(),dif.y(),dif.z()));
+				//matchingAngleRotation = angle;
 			}
 		}
 		else {
@@ -121,6 +142,11 @@ namespace mapinect {
 
 	float distanceBetween(const ofVec3f& vA, const ofVec3f& vB) {
 		return vA.distance(vB);
+	}
+
+	Eigen::Affine3f	PCPolygon::getMatchingTransformation()
+	{
+		return matchingTransformation;
 	}
 
 	void PCPolygon::updateMatching() {

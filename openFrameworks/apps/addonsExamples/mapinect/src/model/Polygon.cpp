@@ -124,6 +124,11 @@ namespace mapinect {
 		
 	}
 
+	void Polygon::setName(const IPolygonName& n)
+	{
+		this->name = n;
+	}
+
 
 }
 

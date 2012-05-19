@@ -57,4 +57,7 @@ bool isInBorder(const PCPtr& cloud);
 
 void createCloud(const ofVec3f& pto, const string& name);
 
+void createCloud(const vector<ofVec3f>& ptos, const string& name);
+
+bool saveCloudAsFile(const std::string &file_name, const PC &cloud);
 #endif // POINT_UTILS_H__
