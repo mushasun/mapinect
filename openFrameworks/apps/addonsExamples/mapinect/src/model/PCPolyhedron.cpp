@@ -1,5 +1,6 @@
 #include "PCPolyhedron.h"
 
+#include <pcl/common/transforms.h>
 #include <pcl/ModelCoefficients.h>
 #include <pcl/common/centroid.h>
 #include <pcl/filters/extract_indices.h>
@@ -11,6 +12,8 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_clusters.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/registration/icp.h>
 
 #include "ofUtils.h"
 
@@ -33,6 +36,21 @@ namespace mapinect {
 
 	bool hasNoMatching(const PCPolygonPtr& p) {
 		return !(p->hasMatching());
+	}
+
+	PCPtr PCPolyhedron::getCurrentVertex()
+	{
+		PCPtr cloud (new PC());
+		/*///DEBUG
+		vector<ofVec3f> vecList;
+		for (vector<PCPolygonPtr>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end(); nextIter++) {
+			Polygon* polygon = (*nextIter)->getPolygonModelObject();
+			for (int j = 0; j < polygon->getVertexCount(); j++){
+				ofVec3f v(polygon->getVertex(j));
+				cloud->push_back(OFXVEC3F_POINTXYZ(v));
+			}
+		}*/
+		return cloud;
 	}
 
 	void PCPolyhedron::mergePolygons(vector<PCPolygonPtr>& toMerge) {
@@ -59,14 +77,30 @@ namespace mapinect {
 		} while (toMerge.size() > 0 && remainingIters > 0);
 
 		vector<PCPolygonPtr> keep;
+		vector<PCPolygonPtr> adjust;
 		for (vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
-			if ((*iter)->hasMatching()) {
+			if ((*iter)->hasMatching())
 				keep.push_back(*iter);
-			}
+			else
+				adjust.push_back(*iter);
 		}
+		
 		pcpolygons = keep;
 
 		updatePolygons();
+
+
+		////Ajusto los poligonos que no se ven segun las transformaciones de alguno de los poligonos (?)
+		//if(keep.size() > 0)
+		//{
+		//	Eigen::Transform<float,3,Eigen::Affine> transformation = keep.at(0)->getMatchingTransformation();
+		//	for(int i = 0; i < adjust.size(); i++)
+		//	{
+		//		adjust.at(i)->applyTransformation(&transformation);
+		//	}
+		//	keep.insert(keep.end(),adjust.begin(),adjust.end());
+		//}
+
 
 		for (int i = 0; i < aAgregar.size(); i++) {
 			if (indexOf(pcpolygons, aAgregar[i]) < 0) {
@@ -83,6 +117,11 @@ namespace mapinect {
 		{
 			polygonsCache.push_back((*p)->getPolygonModelObject());
 		}
+	}
+
+	bool xAxisSort (PCPolygonPtr i,PCPolygonPtr j) 
+	{ 
+		return i->getCenter().x < j->getCenter().x;
 	}
 
 	vector<PCPolygonPtr> PCPolyhedron::detectPolygons(const PCPtr& cloud, float planeTolerance, float pointsTolerance, bool limitFaces){
@@ -114,6 +153,7 @@ namespace mapinect {
 		vector<PCPolygonPtr> nuevos;
 
 		int numFaces = 0;
+		
 		while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < maxFaces)
 		{
 			pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
@@ -151,7 +191,7 @@ namespace mapinect {
 
 			cloudTemp = cloud_filtered_temp_outliers;
 
-			//pcl::io::savePCDFile("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
+			saveCloudAsFile("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
 			
 			//Remove outliers by clustering
 			PCPtr cloud_p_filtered (new PC());
@@ -175,19 +215,43 @@ namespace mapinect {
 					cloud_p_filtered->points.push_back (cloud_p->points[*pit]); //*
 			}
 
-			//pcl::io::savePCDFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
+			saveCloudAsFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
 			if (cloud_p_filtered->size() < 4)
 				break;
 
 			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, cloud_p_filtered));
 			pcp->detectPolygon();
 			pcp->getPolygonModelObject()->setContainer(this);
+			
+			/*if(gModel->table->isParallelToTable(pcp))
+				pcp->getPolygonModelObject()->setName(kPolygonNameTop);
+			else
+			{
+				pcp->getPolygonModelObject()->setName((IPolygonName)sideFacesName);
+				sideFacesName++;
+			}*/
+
 			nuevos.push_back(pcp);
 			
 			//writer.write<pcl::PointXYZ> ("cloud_pTemp" + ofToString(i) + ".pcd", *cloud_pTemp, false);
 			i++;
 			numFaces++;
 		}
+		
+		int sideFacesName = 1;
+		sort(nuevos.begin(), nuevos.end(), xAxisSort);
+		for(int i = 0; i < nuevos.size(); i++)
+		{
+			if(gModel->table->isParallelToTable(nuevos.at(i)))
+				nuevos.at(i)->getPolygonModelObject()->setName(kPolygonNameTop);
+			else
+			{
+				nuevos.at(i)->getPolygonModelObject()->setName((IPolygonName)sideFacesName);
+				sideFacesName++;
+			}
+		}
+
+
 		return nuevos;
 	}
 
@@ -253,6 +317,17 @@ namespace mapinect {
 				}
 			}
 		}
+
+		/*///DEBUG
+		vector<ofVec3f> vecList;
+		for (vector<PCPolygonPtr>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end(); nextIter++) {
+			Polygon* polygon = (*nextIter)->getPolygonModelObject();
+			for (int j = 0; j < polygon->getVertexCount(); j++){
+				ofVec3f v(polygon->getVertex(j));
+				vecList.push_back(v);
+			}
+		}
+		createCloud(vecList,"UnifiedVertex.pcd");*/
 	}
 
 	bool PCPolyhedron::findBestFit(const PCPolygonPtr& polygon, PCPolygonPtr& removed, bool& wasRemoved)
@@ -333,6 +408,137 @@ namespace mapinect {
 
 		return polygonsInBox;
 	}
+	PCPolygonPtr PCPolyhedron::duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons)
+	{
+		PCPolygonPtr f1;
+
+		//Encuentro el poligono 'vecino' al que quiero duplicar
+		TablePtr t = gModel->table;
+		bool parallelAndNotInContact = t->isParallelToTable(polygon) && !t->isOnTable(polygon->getCloud());
+		bool foundFace = false;
+		//saveCloudAsFile ("from.pcd", *polygon->getCloud());
+		/// Si es paralelo a la mesa (cara techo), tomo cualquier otro poligono
+		/// Si es perpendicular, busco otro poligono perpendicular
+		for(int i = 0; i < newPolygons.size(); i ++)
+		{
+			if(newPolygons.at(i) != polygon)
+			{
+				if((!parallelAndNotInContact && (!t->isParallelToTable(newPolygons.at(i)) || t->isOnTable(newPolygons.at(i)->getCloud()))) ||
+					parallelAndNotInContact)
+				{
+					f1 = newPolygons.at(i);
+					foundFace = true;
+					break;
+				}
+			}
+		}
+		/// Si no encontre otro poligono que cumple las condiciones anteriores, tomo cualquier poligono 
+		/// que no sea el mismo
+		if(!foundFace)
+		{
+			for(int i = 0; i < newPolygons.size(); i ++)
+			{
+				if(newPolygons.at(i) != polygon)
+				{
+					f1 = newPolygons.at(i);
+					break;
+				}
+			}
+		}
+
+		//Busco el largo que tengo que desplazar
+		vector<ofVec3f> vex = f1->getPolygonModelObject()->getVertexs();
+		ofVec3f min1(numeric_limits<float>::max(),numeric_limits<float>::max(),numeric_limits<float>::max());
+		ofVec3f min2(numeric_limits<float>::max(),numeric_limits<float>::max(),numeric_limits<float>::max());
+		
+		if(!parallelAndNotInContact && foundFace) // Busco los 2 puntos con menor 'y' para hallar el ancho de la cara
+		{
+			for(int i = 0; i < vex.size(); i ++)
+			{
+				if(vex.at(i).y < min1.y)
+					min1 = vex.at(i);
+				else if(vex.at(i).y < min2.y && vex.at(i) != min1)
+					min2 = vex.at(i);
+			}
+		}
+		else // Busco los 2 puntos con menor 'x' para hallar el alto de la cara
+		{
+			for(int i = 0; i < vex.size(); i ++)
+			{
+				if(vex.at(i).x < min1.x)
+					min1 = vex.at(i);
+				else if(vex.at(i).x < min2.x && vex.at(i) != min1)
+					min2 = vex.at(i);
+			}
+		}
+
+		/*createCloud(min1, "min1.pcd");
+		createCloud(min2, "min2.pcd");*/
+
+
+		float f1Width = abs((min1 - min2).length());
+
+		PCPtr cloudToMove = polygon->getCloud();
+		PCPtr cloudMoved (new PC()); 
+		ofVec3f normal = polygon->getNormal();
+		//pcl::flipNormalTowardsViewpoint(cloudToMove->at(0),0,0,0,normal.x,normal.y,normal.z);
+		normal *= -f1Width; // TODO: Corregir dirección de la normal
+		Eigen::Transform<float,3,Eigen::Affine> transformation;
+		transformation = Eigen::Translation<float,3>(normal.x, normal.y, normal.z);
+
+		pcl::transformPointCloud(*cloudToMove,*cloudMoved,transformation);
+
+		//Corrección de coeficiente
+		pcl::ModelCoefficients coeff = polygon->getCoefficients();
+		
+		//invierto la normal
+		coeff.values[0] *= -1;
+		coeff.values[1] *= -1;
+		coeff.values[2] *= -1;
+		//TODO: Corregir parametro 'd' de la ecuacion del plano
+
+		PCPolygonPtr estimatedPol (new PCQuadrilateral(coeff,cloudMoved,f1->getId()*(-2),true));
+		estimatedPol->detectPolygon();
+		estimatedPol->getPolygonModelObject()->setContainer(this);
+		
+		IPolygonName polFatherName = polygon->getPolygonModelObject()->getName();
+		IPolygonName polName;
+
+		if(polFatherName == kPolygonNameTop)
+			polName = kPolygonNameBottom;
+		else if(polFatherName == kPolygonNameBottom)
+			polName = kPolygonNameTop;
+		else if(polFatherName <= 2)
+			polName = (IPolygonName)(polFatherName + 2);
+		else
+			polName = (IPolygonName)(polFatherName - 2);
+
+		estimatedPol->getPolygonModelObject()->setName(polName);
+
+		/*
+		saveCloudAsFile ("estimated.pcd", *estimatedPol->getCloud());
+		saveCloudAsFile ("from.pcd", *f1->getCloud());
+		saveCloudAsFile ("original.pcd", *cloudToMove);*/
+
+
+		return estimatedPol;
+	}
+
+	vector<PCPolygonPtr> PCPolyhedron::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons)
+	{
+		vector<PCPolygonPtr> estimated;
+		if(newPolygons.size() <= 1)
+			return estimated;
+
+		for(int i = 0; i < newPolygons.size(); i ++)
+		{
+			PCPolygonPtr estimatedPol = duplicatePol(newPolygons.at(i),newPolygons);
+			estimated.push_back(estimatedPol);
+			//saveCloudAsFile ("estimated" + ofToString(i) + ".pcd", *estimatedPol->getCloud());
+		}
+		
+		return estimated;
+	}
 
 	void PCPolyhedron::addToModel(const PCPtr& nuCloud)
 	{
@@ -353,8 +559,15 @@ namespace mapinect {
 		
 		cout << "post discard: " << inBox.size() << endl;
 
+		vector<PCPolygonPtr> estimated = estimateHiddenPolygons(inBox);
+		inBox.insert(inBox.end(),estimated.begin(),estimated.end());
 		mergePolygons(inBox);
 		unifyVertexs();
+		
+		/*for(int i = 0; i < pcpolygons.size(); i ++)
+		{
+			saveCloudAsFile ("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
+		}*/
 	}
 
 	void PCPolyhedron::setAndUpdateCloud(const PCPtr& cloud)

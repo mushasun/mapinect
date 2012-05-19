@@ -560,3 +560,30 @@ void createCloud(const ofVec3f& pto, const string& name)
 	cloud->push_back(OFXVEC3F_POINTXYZ(pto));
 	writer.write<pcl::PointXYZ>(name, *cloud, false);
 }
+
+bool saveCloudAsFile(const std::string &file_name, const PC &cloud)
+{
+	if (cloud.empty ())
+		return false;
+	
+	if(cloud.width * cloud.height != cloud.points.size())
+	{
+		PC printeableCloud (cloud);
+		printeableCloud.height = 1;
+		printeableCloud.width = cloud.points.size();
+		pcl::io::savePCDFileASCII (file_name, printeableCloud);
+	}
+	else
+		pcl::io::savePCDFileASCII (file_name, cloud);
+	
+	return true;
+}
+
+void createCloud(const vector<ofVec3f>& ptos, const string& name)
+{
+	PCPtr cloud (new PC());
+	for(int i = 0; i < ptos.size(); i++)
+		cloud->push_back(OFXVEC3F_POINTXYZ(ptos.at(i)));
+
+	saveCloudAsFile(name, *cloud);
+}

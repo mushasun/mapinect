@@ -76,6 +76,10 @@ namespace mapinect {
 	}
 
 	void PCModelObject::addToModel(const PCPtr& nuCloud){
+		//DEBUG!!!!
+		lod++;
+		/////////
+
 		//pcl::io::savePCDFileASCII ("pre.pcd", cloud);
 		//pcl::io::savePCDFileASCII ("nu.pcd", *nuCloud);
 		//applyTransformation();

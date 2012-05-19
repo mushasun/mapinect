@@ -263,10 +263,10 @@ namespace mapinect {
 
 
 			//Debug
-			PCPtr cloud_hull (new PC());
+			/*PCPtr cloud_hull (new PC());
 			pcl::ConvexHull<pcl::PointXYZ> chull;
 			chull.setInputCloud (cloud_cluster);
-			chull.reconstruct (*cloud_hull);
+			chull.reconstruct (*cloud_hull);*/
 			//writer.write<pcl::PointXYZ> ("clusterhull" + ofToString(++count) + ".pcd", *cloud_hull, false);
 
 
@@ -385,9 +385,33 @@ namespace mapinect {
 		return cloudTemp;
 	}
 
+	void generateHandCloud(const PCPtr& cloud)
+	{
+		PCDWriter writer;
+		writer.write<pcl::PointXYZ> ("sourceCloud.pcd", *cloud, false);
+
+		PCPtr modelsCLoud (new PC);
+		gModel->objectsMutex.lock();
+		for(int i = 0; i < gModel->objects.size(); i++)
+		{
+			PCModelObject* pcm = (PCModelObject*)(gModel->objects.at(i).get());
+			*modelsCLoud += *(pcm->getCloud());
+		}
+		gModel->objectsMutex.unlock();
+		writer.write<pcl::PointXYZ> ("modelsCLoud.pcd", *modelsCLoud, false);
+
+		PCPtr filteredCloud(new PointCloud<PointXYZ>);
+		int dif = getDifferencesCloud(modelsCLoud,cloud,filteredCloud,0.01);
+		cout << "Diferencia: " << ofToString(dif) << endl;
+
+		writer.write<pcl::PointXYZ> ("dif.pcd", *filteredCloud, false);
+	}
+
 	void PCMThread::processDiferencesClouds() {
 		bool dif;
 		PCPtr filteredCloud = getTableCluster();
+
+		//generateHandCloud(filteredCloud);
 
 		// WORK WITH CLOUD DIFFERENCES
 /*			PCPtr secondCloud = getCloud();
@@ -460,7 +484,7 @@ namespace mapinect {
 			for (list<TrackedCloudPtr>::iterator iter = nuevosClouds.begin(); iter != nuevosClouds.end(); iter++) {
 				//PCDWriter writer;
 
-				//writer.write<pcl::PointXYZ> ("vector" + ofToString(debugCounter) + ".pcd", *(*iter)->getTrackedCloud(), false);
+				saveCloudAsFile("clusterInTable" + ofToString(debugCounter) + ".pcd", *(*iter)->getTrackedCloud());
 				TrackedCloudPtr removedCloud;
 				bool removed = false;
 				//Busco el mejor ajuste

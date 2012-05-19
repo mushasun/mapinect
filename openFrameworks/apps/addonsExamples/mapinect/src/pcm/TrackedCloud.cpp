@@ -236,26 +236,18 @@ namespace mapinect {
 		}
 		else if(objectInModel != NULL && objectInModel->getLod() < MAX_OBJ_LOD)								//Si no llegue al nivel maximo de detalle, aumento el detalle
 		{
-			PCDWriter writer;
 			ofVec3f vMax,vMin;
 			findPointCloudBoundingBox(objectInModel->getCloud(), vMin, vMax);
 
 			int density = CLOUD_RES - objectInModel->getLod();
-			PCPtr cloud = getCloud(density);
-			//writer.write<pcl::PointXYZ>("nuObjCloud.pcd", *cloud, false);
-			/*
-			ofVec3f sMin = gKinect->getScreenCoordsFromWorldCoords(vMin);
-			ofVec3f sMax = gKinect->getScreenCoordsFromWorldCoords(vMax);
-			sMin -= ofVec3f(density + 1, density + 1);
-			sMax += ofVec3f(density + 1, density + 1);
-
-			PCPtr cloud = getPartialCloudRealCoords(sMin, sMax, density);
-			*/
+			
 
 			ofVec3f halo(0.005, 0.005, 0.005);
 			halo /= (float)objectInModel->getLod();
 			vMin -= halo;
 			vMax += halo;
+
+			PCPtr cloud = getCloud(density);
 
 			Eigen::Vector4f eMax,eMin;
 			eMax[0] = vMax.x;
@@ -265,6 +257,11 @@ namespace mapinect {
 			eMin[1] = vMin.y;
 			eMin[2] = vMin.z;
 
+			//Necesito alguna forma de pasar de coordenadas de kinect a indices para obtener esta nube
+			/*PCPtr cloud = getPartialCloudRealCoords(ofPoint(min(vMax.x,vMin.x),min(vMax.y,vMin.y)),
+													ofPoint(max(vMax.x,vMin.x),max(vMax.y,vMin.y)),	
+													density);*/
+
 			vector<int> indices;
 
 			pcl::getPointsInBox(*cloud,eMin,eMax,indices);
@@ -272,7 +269,6 @@ namespace mapinect {
 			
 			for(int i = 0; i < indices.size(); i++)
 				nuCloud->push_back(cloud->at(indices.at(i)));
-			
 
 			PCPtr nuCloudFiltered (new PC());
 			PCPtr nuCloudFilteredNoTable (new PC());
@@ -281,10 +277,9 @@ namespace mapinect {
 			pass.setInputCloud (nuCloud);
 			pass.setFilterFieldName ("z");
 			pass.setFilterLimits (0.001, 4.0);
-			//pass.setFilterLimitsNegative (true);
 			pass.filter (*nuCloudFiltered);
-			//writer.write<pcl::PointXYZ>("nuobj.pcd", *nuCloud, false);
-			//writer.write<pcl::PointXYZ>("nuCloudFiltered.pcd", *nuCloudFiltered, false);
+			
+			saveCloudAsFile("preFiltroMesa.pcd",*nuCloudFiltered);
 
 			//Quito los puntos que pertenecen a la mesa
 			TablePtr table = gModel->table;
@@ -296,10 +291,16 @@ namespace mapinect {
 			extract.setIndices (tableIdx);
 			extract.setNegative (true);
 			extract.filter (*nuCloudFilteredNoTable);
-			//writer.write<pcl::PointXYZ>("nuCloudFilteredNoTable.pcd", *nuCloudFilteredNoTable, false);
 
-			gModel->objectsMutex.lock();
+			saveCloudAsFile("postFiltroMesa.pcd",*nuCloudFilteredNoTable);
+			///Commented for debug
+			/*gModel->objectsMutex.lock();
 			objectInModel->updateCloud(nuCloudFilteredNoTable);
+			gModel->objectsMutex.unlock();*/
+			
+			///Added for debug
+			gModel->objectsMutex.lock();
+			objectInModel->addToModel(nuCloudFilteredNoTable);
 			gModel->objectsMutex.unlock();
 
 		}
