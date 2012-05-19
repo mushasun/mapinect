@@ -5,7 +5,7 @@
 #include <map> 
 #include "ofSerial.h"
 #include "ofVec3f.h"
-//#include "ofxOpenCv.h"
+#include <Eigen/Geometry>
 
 namespace mapinect {
 	class Arduino{
@@ -14,33 +14,34 @@ namespace mapinect {
 		Arduino();
 		virtual ~Arduino();
 
-		virtual bool	setup();
-		virtual void	exit();
-		virtual void	update();
-		virtual void	draw();
+		virtual bool		setup();
+		virtual void		exit();
+		virtual void		update();
+		virtual void		draw();
 
-		virtual void	keyPressed(int key);
+		virtual void		keyPressed(int key);
 
-		void			reset();
+		void				reset();
 
-		ofVec3f		getKinect3dCoordinates();
-		ofVec3f		setKinect3dCoordinates(ofVec3f position);
-		ofVec3f		lookAt(ofVec3f point);
-		ofVec3f		lookingAt();
+		ofVec3f				getKinect3dCoordinates();
+		ofVec3f				setKinect3dCoordinates(ofVec3f position);
+		ofVec3f				lookAt(ofVec3f point);
+		ofVec3f				lookingAt();
+		Eigen::Affine3f		getWorldTransformation();
 		
 
 	private:
-		bool			isActive();
+		bool				isActive();
 
-		void			sendMotor(char value, int id);
-		string			read();
+		void				sendMotor(char value, int id);
+		char*				read();
 
 
-		ofSerial		serial;
-		signed int		angleMotor1;
-		signed int		angleMotor2;
-		signed int		angleMotor4;
-		signed int		angleMotor8;
+		ofSerial			serial;
+		signed int			angleMotor1;
+		signed int			angleMotor2;
+		signed int			angleMotor4;
+		signed int			angleMotor8;
 		
 		float round(float input)
 		{
@@ -49,10 +50,10 @@ namespace mapinect {
 		}
 
 
-		ofVec3f		convert_3D_cart_to_spher(ofVec3f point);
-		ofVec3f		convert_3D_spher_to_cart(ofVec3f point);
-		ofVec3f		find_closest_point_to_sphere(ofVec3f point);
-		void		setKinect3dCoordinates(float x, float y, float z);
+		ofVec3f				convert_3D_cart_to_spher(ofVec3f point);
+		ofVec3f				convert_3D_spher_to_cart(ofVec3f point);
+		ofVec3f				find_closest_point_to_sphere(ofVec3f point);
+		void				setKinect3dCoordinates(float x, float y, float z);
 
 		void		getTransformationWorldTransformation();
 		

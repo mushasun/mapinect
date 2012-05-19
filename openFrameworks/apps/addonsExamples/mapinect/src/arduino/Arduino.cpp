@@ -3,8 +3,6 @@
 #include "Feature.h"
 #include "ofxXmlSettings.h"
 #include <direct.h> // for getcwd
-#include <Eigen/Geometry>
-
 
 namespace mapinect {
 
@@ -19,7 +17,7 @@ namespace mapinect {
 #define		ANGLE_DEFAULT		0
 #define		KEY_UNDEFINED		""
 
-#define		MOTOR_ANGLE_OFFSET	128
+#define		MOTOR_ANGLE_OFFSET_DEFAULT	128
 
 	static string	COM_PORT;
 	static char		KEY_MOVE_1R;
@@ -39,9 +37,18 @@ namespace mapinect {
 	static int		ANGLE_STEP;
 	static int		ARM_HEIGHT;
 	static int		ARM_LENGTH;
+	static int		MOTOR_ANGLE_OFFSET;
 
 	Arduino::Arduino()
 	{
+		/*angleMotor1 = 8;
+		angleMotor2 = 0;
+		angleMotor4 = -10;
+		angleMotor8 = 18;*/
+		angleMotor1 = 0;
+		angleMotor2 = 0;
+		angleMotor4 = 0;
+		angleMotor8 = 0;
 	}
 
 	Arduino::~Arduino()
@@ -83,6 +90,7 @@ namespace mapinect {
 			RESET_ANGLE2 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE2", ANGLE_DEFAULT);
 			RESET_ANGLE4 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE4", ANGLE_DEFAULT);
 			RESET_ANGLE8 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE8", ANGLE_DEFAULT);
+			MOTOR_ANGLE_OFFSET	= XML.getValue(ARDUINO_CONFIG "MOTOR_ANGLE_OFFSET", MOTOR_ANGLE_OFFSET_DEFAULT);
 
 			ARM_HEIGHT = XML.getValue(ARDUINO_CONFIG "ARM_HEIGHT", 0);
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0);
@@ -198,17 +206,19 @@ namespace mapinect {
 	void Arduino::sendMotor(char value, int id)
 	{
 		value += MOTOR_ANGLE_OFFSET;
+		cout << value <<endl;
 		cout << my_byte_to_binary((int)value) <<endl;
 		char id_char = (char) id;
 		serial.writeByte(id_char);
 		serial.writeByte(value);
 	}
 
-	string Arduino::read()
+	char* Arduino::read()
 	{
-		string result("");
+		char* result;
 		int cantidad_bytes = serial.available();
 		if (cantidad_bytes) {
+			result = new char[cantidad_bytes];
 			unsigned char lectura = 0;
 			int i = 0;
 			while(serial.readBytes(&lectura, 1) > 0) {
@@ -216,6 +226,11 @@ namespace mapinect {
 				i++;
 			}
 			result[i] = 0;
+		}
+		else
+		{
+			result = new char[1];
+			result[0] = '\0';
 		}
 		return result;
 	}
@@ -239,8 +254,9 @@ namespace mapinect {
 
 	void Arduino::setKinect3dCoordinates(float x, float y, float z)
 	{
-		angleMotor1 = (int)round(asin(x/y));
-		angleMotor2 = (int)round(acos(y/ARM_LENGTH));
+		angleMotor2 = (int)round(asin(x/y) * 180 / 3.1415926);			//el de la base
+		angleMotor1 = (int)round(acos(y/ARM_LENGTH) * 180 / 3.1415926);	//el del medio
+		sendMotor((char) angleMotor1, ID_MOTOR_1);
 	}
 
 	ofVec3f Arduino::setKinect3dCoordinates(ofVec3f position)
@@ -300,7 +316,7 @@ namespace mapinect {
 		return NULL;
 	}
 
-	void Arduino::getTransformationWorldTransformation()
+	Eigen::Affine3f Arduino::getWorldTransformation()
 	{
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 		//CvMat* mat = cvCreateMat(4,4,CV_32FC1);
@@ -315,11 +331,11 @@ namespace mapinect {
 		Eigen::Affine3f rotationY;
 		rotationY = Eigen::AngleAxis<float>(-angleMotor1, axisY);
 
-		Eigen::Vector3f axisX (1, 0, 0);
+		Eigen::Vector3f axisX (0, 1, 0);
 		Eigen::Affine3f rotationX;
 		rotationX = Eigen::AngleAxis<float>(-angleMotor2, axisX);
 
-		Eigen::Vector3f axisZ (0, 1, 0);
+		Eigen::Vector3f axisZ (1, 0, 0);
 		Eigen::Affine3f rotationZ;
 		rotationZ = Eigen::AngleAxis<float>(-angleMotor4, axisZ);
 
@@ -337,7 +353,7 @@ namespace mapinect {
 
 		Eigen::Affine3f composed_matrix;
 		composed_matrix = rotationX * rotationY * rotationZ * translationY * translationX;
-		//return NULL;
+		return composed_matrix;
 
 
 	}
