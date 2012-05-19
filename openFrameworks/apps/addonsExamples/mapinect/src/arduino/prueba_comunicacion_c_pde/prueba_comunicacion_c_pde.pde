@@ -8,7 +8,7 @@ AX12 motor8;
 int posicion1 = 512;
 int posicion2 = 512;
 int posicion4 = 512;
-int posicion8 = 570; //el cero está corrido :@
+int posicion8 = 582; //el cero está corrido :@
 
 void setup() 
 {
@@ -51,7 +51,7 @@ int pasarAngulo(byte angulo)
     direccion = -1;
   }
   mask = B01111111;
-  angulo = mask & angulo ;*/
+  angulo = mask & angulo;*/
   int resultado = angulo * (1024.0 / 300.0) + 76;
   return resultado;
 }
@@ -98,6 +98,12 @@ void loop()
     byte id = Serial.read();
     byte angulo = Serial.read();
     int angulo_pasado = pasarAngulo(angulo);
+    Serial.print("Angulo: ");
+    Serial.println(angulo, DEC);
+    Serial.print("Angulo p: ");
+    Serial.println(angulo_pasado, DEC);
+    Serial.print("id: ");
+    Serial.println(id, DEC);
     if (id==1){
       posicion1 = angulo_pasado;
     }
@@ -110,17 +116,21 @@ void loop()
     }
     else if (id==8)
     {
-      posicion8 = angulo_pasado;
+      posicion8 = angulo_pasado + 70;//el cero está corrido :@
     }
-    imprimirInfoMotores();
+    else
+    {
+      //imprimirInfoMotores();
+    }
   }
-  delay(10);
-  motor1.setPosVel (posicion1, 15);
-  delay(10);
-  motor2.setPosVel (posicion2, 15);
-  delay(10);
-  motor4.setPosVel (posicion4, 15);
-  delay(10);
-  motor8.setPosVel (posicion8, 10);
-  delay(10);
+  delay(50);
+  motor1.setPosVel (posicion1, 20);
+  delay(100);
+  motor2.setPosVel (posicion2, 20);
+  delay(100);
+  motor4.setPosVel (posicion4, 20);
+  delay(100);
+  motor8.setPosVel (posicion8, 15);
+  delay(50);
+
 }
