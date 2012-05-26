@@ -5,106 +5,36 @@
 #include "Globals.h"
 #include "ofGraphicsUtils.h"
 #include "ofVecUtils.h"
+#include "SortPolar.h"
 #include "utils.h"
 
 namespace mapinect {
 
-	void Polygon::setVertex(int vertexNum, const ofVec3f& v) {
+	void Polygon::setVertex(int vertexNum, const ofVec3f& v)
+	{
 		vertexs[vertexNum] = v;
 	}
 
-	void Polygon::addVertex(const ofVec3f& v) {
-		vertexs.push_back(v);
-		if (vertexs.size() == 3) {
-			normal = (vertexs.at(2) - vertexs.at(1)) * (vertexs.at(0) - vertexs.at(1));
-			normal.normalize();
-		}
+	void Polygon::setVertexs(const vector<ofVec3f>& v)
+	{
+		vertexs = v;
+		mathPolygon = Polygon3D(vertexs);
 	}
 
-	static DiscardCoordinate	sortDiscardCoordinate;
-	static ofVec3f				sortCenter;
-
-	bool comparePolarCoords(const ofVec3f& v3A, const ofVec3f& v3B) {
-		ofVec2f v2A = discardCoordinateOfxVec3f(v3A - sortCenter, sortDiscardCoordinate);
-		ofVec2f v2B = discardCoordinateOfxVec3f(v3B - sortCenter, sortDiscardCoordinate);
-
-		ofPolar pA = cartesianToPolar(v2A);
-		ofPolar pB = cartesianToPolar(v2B);
-
-		return pA.theta < pB.theta;
-	}
-
-	void Polygon::resetVertex() {
-		vertexs.clear();
-	}
-
-	void Polygon::sortVertexs() {
-		ofVec3f min, max;
-		findOfxVec3fBoundingBox(vertexs, min, max);
-		sortDiscardCoordinate = calculateDiscardCoordinate(min, max);
-		sortCenter = (min + max) * 0.5;
-		sort(vertexs.begin(), vertexs.end(), comparePolarCoords);
+	void Polygon::sortVertexs()
+	{
+		sort(vertexs.begin(), vertexs.end(), SortPolar(vertexs));
+		mathPolygon = Polygon3D(vertexs);
 	}
 	
-	float Polygon::calculateArea() {
-		// Code taken from http://softsurfer.com/Archive/algorithm_0101/algorithm_0101.htm#area3D_Polygon()
-		float area = 0;
-		float ax, ay, az;		// abs value of normal and its coords
-		int   coord;			// coord to ignore: 1=x, 2=y, 3=z
-		int   i, j, k;			// loop indices
-
-		// select largest abs coordinate to ignore for projection
-		ax = abs(normal.x);     // abs x-coord
-		ay = abs(normal.y);     // abs y-coord
-		az = abs(normal.z);     // abs z-coord
-
-		coord = 3;                     // ignore z-coord
-		if (ax > ay) {
-			if (ax > az) coord = 1;    // ignore x-coord
-		}
-		else if (ay > az) coord = 2;   // ignore y-coord
-
-		
-		vertexs.push_back(vertexs.at(0));
-		vertexs.push_back(vertexs.at(1));
-		
-		// compute area of the 2D projection
-		for (i = 1, j = 2, k = 0; i <= vertexs.size() - 2; i++, j++, k++) {
-			switch (coord) {
-			case 1:
-				area += (vertexs[i].y * (vertexs[j].z - vertexs[k].z));
-				continue;
-			case 2:
-				area += (vertexs[i].x * (vertexs[j].z - vertexs[k].z));
-				continue;
-			case 3:
-				area += (vertexs[i].x * (vertexs[j].y - vertexs[k].y));
-				continue;
-			}
-		}
-
-		vertexs.erase(vertexs.begin() + (vertexs.size() - 1));
-		vertexs.erase(vertexs.begin() + (vertexs.size() - 1));
-		
-		// scale to get area before projection
-		switch (coord) {
-		case 1:
-			area *= (1.0 / (2*ax));
-			break;
-		case 2:
-			area *= (1.0 / (2*ay));
-			break;
-		case 3:
-			area *= (1.0 / (2*az));
-		}
-		return abs(area);
+	float Polygon::calculateArea()
+	{
+		return mathPolygon.calculateArea();
 	}
 
-	ofVec3f Polygon::project(const ofVec3f& p) {
-		ofVec3f dif = p - getCenter();
-		ofVec3f normalProj = dif.dot(normal) * normal;
-		ofVec3f proj = p - normalProj;
-		return proj;
+	ofVec3f Polygon::project(const ofVec3f& p)
+	{
+		return mathPolygon.project(p);
 	}
 
 	void Polygon::draw() {

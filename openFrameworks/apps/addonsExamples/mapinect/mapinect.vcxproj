@@ -158,7 +158,9 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\helpers\mapinectApp.cpp" />
     <ClCompile Include="src\helpers\TxManager.cpp" />
     <ClCompile Include="src\math\Line2D.cpp" />
-    <ClCompile Include="src\math\Triangle2D.cpp" />
+    <ClCompile Include="src\math\Line3D.cpp" />
+    <ClCompile Include="src\math\Plane3D.cpp" />
+    <ClCompile Include="src\math\Polygon3D.cpp" />
     <ClCompile Include="src\model\Box.cpp" />
     <ClCompile Include="src\model\Cylinder.cpp" />
     <ClCompile Include="src\model\Model.cpp" />
@@ -175,6 +177,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\model\Table.cpp" />
     <ClCompile Include="src\model\Vertex.cpp" />
     <ClCompile Include="src\open-cv\OpenCV.cpp" />
+    <ClCompile Include="src\pcm\ObjectsThread.cpp" />
     <ClCompile Include="src\pcm\PCM.cpp" />
     <ClCompile Include="src\pcm\PCMThread.cpp" />
     <ClCompile Include="src\pcm\TrackedCloud.cpp" />
@@ -261,7 +264,11 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\interfaces\IPolygon.h" />
     <ClInclude Include="src\interfaces\ITxManager.h" />
     <ClInclude Include="src\math\Line2D.h" />
-    <ClInclude Include="src\math\Triangle2D.h" />
+    <ClInclude Include="src\math\Line3D.h" />
+    <ClInclude Include="src\math\ofPolar.h" />
+    <ClInclude Include="src\math\Plane3D.h" />
+    <ClInclude Include="src\math\Polygon3D.h" />
+    <ClInclude Include="src\math\SortPolar.h" />
     <ClInclude Include="src\model\AlignmentDetector.h" />
     <ClInclude Include="src\model\Box.h" />
     <ClInclude Include="src\model\Cylinder.h" />
@@ -279,6 +286,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\model\Table.h" />
     <ClInclude Include="src\model\Vertex.h" />
     <ClInclude Include="src\open-cv\OpenCV.h" />
+    <ClInclude Include="src\pcm\ObjectsThread.h" />
     <ClInclude Include="src\pcm\PCM.h" />
     <ClInclude Include="src\pcm\PCMThread.h" />
     <ClInclude Include="src\pcm\TrackedCloud.h" />

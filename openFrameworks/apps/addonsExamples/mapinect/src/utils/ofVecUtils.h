@@ -7,7 +7,9 @@
 
 #include "utils.h"
 
-void findOfxVec3fBoundingBox(const std::vector<ofVec3f>& v, ofVec3f &vMin, ofVec3f &vMax);
+extern ofVec3f BAD_OFVEC3F;
+
+void findOfVec3fBoundingBox(const std::vector<ofVec3f>& v, ofVec3f &vMin, ofVec3f &vMax);
 
 
 enum DiscardCoordinate {
@@ -16,18 +18,36 @@ enum DiscardCoordinate {
 	kDiscardCoordinateZ
 };
 
-DiscardCoordinate calculateDiscardCoordinate(const ofVec3f& v);
-DiscardCoordinate calculateDiscardCoordinate(const ofVec3f& min, const ofVec3f& max);
-ofVec2f discardCoordinateOfxVec3f(const ofVec3f& v, DiscardCoordinate discard);
+DiscardCoordinate calculateDiscardCoordinate(const ofVec3f& normal);
+DiscardCoordinate calculateDiscardCoordinate(const vector<ofVec3f>& v);
+ofVec2f discardCoordinateOfVec3f(const ofVec3f& v, DiscardCoordinate discard);
 
+template<class T>
+T computeNormal(const vector<T>& v)
+{
+	assert(v.size() > 2);
+	return computeNormal(v[0], v[1], v[2]);
+}
 
-struct ofPolar {
-	float ro, theta;
-};
+template<class T>
+T computeNormal(const T& v1, const T& v2, const T& v3)
+{
+	return (v1 - v2).getCrossed(v3 - v2);
+}
+
+template<class T>
+T computeCentroid(const vector<T>& v)
+{
+	T result;
+	for (vector<T>::const_iterator it = v.begin(); it != v.end(); ++it)
+	{
+		result += *it;
+	}
+	result /= (float)(v.size());
+	return result;
+}
 
 inline ofVec3f scaleFromMtsToMms(const ofVec3f& p) { return p * 1000; }
-
-ofPolar cartesianToPolar(const ofPoint& c);
 
 bool sortOnY(const ofVec3f& l, const ofVec3f& r);
 
@@ -124,19 +144,21 @@ T average(const std::vector<T>& v) {
 		T vi(v[i]);
 		avg += vi;
 	}
-	avg /= v.size();
+	avg /= (float)(v.size());
 	return avg;
 }
 
-#define SORT_ON_PROP(T, prop) \
+#define SORT_ON_PROP(T, method, prop, compare) \
 	template<class T> \
-	bool sortOn_##prop(const T& a, const T&b) { \
-		return a.##prop < b.##prop; \
+	bool sortOn##method(const T& a, const T&b) { \
+		return a.##prop ##compare b.##prop; \
 	}
 
-
-SORT_ON_PROP(T, x)
-SORT_ON_PROP(T, y)
-SORT_ON_PROP(T, z)
+SORT_ON_PROP(T, XAsc, x, >)
+SORT_ON_PROP(T, XDesc, x, <)
+SORT_ON_PROP(T, YAsc, y, >)
+SORT_ON_PROP(T, YDesc, y, <)
+SORT_ON_PROP(T, ZAsc, z, >)
+SORT_ON_PROP(T, ZDesc, z, <)
 
 #endif	// OFVEC_UTILS_H__

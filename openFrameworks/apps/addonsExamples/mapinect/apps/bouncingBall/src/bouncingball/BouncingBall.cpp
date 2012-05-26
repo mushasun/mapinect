@@ -142,12 +142,12 @@ namespace bouncing {
 
 	//--------------------------------------------------------------
 	void BouncingBall::update() {
-		gModel->objectsMutex.lock();
 		if(!tableSetted)
 		{
-			if(gModel->table != NULL)
+			ofxScopedMutex osm(gModel->tableMutex);
+			if(gModel->getTable().get() != NULL)
 			{
-				mapinect::Polygon* t = gModel->table->getPolygonModelObject();
+				mapinect::Polygon* t = gModel->getTable()->getPolygonModelObject();
 				ofVec3f vA, vB, vC, vD;
 				vA = t->getVertexs()[0];
 				vB = t->getVertexs()[1];
@@ -176,7 +176,7 @@ namespace bouncing {
 				tableSegment3Ds.push_back(s3);
 				tableSegment3Ds.push_back(s4);
 				table = new BObject(tableSegment3Ds, ofVec3f(255,255,255), -1,0);
-				table->setModelObject(gModel->table.get());
+				table->setModelObject(gModel->getTable().get());
 				//segments.push_back(s5);
 				//segments.push_back(s6);
 				bobjects.push_back(table);
@@ -188,11 +188,12 @@ namespace bouncing {
 			for (int j = 0; j < bobjects.size();j++)
 				bobjects.at(j)->visited = false;
 
-			if (gModel->objects.size() > 0) 
+			ofxScopedMutex osm(gModel->objectsMutex);
+			if (gModel->getObjects().size() > 0) 
 			{
 				int objs = 1;
-				for(vector<mapinect::ModelObjectPtr>::iterator k = gModel->objects.begin(); 
-					k != gModel->objects.end(); k++)
+				for(vector<mapinect::ModelObjectPtr>::const_iterator k = gModel->getObjects().begin(); 
+					k != gModel->getObjects().end(); k++)
 				{
 					PCPolyhedron* hedron = (PCPolyhedron*)(k->get());
 					int hedronId = hedron->getId();
@@ -244,72 +245,13 @@ namespace bouncing {
 			ball.update(bobjects);
 		}
 		clearUnvisitedObjects();
-		gModel->objectsMutex.unlock();
 		
 		
 	}
 
 	//--------------------------------------------------------------
-	void BouncingBall::keyPressed(int key) {
-		switch (key) {
-		case 'r':
-			//vA = ofVec3f(-0.41767159,-0.098557055,0.5);//q->getVertex(0);
-			//vB = ofVec3f(0.24807897, 0.16238400, 0.5);//q->getVertex(1);
-			//vC = ofVec3f(0.28137761, -0.074146271, 0.5);//q->getVertex(2);
-			//vD = ofVec3f(-0.26263523,0.14728071, 0.5);//q->getVertex(3);
-			//	
-			//ofVec3f w = ofVec3f(0,0,1);//gon->getNormal();
-			//ofVec3f center = ofVec3f(0, 0.1, 0.5);//hedron->getCenter();
-			//float r = (rand()%100)/100.0;
-			//ofVec3f ballDir = ofVec3f((rand()%100)/100.0,(rand()%100)/100.0,0); //w.cross(q->getVertex(rand()%4));
-			//	
-			//ball = Tejo(center,0.01,ballDir,0.01,w);
-			//Segment3D s1 = Segment3D(vA,vC);
-			//Segment3D s2 = Segment3D(vA,vD);
-			//Segment3D s3 = Segment3D(vB,vD);
-			//Segment3D s4 = Segment3D(vB,vC);
-			//	
-			//segments.push_back(s1);
-			//segments.push_back(s2);
-			//segments.push_back(s3);
-			//segments.push_back(s4);
-			if(gModel->table != NULL)
-			{
-				if (gModel->table->hasObject()) 
-				{
-					mapinect::Polygon* q = gModel->table->getPolygonModelObject();
-					ofVec3f vA, vB, vC, vD;
-					vA = q->getVertexs()[0];
-					vB = q->getVertexs()[1];
-					vC = q->getVertexs()[2];
-					vD = q->getVertexs()[3];
-					
-					ofVec3f center = gModel->table->getCenter();
-					ofVec3f w = ((vA - vC).cross(vA - vD)).normalize();//gon->getNormal();
-					
-					ofVec3f ballDir = w;
-					ballDir.cross(vC - vA);
-					ballDir.rotate(rand()%360,w);
-					ballDir *= -1;
-					//-(w.cross(vC - vA)).rotate(10,w);
-					
-					ball = Tejo(center,0.01,ballDir,0.005,w,tableCenter);
-					Segment3D s1 = Segment3D(vA,vB,w,center);
-					Segment3D s2 = Segment3D(vB,vC,w,center);
-					Segment3D s3 = Segment3D(vC,vD,w,center);
-					Segment3D s4 = Segment3D(vD,vA,w,center);
-					
-					tableSegment3Ds.push_back(s1);
-					tableSegment3Ds.push_back(s2);
-					tableSegment3Ds.push_back(s3);
-					tableSegment3Ds.push_back(s4);
-					//segments.push_back(s6);
-
-					tableSetted = true;
-					}	
-				}
-			break;
-		}
+	void BouncingBall::keyPressed(int key)
+	{
 	}
 
 	//--------------------------------------------------------------

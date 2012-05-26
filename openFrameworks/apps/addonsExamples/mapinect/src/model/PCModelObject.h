@@ -7,11 +7,7 @@
 #include "ModelObject.h"
 
 #include "mapinectTypes.h"
-//#include <pcl/filters/statistical_outlier_removal.h>
-//#include <pcl/ModelCoefficients.h>
-//#include <pcl/segmentation/sac_segmentation.h>
-//#include <pcl/sample_consensus/method_types.h>
-//#include "ofGraphicsUtils.h"
+#include "Polygon3D.h"
 
 namespace mapinect {
 
@@ -36,6 +32,8 @@ namespace mapinect {
 		virtual void				resetLod();
 		inline ofVec3f				getvMin()							{ return vMin; }
 		inline ofVec3f				getvMax()							{ return vMax; }
+
+		virtual vector<Polygon3D>	getMathModelApproximation() const = 0;
 
 		virtual void				addToModel(const PCPtr& nuCloud);
 		virtual void				detectPrimitives();

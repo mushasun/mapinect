@@ -14,7 +14,8 @@
 
 void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z);
 
-vector<ofVec3f> pointCloudToOfVecVector(const PCPtr& cloud);
+vector<ofVec3f>	pointCloudToOfVecVector(const PCPtr& cloud);
+PCPtr			ofVecVectorToPointCloud(const vector<ofVec3f>& v);
 
 void findPointCloudBoundingBox(const PCPtr& cloud, pcl::PointXYZ& min, pcl::PointXYZ& max);
 void findPointCloudBoundingBox(const PCPtr& cloud, ofVec3f& min, ofVec3f& max);
@@ -32,6 +33,12 @@ int getDifferencesCount(const PCPtr& src,
 						const PCPtr& tgt, 
 						float distanceThreshold);
 
+PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi);
+
+vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, float minClusterSize, float maxClusterSize);
+
+PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& remainingCloud,
+							float distanceThreshold, int maxIterations = 50);
 
 //Estima la normal utilizando un conjunto aleatorio de puntos, la cantidad tomada es especificada por plane->points.size() / NORMAL_ESTIMATION_PERCENT
 ofVec3f normalEstimation(const PCPtr& plane);
@@ -55,18 +62,10 @@ ObjectType getObjectType(const PCPtr& src);
 
 bool isInBorder(const PCPtr& cloud);
 
-void createCloud(const ofVec3f& pto, const string& name);
+bool saveCloudAsFile(const string& filename, const PC& cloud);
+void saveCloudAsFile(const string& filename, const ofVec3f& pto);
+void saveCloudAsFile(const string& filename, const vector<ofVec3f>& ptos);
 
-void createCloud(const vector<ofVec3f>& ptos, const string& name);
+PCPtr loadCloud(const string& filename);
 
-bool saveCloudAsFile(const std::string &file_name, const PC &cloud);
-
-
-bool xAxisSortAsc (ofVec3f i,ofVec3f j);
-bool xAxisSortDes (ofVec3f i,ofVec3f j);
-bool yAxisSortAsc (ofVec3f i,ofVec3f j);
-bool yAxisSortDes (ofVec3f i,ofVec3f j);
-pcl::ModelCoefficients findPlane(ofVec3f v1, ofVec3f v2, ofVec3f v3);
-
-ofVec3f planeIntersection(const pcl::ModelCoefficients& p1, const pcl::ModelCoefficients& p2, const pcl::ModelCoefficients& p3);
 #endif // POINT_UTILS_H__

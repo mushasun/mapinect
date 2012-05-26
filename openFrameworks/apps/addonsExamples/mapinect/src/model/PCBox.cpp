@@ -81,17 +81,20 @@ namespace mapinect {
 				p1 != NULL &&
 				p2 != NULL)
 			{
-				ofVec3f vertex = planeIntersection(p0->getCoefficients(),p1->getCoefficients(),p2->getCoefficients());
+				Plane3D plane0(p0->getMathModelApproximation().begin()->getPlane());
+				Plane3D plane1(p1->getMathModelApproximation().begin()->getPlane());
+				Plane3D plane2(p2->getMathModelApproximation().begin()->getPlane());
+				ofVec3f vertex = plane0.intersection(plane1, plane2);
 				p0->getPolygonModelObject()->setVertex(vertexIdx[i][0],vertex);
 				p1->getPolygonModelObject()->setVertex(vertexIdx[i][1],vertex);
 				p2->getPolygonModelObject()->setVertex(vertexIdx[i][2],vertex);
 				
 				unified.push_back(vertex);
 				//DEBUG
-				createCloud(vertex,"vmerged" + ofToString(i) + ".pcd");
-				saveCloudAsFile("merged" + ofToString(i) + "1.pcd",*p0->getCloud());
-				saveCloudAsFile("merged" + ofToString(i) + "2.pcd",*p1->getCloud());
-				saveCloudAsFile("merged" + ofToString(i) + "3.pcd",*p2->getCloud());
+				saveCloudAsFile("vmerged" + ofToString(i) + ".pcd", vertex);
+				saveCloudAsFile("merged" + ofToString(i) + "1.pcd", *p0->getCloud());
+				saveCloudAsFile("merged" + ofToString(i) + "2.pcd", *p1->getCloud());
+				saveCloudAsFile("merged" + ofToString(i) + "3.pcd", *p2->getCloud());
 
 			}
 
@@ -101,7 +104,7 @@ namespace mapinect {
 
 		}
 		
-		createCloud(unified,"UnifiedVertex.pcd");
+		saveCloudAsFile("UnifiedVertex.pcd", unified);
 
 		//for(int i = 0; i < vertexs.size(); i++)
 		//{
@@ -114,7 +117,7 @@ namespace mapinect {
 	vector<PCPolygonPtr> PCBox::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard)
 	{
 		vector<PCPolygonPtr> polygonsInBox;
-		TablePtr table = gModel->table;
+		TablePtr table = gModel->getTable();
 
 		//pcl::io::savePCDFile("table.pcd",table->getCloud());
 		
@@ -145,7 +148,7 @@ namespace mapinect {
 		PCPolygonPtr f1;
 
 		//Encuentro el poligono 'vecino' al que quiero duplicar
-		TablePtr t = gModel->table;
+		TablePtr t = gModel->getTable();
 		bool parallelAndNotInContact = t->isParallelToTable(polygon) && !t->isOnTable(polygon->getCloud());
 		bool foundFace = false;
 		//saveCloudAsFile ("from.pcd", *polygon->getCloud());
@@ -183,11 +186,11 @@ namespace mapinect {
 		
 		if(!parallelAndNotInContact && foundFace) // Busco los 2 puntos con menor 'y' para hallar el ancho de la cara
 		{
-			sort(vex.begin(),vex.end(),yAxisSortDes);
+			sort(vex.begin(), vex.end(), sortOnYDesc<ofVec3f>);
 		}
 		else // Busco los 2 puntos con menor 'x' para hallar el alto de la cara
 		{
-			sort(vex.begin(),vex.end(),xAxisSortDes);
+			sort(vex.begin(),vex.end(), sortOnXDesc<ofVec3f>);
 		}
 		ofVec3f min1 = vex.at(0);
 		ofVec3f min2 = vex.at(1);
@@ -354,8 +357,8 @@ namespace mapinect {
 					nextVec = next->getPolygonModelObject()->getVertexs();
 					prevVec = prev->getPolygonModelObject()->getVertexs();
 
-					sort(nextVec.begin(),nextVec.end(), yAxisSortAsc);
-					sort(prevVec.begin(),prevVec.end(), yAxisSortAsc);
+					sort(nextVec.begin(),nextVec.end(), sortOnYAsc<ofVec3f>);
+					sort(prevVec.begin(),prevVec.end(), sortOnYAsc<ofVec3f>);
 				}
 				else
 				{
@@ -368,13 +371,13 @@ namespace mapinect {
 					bool ascending = toEstimate < 3;
 					if(ascending)
 					{
-						sort(nextVec.begin(),nextVec.end(), xAxisSortAsc);
-						sort(prevVec.begin(),prevVec.end(), xAxisSortAsc);
+						sort(nextVec.begin(),nextVec.end(), sortOnXAsc<ofVec3f>);
+						sort(prevVec.begin(),prevVec.end(), sortOnXAsc<ofVec3f>);
 					}
 					else
 					{
-						sort(nextVec.begin(),nextVec.end(), xAxisSortDes);
-						sort(prevVec.begin(),prevVec.end(), xAxisSortDes);
+						sort(nextVec.begin(),nextVec.end(), sortOnXDesc<ofVec3f>);
+						sort(prevVec.begin(),prevVec.end(), sortOnXDesc<ofVec3f>);
 					}
 				}
 
@@ -383,7 +386,8 @@ namespace mapinect {
 				faceVertex.insert(faceVertex.end(),nextVec.begin(), nextVec.begin() + 2);
 				faceVertex.insert(faceVertex.end(),prevVec.begin(), prevVec.begin() + 2);
 
-				pcl::ModelCoefficients coef = findPlane(faceVertex.at(0),faceVertex.at(1),faceVertex.at(2));
+				Plane3D plane(faceVertex.at(0), faceVertex.at(1), faceVertex.at(2));
+				pcl::ModelCoefficients coef = plane.getCoefficients();
 				//fix normal
 				ofVec3f internalPoint = nextVec.at(3);
 				ofVec3f normal = ofVec3f(coef.values.at(0),coef.values.at(1),coef.values.at(2));

@@ -4,46 +4,76 @@
 namespace mapinect {
 
 	Line2D::Line2D(const ofVec2f &origin, const ofVec2f &destination)
-		: pOrigin(origin)
+		: origin(origin), destination(destination)
 	{
-		pDirection = destination - origin;
-		pDirection.normalize();
-		pA = - pDirection.y;
-		pB = pDirection.x;
-		pC = origin.x * pDirection.y - origin.y * pDirection.x;
-		pSqrtA2B2 = sqrt(pA * pA + pB * pB);
+		assert(origin.distance(destination) > MATH_EPSILON);
+		direction = destination - origin;
+		a = - direction.y;
+		b = direction.x;
+		c = origin.x * direction.y - origin.y * direction.x;
+		sqrtA2B2 = sqrt(a * a + b * b);
 	}
 
-	double Line2D::distance(const ofVec2f &v) const
+	float Line2D::distance(const ofVec2f& p) const
 	{
-		double num = abs(calculateValue(v));
-		return num / pSqrtA2B2;
+		ofVec2f projected(projectTo(p));
+		return p.distance(projected);
 	}
 
-	double Line2D::calculateValue(const ofVec2f &v) const
+	float Line2D::projectedK(const ofVec2f& p) const
 	{
-		return pA * v.x + pB * v.y + pC;
+		float num = direction.dot(p - origin);
+		float den = direction.dot(direction);
+		return num / den;
 	}
 
-	ofVec2f Line2D::projectTo(const ofVec2f &v) const
+	ofVec2f Line2D::calculateValue(float k) const
 	{
-		ofVec2f vA = v - pOrigin;
-		double u = vA.dot(pDirection);
-		return ofVec2f(pOrigin.x + u * pDirection.x, pOrigin.y + u * pDirection.y);
+		return origin + direction * k;
 	}
 
-	PositionToLine Line2D::positionTo(const ofVec2f &v) const
+	ofVec2f Line2D::projectTo(const ofVec2f& p) const
 	{
-		double value = calculateValue(v);
-		if (abs(value) < DBL_EPSILON) {
+		float k = projectedK(p);
+		return calculateValue(k);
+	}
+
+	bool Line2D::isInLine(const ofVec2f& p) const
+	{
+		return p.distance(projectTo(p)) < MATH_EPSILON;
+	}
+
+	bool Line2D::isInSegment(const ofVec2f& p) const
+	{
+		float k = projectedK(p);
+		return p.distance(calculateValue(k)) < MATH_EPSILON && isInSegment(k);
+	}
+
+	bool Line2D::isInSegment(float k) const
+	{
+		return 0 <= k && k <= 1;
+	}
+
+	float Line2D::evaluate(const ofVec2f& p) const
+	{
+		return a * p.x + b * p.y + c;
+	}
+
+	PositionToLine Line2D::positionTo(const ofVec2f& p) const
+	{
+		float value = evaluate(p);
+		if (abs(value) < MATH_EPSILON)
+		{
 			return kPositionedInLine;
 		}
-		else if (value < 0) {
+		else if (value < 0)
+		{
 			return kPositionedAtLeft;
 		}
-		else {
+		else
+		{
 			return kPositionedAtRight;
-		}
+		}		
 	}
 
 }

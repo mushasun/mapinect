@@ -143,9 +143,9 @@ namespace mapinect {
 			proj_matrix_RT[i+12] = (float) cvGetReal2D(projector_T,i,0);
 		}
 		// prueba
-//		proj_matrix_RT[12] *= -1; // -tx Hay que invertirla esta componente
-//		proj_matrix_RT[13] *= -1; // -ty Hay que invertirla esta componente
-//		proj_matrix_RT[14] *= -1; // -tz No hay demasiada diferencia invirtiendo esta componente
+		proj_matrix_RT[12] *= -1; // -tx Hay que invertirla esta componente
+		proj_matrix_RT[13] *= -1; // -ty Hay que invertirla esta componente
+		proj_matrix_RT[14] *= -1; // -tz No hay demasiada diferencia invirtiendo esta componente
 		proj_matrix_RT[15] = 1;
 
 		// Calculate inverse transformation with preMultTranslate
@@ -302,7 +302,7 @@ namespace mapinect {
 			Aplicar transformación inversa de (R|T) (del archivo de calibración del proyector). 			
 */
 
-		glMatrixMode(GL_MODELVIEW);
+/*		glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			glScalef(1,-1,-1);					//3 - Pasar del sist. de coord. del proyector al de OpenGL (invertir Y y Z)
 			glTranslatef(transX,transY,transZ);
@@ -311,16 +311,17 @@ namespace mapinect {
 			glMultMatrixf(inv_proj_RT_premult);	//2 - Pasar de rgb-camera space al sistema de coordenadas del proyector (aplicar (R|T) del proyector)	
 			// inv(R|T) = (T*R)^-1 = R^-1 * T^-1 = -R^-1*T
 			glMultMatrixf(kinect_matrix_RT);	//1 - Pasar de depth-camera space a rgb-camera space (aplicar inverso de (R|T) del Kinect)		
+*/
 
-
-/*		// Otra prueba:
+		// Otra prueba:
 		glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			glScalef(1,-1,-1);					//3 - Pasar del sist. de coord. del proyector al de OpenGL (invertir Y y Z)
+			glTranslatef(transX,transY,transZ);
 			glMultMatrixf(proj_matrix_RT);		//2 - Pasar de rgb-camera space al sistema de coordenadas del proyector (aplicar (R|T) del proyector)
 			//glMultMatrixf(inv_kinect_matrix_RT);//1 - Pasar de depth-camera space a rgb-camera space (aplicar inverso de (R|T) del Kinect)			glScalef(-1, -1, 1);			
 			glMultMatrixf(inv_kinect_RT_premult);
-*/
+
 		// Hasta ahora
 /*		glMatrixMode(GL_MODELVIEW);
 //		ofPushMatrix();

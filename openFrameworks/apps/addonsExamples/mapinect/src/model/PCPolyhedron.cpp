@@ -410,7 +410,8 @@ namespace mapinect {
 		sort(toName.begin(), toName.end(), xAxisSort);
 		for(int i = 0; i < toName.size(); i++)
 		{
-			if(gModel->table->isParallelToTable(toName.at(i)))
+			ofxScopedMutex osm(gModel->tableMutex);
+			if(gModel->getTable()->isParallelToTable(toName.at(i)))
 				toName.at(i)->getPolygonModelObject()->setName(kPolygonNameTop);
 			else
 			{
@@ -555,14 +556,15 @@ namespace mapinect {
 	vector<PCPolygonPtr>	PCPolyhedron::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard)
 	{
 		vector<PCPolygonPtr> polygonsInBox;
-		TablePtr table = gModel->table;
 
 		//pcl::io::savePCDFile("table.pcd",table->getCloud());
 		
+		ofxScopedMutex osm(gModel->tableMutex);
 		for(int i = 0; i < toDiscard.size(); i++)
 		{
 			//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
 
+			TablePtr table = gModel->getTable();
 			PCPtr cloudPtr(toDiscard.at(i)->getCloud());
 			if(table->isOnTable(cloudPtr))
 			{
@@ -630,6 +632,17 @@ namespace mapinect {
 	void PCPolyhedron::setAndUpdateCloud(const PCPtr& cloud)
 	{
 		setCloud(cloud);
+	}
+
+	vector<Polygon3D> PCPolyhedron::getMathModelApproximation() const
+	{
+		vector<Polygon3D> result;
+		for (vector<PCPolygonPtr>::const_iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
+		{
+			vector<Polygon3D> pcmp((*p)->getMathModelApproximation());
+			result.insert(result.begin(), pcmp.begin(), pcmp.end());
+		}
+		return result;
 	}
 
 	const IPolygon* PCPolyhedron::getPolygon(const IPolygonName& name)

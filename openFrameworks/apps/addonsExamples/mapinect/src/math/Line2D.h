@@ -14,22 +14,29 @@ namespace mapinect {
 
 	class Line2D {
 	public:
-		Line2D(const ofVec2f &origin, const ofVec2f &destination);
+		Line2D(const ofVec2f& origin, const ofVec2f& destination);
 		virtual ~Line2D() { };
 
-		inline const ofVec2f &getOrigin() { return pOrigin; }
-		inline const ofVec3f getCoefficients() { return ofVec3f(pA,pB,pC); }
+		inline const ofVec2f& getOrigin() const			{ return origin; }
+		inline const ofVec3f getCoefficients() const	{ return ofVec3f(a, b, c); }
 
-		double distance(const ofVec2f &v) const;
-		double calculateValue(const ofVec2f &v) const;
-		ofVec2f projectTo(const ofVec2f &v) const;
-		PositionToLine positionTo(const ofVec2f &f) const;
+		float distance(const ofVec2f& p) const;
+		float projectedK(const ofVec2f& p) const;
+		ofVec2f calculateValue(float k) const;
+		ofVec2f projectTo(const ofVec2f& p) const;
+		bool isInLine(const ofVec2f& p) const;
+		bool isInSegment(const ofVec2f &p) const;
+		bool isInSegment(float k) const;
+
+		float evaluate(const ofVec2f& p) const;
+		PositionToLine positionTo(const ofVec2f& p) const;
 
 	private:
-		ofVec2f pOrigin;
-		ofVec2f pDirection;
+		ofVec2f origin;
+		ofVec2f direction;
+		ofVec2f	destination;
 
-		double pA, pB, pC, pSqrtA2B2;
+		float a, b, c, sqrtA2B2;
 	};
 }
 
