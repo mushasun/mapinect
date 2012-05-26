@@ -27,6 +27,9 @@ namespace mapinect {
 	private:
 		bool		 isActive();
 		virtual void loadProjCalibData(char* proj_calib_file);
+		virtual void loadKinectExtrinsics(char* kinect_calib_file);
+		virtual	void setProjMatrix(float fx, float fy, float cx, float cy);
+
 	};
 }
 
