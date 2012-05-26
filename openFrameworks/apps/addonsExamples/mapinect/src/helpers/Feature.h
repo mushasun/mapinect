@@ -10,7 +10,7 @@ namespace mapinect
 		FEATURE_CV,
 		FEATURE_PCM,
 		FEATURE_VM,
-		FEATURE_DEBUG_CLOUDS,
+		FEATURE_SAVE_CLOUD,
 
 		FEATURE_COUNT
 	};
@@ -24,6 +24,7 @@ namespace mapinect
 	bool IsFeatureCVActive();
 	bool IsFeaturePCMActive();
 	bool IsFeatureVMActive();
+	bool IsFeatureSaveCloudActive();
 
 	#define CHECK_ACTIVE		if (!isActive()) return
 }

@@ -97,9 +97,6 @@
     <ClCompile Include="src\math\Line2D.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="src\math\Triangle2D.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\pointUtils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -204,6 +201,18 @@
     </ClCompile>
     <ClCompile Include="src\model\PCBox.cpp">
       <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pcm\ObjectsThread.cpp">
+      <Filter>pcm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\Plane3D.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\Polygon3D.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\Line3D.cpp">
+      <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -325,9 +334,6 @@
       <Filter>addons\ofxFenster\src</Filter>
     </ClInclude>
     <ClInclude Include="src\math\Line2D.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\math\Triangle2D.h">
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\ofGraphicsUtils.h">
@@ -470,6 +476,24 @@
     </ClInclude>
     <ClInclude Include="src\model\PCBox.h">
       <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pcm\ObjectsThread.h">
+      <Filter>pcm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Plane3D.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Polygon3D.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\SortPolar.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\ofPolar.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Line3D.h">
+      <Filter>math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

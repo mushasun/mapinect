@@ -53,7 +53,7 @@ namespace buildings {
 					pts_.push_back(vC);
 					pts_.push_back(vD);
 
-					sort(pts_.begin(), pts_.end(), sortOn_y<ofPoint>);
+					sort(pts_.begin(), pts_.end(), sortOnYAsc<ofVec3f>);
 
 					/*	__________
 						|2		3|
@@ -66,13 +66,13 @@ namespace buildings {
 					pts_b.push_back(pts_[2]);
 					pts_b.push_back(pts_[3]);
 
-					sort(pts_b.begin(), pts_b.end(), sortOn_x<ofPoint>);
+					sort(pts_b.begin(), pts_b.end(), sortOnXAsc<ofVec3f>);
 
 					std::vector<ofVec3f> pts_a;
 					pts_a.push_back(pts_[2]);
 					pts_a.push_back(pts_[3]);
 
-					sort(pts_a.begin(), pts_a.end(), sortOn_x<ofPoint>);
+					sort(pts_a.begin(), pts_a.end(), sortOnXAsc<ofVec3f>);
 
 					ofVec3f v0 = pts_b[1];
 					ofVec3f v1 = pts_b[0];

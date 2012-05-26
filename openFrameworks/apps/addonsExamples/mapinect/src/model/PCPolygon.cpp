@@ -37,7 +37,21 @@ namespace mapinect {
 		removeMatching();
 	}
 
-	Polygon* PCPolygon::getPolygonModelObject() {
+	vector<Polygon3D> PCPolygon::getMathModelApproximation() const
+	{
+		vector<Polygon3D> result;
+		Polygon3D polygon(getPolygonModelObject()->getMathPolygon());
+		result.push_back(polygon);
+		return result;
+	}
+
+	const Polygon* PCPolygon::getPolygonModelObject() const
+	{
+		return (const Polygon*)modelObject.get();
+	}
+
+	Polygon* PCPolygon::getPolygonModelObject()
+	{
 		return (Polygon*)modelObject.get();
 	}
 
@@ -118,7 +132,11 @@ namespace mapinect {
 		
 		ofVec3f myNormal = getNormal();
 		ofVec3f yourNormal = polygon->getNormal();
-		ofVec3f axis = gModel->table->getNormal();//(0,1,0);//= yourNormal.getCrossed(myNormal);
+		ofVec3f axis;
+		{
+			ofxScopedMutex osm(gModel->tableMutex);
+			axis = gModel->getTable()->getNormal();
+		}
 		float angle = acos(myNormal.dot(yourNormal));
 		float estimator = fabsf(fabsf(angle - PI * 0.5) - PI * 0.5);
 		const float NORMAL_TOLERANCE = PI / 4.0;

@@ -19,7 +19,9 @@ namespace mapinect {
 			PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId = -1, bool estimated = false);
 			virtual ~PCPolygon();
 
+			const Polygon*		getPolygonModelObject() const;
 			Polygon*			getPolygonModelObject();
+			vector<Polygon3D>	getMathModelApproximation() const;
 
 			ofVec3f				getNormal();
 			

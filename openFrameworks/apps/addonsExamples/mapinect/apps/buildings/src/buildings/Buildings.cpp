@@ -50,31 +50,30 @@ namespace buildings {
 	//--------------------------------------------------------------
 	void Buildings::draw()
 	{
-//		ofxScopedMutex objectsLock(gModel->objectsMutex);
-
-		gModel->objectsMutex.lock();
-
-		if (floor == NULL && gModel->table != NULL) {
-			floor = new Floor(gModel->table);
+		{
+			ofxScopedMutex osm(gModel->tableMutex);
+			if (floor == NULL && gModel->getTable() != NULL) {
+				floor = new Floor(gModel->getTable());
+			}
 		}
 
 		if (floor != NULL) {
 			floor->draw(txManager);
 		}
 
-
-		for (vector<mapinect::ModelObjectPtr>::iterator iter = gModel->objects.begin(); iter != gModel->objects.end(); iter++) {
-			int id = (*iter)->getId();
-			if (buildings.find(id) == buildings.end()) {
-				buildings[id] = new Building(id, PCPolyhedronPtr(dynamic_cast<PCPolyhedron*>(iter->get())));
+		{
+			ofxScopedMutex objectsLock(gModel->objectsMutex);
+			for (vector<mapinect::ModelObjectPtr>::const_iterator it = gModel->getObjects().begin(); it != gModel->getObjects().end(); it++) {
+				int id = (*it)->getId();
+				if (buildings.find(id) == buildings.end()) {
+					buildings[id] = new Building(id, PCPolyhedronPtr(dynamic_cast<PCPolyhedron*>(it->get())));
+				}
 			}
 		}
 
 		for (map<int, Building*>::iterator iter = buildings.begin(); iter != buildings.end(); iter++) {
 			(iter->second)->draw(txManager, *floor);
 		}
-
-		gModel->objectsMutex.unlock();
 
 /*		
 		if ( > 1)

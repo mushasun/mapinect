@@ -5,8 +5,6 @@
 #include "ofGraphicsUtils.h"
 #include "utils.h"
 
-#define DEFAULT_NAME		"test"
-
 using namespace std;
 
 namespace mapinect {
@@ -28,6 +26,9 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void PCM::update(bool isKinectFrameNew) {
 		CHECK_ACTIVE;
+
+		if (isKinectFrameNew)
+			pcmThread.newFrameAvailable();
 	}
 
 	//--------------------------------------------------------------
@@ -47,16 +48,18 @@ namespace mapinect {
 			gKinect->drawDepth(0, 0, KINECT_DEFAULT_WIDTH, KINECT_DEFAULT_HEIGHT);
 			ofResetColor();
 			ofPushMatrix();
-			gModel->objectsMutex.lock();
-			/*glTranslatef(320, 240, 0);
-			glScalef(1, 1, 1);*/
-			for (vector<ModelObjectPtr>::iterator iter = gModel->objects.begin();
-				iter != gModel->objects.end(); iter++) {
-					(*iter)->drawObject();
+			{
+				ofxScopedMutex osm(gModel->objectsMutex);
+				for (vector<ModelObjectPtr>::const_iterator it = gModel->getObjects().begin(); it != gModel->getObjects().end(); it++)
+				{
+					(*it)->drawObject();
+				}
 			}
-			if(gModel->table != NULL)
-				gModel->table->draw();	
-			gModel->objectsMutex.unlock();
+			{
+				ofxScopedMutex osm(gModel->tableMutex);
+				if(gModel->getTable().get() != NULL)
+					gModel->getTable()->draw();	
+			}
 
 			ofPopMatrix();
 		}
@@ -93,22 +96,19 @@ namespace mapinect {
 
 		switch (key) {
 		case ' ':
-			pcmThread.detectMode = !pcmThread.detectMode;
+			pcmThread.startDetection();
 			break;
 		case'p':
 			drawPC = !drawPC;
 			break;
 		//case 's':
-		//	saveCloud(DEFAULT_NAME);
+		//	savePC("test.pcd");
 		//	break;
 		case 'd':
-			pcmThread.processDiferencesClouds();
+			pcmThread.processCloud();
 			break;
 		case 'r':
 			pcmThread.reset();
-			gModel->objectsMutex.lock();
-			gModel->objects.clear();	
-			gModel->objectsMutex.unlock();
 			break;
 		}
 		//case 't':

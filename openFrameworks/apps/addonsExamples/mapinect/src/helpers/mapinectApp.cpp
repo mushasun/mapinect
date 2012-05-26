@@ -68,7 +68,7 @@ namespace mapinect {
 		if (IsFeatureKinectActive())
 		{
 			gKinect->update();
-			gKinect->isFrameNew();
+			isKinectFrameNew = gKinect->isFrameNew();
 		}
 
 		cv.update(isKinectFrameNew);

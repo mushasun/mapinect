@@ -68,10 +68,19 @@ namespace mapinect {
 	void PCHand::unifyVertexs() {
 		vector<vector<ofVec3f>> tmp;
 		vector<ofVec3f> final;
-		if(gModel->table != NULL)
+
+		pcl::ModelCoefficients coefficients;
+		bool hasTable = false;
 		{
-			pcl::ModelCoefficients coefficients = gModel->table->getCoefficients();
-			
+			ofxScopedMutex osm(gModel->tableMutex);
+			if(gModel->getTable().get() != NULL)
+			{
+				coefficients = gModel->getTable()->getCoefficients();
+				hasTable = true;
+			}
+		}
+		if (hasTable)
+		{
 			for (vector<ofVec3f>::iterator iter = fingerTips.begin(); iter != fingerTips.end(); iter++) {
 				if(abs(evaluatePoint(coefficients, *iter)) < 0.03)     //<---------- Chequeo de la mesa
 				{

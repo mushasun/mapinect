@@ -34,6 +34,7 @@ namespace mapinect {
 	extern int					KINECT_WIDTH_OFFSET;
 	extern int					KINECT_HEIGHT_OFFSET;
 	extern float				MAX_UNIFYING_DISTANCE_PROJECTION;
+	extern float				TOUCH_DISTANCE;
 	extern float				HAND_SIZE;
 	extern vector<float>		MIN_ANGLES_FINGERS;
 	extern vector<float>		MAX_ANGLES_FINGERS;

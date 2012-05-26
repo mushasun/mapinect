@@ -28,6 +28,8 @@ namespace mapinect {
 			virtual void			addToModel(const PCPtr& nuCloud);
 			virtual void			setAndUpdateCloud(const PCPtr& cloud);
 
+			vector<Polygon3D>		getMathModelApproximation() const;
+
 			inline int						getId()							{ return PCModelObject::getId(); }
 
 			inline const ofVec3f&			getCenter()						{ return PCModelObject::getCenter(); }

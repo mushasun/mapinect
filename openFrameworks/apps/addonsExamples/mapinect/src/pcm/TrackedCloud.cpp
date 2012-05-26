@@ -75,25 +75,15 @@ namespace mapinect {
 		//cout << "counter: " << counter;
 		if (counter <= 0) {
 			if (hasObject()) {
-				gModel->objectsMutex.lock();
-					for (vector<ModelObjectPtr>::iterator iter = gModel->objects.begin();
-							iter != gModel->objects.end(); ++iter)
-					{
-						if ((*iter).get() == objectInModel.get())
-						{
-							gModel->objects.erase(iter, iter + 1);
-							break;
-						}
-					}
-					objectInModel.reset();
-				gModel->objectsMutex.unlock();
+				gModel->removeObject(objectInModel);
+				objectInModel.reset();
 			}
 		}
-		else if(counter >= mapinect::TIMES_TO_CREATE_OBJ && !hasObject()) {
+		else if(counter >= mapinect::TIMES_TO_CREATE_OBJ && !hasObject())
+		{
 			counter = mapinect::TIMES_TO_CREATE_OBJ + 2;
-				
 			
-				//////////////Para identificar si es un objeto o una mano/////////////////
+			//////////////Para identificar si es un objeto o una mano/////////////////
 			ObjectType objType = getObjectType(cloud);
 
 			switch(objType)
@@ -127,11 +117,8 @@ namespace mapinect {
 				//}
 			if(objType != UNRECOGNIZED)
 			{
-				gModel->objectsMutex.lock();
-					objId++;
-					objectInModel->detectPrimitives();
-					gModel->objects.push_back(objectInModel);
-				gModel->objectsMutex.unlock();
+				objectInModel->detectPrimitives();
+				gModel->addObject(objectInModel);
 			}
 		}
 	}
@@ -141,7 +128,8 @@ namespace mapinect {
 		this->cloud = cloud_cluster;
 	}
 
-	void TrackedCloud::removeMatching(){
+	void TrackedCloud::removeMatching()
+	{
 		 matchingCloud.reset();
 		 nearest = numeric_limits<int>::max();
 		 minPointDif = numeric_limits<int>::max();
@@ -217,8 +205,8 @@ namespace mapinect {
 		{ 
 			if(hasMatching())
 			{
+				ofxScopedMutex osm(gModel->objectsMutex);
 				cloud = matchingCloud->getTrackedCloud();
-				gModel->objectsMutex.lock();
 				if(objectInModel.get() != NULL)
 				{
 					/* Metodo viejo
@@ -231,7 +219,6 @@ namespace mapinect {
 					objectInModel->addToModel(cloud);
 					objectInModel->setCloud(cloud);
 				}
-				gModel->objectsMutex.unlock();
 			}
 			
 		}
@@ -283,8 +270,11 @@ namespace mapinect {
 			saveCloudAsFile("preFiltroMesa.pcd",*nuCloudFiltered);
 
 			//Quito los puntos que pertenecen a la mesa
-			TablePtr table = gModel->table;
-			ModelCoefficients tableCoef = table->getCoefficients();
+			ModelCoefficients tableCoef;
+			{
+				ofxScopedMutex osm(gModel->tableMutex);
+				tableCoef = gModel->getTable()->getCoefficients();
+			}
 			PointIndices::Ptr tableIdx = adjustPlane(tableCoef,nuCloud);
 
 			pcl::ExtractIndices<pcl::PointXYZ> extract;
@@ -295,15 +285,18 @@ namespace mapinect {
 
 			saveCloudAsFile("postFiltroMesa.pcd",*nuCloudFilteredNoTable);
 			///Commented for debug
-			/*gModel->objectsMutex.lock();
-			objectInModel->updateCloud(nuCloudFilteredNoTable);
-			gModel->objectsMutex.unlock();*/
+			/*
+			{
+				ofxScopedMutex osm(gModel->objectsMutex);
+				objectInModel->updateCloud(nuCloudFilteredNoTable);
+			}
+			*/
 			
 			///Added for debug
-			gModel->objectsMutex.lock();
-			objectInModel->addToModel(nuCloudFilteredNoTable);
-			gModel->objectsMutex.unlock();
-
+			{
+				ofxScopedMutex osm(gModel->objectsMutex);
+				objectInModel->addToModel(nuCloudFilteredNoTable);
+			}
 		}
 	}
 

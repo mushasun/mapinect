@@ -231,7 +231,7 @@ namespace mapinect {
 
 		ofVec3f vCentroid = ofVec3f(handCentroid.x,handCentroid.y, handCentroid.z);
 		ofVec3f thumbTip = fingers.at(minDistIdx);
-		createCloud(thumbTip, "thumb.pcd");
+		saveCloudAsFile("thumb.pcd", thumbTip);
 
 		//cout << "thumb x " << thumbTip.x << endl ;
 		//Quito el pulgar del hull
@@ -279,7 +279,7 @@ namespace mapinect {
 				if(fingerIdx != -1)
 				{
 					currentFingerTip = fingers.at(fingerIdx);
-					createCloud(fingers.at(fingerIdx), "finger" + ofToString(fingersFound) + ".pcd");
+					saveCloudAsFile("finger" + ofToString(fingersFound) + ".pcd", fingers.at(fingerIdx));
 					ofVec3f newFinger = vCentroid - currentFingerTip;
 					double angle = (acos(currentFinger.dot(newFinger)/(currentFinger.length()*newFinger.length()))*180)/PI;
 					if(saveToFile)
@@ -313,7 +313,6 @@ namespace mapinect {
 			cout << "Prob: " << prob << endl;
 			myfile.close();
 
-			return prob;
 		//	if(fingersFound == 5 && prob > .80)
 		//	{
 		//		return true;
@@ -322,6 +321,7 @@ namespace mapinect {
 		//	else
 		//		return false;
 		}
+		return prob;
 	}
 
 	float HandDetector::IsHand()

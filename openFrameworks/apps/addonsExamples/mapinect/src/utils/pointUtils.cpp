@@ -12,6 +12,7 @@
 #include <pcl/octree/octree_pointcloud_density.h>
 #include <pcl/range_image/range_image.h>
 #include <pcl/sample_consensus/method_types.h>
+#include <pcl/segmentation/extract_clusters.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/segment_differences.h>
 #include <pcl/surface/convex_hull.h>
@@ -19,6 +20,7 @@
 #include "ofxKinect.h"
 
 #include "Constants.h"
+#include "Feature.h"
 #include "Globals.h"
 #include "HandDetector.h"
 #include "Line2D.h"
@@ -37,8 +39,19 @@ void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z) {
 vector<ofVec3f> pointCloudToOfVecVector(const PCPtr& cloud)
 {
 	vector<ofVec3f> result;
-	for (int k = 0; k < cloud->size(); k++) {
+	for (int k = 0; k < cloud->size(); k++)
+	{
 		result.push_back(POINTXYZ_OFXVEC3F(cloud->at(k)));
+	}
+	return result;
+}
+
+PCPtr			ofVecVectorToPointCloud(const vector<ofVec3f>& v)
+{
+	PCPtr result(new PC());
+	for (int k = 0; k < v.size(); k++)
+	{
+		result->push_back(OFXVEC3F_POINTXYZ(v.at(k)));
 	}
 	return result;
 }
@@ -129,42 +142,6 @@ int getDifferencesCloud(const PCPtr& src,
 		diff->points.push_back(tgt->points[*it]);
 
 	return newPointIdxVector.size();
-
-	////Seteo el kdtree con la segunda nube
-	//pcl::ExtractIndices<pcl::PointXYZ> extract;
-	//pcl::PointIndices::Ptr oldPoints (new pcl::PointIndices ());
-	//pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr kdTree (new pcl::KdTreeFLANN<pcl::PointXYZ> (false));
-	//std::vector<int> k_indices (1);
-	//std::vector<float> k_distances (1);
-	//std::vector<int> indicesToRemove;
-	//int foundedPoints = 0;
-
-	//kdTree->setInputCloud(tgt);
-
-	//for (size_t i = 0; i < src->points.size (); ++i){
-	//	foundedPoints = kdTree->nearestKSearch(src->at(i),1,k_indices,k_distances);
-	//	if(foundedPoints == 1)
-	//	{
-	//		if(k_distances.at(0) < distThreshold)
-	//			indicesToRemove.push_back(k_indices.at(0));
-	//	}
-	//}
-
-	////quito los puntos de tgt que ya están en src
-	//
-	//oldPoints->indices = indicesToRemove;
-	//extract.setInputCloud (tgt);
-	//extract.setIndices (oldPoints);
-	//extract.setNegative (true);
-	//
-	////FIX
-	//PCPtr cloud_filtered_temp (new pcl::PointCloud<pcl::PointXYZ>());
-	//if(tgt->size() != indicesToRemove.size())
-	//	extract.filter (*cloud_filtered_temp);
-	//	
-	//diff = cloud_filtered_temp;
-
-	//return diff->size();
 }
 
 int getDifferencesCount(const PCPtr& src, 
@@ -204,6 +181,89 @@ int getDifferencesCount(const PCPtr& src,
 	}
 
 	return big->size() - indicesToRemove.size();
+}
+
+PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi)
+{
+	PCPtr newCloud(new PC());
+	
+	for (vector<int>::const_iterator pit = pi.indices.begin(); pit != pi.indices.end(); pit++)
+		newCloud->points.push_back(cloud->points[*pit]);
+	
+	return newCloud;
+}
+
+vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, float minClusterSize, float maxClusterSize)
+{
+	vector<pcl::PointIndices> result;
+	if (cloud->size() >= minClusterSize)
+	{
+		// Creating the KdTree object for the search method of the extraction
+		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
+		tree->setInputCloud(cloud);
+
+		pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+		ec.setClusterTolerance(tolerance); 
+		ec.setMinClusterSize(minClusterSize);
+		ec.setMaxClusterSize(maxClusterSize);
+		ec.setSearchMethod(tree);
+		ec.setInputCloud(cloud);
+		ec.extract(result);
+	}
+	
+	return result;
+}
+
+PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& remainingCloud,
+							float distanceThreshold, int maxIterations)
+{
+	pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+	pcl::SACSegmentation<pcl::PointXYZ> seg;
+	pcl::ExtractIndices<pcl::PointXYZ> extract;
+
+	// Optional
+	seg.setOptimizeCoefficients(true);
+	// Mandatory
+	seg.setModelType(pcl::SACMODEL_PLANE);
+	seg.setMethodType(pcl::SAC_RANSAC);
+	seg.setMaxIterations(maxIterations);
+	seg.setDistanceThreshold(distanceThreshold);
+
+	// Create the filtering object
+	int i = 0;
+	int nr_points = cloud->points.size ();
+	seg.setInputCloud(cloud);
+	seg.segment(*inliers, coefficients);
+	if (inliers->indices.size () == 0)
+	{
+		std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+		PCPtr empty(new PC());
+		return empty;
+	}
+
+	PCPtr result(new PC());
+
+	if (inliers->indices.size() != cloud->size())
+	{
+		// Fragment the cloud into plane cloud and the remaining cloud
+		extract.setInputCloud(cloud);
+		extract.setIndices(inliers);
+		extract.setNegative(false);
+		extract.filter(*result);
+
+		// Quito los puntos que no son del plano
+		extract.setInputCloud(cloud);
+		extract.setIndices(inliers);
+		extract.setNegative(true);
+		extract.filter(*remainingCloud);
+	}
+	else
+	{
+		result = cloud;
+		remainingCloud = PCPtr(new PC());
+	}
+
+	return result;
 }
 
 ofVec3f normalEstimation(const PCPtr& plane)
@@ -256,55 +316,64 @@ ofVec3f normalEstimation(const PCPtr& plane, const pcl::PointIndices::Ptr& indic
 	return result;
 }
 
-PCPtr getPartialCloudRealCoords(const ofVec3f& min, const ofVec3f& max, int density){
-		//Chequeo
-		if (min.x < 0 || min.y < 0
-			|| max.x > mapinect::KINECT_WIDTH || max.y > mapinect::KINECT_HEIGHT
-			|| min.x > max.x || min.y > max.y)
-		{
-			PCL_ERROR ("Error en parametros de entrada para obtener la nube \n");
-		}
+PCPtr getPartialCloudRealCoords(const ofVec3f& min, const ofVec3f& max, int density)
+{
+	//Chequeo
+	if (min.x < 0 || min.y < 0
+		|| max.x > mapinect::KINECT_WIDTH || max.y > mapinect::KINECT_HEIGHT
+		|| min.x > max.x || min.y > max.y)
+	{
+		PCL_ERROR ("Error en parametros de entrada para obtener la nube \n");
+		return PCPtr(new PC());
+	}
 
-		//Calcular tamaño de la nube
-		PCPtr partialColud (new PC());
-		partialColud->width    = ceil((max.x - min.x)/density);
-		partialColud->height   = ceil((max.y - min.y)/density);
-		partialColud->is_dense = false;
-		partialColud->points.resize (partialColud->width*partialColud->height);
-		register float* depth_map = gKinect->getDistancePixels();
-		//Recorrer el mapa de distancias obteniendo sólo los que estén dentro del rectángulo
-		register int depth_idx = 0;
-		int cloud_idx = 0;
-		for(int v = min.y; v < max.y; v += density) {
-			for(register int u = min.x; u < max.x; u += density) {
-				depth_idx = v * KINECT_DEFAULT_WIDTH + u;
+	//Calcular tamaño de la nube
+	PCPtr partialCloud(new PC());
+	partialCloud->width    = ceil((max.x - min.x)/density);
+	partialCloud->height   = ceil((max.y - min.y)/density);
+	partialCloud->is_dense = false;
+	partialCloud->points.resize (partialCloud->width * partialCloud->height);
+	register float* depth_map = gKinect->getDistancePixels();
+	//Recorrer el mapa de distancias obteniendo sólo los que estén dentro del rectángulo
+	register int depth_idx = 0;
+	int cloud_idx = 0;
+	for(int v = min.y; v < max.y; v += density) {
+		for(register int u = min.x; u < max.x; u += density) {
+			depth_idx = v * KINECT_DEFAULT_WIDTH + u;
 
-				pcl::PointXYZ& pt = partialColud->points[cloud_idx];
-				cloud_idx++;
+			pcl::PointXYZ& pt = partialCloud->points[cloud_idx];
+			cloud_idx++;
 
-				// Check for invalid measurements
-				if(depth_map[depth_idx] == 0){
+			// Check for invalid measurements
+			if(depth_map[depth_idx] == 0){
+				pt.x = pt.y = pt.z = 0;
+			}
+			else
+			{
+				ofVec3f pto = gKinect->getWorldCoordinateFor(u,v);
+
+				if(pto.z > mapinect::MAX_Z)
 					pt.x = pt.y = pt.z = 0;
-				}
 				else
 				{
-					ofVec3f pto = gKinect->getWorldCoordinateFor(u,v);
-
-					if(pto.z > mapinect::MAX_Z)
-						pt.x = pt.y = pt.z = 0;
-					else
-					{
-						pt.x = pto.x;
-						pt.y = pto.y;
-						pt.z = pto.z;
-					}
+					pt.x = pto.x;
+					pt.y = pto.y;
+					pt.z = pto.z;
 				}
 			}
-			//pcl::io::savePCDFileASCII ("partial_real.pcd", *partialColud);
 		}
-		return partialColud;	
-
 	}
+
+	PCPtr filteredCloud = PCPtr(new PC());
+	pcl::PassThrough<pcl::PointXYZ> pass;
+	pass.setInputCloud(partialCloud);
+	pass.setFilterFieldName("z");
+	pass.setFilterLimits(0.001, 4.0);
+	pass.filter (*filteredCloud);
+
+	return filteredCloud;
+
+}
 
 PCPtr getCloud(int density)
 {
@@ -352,14 +421,10 @@ float evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& p
 		   coefficients.values.at(3);
 }
 
-const mapinect::TablePtr& getTable()
-{
-	return gModel->table;
-}
-
 float boxProbability(const PCPtr& cloud)
 {
-	mapinect::TablePtr table = getTable();
+	ofxScopedMutex osm(gModel->tableMutex);
+	mapinect::TablePtr table = gModel->getTable();
 	if(table != NULL && table->isOnTable(cloud))
 	{
 		//pcl::io::savePCDFile("isBox.pcd",*cloud);
@@ -490,31 +555,14 @@ bool isInFingers(const vector<mapinect::Line2D>& fingers, const ofVec3f& pto)
 	return false;
 }
 
-float handProbability(const PCPtr& cloud)
-{
-	mapinect::HandDetector hd;
-	hd.SetPotentialHandCloud(cloud);
-	hd.SetTable(getTable());
-	return hd.IsHand();
-}
-
 ObjectType getObjectType(const PCPtr& cloud)
 {
 	float box_prob = boxProbability(cloud);
 
-	float hand_prob = handProbability(cloud);
-
 	ObjectType ret;
 	
-	float max_prob = max(hand_prob, box_prob);
-
-	if(max_prob > .50)
-	{
-		if(hand_prob == max_prob)
-			return ret = HAND;
-		else
-			return ret = BOX;
-	}
+	if(box_prob > .50)
+		return ret = BOX;
 	else
 		return ret = UNRECOGNIZED;
 }
@@ -552,117 +600,51 @@ bool isInBorder(const PCPtr& cloud)
 	return false;
 }
 
-//Para debug
-//Crea una nube a partir del punto y nombre por parámetro
-void createCloud(const ofVec3f& pto, const string& name)
+bool saveCloudAsFile(const string& filename, const PC& cloud)
 {
-	if(mapinect::IsFeatureActive(mapinect::FEATURE_DEBUG_CLOUDS))
-	{
-		pcl::PCDWriter writer;
-		PCPtr cloud (new PC());
-		cloud->push_back(OFXVEC3F_POINTXYZ(pto));
-		writer.write<pcl::PointXYZ>(name, *cloud, false);
-	}
-}
-
-bool saveCloudAsFile(const std::string &file_name, const PC &cloud)
-{
-	if(mapinect::IsFeatureActive(mapinect::FEATURE_DEBUG_CLOUDS))
-	{
-		cout << "saving cloud: " << file_name << endl;
+	if (!mapinect::IsFeatureSaveCloudActive())
+		return false;
+		cout << "saving cloud: " << filename << endl;
 		if (cloud.empty ())
 			return false;
 	
-		if(cloud.width * cloud.height != cloud.points.size())
-		{
-			PC printeableCloud (cloud);
-			printeableCloud.height = 1;
-			printeableCloud.width = cloud.points.size();
-			pcl::io::savePCDFileASCII (file_name, printeableCloud);
-		}
-		else
-			pcl::io::savePCDFileASCII (file_name, cloud);
+	if(cloud.width * cloud.height != cloud.points.size())
+	{
+		PC printeableCloud (cloud);
+		printeableCloud.height = 1;
+		printeableCloud.width = cloud.points.size();
+		pcl::io::savePCDFileASCII (filename, printeableCloud);
+	}
+	else
+	{
+		pcl::io::savePCDFileASCII (filename, cloud);
 	}
 	return true;
 }
 
-void createCloud(const vector<ofVec3f>& ptos, const string& name)
+void saveCloudAsFile(const string& filename, const ofVec3f& pto)
 {
-	if(mapinect::IsFeatureActive(mapinect::FEATURE_DEBUG_CLOUDS))
+	if (mapinect::IsFeatureSaveCloudActive())
 	{
 		PCPtr cloud (new PC());
-		for(int i = 0; i < ptos.size(); i++)
-			cloud->push_back(OFXVEC3F_POINTXYZ(ptos.at(i)));
+		cloud->push_back(OFXVEC3F_POINTXYZ(pto));
 
-		saveCloudAsFile(name, *cloud);
+		saveCloudAsFile(filename, *cloud);
 	}
 }
 
-
-bool xAxisSortAsc (ofVec3f i,ofVec3f j) 
-{ 
-	return i.x > j.x;
-}
-
-bool xAxisSortDes (ofVec3f i,ofVec3f j) 
-{ 
-	return i.x < j.x;
-}
-
-bool yAxisSortAsc (ofVec3f i,ofVec3f j) 
-{ 
-	return i.y > j.y;
-}
-
-bool yAxisSortDes (ofVec3f i,ofVec3f j) 
-{ 
-	return i.y < j.y;
-}
-
-pcl::ModelCoefficients findPlane(ofVec3f v1, ofVec3f v2, ofVec3f v3)
+void saveCloudAsFile(const string& filename, const vector<ofVec3f>& ptos)
 {
-	ofVec3f normal = (v3 - v1).getCrossed(v2 - v1).normalize();
-	float d = normal.dot(v1);
-	pcl::ModelCoefficients coef;
-	coef.values.push_back(normal.x);
-	coef.values.push_back(normal.y);
-	coef.values.push_back(normal.z);
-	coef.values.push_back(d);
-
-	return coef;
+	if (mapinect::IsFeatureSaveCloudActive())
+	{
+		PCPtr cloud(ofVecVectorToPointCloud(ptos));
+		saveCloudAsFile(filename, *cloud);
+	}
 }
 
-ofVec3f planeIntersection(const pcl::ModelCoefficients& p1, const pcl::ModelCoefficients& p2, const pcl::ModelCoefficients& p3)
+PCPtr loadCloud(const string& filename)
 {
-	//http://paulbourke.net/geometry/3planes/
-
-	ofVec3f n1,n2,n3;
-	float d1,d2,d3;
-
-	n1 = ofVec3f(p1.values[0],p1.values[1],p1.values[2]);
-	n2 = ofVec3f(p2.values[0],p2.values[1],p2.values[2]);
-	n3 = ofVec3f(p3.values[0],p3.values[1],p3.values[2]);
-
-	float l = n1.length();
-	l = n2.length();
-	l = n3.length();
-
-	d1 = -p1.values[3];
-	d2 = -p2.values[3];
-	d3 = -p3.values[3];
-
-	float den = n1.dot(n2.getCrossed(n3));
-	if(den == 0)
-		return NULL;
-
-	den = 1/den;
-	ofVec3f c1 = d1*(n3.getCrossed(n2));
-	ofVec3f c2 = d2*(n1.getCrossed(n3));
-	ofVec3f c3 = d3*(n2.getCrossed(n1));
-
-	ofVec3f pto = c1 + c2 + c3;
-	pto *= den;
-
-	return pto;
+	PCPtr cloud(new PC());
+	pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *cloud);
+	return cloud;
 }
-

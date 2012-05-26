@@ -5,7 +5,7 @@
 #include <pcl/filters/project_inliers.h>
 #include <pcl/segmentation/extract_clusters.h>
 
-#include "Triangle2D.h"
+#include "Polygon3D.h"
 #include "ofVecUtils.h"
 #include "PointUtils.h"
 
@@ -14,14 +14,8 @@ namespace mapinect {
 	bool PCQuadrilateral::detectPolygon() {
 		vector<ofVec3f> vCloud = pointCloudToOfVecVector(cloud);
 
-		//ofVec3f vMin, vMax;
-		findOfxVec3fBoundingBox(vCloud, vMin, vMax);
-		ofVec3f center = vMin + vMax;
-		center *= 0.5f;
-
-		//Eigen::Vector4f clusterCentroid;
-		//compute3DCentroid(*cloud,clusterCentroid);
-		//ofVec3f center(clusterCentroid.x(), clusterCentroid.y(), clusterCentroid.z());
+		findOfVec3fBoundingBox(vCloud, vMin, vMax);
+		ofVec3f center = computeCentroid(vCloud);
 
 		int ixA = 0;
 		ofVec3f vA(vCloud.at(ixA));
@@ -43,62 +37,49 @@ namespace mapinect {
 			}
 		}
 
-		DiscardCoordinate discard = calculateDiscardCoordinate(vMin, vMax);
+		DiscardCoordinate discard = calculateDiscardCoordinate(vCloud);
 
-		ofVec2f v2A = discardCoordinateOfxVec3f(vA, discard);
-		ofVec2f v2B = discardCoordinateOfxVec3f(vB, discard);
-		mapinect::Line2D lineAB(v2A, v2B);
+		ofVec3f v3A(vCloud.at(ixA));
+		ofVec3f v3B(vCloud.at(ixB));
+		mapinect::Line3D lineAB(v3A, v3B);
 		int ixC = 0;
-		ofVec2f v2C(v2A);
 		double distanceC = 0;
 		for (int k = 0; k < vCloud.size(); k++) {
 			ofVec3f v(vCloud.at(k));
-			ofVec2f v2 = discardCoordinateOfxVec3f(v, discard);
-			double distance = lineAB.distance(v2);
+			double distance = lineAB.distance(v);
 			if (distance > distanceC) {
 				distanceC = distance;
 				ixC = k;
-				v2C = v2;
 			}
 		}
 
 		//cout << "max distance to line: " << distanceC << endl;
 
 		
+		ofVec3f v3C(vCloud.at(ixC));
+
 		int ixD = ixC;
-		ofVec2f v2D(v2C);
-		mapinect::Triangle2D triangleABC(v2A, v2B, v2C);
-		PositionToLine ptlCtoAB = lineAB.positionTo(v2C);
+		vector<ofVec3f> vertexs;
+		vertexs.push_back(v3A);
+		vertexs.push_back(v3B);
+		vertexs.push_back(v3C);
+		mapinect::Polygon3D triangleABC(vertexs);
 		double distanceD = 0;
 		for (int k = 0; k < vCloud.size(); k++) {
-			ofVec3f v(vCloud.at(k));
-			ofVec2f v2 = discardCoordinateOfxVec3f(v, discard);
-			double distance = triangleABC.distance(v2);
-			//double distance = lineAB.distance(v2);
-			//if (lineAB.positionTo(v2) != ptlCtoAB && distance > distanceD) {
+			double distance = triangleABC.distance(vCloud.at(k));
 			if (distance > distanceD) {
 				distanceD = distance;
 				ixD = k;
-				v2D = v2;
 			}
 		}
 		
-
-		ofVec3f v3A(vCloud.at(ixA));
-		ofVec3f v3B(vCloud.at(ixB));
-		ofVec3f v3C(vCloud.at(ixC));
-		//ofVec3f v3Center = (v3A + v3B) * 0.5;
-		//ofVec3f v3D = v3Center + (v3Center - v3C);
 		ofVec3f v3D(vCloud.at(ixD));
+		vertexs.push_back(v3D);
 
 		//cout << "max distance to triangle: " << distanceD << endl;
 		{
 			Polygon* p = getPolygonModelObject();
-			p->resetVertex();
-			p->addVertex(v3A);
-			p->addVertex(v3B);
-			p->addVertex(v3C);
-			p->addVertex(v3D);
+			p->setVertexs(vertexs);
 			p->sortVertexs();
 			p->setCenter(computeCentroid(cloud));
 		}
