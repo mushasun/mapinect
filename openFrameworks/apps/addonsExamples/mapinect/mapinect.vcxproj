@@ -163,6 +163,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\model\Cylinder.cpp" />
     <ClCompile Include="src\model\Model.cpp" />
     <ClCompile Include="src\model\ModelObject.cpp" />
+    <ClCompile Include="src\model\PCBox.cpp" />
     <ClCompile Include="src\model\PCHand.cpp" />
     <ClCompile Include="src\model\PCModelObject.cpp" />
     <ClCompile Include="src\model\PCPolygon.cpp" />
@@ -172,6 +173,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\model\Polyhedron.cpp" />
     <ClCompile Include="src\model\Sphere.cpp" />
     <ClCompile Include="src\model\Table.cpp" />
+    <ClCompile Include="src\model\Vertex.cpp" />
     <ClCompile Include="src\open-cv\OpenCV.cpp" />
     <ClCompile Include="src\pcm\PCM.cpp" />
     <ClCompile Include="src\pcm\PCMThread.cpp" />
@@ -265,6 +267,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\model\Cylinder.h" />
     <ClInclude Include="src\model\Model.h" />
     <ClInclude Include="src\model\ModelObject.h" />
+    <ClInclude Include="src\model\PCBox.h" />
     <ClInclude Include="src\model\PCHand.h" />
     <ClInclude Include="src\model\PCModelObject.h" />
     <ClInclude Include="src\model\PCPolygon.h" />
@@ -274,6 +277,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\model\Polyhedron.h" />
     <ClInclude Include="src\model\Sphere.h" />
     <ClInclude Include="src\model\Table.h" />
+    <ClInclude Include="src\model\Vertex.h" />
     <ClInclude Include="src\open-cv\OpenCV.h" />
     <ClInclude Include="src\pcm\PCM.h" />
     <ClInclude Include="src\pcm\PCMThread.h" />
