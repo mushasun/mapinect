@@ -199,6 +199,12 @@
     <ClCompile Include="src\helpers\ArmController.cpp">
       <Filter>helpers</Filter>
     </ClCompile>
+    <ClCompile Include="src\model\Vertex.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\PCBox.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -458,6 +464,12 @@
     </ClInclude>
     <ClInclude Include="src\helpers\ArmController.h">
       <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Vertex.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\PCBox.h">
+      <Filter>model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
