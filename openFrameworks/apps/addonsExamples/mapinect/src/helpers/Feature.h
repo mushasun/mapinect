@@ -10,6 +10,7 @@ namespace mapinect
 		FEATURE_CV,
 		FEATURE_PCM,
 		FEATURE_VM,
+		FEATURE_DEBUG_CLOUDS,
 
 		FEATURE_COUNT
 	};

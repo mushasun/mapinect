@@ -36,7 +36,7 @@ namespace mapinect {
 
 	}
 
-	void PCModelObject::increaseLod() {
+	void PCModelObject::increaseLod(const PCPtr& nuCloud) {
 
 	}
 
@@ -63,11 +63,11 @@ namespace mapinect {
 		}
 	}
 
-	void PCModelObject::updateCloud(const PCPtr& nuCloud) {
-		cloud = nuCloud;
-		lod++;
-		increaseLod();
-	}
+	//void PCModelObject::updateCloud(const PCPtr& nuCloud) {
+	//	cloud = nuCloud;
+	//	lod++;
+	//	increaseLod();
+	//}
 
 	void PCModelObject::applyTransformation (){
 		PC transformed;

@@ -26,6 +26,7 @@
 #include <algorithm>
 #include "Table.h"
 #include "utils.h"
+#include "Feature.h"
 
 void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z) {
 	p.x = x;
@@ -555,35 +556,113 @@ bool isInBorder(const PCPtr& cloud)
 //Crea una nube a partir del punto y nombre por parámetro
 void createCloud(const ofVec3f& pto, const string& name)
 {
-	pcl::PCDWriter writer;
-	PCPtr cloud (new PC());
-	cloud->push_back(OFXVEC3F_POINTXYZ(pto));
-	writer.write<pcl::PointXYZ>(name, *cloud, false);
+	if(mapinect::IsFeatureActive(mapinect::FEATURE_DEBUG_CLOUDS))
+	{
+		pcl::PCDWriter writer;
+		PCPtr cloud (new PC());
+		cloud->push_back(OFXVEC3F_POINTXYZ(pto));
+		writer.write<pcl::PointXYZ>(name, *cloud, false);
+	}
 }
 
 bool saveCloudAsFile(const std::string &file_name, const PC &cloud)
 {
-	if (cloud.empty ())
-		return false;
-	
-	if(cloud.width * cloud.height != cloud.points.size())
+	if(mapinect::IsFeatureActive(mapinect::FEATURE_DEBUG_CLOUDS))
 	{
-		PC printeableCloud (cloud);
-		printeableCloud.height = 1;
-		printeableCloud.width = cloud.points.size();
-		pcl::io::savePCDFileASCII (file_name, printeableCloud);
-	}
-	else
-		pcl::io::savePCDFileASCII (file_name, cloud);
+		cout << "saving cloud: " << file_name << endl;
+		if (cloud.empty ())
+			return false;
 	
+		if(cloud.width * cloud.height != cloud.points.size())
+		{
+			PC printeableCloud (cloud);
+			printeableCloud.height = 1;
+			printeableCloud.width = cloud.points.size();
+			pcl::io::savePCDFileASCII (file_name, printeableCloud);
+		}
+		else
+			pcl::io::savePCDFileASCII (file_name, cloud);
+	}
 	return true;
 }
 
 void createCloud(const vector<ofVec3f>& ptos, const string& name)
 {
-	PCPtr cloud (new PC());
-	for(int i = 0; i < ptos.size(); i++)
-		cloud->push_back(OFXVEC3F_POINTXYZ(ptos.at(i)));
+	if(mapinect::IsFeatureActive(mapinect::FEATURE_DEBUG_CLOUDS))
+	{
+		PCPtr cloud (new PC());
+		for(int i = 0; i < ptos.size(); i++)
+			cloud->push_back(OFXVEC3F_POINTXYZ(ptos.at(i)));
 
-	saveCloudAsFile(name, *cloud);
+		saveCloudAsFile(name, *cloud);
+	}
 }
+
+
+bool xAxisSortAsc (ofVec3f i,ofVec3f j) 
+{ 
+	return i.x > j.x;
+}
+
+bool xAxisSortDes (ofVec3f i,ofVec3f j) 
+{ 
+	return i.x < j.x;
+}
+
+bool yAxisSortAsc (ofVec3f i,ofVec3f j) 
+{ 
+	return i.y > j.y;
+}
+
+bool yAxisSortDes (ofVec3f i,ofVec3f j) 
+{ 
+	return i.y < j.y;
+}
+
+pcl::ModelCoefficients findPlane(ofVec3f v1, ofVec3f v2, ofVec3f v3)
+{
+	ofVec3f normal = (v3 - v1).getCrossed(v2 - v1).normalize();
+	float d = normal.dot(v1);
+	pcl::ModelCoefficients coef;
+	coef.values.push_back(normal.x);
+	coef.values.push_back(normal.y);
+	coef.values.push_back(normal.z);
+	coef.values.push_back(d);
+
+	return coef;
+}
+
+ofVec3f planeIntersection(const pcl::ModelCoefficients& p1, const pcl::ModelCoefficients& p2, const pcl::ModelCoefficients& p3)
+{
+	//http://paulbourke.net/geometry/3planes/
+
+	ofVec3f n1,n2,n3;
+	float d1,d2,d3;
+
+	n1 = ofVec3f(p1.values[0],p1.values[1],p1.values[2]);
+	n2 = ofVec3f(p2.values[0],p2.values[1],p2.values[2]);
+	n3 = ofVec3f(p3.values[0],p3.values[1],p3.values[2]);
+
+	float l = n1.length();
+	l = n2.length();
+	l = n3.length();
+
+	d1 = -p1.values[3];
+	d2 = -p2.values[3];
+	d3 = -p3.values[3];
+
+	float den = n1.dot(n2.getCrossed(n3));
+	if(den == 0)
+		return NULL;
+
+	den = 1/den;
+	ofVec3f c1 = d1*(n3.getCrossed(n2));
+	ofVec3f c2 = d2*(n1.getCrossed(n3));
+	ofVec3f c3 = d3*(n2.getCrossed(n1));
+
+	ofVec3f pto = c1 + c2 + c3;
+	pto *= den;
+
+	return pto;
+}
+
