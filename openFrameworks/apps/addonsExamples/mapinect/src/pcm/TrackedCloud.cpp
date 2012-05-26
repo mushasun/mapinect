@@ -12,6 +12,7 @@
 #include "Globals.h"
 #include "objectTypesEnum.h"
 #include "PCPolyhedron.h"
+#include "PCBox.h"
 #include "PCHand.h"
 #include "pointUtils.h"
 #include "Table.h"
@@ -102,7 +103,7 @@ namespace mapinect {
 					cout << "HAND DETECTED" << endl;
 					break;
 				case BOX:
-					objectInModel = PCModelObjectPtr(new PCPolyhedron(cloud, objId));
+					objectInModel = PCModelObjectPtr(new PCBox(cloud, objId));
 					cout << "BOX DETECTED" << endl;
 					break;
 				case UNRECOGNIZED:

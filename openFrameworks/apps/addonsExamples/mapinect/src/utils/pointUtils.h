@@ -60,4 +60,13 @@ void createCloud(const ofVec3f& pto, const string& name);
 void createCloud(const vector<ofVec3f>& ptos, const string& name);
 
 bool saveCloudAsFile(const std::string &file_name, const PC &cloud);
+
+
+bool xAxisSortAsc (ofVec3f i,ofVec3f j);
+bool xAxisSortDes (ofVec3f i,ofVec3f j);
+bool yAxisSortAsc (ofVec3f i,ofVec3f j);
+bool yAxisSortDes (ofVec3f i,ofVec3f j);
+pcl::ModelCoefficients findPlane(ofVec3f v1, ofVec3f v2, ofVec3f v3);
+
+ofVec3f planeIntersection(const pcl::ModelCoefficients& p1, const pcl::ModelCoefficients& p2, const pcl::ModelCoefficients& p3);
 #endif // POINT_UTILS_H__

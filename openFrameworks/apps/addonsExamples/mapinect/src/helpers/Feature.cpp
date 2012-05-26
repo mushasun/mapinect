@@ -22,6 +22,7 @@ namespace mapinect
 			gFeatures[FEATURE_CV] = XML.getValue(FEATURE_CONFIG "CV", true);
 			gFeatures[FEATURE_PCM] = XML.getValue(FEATURE_CONFIG "PCM", true);
 			gFeatures[FEATURE_VM] = XML.getValue(FEATURE_CONFIG "VM", true);
+			gFeatures[FEATURE_DEBUG_CLOUDS] = XML.getValue(FEATURE_CONFIG "DEBUG_CLOUDS", false);
 		}
 
 	}
@@ -42,7 +43,7 @@ namespace mapinect
 	}
 
 	bool IsFeatureCVActive()
-	{
+	{																					 
 		return IsFeatureActive(FEATURE_CV);
 	}
 

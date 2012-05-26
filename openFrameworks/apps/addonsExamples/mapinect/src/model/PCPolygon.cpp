@@ -13,17 +13,23 @@
 
 namespace mapinect {
 
+	bool xAxisSort (PCPolygonPtr i,PCPolygonPtr j) 
+	{ 
+		return i->getCenter().x < j->getCenter().x;
+	}
+
+
 	PCPolygon::PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId, bool estimated)
 		: PCModelObject(cloud, objId)
 	{
 		//Corrijo normal
 		this->coefficients = coefficients;
-
+		this->estimated = estimated;
 		if(!estimated)
 			pcl::flipNormalTowardsViewpoint(cloud->at(0),
 										0,0,0,
 										this->coefficients.values[0], this->coefficients.values[1], this->coefficients.values[2]);
-
+		matchedArea = numeric_limits<float>::max();
 		modelObject = ModelObjectPtr(new Polygon());
 	}
 
@@ -119,19 +125,35 @@ namespace mapinect {
 		bool sameDirection = (myNormal + yourNormal).length() > 1;
 		if (estimator < NORMAL_TOLERANCE && sameDirection) {
 			if (matched == NULL || estimator < matchedEstimator) {
-				wasRemoved = matched != NULL;
-				removed = matched;
-				matched = polygon;
-				matchedEstimator = estimator;
-				
-				//Establezco la transformacion
 				Eigen::Vector4f myCentroid, yourCentroid;
 				pcl::compute3DCentroid(*cloud,myCentroid);
 				pcl::compute3DCentroid(*polygon->getCloud(),yourCentroid);
-				Eigen::Vector4f dif = myCentroid - yourCentroid;
-				matchingTransformation = Eigen::AngleAxisf(angle,Eigen::Vector3f(axis.x,axis.y,axis.z));
-				//matchingTransformation = Eigen::Translation3f(Eigen::Vector3f(dif.x(),dif.y(),dif.z()));
-				//matchingAngleRotation = angle;
+				ofVec3f v1 (myCentroid.x(),myCentroid.y(),myCentroid.z());
+				ofVec3f v2 (yourCentroid.x(),yourCentroid.y(),yourCentroid.z());
+
+				float areaEstimator = abs((v1 - v2).length());
+				cout << "size: " << areaEstimator << endl;
+				if(matched == NULL || (areaEstimator < 0.2 && areaEstimator < matchedArea))
+				{
+					wasRemoved = matched != NULL;
+					removed = matched;
+					matched = polygon;
+					matchedEstimator = estimator;
+					matchedArea = areaEstimator;
+					
+					saveCloudAsFile("original" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
+					saveCloudAsFile("matched" + ofToString(this->getPolygonModelObject()->getName()) + "m.pcd", *polygon->getCloud());
+
+
+					////Establezco la transformacion
+					//Eigen::Vector4f myCentroid, yourCentroid;
+					//pcl::compute3DCentroid(*cloud,myCentroid);
+					//pcl::compute3DCentroid(*polygon->getCloud(),yourCentroid);
+					//Eigen::Vector4f dif = myCentroid - yourCentroid;
+					//matchingTransformation = Eigen::AngleAxisf(angle,Eigen::Vector3f(axis.x,axis.y,axis.z));
+					////matchingTransformation = Eigen::Translation3f(Eigen::Vector3f(dif.x(),dif.y(),dif.z()));
+					////matchingAngleRotation = angle;
+				}
 			}
 		}
 		else {
@@ -163,7 +185,12 @@ namespace mapinect {
 			coefficients.header = matched->coefficients.header;
 			coefficients.values = matched->coefficients.values;
 
+			saveCloudAsFile("pcpolygon" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
+
 			this->cloud = matched->getCloud();
+
+			saveCloudAsFile("pcpolygon" + ofToString(this->getPolygonModelObject()->getName()) + "_m.pcd", *cloud);
+
 
 			removeMatching();
 		}

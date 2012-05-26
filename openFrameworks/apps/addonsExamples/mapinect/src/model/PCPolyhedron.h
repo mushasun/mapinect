@@ -6,6 +6,8 @@
 
 #include "Polyhedron.h"
 #include "PCPolygon.h"
+#include "Vertex.h"
+#include <list>
 
 namespace mapinect {
 
@@ -19,11 +21,10 @@ namespace mapinect {
 			
 			virtual void			draw();
 			virtual void			detectPrimitives();
-			virtual void			applyTransformation();
 			const PCPolygonPtr&		getPCPolygon(int index);
 			int						getPCPolygonSize();
 			virtual void			resetLod();
-			virtual void			increaseLod();
+			virtual void			increaseLod(const PCPtr& nuCloud);
 			virtual void			addToModel(const PCPtr& nuCloud);
 			virtual void			setAndUpdateCloud(const PCPtr& cloud);
 
@@ -35,22 +36,22 @@ namespace mapinect {
 
 			const IPolygon*					getPolygon(const IPolygonName&);
 			inline const vector<IPolygon*>	getPolygons()					{ return polygonsCache; }
-			
-			vector<PCPolygonPtr>	PCPolyhedron::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons);
+			//vector<Vertex&>					getVertexs();
 		private:
-			void					updatePolygons();
-			virtual void			unifyVertexs();
-			bool					findBestFit(const PCPolygonPtr&, PCPolygonPtr& removed, bool& wasRemoved);
-			vector<PCPolygonPtr>	detectPolygons(const PCPtr& cloudTemp, float planeTolerance = 0.01, float pointsTolerance = 4.0, bool limitFaces = true);
-			void					mergePolygons(vector<PCPolygonPtr>& toMerge);
-			PCPolygonPtr			duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons);
-
-			vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
-
-			vector<PCPolygonPtr>	pcpolygons;
-			vector<IPolygon*>		polygonsCache;
-			PCPtr					getCurrentVertex();
+			void							updatePolygons();
+			bool							findBestFit(const PCPolygonPtr&, PCPolygonPtr& removed, bool& wasRemoved);
+			vector<PCPolygonPtr>	detectPolygons(const PCPtr& cloudTemp, float planeTolerance = 0.003, float pointsTolerance = 4.0, bool limitFaces = true);
+			vector<PCPolygonPtr>			mergePolygons(vector<PCPolygonPtr>& toMerge);
+			virtual vector<PCPolygonPtr>	estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons);
+			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
+			virtual void					namePolygons(vector<PCPolygonPtr>& toName);
 			
+		protected:
+			vector<PCPolygonPtr>			pcpolygons;
+			vector<IPolygon*>				polygonsCache;
+			//vector<Vertex&>					vertexs;
+			bool							partialEstimation;
+			virtual void					unifyVertexs();
 
 	};
 }

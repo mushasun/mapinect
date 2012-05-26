@@ -38,10 +38,8 @@ namespace mapinect {
 		inline ofVec3f				getvMax()							{ return vMax; }
 
 		virtual void				addToModel(const PCPtr& nuCloud);
-		void						updateCloud(const PCPtr& nuCloud);
-
 		virtual void				detectPrimitives();
-		virtual void				increaseLod();
+		virtual void				increaseLod(const PCPtr& nuCloud);
 
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 	protected:

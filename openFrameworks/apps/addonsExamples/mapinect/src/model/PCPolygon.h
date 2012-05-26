@@ -12,6 +12,8 @@ namespace mapinect {
 
 	typedef boost::shared_ptr<PCPolygon> PCPolygonPtr;
 
+	bool xAxisSort (PCPolygonPtr i,PCPolygonPtr j);
+
 	class PCPolygon : public PCModelObject {
 		public:
 			PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId = -1, bool estimated = false);
@@ -40,6 +42,7 @@ namespace mapinect {
 
 			PCPolygonPtr		matched;
 			float				matchedEstimator;
+			float				matchedArea;
 			bool				estimated;
 			Eigen::Affine3f		matchingTransformation;
 
