@@ -599,8 +599,32 @@ namespace mapinect {
 		/// 3 - Matchear caras de la nube anterior con las nuevas caras
 		/// 4 - Estimar caras ocultas (?)
 		
+		PCPtr trimmedCloud (new PC());
+		vector<int> indices;
+		ofVec3f vMin = this->getvMin();
+		ofVec3f vMax = this->getvMax();
+		vMin -= 0.05;
+		vMax += 0.05;
+
+		Eigen::Vector4f eMax;
+		Eigen::Vector4f eMin;
+		eMax[0] = vMax.x;
+		eMax[1] = vMax.y;
+		eMax[2] = vMax.z;
+		eMin[0] = vMin.x;
+		eMin[1] = vMin.y;
+		eMin[2] = vMin.z;
+
+		pcl::getPointsInBox(*nuCloud,eMin,eMax,indices);
+			
+		for(int i = 0; i < indices.size(); i++)
+			trimmedCloud->push_back(nuCloud->at(indices.at(i)));
+		
+		saveCloudAsFile("nucloud.pcd",*nuCloud);
+		saveCloudAsFile("trimmed.pcd",*trimmedCloud);
+
 		//Detecto nuevas caras
-		vector<PCPolygonPtr> nuevos = detectPolygons(nuCloud,0.003,2.6,false); 
+		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,0.008,2.6,false); 
 		
 		if(false) //partialestimation
 		{

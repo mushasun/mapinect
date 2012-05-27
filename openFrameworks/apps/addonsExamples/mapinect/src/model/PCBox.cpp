@@ -196,8 +196,8 @@ namespace mapinect {
 		ofVec3f min2 = vex.at(1);
 		
 
-		/*createCloud(min1, "min1.pcd");
-		createCloud(min2, "min2.pcd");*/
+		saveCloudAsFile("min1_" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd",min1);
+		saveCloudAsFile("min2_"+ofToString(f1->getPolygonModelObject()->getName())+".pcd",min2);
 
 
 		float f1Width = abs((min1 - min2).length());
@@ -221,10 +221,6 @@ namespace mapinect {
 		coeff.values[2] *= -1;
 		//TODO: Corregir parametro 'd' de la ecuacion del plano
 
-		PCPolygonPtr estimatedPol (new PCQuadrilateral(coeff,cloudMoved,f1->getId()*(-2),true));
-		estimatedPol->detectPolygon();
-		estimatedPol->getPolygonModelObject()->setContainer(this);
-		
 		IPolygonName polFatherName = polygon->getPolygonModelObject()->getName();
 		IPolygonName polName;
 
@@ -237,6 +233,18 @@ namespace mapinect {
 		else
 			polName = (IPolygonName)(polFatherName - 2);
 
+		if(polName == kPolygonNameBottom)
+		{
+			coeff =  t->getCoefficients();
+			cloudMoved = projectPointsInPlane(cloudMoved, coeff);
+			coeff.values[0] *= -1;
+			coeff.values[1] *= -1;
+			coeff.values[2] *= -1;
+		}
+
+		PCPolygonPtr estimatedPol (new PCQuadrilateral(coeff,cloudMoved,f1->getId()*(-2),true));
+		estimatedPol->detectPolygon();
+		estimatedPol->getPolygonModelObject()->setContainer(this);
 		estimatedPol->getPolygonModelObject()->setName(polName);
 
 		/*
@@ -357,9 +365,17 @@ namespace mapinect {
 					nextVec = next->getPolygonModelObject()->getVertexs();
 					prevVec = prev->getPolygonModelObject()->getVertexs();
 
-					sort(nextVec.begin(),nextVec.end(), sortOnYAsc<ofVec3f>);
-					sort(prevVec.begin(),prevVec.end(), sortOnYAsc<ofVec3f>);
-				}
+					if(toEstimate == kPolygonNameBottom)
+					{
+						sort(nextVec.begin(),nextVec.end(), sortOnYDesc<ofVec3f>);
+						sort(prevVec.begin(),prevVec.end(), sortOnYDesc<ofVec3f>);
+					}
+					else
+					{
+						sort(nextVec.begin(),nextVec.end(), sortOnYAsc<ofVec3f>);
+						sort(prevVec.begin(),prevVec.end(), sortOnYAsc<ofVec3f>);
+					}
+				}	
 				else
 				{
 					next = getNextPolygon(toEstimate,partialEstimation);

@@ -154,11 +154,11 @@ T average(const std::vector<T>& v) {
 		return a.##prop ##compare b.##prop; \
 	}
 
-SORT_ON_PROP(T, XAsc, x, >)
-SORT_ON_PROP(T, XDesc, x, <)
-SORT_ON_PROP(T, YAsc, y, >)
-SORT_ON_PROP(T, YDesc, y, <)
-SORT_ON_PROP(T, ZAsc, z, >)
-SORT_ON_PROP(T, ZDesc, z, <)
+SORT_ON_PROP(T, XAsc, x, <)
+SORT_ON_PROP(T, XDesc, x, >)
+SORT_ON_PROP(T, YAsc, y, <)
+SORT_ON_PROP(T, YDesc, y, >)
+SORT_ON_PROP(T, ZAsc, z, <)
+SORT_ON_PROP(T, ZDesc, z, >)
 
 #endif	// OFVEC_UTILS_H__

@@ -105,7 +105,7 @@ namespace mapinect {
 		//	savePC("test.pcd");
 		//	break;
 		case 'd':
-			pcmThread.processCloud();
+			pcmThread.newForcedFrameAvailable();
 			break;
 		case 'r':
 			pcmThread.reset();
