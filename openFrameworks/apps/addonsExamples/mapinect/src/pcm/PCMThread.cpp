@@ -18,6 +18,12 @@ using namespace std;
 #define PCM_CONFIG			"PCMConfig:"
 
 namespace mapinect {
+	PCMThread::PCMThread()
+	{
+		detectMode = false;
+		isNewFrameAvailable = false;
+		isNewForcedFrameAvailable = false;
+	}
 
 	void PCMThread::reset()
 	{
@@ -65,7 +71,6 @@ namespace mapinect {
 	void PCMThread::setup() {
 		reset();
 
-		detectMode = false;
 		tableClusterLastCentroid = ofVec3f(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
 
 		objectsThread.setup();
@@ -83,7 +88,14 @@ namespace mapinect {
 	void PCMThread::newFrameAvailable()
 	{
 		ofxScopedMutex osm(isNewFrameAvailableMutex);
-		isNewFrameAvailable = true;
+		isNewFrameAvailable = detectMode;
+	}
+
+	//--------------------------------------------------------------
+	void PCMThread::newForcedFrameAvailable()
+	{
+		ofxScopedMutex osm(isNewFrameAvailableMutex);
+		isNewForcedFrameAvailable = true;
 	}
 
 	//--------------------------------------------------------------
@@ -94,12 +106,16 @@ namespace mapinect {
 				bool newFrameAvailable = false;
 				{
 					ofxScopedMutex osm(isNewFrameAvailableMutex);
-					newFrameAvailable = isNewFrameAvailable;
+					newFrameAvailable = isNewFrameAvailable || isNewForcedFrameAvailable;
+					isNewForcedFrameAvailable = false;
 				}
 
-				if(detectMode && newFrameAvailable)
+				if(newFrameAvailable)
 				{
+					cout << "Procesando..." << endl;
 					processCloud();
+					cout << "Fin procesamiento" << endl;
+
 				}
 				
 				unlock();
@@ -111,7 +127,7 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	PCPtr PCMThread::getObjectsOnTableTopCloud(){
 		PCPtr cloud = getCloud();
-		saveCloudAsFile("rawCloud.pcd", *cloud);
+		//saveCloudAsFile("rawCloud.pcd", *cloud);
 		
 		if (cloud->size() == 0) {
 			return cloud;
@@ -160,17 +176,27 @@ namespace mapinect {
 		//Quito el plano más grande
 		pcl::ModelCoefficients coefficients;
 		PCPtr remainingCloud = PCPtr(new PC());
-		PCPtr biggestPlaneCloud = extractBiggestPlane(tableCluster, coefficients, remainingCloud, 0.009);
 
 		{
 			ofxScopedMutex osm(gModel->tableMutex);
 			if (gModel->getTable().get() == NULL)
 			{
+				PCPtr biggestPlaneCloud = extractBiggestPlane(tableCluster, coefficients, remainingCloud, 0.009);
 				saveCloudAsFile("table.pcd", *biggestPlaneCloud);
 				TablePtr table = TablePtr(new Table(coefficients, biggestPlaneCloud));
 				table->detect();
 				table->setDrawPointCloud(false);
 				gModel->setTable(table);
+			}
+			else
+			{
+				//TODO: ACTUALIZAR LA NUBE DE LA MESA
+				coefficients = gModel->getTable()->getCoefficients();
+				for(int i = 0; i < tableCluster->size(); i++)
+				{
+					if(evaluatePoint(coefficients, POINTXYZ_OFXVEC3F(tableCluster->at(i))) > OCTREE_RES)
+						remainingCloud->push_back(tableCluster->at(i));
+				}
 			}
 		}
 		// TODO: OJO A LA CONCURRENCIA SOBRE gModel!!

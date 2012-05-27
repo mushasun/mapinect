@@ -68,4 +68,5 @@ void saveCloudAsFile(const string& filename, const vector<ofVec3f>& ptos);
 
 PCPtr loadCloud(const string& filename);
 
+PCPtr projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& plane);
 #endif // POINT_UTILS_H__

@@ -205,7 +205,13 @@ namespace mapinect {
 
 			saveCloudAsFile("pcpolygon" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
 
-			this->cloud = matched->getCloud();
+			const float NORMAL_TOLERANCE = PI / 8.0;
+
+			if(matchedEstimator > NORMAL_TOLERANCE ||				//Evita perder puntos por oclusión
+			   this->cloud->size() < matched->getCloud()->size())
+				this->cloud = matched->getCloud();
+			else
+				cout << "mantengo la misma nube";
 
 			saveCloudAsFile("pcpolygon" + ofToString(this->getPolygonModelObject()->getName()) + "_m.pcd", *cloud);
 

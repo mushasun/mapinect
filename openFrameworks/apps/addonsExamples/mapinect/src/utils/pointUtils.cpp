@@ -29,6 +29,7 @@
 #include "Table.h"
 #include "utils.h"
 #include "Feature.h"
+#include "Plane3D.h"
 
 void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z) {
 	p.x = x;
@@ -647,4 +648,16 @@ PCPtr loadCloud(const string& filename)
 	PCPtr cloud(new PC());
 	pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *cloud);
 	return cloud;
+}
+
+PCPtr projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& plane)
+{
+	mapinect::Plane3D plane3d(plane);
+	vector<ofVec3f>	ptos = pointCloudToOfVecVector(points);
+	PCPtr result (new PC());
+	for(int i = 0; i < ptos.size(); i ++)
+	{
+		result->push_back(OFXVEC3F_POINTXYZ(plane3d.project(ptos.at(i))));
+	}
+	return result;
 }

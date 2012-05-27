@@ -14,12 +14,15 @@ namespace mapinect
 	class PCMThread : ofThread
 	{
 	public:
+		PCMThread();
+
 		void						reset();
 		void						setup();
 		void						exit();
 		virtual void				threadedFunction();
 		inline void					startDetection()		{ detectMode = true; }
 		void						newFrameAvailable();
+		void						newForcedFrameAvailable();
 
 		void						processCloud();
 
@@ -29,6 +32,7 @@ namespace mapinect
 
 		bool						detectMode;
 		bool						isNewFrameAvailable;
+		bool						isNewForcedFrameAvailable;
 		ofxMutex					isNewFrameAvailableMutex;
 
 		ofVec3f						tableClusterLastCentroid;
