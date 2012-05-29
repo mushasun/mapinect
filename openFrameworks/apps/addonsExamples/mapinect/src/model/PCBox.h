@@ -29,7 +29,7 @@ namespace mapinect {
 			PCPolygonPtr					getNextPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);
 			PCPolygonPtr					getPrevPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);
 			PCPolygonPtr					getOppositePolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);
-			const PCPolygonPtr					getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons);
+			PCPolygonPtr					getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons);
 
 			void							messureBox();
 

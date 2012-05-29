@@ -15,6 +15,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/registration/icp.h>
 #include <pcl/sample_consensus/sac_model_perpendicular_plane.h>
+#include <pcl/filters/project_inliers.h>
 
 #include "ofUtils.h"
 
@@ -390,7 +391,17 @@ namespace mapinect {
 				if (cloud_p_filtered->size() < 4)
 					break;
 
-				PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, cloud_p_filtered));
+				//proyecto los puntos sobre el plano
+				pcl::ProjectInliers<pcl::PointXYZ> proj; 
+				proj.setModelType(pcl::SACMODEL_PLANE); 
+				PCPtr projected_cloud (new PC()); 
+				proj.setInputCloud(cloud_p_filtered); 
+				proj.setModelCoefficients(coefficients); 
+				proj.filter(*projected_cloud);
+
+				saveCloudAsFile("postfilter_pol_proy" + ofToString(i) + ".pcd",*projected_cloud);
+
+				PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projected_cloud));
 				pcp->detectPolygon();
 				pcp->getPolygonModelObject()->setContainer(this);
 			
@@ -429,6 +440,11 @@ namespace mapinect {
 		pcpolygons = nuevos;
 		pcpolygons.insert(pcpolygons.end(),estimated.begin(),estimated.end());		
 		unifyVertexs();
+
+		for(int i = 0; i < pcpolygons.size(); i ++)
+		{
+			saveCloudAsFile ("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
+		}
 	}
 
 	void PCPolyhedron::updatePolygons() {
@@ -624,7 +640,7 @@ namespace mapinect {
 		saveCloudAsFile("trimmed.pcd",*trimmedCloud);
 
 		//Detecto nuevas caras
-		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,0.008,2.6,false); 
+		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,0.003,2.6,false); 
 		
 		if(false) //partialestimation
 		{
@@ -639,6 +655,7 @@ namespace mapinect {
 			cout << "pre discard: " << nuevos.size() << endl;
 			nuevos = discardPolygonsOutOfBox(nuevos);
 			cout << "post discard: " << nuevos.size() << endl;
+			namePolygons(nuevos);
 			nuevos = mergePolygons(nuevos);
 			vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos);
 			nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());

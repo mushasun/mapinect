@@ -42,7 +42,7 @@ namespace mapinect {
 		messureBox();
 	}
 
-	const PCPolygonPtr PCBox::getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons)
+	PCPolygonPtr PCBox::getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons)
 	{
 		for(int i = 0; i < newPolygons.size(); i++)
 			if(newPolygons.at(i)->getPolygonModelObject()->getName() == name)
@@ -52,8 +52,9 @@ namespace mapinect {
 	}
 
 	void PCBox::unifyVertexs() {
-		PCPolyhedron::unifyVertexs();
-		return;
+		/*PCPolyhedron::unifyVertexs();
+		return;*/
+
 		vector<ofVec3f> unified;
 		IPolygonName vertexNames[8][3]	= {{kPolygonNameSideA,kPolygonNameSideB,kPolygonNameTop},
 									      {kPolygonNameSideA,kPolygonNameSideB,kPolygonNameBottom},
@@ -63,14 +64,14 @@ namespace mapinect {
 									      {kPolygonNameSideC,kPolygonNameSideB,kPolygonNameBottom},
 										  {kPolygonNameSideC,kPolygonNameSideD,kPolygonNameBottom},
 										  {kPolygonNameSideC,kPolygonNameSideD,kPolygonNameTop}};
-		int vertexIdx[8][3]				= {	{0,3,0},
-											{1,2,0},
-											{2,1,0},
+		int vertexIdx[8][3]				= {	{0,3,1},
+											{1,2,2},
+											{2,1,1},
+											{3,0,2},
 											{3,0,0},
-											{3,0,0},
-											{2,1,0},
+											{2,1,3},
 											{1,2,0},
-											{0,3,0}};
+											{0,3,3}};
 		for(int i = 0; i < 8; i++)
 		{
 			PCPolygonPtr p0 = getPCPolygon(vertexNames[i][0], pcpolygons);
@@ -81,9 +82,18 @@ namespace mapinect {
 				p1 != NULL &&
 				p2 != NULL)
 			{
+				/* TODO: Actualizar el MathModel de los poligonos cuando se hace el matching!!!
+
 				Plane3D plane0(p0->getMathModelApproximation().begin()->getPlane());
 				Plane3D plane1(p1->getMathModelApproximation().begin()->getPlane());
-				Plane3D plane2(p2->getMathModelApproximation().begin()->getPlane());
+				Plane3D plane2(p2->getMathModelApproximation().begin()->getPlane());*/
+				
+				//Temporal mientras no se haga el TODO anterior
+				Plane3D plane0(p0->getCoefficients());
+				Plane3D plane1(p1->getCoefficients());
+				Plane3D plane2(p2->getCoefficients());
+				////
+
 				ofVec3f vertex = plane0.intersection(plane1, plane2);
 				p0->getPolygonModelObject()->setVertex(vertexIdx[i][0],vertex);
 				p1->getPolygonModelObject()->setVertex(vertexIdx[i][1],vertex);
@@ -106,6 +116,11 @@ namespace mapinect {
 		
 		saveCloudAsFile("UnifiedVertex.pcd", unified);
 
+		for(int i = 0; i < pcpolygons.size(); i ++)
+		{
+			saveCloudAsFile("p" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
+			saveCloudAsFile("v" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", pcpolygons.at(i)->getPolygonModelObject()->getVertexs());
+		}
 		//for(int i = 0; i < vertexs.size(); i++)
 		//{
 		//	cout << "vertex " << ofToString(i) << ": " << vertexs.at(i).getPoint() << endl;
@@ -181,46 +196,7 @@ namespace mapinect {
 			}
 		}
 
-		//Busco el largo que tengo que desplazar
-		vector<ofVec3f> vex = f1->getPolygonModelObject()->getVertexs();
-		
-		if(!parallelAndNotInContact && foundFace) // Busco los 2 puntos con menor 'y' para hallar el ancho de la cara
-		{
-			sort(vex.begin(), vex.end(), sortOnYDesc<ofVec3f>);
-		}
-		else // Busco los 2 puntos con menor 'x' para hallar el alto de la cara
-		{
-			sort(vex.begin(),vex.end(), sortOnXDesc<ofVec3f>);
-		}
-		ofVec3f min1 = vex.at(0);
-		ofVec3f min2 = vex.at(1);
-		
-
-		saveCloudAsFile("min1_" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd",min1);
-		saveCloudAsFile("min2_"+ofToString(f1->getPolygonModelObject()->getName())+".pcd",min2);
-
-
-		float f1Width = abs((min1 - min2).length());
-
-		PCPtr cloudToMove = polygon->getCloud();
-		PCPtr cloudMoved (new PC()); 
-		ofVec3f normal = polygon->getNormal();
-		//pcl::flipNormalTowardsViewpoint(cloudToMove->at(0),0,0,0,normal.x,normal.y,normal.z);
-		normal *= -f1Width; // TODO: Corregir dirección de la normal
-		Eigen::Transform<float,3,Eigen::Affine> transformation;
-		transformation = Eigen::Translation<float,3>(normal.x, normal.y, normal.z);
-
-		pcl::transformPointCloud(*cloudToMove,*cloudMoved,transformation);
-
-		//Corrección de coeficiente
-		pcl::ModelCoefficients coeff = polygon->getCoefficients();
-		
-		//invierto la normal
-		coeff.values[0] *= -1;
-		coeff.values[1] *= -1;
-		coeff.values[2] *= -1;
-		//TODO: Corregir parametro 'd' de la ecuacion del plano
-
+		//Nombro el poligono a duplicar
 		IPolygonName polFatherName = polygon->getPolygonModelObject()->getName();
 		IPolygonName polName;
 
@@ -233,25 +209,59 @@ namespace mapinect {
 		else
 			polName = (IPolygonName)(polFatherName - 2);
 
+		pcl::ModelCoefficients coeff = polygon->getCoefficients();
+		PCPtr cloudToMove = polygon->getCloud();
+		PCPtr cloudMoved (new PC()); 
+		ofVec3f normal;
+
 		if(polName == kPolygonNameBottom)
 		{
 			coeff =  t->getCoefficients();
-			cloudMoved = projectPointsInPlane(cloudMoved, coeff);
-			coeff.values[0] *= -1;
-			coeff.values[1] *= -1;
-			coeff.values[2] *= -1;
+			normal = t->getNormal();
+			cloudMoved = projectPointsInPlane(cloudToMove, coeff);
 		}
+		else
+		{
+			//Busco el largo que tengo que desplazar
+			vector<ofVec3f> vex = f1->getPolygonModelObject()->getVertexs();
+		
+			if(!parallelAndNotInContact && foundFace) // Busco los 2 puntos con menor 'y' para hallar el ancho de la cara
+			{
+				sort(vex.begin(), vex.end(), sortOnYDesc<ofVec3f>);
+			}
+			else // Busco los 2 puntos con menor 'x' para hallar el alto de la cara
+			{
+				sort(vex.begin(),vex.end(), sortOnXDesc<ofVec3f>);
+			}
+			ofVec3f min1 = vex.at(0);
+			ofVec3f min2 = vex.at(1);
+
+			saveCloudAsFile("min1_" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd",min1);
+			saveCloudAsFile("min2_"+ofToString(f1->getPolygonModelObject()->getName())+".pcd",min2);
+
+			float f1Width = abs((min1 - min2).length());
+			normal = polygon->getNormal();
+			ofVec3f traslation = normal * (-f1Width); 
+			Eigen::Transform<float,3,Eigen::Affine> transformation;
+			transformation = Eigen::Translation<float,3>(traslation.x, traslation.y, traslation.z);
+
+			pcl::transformPointCloud(*cloudToMove,*cloudMoved,transformation);
+		}
+
+		//Corrección de coeficiente
+		//invierto la normal
+		normal *= -1;
+		Plane3D plane(POINTXYZ_OFXVEC3F(cloudMoved->at(0)), normal);
+		coeff = plane.getCoefficients();
 
 		PCPolygonPtr estimatedPol (new PCQuadrilateral(coeff,cloudMoved,f1->getId()*(-2),true));
 		estimatedPol->detectPolygon();
 		estimatedPol->getPolygonModelObject()->setContainer(this);
 		estimatedPol->getPolygonModelObject()->setName(polName);
 
-		/*
-		saveCloudAsFile ("estimated.pcd", *estimatedPol->getCloud());
-		saveCloudAsFile ("from.pcd", *f1->getCloud());
-		saveCloudAsFile ("original.pcd", *cloudToMove);*/
-
+		saveCloudAsFile ("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
+		saveCloudAsFile ("from" + ofToString(polygon->getPolygonModelObject()->getName()) + ".pcd", *polygon->getCloud());
+		saveCloudAsFile ("with" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd", *f1->getCloud());
 
 		return estimatedPol;
 	}
@@ -404,6 +414,7 @@ namespace mapinect {
 
 				Plane3D plane(faceVertex.at(0), faceVertex.at(1), faceVertex.at(2));
 				pcl::ModelCoefficients coef = plane.getCoefficients();
+				
 				//fix normal
 				ofVec3f internalPoint = nextVec.at(3);
 				ofVec3f normal = ofVec3f(coef.values.at(0),coef.values.at(1),coef.values.at(2));
@@ -411,9 +422,8 @@ namespace mapinect {
 				if(dist > 0)
 				{
 					normal *= -1;
-					coef.values.at(0) = normal.x;
-					coef.values.at(1) = normal.y;
-					coef.values.at(2) = normal.z;
+					Plane3D orientedPlane(faceVertex.at(0),normal);
+					coef = orientedPlane.getCoefficients();
 				}
 
 				PCPtr faceCloud (new PC());
@@ -434,7 +444,7 @@ namespace mapinect {
 				PCPolygonPtr estimatedPol = duplicatePol(pcp,partialEstimation);
 				partialEstimation.push_back(estimatedPol);
 				estimated.push_back(estimatedPol);
-				//createCloud(faceVertex, "estimatedFace.pcd");
+				saveCloudAsFile("fullEstimatedFace.pcd",*faceCloud);
 
 				i++;
 			}

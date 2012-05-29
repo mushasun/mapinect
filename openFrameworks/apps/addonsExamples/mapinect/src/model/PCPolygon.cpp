@@ -9,6 +9,7 @@
 #include "ofVecUtils.h"
 #include "utils.h"
 #include "pointUtils.h"
+#include "Plane3D.h"
 
 
 namespace mapinect {
@@ -26,9 +27,17 @@ namespace mapinect {
 		this->coefficients = coefficients;
 		this->estimated = estimated;
 		if(!estimated)
+		{
 			pcl::flipNormalTowardsViewpoint(cloud->at(0),
 										0,0,0,
 										this->coefficients.values[0], this->coefficients.values[1], this->coefficients.values[2]);
+			if(this->coefficients.values != coefficients.values)
+			{
+				Plane3D plane(POINTXYZ_OFXVEC3F(cloud->at(0)),
+							  ofVec3f(this->coefficients.values[0], this->coefficients.values[1], this->coefficients.values[2]));
+				this->coefficients = plane.getCoefficients();
+			}
+		}
 		matchedArea = numeric_limits<float>::max();
 		modelObject = ModelObjectPtr(new Polygon());
 	}
@@ -140,7 +149,7 @@ namespace mapinect {
 		float angle = acos(myNormal.dot(yourNormal));
 		float estimator = fabsf(fabsf(angle - PI * 0.5) - PI * 0.5);
 		const float NORMAL_TOLERANCE = PI / 4.0;
-		bool sameDirection = (myNormal + yourNormal).length() > 1;
+		bool sameDirection = myNormal.dot(yourNormal) > 0;
 		if (estimator < NORMAL_TOLERANCE && sameDirection) {
 			if (matched == NULL || estimator < matchedEstimator) {
 				Eigen::Vector4f myCentroid, yourCentroid;
@@ -207,11 +216,13 @@ namespace mapinect {
 
 			const float NORMAL_TOLERANCE = PI / 8.0;
 
-			if(matchedEstimator > NORMAL_TOLERANCE ||				//Evita perder puntos por oclusión
-			   this->cloud->size() < matched->getCloud()->size())
-				this->cloud = matched->getCloud();
-			else
-				cout << "mantengo la misma nube";
+			//if(matchedEstimator > NORMAL_TOLERANCE ||				//Evita perder puntos por oclusión
+			//   this->cloud->size() < matched->getCloud()->size())
+			//	this->cloud = matched->getCloud();
+			//else
+			//	cout << "mantengo la misma nube";
+
+			this->cloud = matched->getCloud();
 
 			saveCloudAsFile("pcpolygon" + ofToString(this->getPolygonModelObject()->getName()) + "_m.pcd", *cloud);
 
