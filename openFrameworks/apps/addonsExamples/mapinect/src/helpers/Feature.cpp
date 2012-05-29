@@ -23,6 +23,8 @@ namespace mapinect
 			gFeatures[FEATURE_PCM] = XML.getValue(FEATURE_CONFIG "PCM", true);
 			gFeatures[FEATURE_VM] = XML.getValue(FEATURE_CONFIG "VM", true);
 			gFeatures[FEATURE_SAVE_CLOUD] = XML.getValue(FEATURE_CONFIG "SAVE_CLOUD", false);
+			gFeatures[FEATURE_RECTANGLE_VERTEX] = XML.getValue(FEATURE_CONFIG "RECTANGLE_VERTEX", false);
+
 		}
 
 	}

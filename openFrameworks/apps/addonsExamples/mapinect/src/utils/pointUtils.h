@@ -16,6 +16,8 @@ void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z);
 
 vector<ofVec3f>	pointCloudToOfVecVector(const PCPtr& cloud);
 PCPtr			ofVecVectorToPointCloud(const vector<ofVec3f>& v);
+vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v);
+
 
 void findPointCloudBoundingBox(const PCPtr& cloud, pcl::PointXYZ& min, pcl::PointXYZ& max);
 void findPointCloudBoundingBox(const PCPtr& cloud, ofVec3f& min, ofVec3f& max);
@@ -69,4 +71,7 @@ void saveCloudAsFile(const string& filename, const vector<ofVec3f>& ptos);
 PCPtr loadCloud(const string& filename);
 
 PCPtr projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& plane);
+vector<ofVec3f> projectPointsInPlane(const vector<Eigen::Vector3f>& points, const pcl::ModelCoefficients& plane);
+
+vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& coefficients);
 #endif // POINT_UTILS_H__

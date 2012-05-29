@@ -18,6 +18,7 @@
 #include <pcl/surface/convex_hull.h>
 
 #include "ofxKinect.h"
+#include "ofxOpenCv.h"
 
 #include "Constants.h"
 #include "Feature.h"
@@ -660,4 +661,105 @@ PCPtr projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& pl
 		result->push_back(OFXVEC3F_POINTXYZ(plane3d.project(ptos.at(i))));
 	}
 	return result;
+}
+
+vector<ofVec3f> projectPointsInPlane(const vector<Eigen::Vector3f>& points, const pcl::ModelCoefficients& plane)
+{
+	vector<ofVec3f> result;
+	vector<ofVec3f> ptos = eigenVectorToOfVecVector(points);
+
+	mapinect::Plane3D plane3d(plane);
+	for(int i = 0; i < ptos.size(); i ++)
+	{
+		result.push_back(plane3d.project(ptos.at(i)));
+	}
+	return result;
+}
+
+vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& coefficients) 
+{ 
+	vector<Eigen::Vector3f> corners; 
+	saveCloudAsFile("toproject.pcd",*cloud);
+	pcl::ModelCoefficients::Ptr coeff (new pcl::ModelCoefficients(coefficients));
+	// Project points onto the table plane 
+
+	PC projected_cloud = *cloud; 
+
+	saveCloudAsFile("projected.pcd",projected_cloud);
+
+	pcl::PointXYZ pto = cloud->at(1);
+	float val = coefficients.values[0] * pto.x + 
+				coefficients.values[1] * pto.y + 
+				coefficients.values[2] * pto.z + 
+				coefficients.values[3]; 
+
+	if(abs(val) < 0.009)
+		;;
+
+	// store the table top plane parameters 
+	Eigen::Vector3f plane_normal; 
+	plane_normal.x() = coeff->values[0]; 
+	plane_normal.y() = coeff->values[1]; 
+	plane_normal.z() = coeff->values[2]; 
+	
+	// compute an orthogonal normal to the plane normal 
+	Eigen::Vector3f v = plane_normal.unitOrthogonal(); 
+	
+	// take the cross product of the two normals to get 
+	// a thirds normal, on the plane 
+	Eigen::Vector3f u = plane_normal.cross(v); 
+
+	// project the 3D point onto a 2D plane 
+	std::vector<cv::Point2f> points; 
+	
+	// choose a point on the plane 
+	Eigen::Vector3f p0(projected_cloud.points[0].x, 
+						projected_cloud.points[0].y, 
+						projected_cloud.points[0].z); 
+	
+	for(unsigned int ii=0; ii<projected_cloud.points.size(); ii++) 
+	{ 
+		Eigen::Vector3f p3d(projected_cloud.points[ii].x, 
+								projected_cloud.points[ii].y, 
+								projected_cloud.points[ii].z); 
+
+		// subtract all 3D points with a point in the plane 
+		// this will move the origin of the 3D coordinate system 
+		// onto the plane 
+		p3d = p3d - p0; 
+
+		cv::Point2f p2d; 
+		p2d.x = p3d.dot(u); 
+		p2d.y = p3d.dot(v); 
+		points.push_back(p2d); 
+	} 
+
+	cv::Mat points_mat(points); 
+	cv::RotatedRect rrect = cv::minAreaRect(points_mat); 
+	cv::Point2f rrPts[4]; 
+	rrect.points(rrPts); 
+
+	//store the table top bounding points in a vector 
+	for(unsigned int ii=0; ii<4; ii++) 
+	{ 
+		Eigen::Vector3f pbbx(rrPts[ii].x*u + rrPts[ii].y*v + p0); 
+		corners.push_back(pbbx); 
+	} 
+	/*Eigen::Vector3f center(rrect.center.x*u + rrect.center.y*v + p0); 
+	corners.push_back(center); */
+	vector<ofVec3f> vecCorners = projectPointsInPlane(corners,coefficients);
+
+	saveCloudAsFile("projectedrectangle.pcd",vecCorners);
+	return vecCorners; 
+} 
+
+vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v)
+{
+	vector<ofVec3f> vec;
+	for(int i = 0; i < v.size(); i++)
+	{
+		Eigen::Vector3f ev = v.at(i);
+		vec.push_back(ofVec3f(ev.x(),ev.y(),ev.z()));
+	}
+	return vec;
 }
