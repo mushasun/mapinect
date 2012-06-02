@@ -2,8 +2,8 @@
 
 #include "Constants.h"
 #include "Globals.h"
+#include "log.h"
 #include "pointUtils.h"
-#include "utils.h"
 
 using namespace std;
 
@@ -54,6 +54,7 @@ namespace mapinect {
 				if(newCloudAvailable)
 				{
 					processCloud();
+					setObjectsThreadStatus("");
 				}
 				
 				unlock();
@@ -78,7 +79,7 @@ namespace mapinect {
 			inCloud.reset();
 		}
 
-		//Actualizo las detecciones temporales
+		// Updating temporal detections
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
 			(*iter)->addCounter(-1);
 		}
@@ -89,63 +90,58 @@ namespace mapinect {
 			return;
 		}
 
-		list<TrackedCloudPtr> nuevosClouds;
+		list<TrackedCloudPtr> newClouds;
 		int debugCounter = 0;
 
 		{
-			//Subdivido la nube de diferencias en clusters
-			std::vector<pcl::PointIndices> cluster_indices =
+				setObjectsThreadStatus("Detecting clusters...");
+				std::vector<pcl::PointIndices> cluster_indices =
 				findClusters(cloud, MAX_CLUSTER_TOLERANCE, MIN_CLUSTER_SIZE, MAX_CLUSTER_SIZE);
 
-			//separo en clusters
-				
 			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 			{
 				PCPtr cloud_cluster = getCloudFromIndices(cloud, *it);
 
 				saveCloudAsFile("objectsCluster" + ofToString(debugCounter) + ".pcd", *cloud_cluster);
 
-				nuevosClouds.push_back(TrackedCloudPtr(new TrackedCloud(cloud_cluster)));
+				newClouds.push_back(TrackedCloudPtr(new TrackedCloud(cloud_cluster)));
 				debugCounter++;
 			}
 		}
 
-		//Itero en todas las nuves encontradas buscando el mejor ajuste con un objeto encontrado
-		list<TrackedCloudPtr> aProcesarClouds;
-		list<TrackedCloudPtr> aAgregarClouds;
+		// Look into the new clouds for the best fit
+		list<TrackedCloudPtr> cloudsToMatch;
+		list<TrackedCloudPtr> cloudsToAdd;
 
 		debugCounter = 0;
 		int max_iter = 10;
+		setObjectsThreadStatus("Matching clusters with existing ones...");
 		do
 		{
-			for (list<TrackedCloudPtr>::iterator iter = nuevosClouds.begin(); iter != nuevosClouds.end(); iter++)
+			for (list<TrackedCloudPtr>::iterator iter = newClouds.begin(); iter != newClouds.end(); iter++)
 			{
 				//saveCloudAsFile("clusterInTable" + ofToString(debugCounter) + ".pcd", *(*iter)->getTrackedCloud());
 				TrackedCloudPtr removedCloud;
 				bool removed = false;
-				//Busco el mejor ajuste
 				bool fitted = findBestFit(*iter, removedCloud, removed);
 
-				if(removed)										// El objeto que ajusto ya tenia una nube que ajustaba
-					aProcesarClouds.push_back(removedCloud);	// Agrego la nube que ajustaba para volver a iterar
-				if(!fitted)										// Si no encuentra objeto que ajuste, la agrega como una nueva nube
-					aAgregarClouds.push_back(*iter);
+				if (removed)
+					cloudsToMatch.push_back(removedCloud);	// Push back the old cloud to try again
+				if (!fitted)
+					cloudsToAdd.push_back(*iter);			// No matching cloud, this will be a new object
 				debugCounter++;
 			}
-			nuevosClouds = aProcesarClouds;
-			aProcesarClouds.clear();
+			newClouds = cloudsToMatch;
+			cloudsToMatch.clear();
 			max_iter--;
 		}
-		while (nuevosClouds.size() > 0 && max_iter > 0);
+		while (newClouds.size() > 0 && max_iter > 0);
 
-		////Actualizo los objetos con las nubes de mejor ajuste
+		// Effectuate the update of the tracked cloud with the new ones
+		setObjectsThreadStatus("Update existing and new data...");
 		updateDetectedObjects();
 
-		for (list<TrackedCloudPtr>::iterator iter = aAgregarClouds.begin(); iter != aAgregarClouds.end(); iter++) {
-			trackedClouds.push_back(TrackedCloudPtr(new TrackedCloud(**iter)));
-		}
-		////Los TrackedCloudPtr de aAgregarClouds quedan colgados?
-		aAgregarClouds.clear();
+		trackedClouds.insert(trackedClouds.end(), cloudsToAdd.begin(), cloudsToAdd.end());
 	}
 
 	//--------------------------------------------------------------

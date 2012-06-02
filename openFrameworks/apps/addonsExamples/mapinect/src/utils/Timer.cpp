@@ -5,6 +5,13 @@
 using namespace std;
 
 namespace mapinect {
+
+	Timer::Timer()
+	{
+		startTime = time(NULL);
+		endTime = startTime;
+	}
+
 	void Timer::start() {
 		startTime = time(NULL);
 	}
@@ -20,4 +27,5 @@ namespace mapinect {
 	float Timer::getElapsedMiliseconds() {
 		return (float)(endTime - startTime) / 1000.0f;
 	}
+
 }

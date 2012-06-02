@@ -29,15 +29,43 @@ namespace mapinect
 	void Polygon3D::init()
 	{
 		discardCoord = calculateDiscardCoordinate(vertexs);
+		vertexs2d.clear();
 		for (vector<ofVec3f>::const_iterator it = vertexs.begin(); it != vertexs.end(); ++it)
 		{
-			this->vertexs2d.push_back(discardCoordinateOfVec3f(*it, discardCoord));
+			vertexs2d.push_back(discardCoordinateOfVec3f(*it, discardCoord));
 		}
+		edges.clear();
+		edges2d.clear();
 		for (int i = 0; i < vertexs.size(); i++)
 		{
 			edges.push_back(Line3D(vertexs[i], vertexs[(i + 1) % vertexs.size()]));
 			edges2d.push_back(Line2D(vertexs2d[i], vertexs2d[(i + 1) % vertexs.size()]));
 		}
+	}
+
+	void Polygon3D::setPlane(const Plane3D& p)
+	{
+		plane = p;
+		if (vertexs.size() > 0)
+		{
+			setVertexs(vertexs);
+		}
+	}
+
+	void Polygon3D::setVertex(int pos, const ofVec3f& v)
+	{
+		assert(pos <= vertexs.size());
+		assert(plane.distance(v) < MATH_EPSILON);
+		vertexs[pos] = v;
+		init();
+	}
+
+	void Polygon3D::setVertexs(const vector<ofVec3f>& newVertexs)
+	{
+		vertexs = newVertexs;
+		for (vector<ofVec3f>::iterator v = vertexs.begin(); v != vertexs.end(); ++v)
+			*v = plane.project(*v);
+		init();
 	}
 
 	float Polygon3D::distance(const ofVec3f& p) const
@@ -101,6 +129,16 @@ namespace mapinect
 			}
 			return true;
 		}
+		return false;
+	}
+
+	bool Polygon3D::operator==(const Polygon3D& other) const
+	{
+		if (vertexs.size() == other.vertexs.size())
+			for (int i = 0; i < vertexs.size(); i++)
+				if (vertexs[i].distance(other.vertexs[i]) > MATH_EPSILON)
+					return false;
+			return true;
 		return false;
 	}
 

@@ -10,6 +10,7 @@ namespace mapinect {
 	typedef enum
 	{
 		kMapinectEventTypeObjectDetected = 0,
+		kMapinectEventTypeObjectUpdated,
 		kMapinectEventTypeObjectLost,
 		kMapinectEventTypeObjectMoved,
 		kMapinectEventTypeObjectTouched
@@ -18,17 +19,17 @@ namespace mapinect {
 	struct MapinectEvent
 	{
 	public:
-		MapinectEvent(const MapinectEventType& type, IObject* object)
+		MapinectEvent(const MapinectEventType& type, const IObjectPtr& object)
 			: type(type), object(object), movement(ofVec3f(), ofVec3f()) { }
-		MapinectEvent(const MapinectEventType& type, IObject* object, const DataMovement& movement)
+		MapinectEvent(const MapinectEventType& type, const IObjectPtr& object, const DataMovement& movement)
 			: type(type), object(object), movement(movement) { }
-		MapinectEvent(const MapinectEventType& type, IObject* object, const vector<DataTouch>& touchPoints)
-			: type(type), object(object), movement(ofVec3f(), ofVec3f()), touchPoints(touchPoints) { }
+		MapinectEvent(const MapinectEventType& type, const IObjectPtr& object, const DataTouch& touchPoint)
+			: type(type), object(object), movement(ofVec3f(), ofVec3f()), touchPoint(touchPoint) { }
 
 		MapinectEventType		type;
-		IObject*				object;
+		IObjectPtr				object;
 		DataMovement			movement;
-		vector<DataTouch>		touchPoints;
+		DataTouch				touchPoint;
 	};
 
 	class EventManager

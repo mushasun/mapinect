@@ -12,16 +12,15 @@ namespace mapinect {
 
 	typedef boost::shared_ptr<PCPolygon> PCPolygonPtr;
 
-	bool xAxisSort (PCPolygonPtr i,PCPolygonPtr j);
-
 	class PCPolygon : public PCModelObject {
 		public:
 			PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId = -1, bool estimated = false);
 			virtual ~PCPolygon();
 
+			IPolygonPtr			getMathPolygonModelApproximation() const;
+
 			const Polygon*		getPolygonModelObject() const;
 			Polygon*			getPolygonModelObject();
-			vector<Polygon3D>	getMathModelApproximation() const;
 
 			ofVec3f				getNormal();
 			

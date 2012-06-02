@@ -1,7 +1,6 @@
 #include "Buildings.h"
 
 #include "Globals.h"
-#include "utils.h"
 
 namespace buildings {
 	
@@ -44,31 +43,28 @@ namespace buildings {
 	//--------------------------------------------------------------
 	void Buildings::debugDraw()
 	{
-
+		map<int, DataTouch> keep;
+		for (map<int, DataTouch>::const_iterator it = touchPoints.begin(); it != touchPoints.end(); ++it)
+		{
+			if (it->second.getType() == kTouchTypeStarted)
+				ofSetHexColor(0xFF0000);
+			else if (it->second.getType() == kTouchTypeHolding)
+				ofSetHexColor(0x00FF00);
+			else
+				ofSetHexColor(0x0000FF);
+			ofVec2f s = gKinect->getScreenCoordsFromWorldCoords(it->second.getTouchPoint());
+			ofCircle(s.x, s.y, 4);
+			if (it->second.getType() != kTouchTypeReleased)
+				keep.insert(make_pair(it->first, it->second));
+		}
+		touchPoints = keep;
 	}
 
 	//--------------------------------------------------------------
 	void Buildings::draw()
 	{
-		{
-			ofxScopedMutex osm(gModel->tableMutex);
-			if (floor == NULL && gModel->getTable() != NULL) {
-				floor = new Floor(gModel->getTable());
-			}
-		}
-
 		if (floor != NULL) {
 			floor->draw(txManager);
-		}
-
-		{
-			ofxScopedMutex objectsLock(gModel->objectsMutex);
-			for (vector<mapinect::ModelObjectPtr>::const_iterator it = gModel->getObjects().begin(); it != gModel->getObjects().end(); it++) {
-				int id = (*it)->getId();
-				if (buildings.find(id) == buildings.end()) {
-					buildings[id] = new Building(id, PCPolyhedronPtr(dynamic_cast<PCPolyhedron*>(it->get())));
-				}
-			}
 		}
 
 		for (map<int, Building*>::iterator iter = buildings.begin(); iter != buildings.end(); iter++) {
@@ -223,4 +219,87 @@ namespace buildings {
 	{
 	}
 
+	//--------------------------------------------------------------
+	void Buildings::objectDetected(const IObjectPtr& object)
+	{
+		if (object->getId() == TABLE_ID)
+		{
+			if (floor != NULL)
+			{
+				delete floor;
+				floor = NULL;
+			}
+			if (floor == NULL)
+			{
+				floor = new Floor(object->getPolygons()[0]);
+			}
+		}
+		else
+		{
+			if (buildings.find(object->getId()) == buildings.end())
+			{
+				buildings[object->getId()] = new Building(object);
+			}
+		}
+	}
+
+	//--------------------------------------------------------------
+	void Buildings::objectUpdated(const IObjectPtr& object)
+	{
+		if (object->getId() == TABLE_ID)
+		{
+			if (floor != NULL)
+			{
+				floor->updateModelObject(object->getPolygons()[0]);
+			}
+		}
+		else
+		{
+			map<int, Building*>::iterator b = buildings.find(object->getId());
+			if (b != buildings.end())
+			{
+				b->second->updateModelObject(object);
+			}
+		}
+	}
+
+	//--------------------------------------------------------------
+	void Buildings::objectLost(const IObjectPtr& object)
+	{
+		if (object->getId() == TABLE_ID)
+		{
+			if (floor != NULL)
+			{
+				delete floor;
+				floor = NULL;
+			}
+		}
+		else
+		{
+			if (buildings.find(object->getId()) != buildings.end())
+			{
+				buildings.erase(object->getId());
+			}
+		}
+	}
+
+	//--------------------------------------------------------------
+	void Buildings::objectMoved(const IObjectPtr& object, const DataMovement& movement)
+	{
+	}
+	
+	//--------------------------------------------------------------
+	void Buildings::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
+	{
+		map<int, DataTouch>::iterator it = touchPoints.find(touchPoint.getId());
+		if (it == touchPoints.end())
+		{
+			assert(touchPoint.getType() == kTouchTypeStarted);
+			touchPoints.insert(make_pair(touchPoint.getId(), touchPoint));
+		}
+		else
+		{
+			it->second = touchPoint;
+		}
+	}
 }

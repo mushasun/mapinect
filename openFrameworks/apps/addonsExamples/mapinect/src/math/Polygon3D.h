@@ -1,7 +1,7 @@
 #ifndef MAPINECT_POLYGON3D_H__
 #define MAPINECT_POLYGON3D_H__
 
-#include "ofVecUtils.h"
+#include "DiscardCoordinate.h"
 #include "Plane3D.h"
 #include "Line3D.h"
 #include "Line2D.h"
@@ -17,15 +17,23 @@ namespace mapinect
 		Polygon3D(const Polygon3D& polygon);
 		virtual ~Polygon3D() { };
 
-		inline const vector<ofVec3f>&	getVertexs() const		{ return vertexs; }
-		inline const Plane3D&			getPlane() const		{ return plane; }
-		inline const vector<Line3D>&	getEdges() const		{ return edges; }
+		inline const vector<ofVec3f>&	getVertexs() const				{ return vertexs; }
+		inline const vector<ofVec2f>&	getVertexs2d() const			{ return vertexs2d; }
+		inline const DiscardCoordinate&	getDiscardCoordinate() const	{ return discardCoord; }
+		inline const Plane3D&			getPlane() const				{ return plane; }
+		inline const vector<Line3D>&	getEdges() const				{ return edges; }
+		inline const vector<Line2D>&	getEdges2d() const				{ return edges2d; }
+
+		void							setPlane(const Plane3D&);
+		void							setVertex(int pos, const ofVec3f& v);
+		void							setVertexs(const vector<ofVec3f>& v);
 
 		float				distance(const ofVec3f& p) const;
 		ofVec3f				project(const ofVec3f& p) const;
 		float				calculateArea() const;
 
 		bool				isInPolygon(const ofVec3f& p) const;
+		bool				operator==(const Polygon3D&) const;
 
 	private:
 		void				init();

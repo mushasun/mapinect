@@ -2,21 +2,25 @@
 #define I_OBJECT_H__
 
 #include "IPolygon.h"
+#include <boost/shared_ptr.hpp>
 
-namespace mapinect {
+#define TABLE_ID		0
 
-	class IObject {
+namespace mapinect
+{
+	class IObject
+	{
 
 		public:
 
-			virtual int						getId() = 0;
+			virtual int							getId() const = 0;
 
-			virtual const ofVec3f&			getCenter() = 0;
-			virtual const ofVec3f&			getScale() = 0;
-			virtual const ofVec3f&			getRotation() = 0;
+			virtual const ofVec3f&				getCenter() const = 0;
+			virtual const ofVec3f&				getScale() const = 0;
+			virtual const ofVec3f&				getRotation() const = 0;
 
-			virtual const IPolygon*			getPolygon(const IPolygonName& polygonName) = 0;
-			virtual const vector<IPolygon*>	getPolygons() = 0;
+			virtual const IPolygonPtr&			getPolygon(const IPolygonName& polygonName) const = 0;
+			virtual const vector<IPolygonPtr>&	getPolygons() const = 0;
 
 	};
 }

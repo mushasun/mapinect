@@ -5,9 +5,9 @@
 
 #include <list>
 
-#include "ObjectsThread.h"
-#include "Polygon3D.h"
 #include "ofxMutex.h"
+#include "ObjectsThread.h"
+#include "TrackedTouch.h"
 
 namespace mapinect
 {
@@ -21,14 +21,19 @@ namespace mapinect
 		void						exit();
 		virtual void				threadedFunction();
 		inline void					startDetection()		{ detectMode = true; }
-		void						newFrameAvailable();
+		void						newFrameAvailable(bool forceDetection = false);
 		void						newForcedFrameAvailable();
 
 		void						processCloud();
 
 	private:
 		PCPtr						getObjectsOnTableTopCloud();
-		PCPtr						getDifferenceCloudFromModel(const PCPtr& cloud, vector<Polygon3D>& mathModel);
+		PCPtr						getDifferenceCloudFromModel(const PCPtr& cloud);
+
+		bool						findBestFit(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved);
+		void						updateDetectedTouchPoints();
+
+		list<TrackedTouchPtr>		trackedTouchPoints;
 
 		bool						detectMode;
 		bool						isNewFrameAvailable;

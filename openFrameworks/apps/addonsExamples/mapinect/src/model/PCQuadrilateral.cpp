@@ -21,7 +21,6 @@ namespace mapinect {
 			{
 				Polygon* p = getPolygonModelObject();
 				p->setVertexs(vertexs);
-				p->sortVertexs();
 				p->setCenter(computeCentroid(cloud));
 			}
 
@@ -32,7 +31,7 @@ namespace mapinect {
 		{
 			vector<ofVec3f> vCloud = pointCloudToOfVecVector(cloud);
 
-			findOfVec3fBoundingBox(vCloud, vMin, vMax);
+			computeBoundingBox(vCloud, vMin, vMax);
 			ofVec3f center = computeCentroid(vCloud);
 
 			int ixA = 0;
@@ -94,13 +93,12 @@ namespace mapinect {
 			ofVec3f v3D(vCloud.at(ixD));
 			vertexs.push_back(v3D);
 
-			//cout << "max distance to triangle: " << distanceD << endl;
-			{
-				Polygon* p = getPolygonModelObject();
-				p->setVertexs(vertexs);
-				p->sortVertexs();
-				p->setCenter(computeCentroid(cloud));
-			}
+		//cout << "max distance to triangle: " << distanceD << endl;
+		{
+			Polygon* p = getPolygonModelObject();
+			p->setVertexs(vertexs);
+			p->setCenter(computeCentroid(cloud));
+		}
 
 			std::vector<int> indices (4);
 			indices[0] = ixA;

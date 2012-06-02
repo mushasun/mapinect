@@ -6,8 +6,8 @@
 
 #include "ModelObject.h"
 
+#include "IObject.h"
 #include "mapinectTypes.h"
-#include "Polygon3D.h"
 
 namespace mapinect {
 
@@ -20,20 +20,21 @@ namespace mapinect {
 		PCModelObject(const PCPtr& cloud, int objId = -1);
 		virtual ~PCModelObject();
 
-		virtual void draw();
+		virtual IObjectPtr			getMathModelApproximation() const;
+
+		virtual void				draw();
 
 		inline void					setTransformation (Eigen::Affine3f *_transformation) { transformation = *_transformation ;}
 		inline void					setCloud (const PCPtr& nuCloud)		{ cloud = nuCloud ;}
 		virtual void				setAndUpdateCloud (const PCPtr& cloud);
 		void						setDrawPointCloud(bool draw);
-		inline const PCPtr&			getCloud()							{ return cloud; }
-		inline bool					hasObject()							{ return modelObject != NULL; }
-		inline int					getLod()							{ return lod; }
-		virtual void				resetLod();
-		inline ofVec3f				getvMin()							{ return vMin; }
-		inline ofVec3f				getvMax()							{ return vMax; }
 
-		virtual vector<Polygon3D>	getMathModelApproximation() const = 0;
+		inline const PCPtr&			getCloud() const					{ return cloud; }
+		inline bool					hasObject()	const					{ return modelObject != NULL; }
+		inline int					getLod() const						{ return lod; }
+		virtual void				resetLod();
+		inline ofVec3f				getvMin() const						{ return vMin; }
+		inline ofVec3f				getvMax() const						{ return vMax; }
 
 		virtual void				addToModel(const PCPtr& nuCloud);
 		virtual void				detectPrimitives();

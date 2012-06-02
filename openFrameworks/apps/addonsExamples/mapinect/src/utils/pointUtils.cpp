@@ -273,9 +273,15 @@ ofVec3f normalEstimation(const PCPtr& plane)
 	//Calculo de normales
 		//Random indices
 	int sampleSize = floor (plane->points.size() * mapinect::NORMAL_ESTIMATION_PERCENT);
+	int size = plane->points.size();
 	std::vector<int> indices (sampleSize);
-	for (size_t i = 0; i < sampleSize; i++) 
-		indices[i] = rand() % plane->points.size();
+	for (size_t i = 0; i < sampleSize; i++)
+	{
+		int ix = rand() % size;
+		while (ix < 0)
+			ix += size;
+		indices[i] = ix;
+	}
 
 	pcl::PointIndices::Ptr indicesptr (new pcl::PointIndices ());
 	indicesptr->indices = indices;

@@ -1,12 +1,17 @@
 #ifndef I_POLYGON_H__
 #define I_POLYGON_H__
 
-#include "ofVec3f.h"
 #include <vector>
+#include <boost/shared_ptr.hpp>
 
-namespace mapinect {
+#include "ofVec3f.h"
+#include "Polygon3D.h"
 
-	typedef enum {
+namespace mapinect
+{
+	typedef enum
+	{
+		kPolygonNameUnknown = -1,
 		kPolygonNameTop = 0,
 		kPolygonNameSideA,
 		kPolygonNameSideB,
@@ -15,21 +20,20 @@ namespace mapinect {
 		kPolygonNameBottom
 	} IPolygonName;
 	
-	class IObject;
+	class IPolygon;
+	typedef boost::shared_ptr<IPolygon> IPolygonPtr;
 
-	class IPolygon {
+	class IObject;
+	typedef boost::shared_ptr<IObject> IObjectPtr;
+
+	class IPolygon
+	{
 		public:
 
-			virtual int						getId() = 0;
-			
-			virtual const ofVec3f&			getCenter() = 0;
-			virtual const ofVec3f&			getScale() = 0;
-			virtual const ofVec3f&			getRotation() = 0;
-			virtual const ofVec3f&			getNormal() = 0;
-
-			virtual const IObject*			getContainer() = 0;
-			virtual const IPolygonName&		getName() = 0;
-			virtual const vector<ofVec3f>&	getVertexs() = 0;
+			virtual int						getId() const = 0;
+			virtual const Polygon3D&		getMathModel() const = 0;
+			virtual const IObjectPtr&		getContainer() const = 0;
+			virtual const IPolygonName&		getName() const = 0;
 
 	};
 }

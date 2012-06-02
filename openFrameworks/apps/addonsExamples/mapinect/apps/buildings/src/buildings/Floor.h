@@ -1,9 +1,9 @@
 #ifndef FLOOR_H__
 #define FLOOR_H__
 
-#include "ofGraphics.h"
-#include "PCPolygon.h"
+#include "IPolygon.h"
 #include "ITxManager.h"
+#include "ofGraphics.h"
 
 using namespace mapinect;
 
@@ -11,17 +11,18 @@ namespace buildings {
 
 	class Floor {
 	public:
-		Floor(const TablePtr& modelObject)				{ this->modelObject = modelObject; }
-		virtual ~Floor()						{ }
+		Floor(const IPolygonPtr& modelObject)					{ this->modelObject = modelObject; }
+		virtual ~Floor()										{ }
 
-		inline const TablePtr& getModelObject() const { return modelObject; }
+		inline const IPolygonPtr& getModelObject() const		{ return modelObject; }
+		inline void updateModelObject(const IPolygonPtr& p)		{ modelObject = p; }
 
 		virtual void	draw(const ITxManager* txManager);
 
 		static GLuint	floorTexture;
 
 	private:
-		TablePtr		modelObject;
+		IPolygonPtr		modelObject;
 	};
 }
 

@@ -4,6 +4,7 @@
 #include "EventManager.h"
 #include "Feature.h"
 #include "Globals.h"
+#include "log.h"
 #include "Model.h"
 #include "ofxKinect.h"
 #include "TxManager.h"
@@ -70,13 +71,13 @@ namespace mapinect {
 			gKinect->update();
 			isKinectFrameNew = gKinect->isFrameNew();
 		}
-
+		
 		cv.update(isKinectFrameNew);
 		pcm.update(isKinectFrameNew);
 		arduino.update();
 
 		EventManager::fireEvents(app);
-
+		
 		app->update();
 	}
 
@@ -86,12 +87,14 @@ namespace mapinect {
 		cv.draw();
 		pcm.draw();
 		app->debugDraw();
-
+		
 		ofSetHexColor(0);
 		stringstream reportStream;
 		reportStream
-			<< "fps: " << ofGetFrameRate() << endl;
-		ofDrawBitmapString(reportStream.str(),20,646);
+			<< "           fps: " << ofGetFrameRate() << endl
+			<< "    pcm thread: " << getPCMThreadStatus() << endl
+			<< "objects thread: " << getObjectsThreadStatus() << endl;
+		ofDrawBitmapString(reportStream.str(), 20, 520);
 	}
 
 	//--------------------------------------------------------------

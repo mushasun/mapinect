@@ -15,8 +15,6 @@ namespace mapinect {
 			virtual void		resetLod();
 			virtual void		increaseLod();
 			
-			vector<Polygon3D>	getMathModelApproximation() const { return vector<Polygon3D>(); }
-
 			inline const vector<ofVec3f>& getFingerTips() { return fingerTips; }
 			void				addToModel(const PCPtr& cloud);
 		private:

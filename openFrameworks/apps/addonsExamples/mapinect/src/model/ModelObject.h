@@ -1,8 +1,6 @@
 #ifndef MAPINECT_MODELOBJECT_H__
 #define MAPINECT_MODELOBJECT_H__
 
-#include "IObject.h"
-
 #include "mapinectTypes.h"
 
 namespace mapinect {
@@ -19,15 +17,15 @@ namespace mapinect {
 			void drawObject();
 			virtual void draw() = 0;
 
-			inline virtual const ofVec3f&	getCenter()								{ return vCenter; }
+			inline virtual const ofVec3f&	getCenter() const						{ return vCenter; }
 			inline void						setCenter(const ofVec3f& center)		{ vCenter = center; }
-			inline virtual const ofVec3f&	getScale()								{ return vScale; }
+			inline virtual const ofVec3f&	getScale() const						{ return vScale; }
 			inline void						setScale(const ofVec3f& scale)			{ vScale = scale; }
-			inline virtual const ofVec3f&	getRotation()							{ return vRotation; }
+			inline virtual const ofVec3f&	getRotation() const						{ return vRotation; }
 			inline void						setRotation(const ofVec3f& rotation)	{ vRotation = rotation; }
-			inline int						getColor()								{ return color; }
+			inline int						getColor() const 						{ return color; }
 			inline void						setColor(int color)						{ this->color = color; }
-			inline virtual int				getId()									{ return objId; }
+			inline virtual int				getId() const							{ return objId; }
 			inline void						setId(int id)							{ objId = id; }
 
 		private:

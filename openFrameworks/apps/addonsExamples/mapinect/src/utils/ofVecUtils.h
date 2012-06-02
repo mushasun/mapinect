@@ -9,18 +9,7 @@
 
 extern ofVec3f BAD_OFVEC3F;
 
-void findOfVec3fBoundingBox(const std::vector<ofVec3f>& v, ofVec3f &vMin, ofVec3f &vMax);
-
-
-enum DiscardCoordinate {
-	kDiscardCoordinateX,
-	kDiscardCoordinateY,
-	kDiscardCoordinateZ
-};
-
-DiscardCoordinate calculateDiscardCoordinate(const ofVec3f& normal);
-DiscardCoordinate calculateDiscardCoordinate(const vector<ofVec3f>& v);
-ofVec2f discardCoordinateOfVec3f(const ofVec3f& v, DiscardCoordinate discard);
+void computeBoundingBox(const std::vector<ofVec3f>& v, ofVec3f& min, ofVec3f& max);
 
 template<class T>
 T computeNormal(const vector<T>& v)
@@ -48,13 +37,6 @@ T computeCentroid(const vector<T>& v)
 }
 
 inline ofVec3f scaleFromMtsToMms(const ofVec3f& p) { return p * 1000; }
-
-bool sortOnY(const ofVec3f& l, const ofVec3f& r);
-
-bool sortOnX(const ofVec3f& l, const ofVec3f& r);
-
-bool sortOnZ(const ofVec3f& l, const ofVec3f& r);
-
 
 template<class T>
 int indexOf(const std::vector<T>& v, const T& t)
@@ -135,17 +117,6 @@ std::vector<PairMatching> bestMatching(const std::vector<T>& vA, const std::vect
 	}
 
 	return result;
-}
-
-template<class T>
-T average(const std::vector<T>& v) {
-	T avg;
-	for (int i = 0; i < v.size(); i++) {
-		T vi(v[i]);
-		avg += vi;
-	}
-	avg /= (float)(v.size());
-	return avg;
 }
 
 #define SORT_ON_PROP(T, method, prop, compare) \

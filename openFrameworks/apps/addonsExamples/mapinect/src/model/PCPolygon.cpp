@@ -14,16 +14,10 @@
 
 namespace mapinect {
 
-	bool xAxisSort (PCPolygonPtr i,PCPolygonPtr j) 
-	{ 
-		return i->getCenter().x < j->getCenter().x;
-	}
-
-
 	PCPolygon::PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId, bool estimated)
 		: PCModelObject(cloud, objId)
 	{
-		//Corrijo normal
+		// Point the normal towards the viewpoint
 		this->coefficients = coefficients;
 		this->estimated = estimated;
 		if(!estimated)
@@ -39,18 +33,16 @@ namespace mapinect {
 			}
 		}
 		matchedArea = numeric_limits<float>::max();
-		modelObject = ModelObjectPtr(new Polygon());
+		modelObject = ModelObjectPtr(new Polygon(coefficients));
 	}
 
 	PCPolygon::~PCPolygon() {
 		removeMatching();
 	}
 
-	vector<Polygon3D> PCPolygon::getMathModelApproximation() const
+	IPolygonPtr PCPolygon::getMathPolygonModelApproximation() const
 	{
-		vector<Polygon3D> result;
-		Polygon3D polygon(getPolygonModelObject()->getMathPolygon());
-		result.push_back(polygon);
+		IPolygonPtr result(getPolygonModelObject()->clone());
 		return result;
 	}
 
@@ -75,7 +67,7 @@ namespace mapinect {
 		if (drawPointCloud) {
 			if (getPolygonModelObject() != NULL) {
 				ofSetColor(255,0,0);
-				ofVec3f avg = average(getPolygonModelObject()->getVertexs());
+				ofVec3f avg = computeCentroid(getPolygonModelObject()->getMathModel().getVertexs());
 				ofVec3f sAvg = gKinect->getScreenCoordsFromWorldCoords(avg);
 				ofDrawBitmapString(ofToString(getId()), sAvg.x, sAvg.y);
 			}
@@ -104,7 +96,7 @@ namespace mapinect {
 		saveCloudAsFile("postTransform.pcd",*cloud);
 
 		Eigen::Vector3f eVec(coefficients.values.at(0),coefficients.values.at(1),coefficients.values.at(2));
-		vector<ofVec3f> vertexs = getPolygonModelObject()->getVertexs();
+		vector<ofVec3f> vertexs = getPolygonModelObject()->getMathModel().getVertexs();
 		
 		Eigen::Vector3f pointInPlane(0,0,-coefficients.values.at(3)/coefficients.values.at(2));//(0,0,-d/c)
 
@@ -201,10 +193,10 @@ namespace mapinect {
 	void PCPolygon::updateMatching() {
 		if (hasMatching()) {
 			vector<PairMatching> bestMatch = bestMatching(
-				getPolygonModelObject()->getVertexs(),
-				matched->getPolygonModelObject()->getVertexs(),
+				getPolygonModelObject()->getMathModel().getVertexs(),
+				matched->getPolygonModelObject()->getMathModel().getVertexs(),
 				distanceBetween);
-			vector<ofVec3f> matchedVertexs(matched->getPolygonModelObject()->getVertexs());
+			vector<ofVec3f> matchedVertexs(matched->getPolygonModelObject()->getMathModel().getVertexs());
 			for (int i = 0; i < bestMatch.size(); i++) {
 				getPolygonModelObject()->setVertex(bestMatch[i].ixA, matchedVertexs.at(bestMatch[i].ixB));
 			}

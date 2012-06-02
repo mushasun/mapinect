@@ -11,7 +11,7 @@ namespace mapinect {
 	void startMapinect(IApplication* app) {
 
 		ofAppGlutWindow window;
-		ofSetupOpenGL(&window, 1024,768, OF_WINDOW);			// <-------- setup the GL context
+		ofSetupOpenGL(&window, 680,720, OF_WINDOW);			// <-------- setup the GL context
 
 		mapinectApp* mapApp = new mapinectApp(app);
 	

@@ -20,6 +20,7 @@
 #include "ofUtils.h"
 
 #include "Constants.h"
+#include "DataObject.h"
 #include "Globals.h"
 #include "ofVecUtils.h"
 #include "PCQuadrilateral.h"
@@ -35,6 +36,21 @@ namespace mapinect {
 				: PCModelObject(cloud, objId)
 	{
 		partialEstimation = false;
+	}
+
+	IObjectPtr PCPolyhedron::getMathModelApproximation() const
+	{
+		vector<IPolygonPtr> polygons;
+		for (vector<PCPolygonPtr>::const_iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
+		{
+			polygons.push_back((*p)->getMathPolygonModelApproximation());
+		}
+		IObjectPtr result(new DataObject(getId(), getCenter(), getScale(), getRotation(), polygons));
+		for (vector<IPolygonPtr>::iterator p = polygons.begin(); p != polygons.end(); ++p)
+		{
+			dynamic_cast<Polygon*>(p->get())->setContainer(result);
+		}
+		return result;
 	}
 
 	vector<PCPolygonPtr> PCPolyhedron::mergePolygons(vector<PCPolygonPtr>& toMerge) {
@@ -299,7 +315,6 @@ namespace mapinect {
 
 					PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, cloud_p_filtered));
 					pcp->detectPolygon();
-					pcp->getPolygonModelObject()->setContainer(this);
 			
 					nuevos.push_back(pcp);
 				}
@@ -403,7 +418,6 @@ namespace mapinect {
 
 				PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projected_cloud));
 				pcp->detectPolygon();
-				pcp->getPolygonModelObject()->setContainer(this);
 			
 				nuevos.push_back(pcp);
 			
@@ -415,10 +429,12 @@ namespace mapinect {
 		return nuevos;
 	}
 
+	SORT_ON_PROP(T, CenterXAsc, get()->getCenter().x, <)
+
 	void PCPolyhedron::namePolygons(vector<PCPolygonPtr>& toName)
 	{
 		int sideFacesName = 1;
-		sort(toName.begin(), toName.end(), xAxisSort);
+		sort(toName.begin(), toName.end(), sortOnCenterXAsc<PCPolygonPtr>);
 		for(int i = 0; i < toName.size(); i++)
 		{
 			ofxScopedMutex osm(gModel->tableMutex);
@@ -454,10 +470,12 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::unifyVertexs() {
-		typedef struct {
+		struct VertexInPCPolygon
+		{
+			VertexInPCPolygon(PCPolygon* pcp, int vertex) : pcp(pcp), vertex(vertex) { }
 			PCPolygon*		pcp;
 			int				vertex;
-		} VertexInPCPolygon;
+		};
 		vector<VertexInPCPolygon> updateVertexs;
 
 		for (vector<PCPolygonPtr>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end();) {
@@ -469,23 +487,19 @@ namespace mapinect {
 				return;
 			}
 
-			for (int j = 0; j < polygon->getVertexs().size(); j++) {
+			for (int j = 0; j < polygon->getMathModel().getVertexs().size(); j++) {
 				updateVertexs.clear();
-				VertexInPCPolygon vpp;
-				vpp.pcp = iter->get();
-				vpp.vertex = j;
+				VertexInPCPolygon vpp(iter->get(), j);
 				updateVertexs.push_back(vpp);
-				ofVec3f v(polygon->getVertexs()[j]);
+				ofVec3f v(polygon->getMathModel().getVertexs()[j]);
 
 				for (vector<PCPolygonPtr>::iterator iter2 = iter; iter2 != pcpolygons.end(); iter2++) {
 					Polygon* polygon2 = (*iter2)->getPolygonModelObject();
-					for (int k = 0; k < polygon2->getVertexs().size(); k++) {
-						ofVec3f v2(polygon2->getVertexs()[k]);
+					for (int k = 0; k < polygon2->getMathModel().getVertexs().size(); k++) {
+						ofVec3f v2(polygon2->getMathModel().getVertexs()[k]);
 						if (!(v == v2)
-							&& polygon->getVertexs()[j].distance(polygon2->getVertexs()[k]) <= MAX_UNIFYING_DISTANCE) {
-							VertexInPCPolygon vpp2;
-							vpp2.pcp = iter2->get();
-							vpp2.vertex = k;
+							&& polygon->getMathModel().getVertexs()[j].distance(polygon2->getMathModel().getVertexs()[k]) <= MAX_UNIFYING_DISTANCE) {
+							VertexInPCPolygon vpp2(iter2->get(), k);
 							updateVertexs.push_back(vpp2);
 						}
 					}
@@ -495,7 +509,7 @@ namespace mapinect {
 					//Vertex vx;
 					ofVec3f avg(0, 0, 0);
 					for (int i = 0; i < updateVertexs.size(); i++) {
-						avg += updateVertexs.at(i).pcp->getPolygonModelObject()->getVertexs()[updateVertexs.at(i).vertex];
+						avg += updateVertexs.at(i).pcp->getPolygonModelObject()->getMathModel().getVertexs()[updateVertexs.at(i).vertex];
 					}
 					avg /= updateVertexs.size();
 					for (int i = 0; i < updateVertexs.size(); i++) {
@@ -673,17 +687,6 @@ namespace mapinect {
 	void PCPolyhedron::setAndUpdateCloud(const PCPtr& cloud)
 	{
 		setCloud(cloud);
-	}
-
-	vector<Polygon3D> PCPolyhedron::getMathModelApproximation() const
-	{
-		vector<Polygon3D> result;
-		for (vector<PCPolygonPtr>::const_iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
-		{
-			vector<Polygon3D> pcmp((*p)->getMathModelApproximation());
-			result.insert(result.begin(), pcmp.begin(), pcmp.end());
-		}
-		return result;
 	}
 
 	const IPolygon* PCPolyhedron::getPolygon(const IPolygonName& name)
