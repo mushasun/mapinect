@@ -9,7 +9,7 @@ namespace bouncing
 	{
 		visited = true;
 		sound.loadSound("sounds/sound" + ofToString(soundId) + ".mp3");
-		modelObject = NULL;
+		modelObject.reset();
 		lastTime = 0;
 		colorBoost = 0;
 	}
@@ -45,28 +45,27 @@ namespace bouncing
 	{
 		if(modelObject != NULL)
 		{
-			for (int i = 0; i < modelObject->getPCPolygonSize(); i++)
+			for (int i = 0; i < modelObject->getPolygons().size(); i++)
 			{
-				mapinect::Polygon* poly = modelObject->getPCPolygon(i)->getPolygonModelObject();
+				IPolygonPtr poly = modelObject->getPolygons()[i];
 				ofVec3f boostedColor = color + colorBoost;
 				ofSetColor(boostedColor.x, boostedColor.y, boostedColor.z);
 				ofDrawQuadTextured(
-					poly->getVertexs()[0],
-					poly->getVertexs()[1],
-					poly->getVertexs()[2],
-					poly->getVertexs()[3]);
+					poly->getMathModel().getVertexs()[0],
+					poly->getMathModel().getVertexs()[1],
+					poly->getMathModel().getVertexs()[2],
+					poly->getMathModel().getVertexs()[3]);
 			}
 		}
 		else if (modelObjectTable != NULL)
 		{
 			ofVec3f boostedColor = color + colorBoost;
 			ofSetColor(boostedColor.x, boostedColor.y, boostedColor.z);
-			mapinect::Polygon* poly = modelObjectTable->getPolygonModelObject();
 			ofDrawQuadTextured(
-				poly->getVertexs()[0],
-				poly->getVertexs()[1],
-				poly->getVertexs()[2],
-				poly->getVertexs()[3]);
+				modelObjectTable->getMathModel().getVertexs()[0],
+				modelObjectTable->getMathModel().getVertexs()[1],
+				modelObjectTable->getMathModel().getVertexs()[2],
+				modelObjectTable->getMathModel().getVertexs()[3]);
 		}
 	}
 

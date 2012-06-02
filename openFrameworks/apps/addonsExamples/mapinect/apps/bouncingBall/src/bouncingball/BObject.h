@@ -19,8 +19,8 @@ namespace bouncing {
 			inline void clearSegments()								{ segments.clear(); }
 			inline void addSegment(const Segment3D& s)				{ segments.push_back(s); }
 			inline int getId()										{ return id; }
-			inline void setModelObject(PCPolyhedron* p)				{ modelObject = p; }
-			inline void setModelObject(PCPolygon* t)					{ modelObjectTable = t; }
+			inline void setModelObject(const IObjectPtr& p)			{ modelObject = p; }
+			inline void setModelObject(const IPolygonPtr& t)		{ modelObjectTable = t; }
 			inline const vector<Segment3D>& getSegments()			{ return segments; }
 			bool visited;
 			ofSoundPlayer sound;
@@ -32,8 +32,8 @@ namespace bouncing {
 			vector<Segment3D>		segments;
 			ofVec3f					color;
 			int						id;
-			PCPolyhedron*			modelObject;
-			PCPolygon*				modelObjectTable;
+			IObjectPtr				modelObject;
+			IPolygonPtr				modelObjectTable;
 			int						colorBoost;
 			float					lastTime;
 			//string				sound;
