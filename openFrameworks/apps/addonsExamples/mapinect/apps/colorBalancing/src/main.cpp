@@ -1,4 +1,4 @@
-#include "ColorBalancing\ColorBalancing.h"
+#include "ColorBalancing.h"
 #include "IMapinect.h"
 
 //========================================================================

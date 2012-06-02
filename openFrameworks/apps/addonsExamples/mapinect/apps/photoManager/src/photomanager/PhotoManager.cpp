@@ -1,10 +1,5 @@
 #include "PhotoManager.h"
 
-#include "utils.h"
-#include "winUtils.h"
-#include "Model.h"
-#include "PCPolyhedron.h"
-
 #include "Globals.h"
 
 namespace photo {

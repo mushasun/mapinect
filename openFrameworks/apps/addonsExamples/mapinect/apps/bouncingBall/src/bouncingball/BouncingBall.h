@@ -25,6 +25,10 @@ namespace bouncing {
 
 		virtual void debugDraw();
 	
+		virtual void objectDetected(const IObjectPtr&);
+		virtual void objectUpdated(const IObjectPtr&);
+		virtual void objectLost(const IObjectPtr&);
+
 	private:
 		bool tableSetted;
 		Tejo ball;

@@ -1,8 +1,6 @@
 #include "BouncingBall.h"
 
 #include "Constants.h"
-#include "Globals.h"
-#include "PCPolyhedron.h"
 
 namespace bouncing {
 
@@ -142,110 +140,14 @@ namespace bouncing {
 
 	//--------------------------------------------------------------
 	void BouncingBall::update() {
-		if(!tableSetted)
-		{
-			ofxScopedMutex osm(gModel->tableMutex);
-			if(gModel->getTable().get() != NULL)
-			{
-				mapinect::Polygon* t = gModel->getTable()->getPolygonModelObject();
-				ofVec3f vA, vB, vC, vD;
-				vA = t->getVertexs()[0];
-				vB = t->getVertexs()[1];
-				vC = t->getVertexs()[2];
-				vD = t->getVertexs()[3];
-					
-				ofVec3f center = t->getCenter();
-				ofVec3f w = ((vA - vC).getCrossed(vA - vD)).normalize();//gon->getNormal();
-				tableNormal = w;
-				tableCenter = center;
-
-				ofVec3f ballDir = w;
-				ballDir.cross(vC - vA);
-				ballDir.rotate(10,w);
-				ballDir *= -1;
-					//-(w.cross(vC - vA)).rotate(10,w);
-					
-				ball = Tejo(center,0.005,ballDir,0.0025,w,tableCenter);
-				Segment3D s1(vA,vB,w,center);
-				Segment3D s2(vB,vC,w,center);
-				Segment3D s3(vC,vD,w,center);
-				Segment3D s4(vD,vA,w,center);
-					
-				tableSegment3Ds.push_back(s1);
-				tableSegment3Ds.push_back(s2);
-				tableSegment3Ds.push_back(s3);
-				tableSegment3Ds.push_back(s4);
-				table = new BObject(tableSegment3Ds, ofVec3f(255,255,255), -1,0);
-				table->setModelObject(gModel->getTable().get());
-				//segments.push_back(s5);
-				//segments.push_back(s6);
-				bobjects.push_back(table);
-				tableSetted = true;
-			}
-		}
-		else
+		if(tableSetted)
 		{
 			for (int j = 0; j < bobjects.size();j++)
 				bobjects.at(j)->visited = false;
 
-			ofxScopedMutex osm(gModel->objectsMutex);
-			if (gModel->getObjects().size() > 0) 
-			{
-				int objs = 1;
-				for(vector<mapinect::ModelObjectPtr>::const_iterator k = gModel->getObjects().begin(); 
-					k != gModel->getObjects().end(); k++)
-				{
-					PCPolyhedron* hedron = (PCPolyhedron*)(k->get());
-					int hedronId = hedron->getId();
-					BObject* curObj = getBObject(hedronId);
-					curObj->clearSegments();
-					curObj->update();
-					vector<ofVec3f> vecsproj;
-					
-					curObj->setModelObject(hedron);
-					for (int i=0; i<hedron->getPCPolygonSize();i++)
-					{
-						ofVec3f objCenter = hedron->getCenter();
-						PCPolygonPtr gon = hedron->getPCPolygon(i);
-						if (gon->hasObject()) 
-						{
-							mapinect::Polygon* q = gon->getPolygonModelObject();
-							
-							for(int i = 0; i < 4;i++)
-							{
-								ofVec3f v = q->getVertexs()[i];
-
-								ofVec3f dif = v - tableCenter;
-								ofVec3f proj = dif.dot(tableNormal) * tableNormal;
-								v = v - proj;
-								vecsproj.push_back(v);
-							}
-						}			
-					}	
-					ofVec3f centroid;
-					vector<ofVec3f> vecsprojunified = unifyVertex(vecsproj,centroid);
-					if(vecsprojunified.size() > 2)
-					{
-						for(int i = 0; i < vecsprojunified.size() - 1; i++)
-						{
-							for(int j = i + 1; j < vecsprojunified.size(); j++)
-							{
-								Segment3D s1 = Segment3D(vecsprojunified.at(i),vecsprojunified.at(j),tableNormal,centroid,true);			
-								curObj->addSegment(s1);
-							}
-						}
-					}
-					else if (vecsprojunified.size() == 2)
-					{
-						Segment3D s1 = Segment3D(vecsprojunified.at(0),vecsprojunified.at(1),tableNormal,tableCenter,true,true);			
-						curObj->addSegment(s1);
-					}
-				}
-			}
 			ball.update(bobjects);
 		}
 		clearUnvisitedObjects();
-		
 		
 	}
 
@@ -276,6 +178,96 @@ namespace bouncing {
 
 	//--------------------------------------------------------------
 	void BouncingBall::windowResized(int w, int h)
+	{
+	}
+
+	void BouncingBall::objectDetected(const IObjectPtr& object)
+	{
+		if (object->getId() == TABLE_ID)
+		{
+			ofVec3f vA, vB, vC, vD;
+			Polygon3D p(object->getPolygons()[0]->getMathModel());
+			vA = p.getVertexs()[0];
+			vB = p.getVertexs()[1];
+			vC = p.getVertexs()[2];
+			vD = p.getVertexs()[3];
+					
+			ofVec3f center = computeCentroid(p.getVertexs());
+			ofVec3f w = ((vA - vC).getCrossed(vA - vD)).normalize();//gon->getNormal();
+			tableNormal = w;
+			tableCenter = center;
+
+			ofVec3f ballDir = w;
+			ballDir.cross(vC - vA);
+			ballDir.rotate(10,w);
+			ballDir *= -1;
+				//-(w.cross(vC - vA)).rotate(10,w);
+					
+			ball = Tejo(center,0.005,ballDir,0.0025,w,tableCenter);
+			Segment3D s1(vA,vB,w,center);
+			Segment3D s2(vB,vC,w,center);
+			Segment3D s3(vC,vD,w,center);
+			Segment3D s4(vD,vA,w,center);
+					
+			tableSegment3Ds.push_back(s1);
+			tableSegment3Ds.push_back(s2);
+			tableSegment3Ds.push_back(s3);
+			tableSegment3Ds.push_back(s4);
+			table = new BObject(tableSegment3Ds, ofVec3f(255,255,255), -1,0);
+			table->setModelObject(object);
+			//segments.push_back(s5);
+			//segments.push_back(s6);
+			bobjects.push_back(table);
+			tableSetted = true;
+		}
+		else
+		{
+			int id = object->getId();
+			BObject* curObj = getBObject(id);
+			curObj->clearSegments();
+			curObj->update();
+			curObj->setModelObject(object);
+
+			vector<ofVec3f> vecsproj;
+			for (int i = 0; i < object->getPolygons().size(); i++)
+			{
+				ofVec3f objCenter = object->getCenter();
+				IPolygonPtr gon = object->getPolygons()[i];
+				for(int i = 0; i < 4;i++)
+				{
+					ofVec3f v = gon->getMathModel().getVertexs()[i];
+					ofVec3f dif = v - tableCenter;
+					ofVec3f proj = dif.dot(tableNormal) * tableNormal;
+					v = v - proj;
+					vecsproj.push_back(v);
+				}
+			}	
+			ofVec3f centroid;
+			vector<ofVec3f> vecsprojunified = unifyVertex(vecsproj, centroid);
+			if(vecsprojunified.size() > 2)
+			{
+				for(int i = 0; i < vecsprojunified.size() - 1; i++)
+				{
+					for(int j = i + 1; j < vecsprojunified.size(); j++)
+					{
+						Segment3D s1 = Segment3D(vecsprojunified.at(i),vecsprojunified.at(j),tableNormal,centroid,true);			
+						curObj->addSegment(s1);
+					}
+				}
+			}
+			else if (vecsprojunified.size() == 2)
+			{
+				Segment3D s1 = Segment3D(vecsprojunified.at(0),vecsprojunified.at(1),tableNormal,tableCenter,true,true);			
+				curObj->addSegment(s1);
+			}
+		}
+	}
+
+	void BouncingBall::objectUpdated(const IObjectPtr& object)
+	{
+	}
+
+	void BouncingBall::objectLost(const IObjectPtr& object)
 	{
 	}
 
