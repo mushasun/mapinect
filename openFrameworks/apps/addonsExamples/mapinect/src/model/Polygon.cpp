@@ -28,7 +28,7 @@ namespace mapinect {
 	void Polygon::setVertexs(const vector<ofVec3f>& v)
 	{
 		vector<ofVec3f> vertexs(v);
-		sort(vertexs.begin(), vertexs.end(), SortPolar(vertexs));
+		//sort(vertexs.begin(), vertexs.end(), SortPolar(vertexs));
 		mathModel.setVertexs(vertexs);
 	}
 

@@ -43,7 +43,7 @@ namespace mapinect {
 
 			PCPolygonPtr		matched;
 			float				matchedEstimator;
-			float				matchedArea;
+			float				matchedDistance;
 			bool				estimated;
 			Eigen::Affine3f		matchingTransformation;
 

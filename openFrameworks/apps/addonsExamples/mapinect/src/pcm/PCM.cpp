@@ -3,7 +3,6 @@
 #include "Feature.h"
 #include "Globals.h"
 #include "log.h"
-#include "ofGraphicsUtils.h"
 #include "utils.h"
 
 using namespace std;
@@ -15,6 +14,7 @@ namespace mapinect {
 
 		pcmThread.setup();
 		drawPC = false;
+		calibratedTex.allocate(gKinect->width, gKinect->height,GL_RGB); 
 	}
 
 	//--------------------------------------------------------------
@@ -47,6 +47,16 @@ namespace mapinect {
 		}
 		else {
 			gKinect->drawDepth(0, 0, KINECT_DEFAULT_WIDTH, KINECT_DEFAULT_HEIGHT);
+
+			if(IsFeatureActive(FEATURE_SHOW_RGB))
+			{
+				ofEnableAlphaBlending();
+				ofSetColor(255,255,255,128);
+				calibratedTex.loadData(gKinect->getCalibratedRGBPixels(),640,480,GL_RGB); 
+				calibratedTex.draw(0,0); 
+				ofDisableAlphaBlending();
+			}
+
 			ofResetColor();
 			ofPushMatrix();
 			{

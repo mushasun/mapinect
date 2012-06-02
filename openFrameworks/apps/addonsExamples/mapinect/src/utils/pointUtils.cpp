@@ -612,9 +612,9 @@ bool saveCloudAsFile(const string& filename, const PC& cloud)
 {
 	if (!mapinect::IsFeatureSaveCloudActive())
 		return false;
-		cout << "saving cloud: " << filename << endl;
-		if (cloud.empty ())
-			return false;
+	//cout << "saving cloud: " << filename << endl;
+	if (cloud.empty ())
+		return false;
 	
 	if(cloud.width * cloud.height != cloud.points.size())
 	{
@@ -685,13 +685,13 @@ vector<ofVec3f> projectPointsInPlane(const vector<Eigen::Vector3f>& points, cons
 vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& coefficients) 
 { 
 	vector<Eigen::Vector3f> corners; 
-	saveCloudAsFile("toproject.pcd",*cloud);
+	//saveCloudAsFile("toproject.pcd",*cloud);
 	pcl::ModelCoefficients::Ptr coeff (new pcl::ModelCoefficients(coefficients));
 	// Project points onto the table plane 
 
 	PC projected_cloud = *cloud; 
 
-	saveCloudAsFile("projected.pcd",projected_cloud);
+	//saveCloudAsFile("projected.pcd",projected_cloud);
 
 	pcl::PointXYZ pto = cloud->at(1);
 	float val = coefficients.values[0] * pto.x + 
@@ -753,9 +753,11 @@ vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& 
 	} 
 	/*Eigen::Vector3f center(rrect.center.x*u + rrect.center.y*v + p0); 
 	corners.push_back(center); */
+
+	//Ver si se puede eliminar esto.
 	vector<ofVec3f> vecCorners = projectPointsInPlane(corners,coefficients);
 
-	saveCloudAsFile("projectedrectangle.pcd",vecCorners);
+	//saveCloudAsFile("projectedrectangle.pcd",vecCorners);
 	return vecCorners; 
 } 
 

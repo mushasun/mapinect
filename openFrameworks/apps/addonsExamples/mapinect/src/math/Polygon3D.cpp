@@ -55,7 +55,7 @@ namespace mapinect
 	void Polygon3D::setVertex(int pos, const ofVec3f& v)
 	{
 		assert(pos <= vertexs.size());
-		assert(plane.distance(v) < MATH_EPSILON);
+		//assert(plane.distance(v) < MATH_EPSILON);
 		vertexs[pos] = v;
 		init();
 	}
@@ -63,8 +63,8 @@ namespace mapinect
 	void Polygon3D::setVertexs(const vector<ofVec3f>& newVertexs)
 	{
 		vertexs = newVertexs;
-		for (vector<ofVec3f>::iterator v = vertexs.begin(); v != vertexs.end(); ++v)
-			*v = plane.project(*v);
+		/*for (vector<ofVec3f>::iterator v = vertexs.begin(); v != vertexs.end(); ++v)
+			*v = plane.project(*v);*/
 		init();
 	}
 

@@ -32,7 +32,7 @@ namespace mapinect {
 				this->coefficients = plane.getCoefficients();
 			}
 		}
-		matchedArea = numeric_limits<float>::max();
+		matchedDistance = numeric_limits<float>::max();
 		modelObject = ModelObjectPtr(new Polygon(coefficients));
 	}
 
@@ -150,18 +150,18 @@ namespace mapinect {
 				ofVec3f v1 (myCentroid.x(),myCentroid.y(),myCentroid.z());
 				ofVec3f v2 (yourCentroid.x(),yourCentroid.y(),yourCentroid.z());
 
-				float areaEstimator = abs((v1 - v2).length());
-				cout << "size: " << areaEstimator << endl;
-				if(matched == NULL || (areaEstimator < 0.2 && areaEstimator < matchedArea))
+				float distEstimator = abs((v1 - v2).length());
+				cout << "size: " << distEstimator << endl;
+				if(matched == NULL || (distEstimator < 0.2 && distEstimator < matchedDistance))
 				{
 					wasRemoved = matched != NULL;
 					removed = matched;
 					matched = polygon;
 					matchedEstimator = estimator;
-					matchedArea = areaEstimator;
+					matchedDistance = distEstimator;
 					
-					saveCloudAsFile("original" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
-					saveCloudAsFile("matched" + ofToString(this->getPolygonModelObject()->getName()) + "m.pcd", *polygon->getCloud());
+					/*saveCloudAsFile("original" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
+					saveCloudAsFile("matched" + ofToString(this->getPolygonModelObject()->getName()) + "m.pcd", *polygon->getCloud());*/
 
 
 					////Establezco la transformacion
@@ -192,31 +192,43 @@ namespace mapinect {
 
 	void PCPolygon::updateMatching() {
 		if (hasMatching()) {
-			vector<PairMatching> bestMatch = bestMatching(
-				getPolygonModelObject()->getMathModel().getVertexs(),
-				matched->getPolygonModelObject()->getMathModel().getVertexs(),
-				distanceBetween);
-			vector<ofVec3f> matchedVertexs(matched->getPolygonModelObject()->getMathModel().getVertexs());
-			for (int i = 0; i < bestMatch.size(); i++) {
-				getPolygonModelObject()->setVertex(bestMatch[i].ixA, matchedVertexs.at(bestMatch[i].ixB));
+			const float NORMAL_TOLERANCE = PI / 6.0;
+			const float DISTANCE_TOLERANCE = 0.005;
+			if(matchedEstimator > NORMAL_TOLERANCE || 
+			   matchedDistance > DISTANCE_TOLERANCE ||	
+			   this->cloud->size() < matched->getCloud()->size())			//Evita perder puntos por oclusión
+			{
+				//Actualizo Vertices
+				vector<PairMatching> bestMatch = bestMatching(
+					getPolygonModelObject()->getMathModel().getVertexs(),
+					matched->getPolygonModelObject()->getMathModel().getVertexs(),
+					distanceBetween);
+				vector<ofVec3f> matchedVertexs(matched->getPolygonModelObject()->getMathModel().getVertexs());
+				Plane3D matchedPlane = matched->getPolygonModelObject()->getMathModel().getPlane();
+
+				/*for (int i = 0; i < bestMatch.size(); i++) {
+					getPolygonModelObject()->setVertex(bestMatch[i].ixA, matchedVertexs.at(bestMatch[i].ixB));
+				}*/
+				getPolygonModelObject()->setVertexs(matchedVertexs);
+
+				getPolygonModelObject()->getMathModel().setPlane(matchedPlane);
+
+				//actualizo coeficientes
+				coefficients.header = matched->coefficients.header;
+				coefficients.values = matched->coefficients.values;
+
+				saveCloudAsFile("pcpolygonOri" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
+				saveCloudAsFile("pcpolygonMatch" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *matched->getCloud());
+			
+				//Actualizo nube
+				this->cloud = matched->getCloud();
 			}
+			else
+				cout << "mantengo la misma nube - " << ofToString(this->getPolygonModelObject()->getName()) << endl;
 
-			coefficients.header = matched->coefficients.header;
-			coefficients.values = matched->coefficients.values;
+			//this->cloud = matched->getCloud();
 
-			saveCloudAsFile("pcpolygon" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
-
-			const float NORMAL_TOLERANCE = PI / 8.0;
-
-			//if(matchedEstimator > NORMAL_TOLERANCE ||				//Evita perder puntos por oclusión
-			//   this->cloud->size() < matched->getCloud()->size())
-			//	this->cloud = matched->getCloud();
-			//else
-			//	cout << "mantengo la misma nube";
-
-			this->cloud = matched->getCloud();
-
-			saveCloudAsFile("pcpolygon" + ofToString(this->getPolygonModelObject()->getName()) + "_m.pcd", *cloud);
+			saveCloudAsFile("pcpolygonResult" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
 
 
 			removeMatching();

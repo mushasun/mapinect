@@ -24,8 +24,8 @@ namespace mapinect {
 				p->setCenter(computeCentroid(cloud));
 			}
 
-			saveCloudAsFile("vertex" + ofToString(this->getId()) + ".pcd", vertexs); 
-			saveCloudAsFile("vertexCloud" + ofToString(this->getId()) + ".pcd", *cloud); 
+			/*saveCloudAsFile("vertex" + ofToString(this->getId()) + ".pcd", vertexs); 
+			saveCloudAsFile("vertexCloud" + ofToString(this->getId()) + ".pcd", *cloud); */
 		}
 		else
 		{

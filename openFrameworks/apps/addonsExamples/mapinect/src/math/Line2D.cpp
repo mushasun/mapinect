@@ -6,7 +6,7 @@ namespace mapinect {
 	Line2D::Line2D(const ofVec2f &origin, const ofVec2f &destination)
 		: origin(origin), destination(destination)
 	{
-		assert(origin.distance(destination) > MATH_EPSILON);
+		//assert(origin.distance(destination) > MATH_EPSILON);
 		direction = destination - origin;
 		a = - direction.y;
 		b = direction.x;
