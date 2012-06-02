@@ -23,6 +23,9 @@ Se deben setear los parámetros:
 --pattern-height  	Número de esquinas internas a lo largo del patrón de chessboard. En caso de utilizar el patrón de tamaño A3 el valor será 7 (default)
 --pattern-size		Largo de cada cuadrado del patrón de chessboard, en metros. En caso de utilizar el patrón de tamaño A3 el valor será 0.034; para A4 0.025 (default)
 
+Ej invocación:
+calibrate-kinect-ir.exe --input grab27May-KinectCalib\unknown --output kinect-calib-27May.yml --pattern-width 10 --pattern-height 7 --pattern-size 0.034
+
 Output:
 Se obtiene un archivo con los parámetros intrínsecos de las cámaras, y los extrínsecos (R y T).
 Matrices rgb_intrinsics y depth_intrinsics contienen parámetros intrínsecos: focal length fx fy, principal point cx cy, en la forma:
@@ -46,9 +49,9 @@ sin superponerse con los patrones de chessboard de las puntas. Grabar la imágen 
 	Tomar entre 20 y 30 imágenes.
 5- Ejecutar calibrate-projector.exe desde línea de comando.
 Se deben setear los parámetros:
-					Directorio donde están las imágenes tomadas
---kinect			Nombre del archivo de calibración con los parámetros del Kinect, obtenido en el paso de calibración previo
---output			Nombre del archivo de salida con los parámetros del proyector (.yml)
+			Directorio donde están las imágenes tomadas
+--kinect		Nombre del archivo de calibración con los parámetros del Kinect, obtenido en el paso de calibración previo
+--output		Nombre del archivo de salida con los parámetros del proyector (.yml)
 --projector-width	Width del proyector en pixeles. Valor por default: 1280
 --projector-heigth	Height del proyector en pixeles. Valor por default: 800. En nuestro caso debe ser 768.
 --pattern-width		Número de esquinas internas a lo ancho; por defecto valor 7.

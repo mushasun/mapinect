@@ -260,7 +260,9 @@ void ofxKinectCalibration::setCalibValues(double d_fx, double d_fy, float d_cx, 
 	ofxKinectCalibration::T_rgb = T;
 	
 	ofxKinectCalibration::R_rgb = R;
+	//R_rgb va a contener la transformación inversa de (R|T) del archivo de calib del Kinect
+	//	Esto es porque la transf (R|T) se usa para pasar de sist de coord RGB a depth, y en este caso se quiere
+	//	realizar la transf inversa
 	R_rgb.preMultTranslate(-T_rgb);
 	R_rgb = ofMatrix4x4::getTransposedOf(R_rgb);
-
 }

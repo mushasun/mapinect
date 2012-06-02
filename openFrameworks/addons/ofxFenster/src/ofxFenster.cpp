@@ -96,6 +96,7 @@ void ofxFenster::init(ofxFensterListener* l, string name){
 	ofAddListener(ofEvents.setup, this, &ofxFenster::setup); // Fenster setup added
 	mainWinRef = glutGetWindow();
 	glutInitWindowSize(width, height);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);		// Prueba para ver si faltaba setear el depth buffer
 	winRef = glutCreateWindow(name.c_str());
 	
 	glutDisplayFunc(displayWindow);
