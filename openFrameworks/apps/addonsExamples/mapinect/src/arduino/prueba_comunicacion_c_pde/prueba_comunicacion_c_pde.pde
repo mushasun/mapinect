@@ -44,16 +44,15 @@ void setup()
 
 int pasarAngulo(byte angulo)
 {
-  /*byte mask = B10000000;
+  byte mask = B10000000;
   int direccion = 1;
   if (mask & angulo)
   {
     direccion = -1;
   }
   mask = B01111111;
-  angulo = mask & angulo;*/
-  int resultado = angulo * (1024.0 / 300.0) + 76;
-  return resultado;
+  angulo = mask & angulo;
+  return 512 + direccion * angulo * (1024.0 / 300.0);    
 }
 
 void imprimirInfoMotores()
@@ -98,16 +97,15 @@ void loop()
     byte id = Serial.read();
     byte angulo = Serial.read();
     int angulo_pasado = pasarAngulo(angulo);
-    Serial.print("Angulo: ");
-    Serial.println(angulo, DEC);
     Serial.print("Angulo p: ");
     Serial.println(angulo_pasado, DEC);
     Serial.print("id: ");
     Serial.println(id, DEC);
+//    angulo_pasado = 512 - angulo_pasado;
     if (id==1){
       posicion1 = angulo_pasado;
     }
-    if (id==2){
+    else if (id==2){
       posicion2 = angulo_pasado;
     }
     else if (id==4)

@@ -3,6 +3,7 @@
 #include "Feature.h"
 #include "ofxXmlSettings.h"
 #include <direct.h> // for getcwd
+#define M_PI_2     1.57079632679489661923
 
 namespace mapinect {
 
@@ -99,7 +100,7 @@ namespace mapinect {
 
 		serial.enumerateDevices();
 		if (serial.setup(COM_PORT, 9600)) {
-			reset();
+			//reset();
 			return true;
 		}
 		return false;
@@ -203,11 +204,15 @@ namespace mapinect {
 		return b;
 	}
 
-	void Arduino::sendMotor(char value, int id)
+	void Arduino::sendMotor(int value, int id)
 	{
-		value += MOTOR_ANGLE_OFFSET;
+		//value += MOTOR_ANGLE_OFFSET;
+		if (value < 0){
+			value = -value;
+			value |= 1 << 7; //MAGIC!
+		}
 		cout << value <<endl;
-		cout << my_byte_to_binary((int)value) <<endl;
+		cout << my_byte_to_binary(value) <<endl;
 		char id_char = (char) id;
 		serial.writeByte(id_char);
 		serial.writeByte(value);
@@ -217,7 +222,7 @@ namespace mapinect {
 	{
 		char* result;
 		int cantidad_bytes = serial.available();
-		if (cantidad_bytes) {
+		if (cantidad_bytes > 0) {
 			result = new char[cantidad_bytes];
 			unsigned char lectura = 0;
 			int i = 0;
@@ -254,9 +259,20 @@ namespace mapinect {
 
 	void Arduino::setKinect3dCoordinates(float x, float y, float z)
 	{
-		angleMotor2 = (int)round(asin(x/y) * 180 / 3.1415926);			//el de la base
-		angleMotor1 = (int)round(acos(y/ARM_LENGTH) * 180 / 3.1415926);	//el del medio
-		sendMotor((char) angleMotor1, ID_MOTOR_1);
+		int angleMotor2 = round(atan(z/x) * 180 / M_PI);			//el de la base, x no deberia ser 0 nunca
+		int angleMotor1 = 0;
+		if (y != 0) {
+			if (y < 0) 
+			{
+				angleMotor1 = (int)round(asin(-y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
+			}
+			else
+			{
+				angleMotor1 = -(int)round(asin(y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
+			}
+		}
+		sendMotor(angleMotor1, ID_MOTOR_1);
+		sendMotor(angleMotor2, ID_MOTOR_2);
 	}
 
 	ofVec3f Arduino::setKinect3dCoordinates(ofVec3f position)
@@ -273,8 +289,8 @@ namespace mapinect {
 		//x = r, y = phi, z = theta
 		//http://www.thecubiclewarrior.com/post/5954842175/spherical-to-cartesian
 		float r = sqrt(pow(cart_point.x, 2) + pow(cart_point.y, 2) + pow(cart_point.z, 2) );
-		float phi = acos(cart_point.y/r);
-		float theta = atan2(cart_point.y, cart_point.x);
+		float phi = acos(cart_point.y/r); //z es mi y! es el angulo en el plano x, z
+		float theta = atan2(cart_point.x, cart_point.z);//z es mi y!
 		ofVec3f spher_point(r, phi, theta);
 		return spher_point;
 	}
@@ -286,9 +302,9 @@ namespace mapinect {
 		float phi = spher_point.y;
 		float theta = spher_point.z;
 
-		float x = r*sin(phi)*cos(theta);
-		float y = r*sin(phi)*sin(theta);
-		float z = r*cos(phi);
+		float z = r*sin(phi)*cos(theta);
+		float x = r*sin(phi)*sin(theta);
+		float y = r*cos(phi);
 
 		ofVec3f cart_point(x, y, z);
 		return cart_point;
@@ -352,7 +368,7 @@ namespace mapinect {
 		translationX = Eigen::Translation<float,3>(-ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
 
 		Eigen::Affine3f composed_matrix;
-		composed_matrix = rotationX * rotationY * rotationZ * translationY * translationX;
+		composed_matrix = rotationY * rotationX * rotationZ * translationY * translationX;
 		return composed_matrix;
 
 
