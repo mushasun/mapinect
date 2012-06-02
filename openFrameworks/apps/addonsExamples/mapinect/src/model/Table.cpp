@@ -1,9 +1,17 @@
 #include "Table.h"
 
+#include "DataObject.h"
 #include "pointUtils.h"
 
 namespace mapinect
 {
+	IObjectPtr Table::getMathModelApproximation() const
+	{
+		vector<IPolygonPtr> polygons;
+		polygons.push_back(getMathPolygonModelApproximation());
+		return IObjectPtr(new DataObject(getId(), getCenter(), getScale(), getRotation(), polygons));
+	}
+
 	bool Table::isOnTable(const PCPtr& cloud)
 	{
 		//Busco el mayor y

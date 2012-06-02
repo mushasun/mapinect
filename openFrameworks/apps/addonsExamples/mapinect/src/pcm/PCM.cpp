@@ -2,6 +2,7 @@
 
 #include "Feature.h"
 #include "Globals.h"
+#include "log.h"
 #include "ofGraphicsUtils.h"
 #include "utils.h"
 
@@ -110,6 +111,13 @@ namespace mapinect {
 		case 'r':
 			pcmThread.reset();
 			break;
+		case 'l':
+			printLogFile(kLogFilePCMThread);
+			printLogFile(kLogFileObjectsThread);
+			break;
+		case 'k':
+			printLogFileToFile(kLogFilePCMThread, "pcmThread.log");
+			printLogFileToFile(kLogFileObjectsThread, "objectsThread.log");
 		}
 		//case 't':
 		//	setTransformation();

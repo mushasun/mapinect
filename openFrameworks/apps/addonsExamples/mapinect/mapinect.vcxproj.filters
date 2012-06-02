@@ -214,6 +214,18 @@
     <ClCompile Include="src\math\Line3D.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="src\pcm\TrackedTouch.cpp">
+      <Filter>pcm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\DiscardCoordinate.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\DataObject.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\log.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -494,6 +506,18 @@
     </ClInclude>
     <ClInclude Include="src\math\Line3D.h">
       <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pcm\TrackedTouch.h">
+      <Filter>pcm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\DiscardCoordinate.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\DataObject.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\log.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

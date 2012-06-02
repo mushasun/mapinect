@@ -8,9 +8,10 @@
 #include "ofxXmlSettings.h"
 
 #include "Constants.h"
+#include "EventManager.h"
 #include "Globals.h"
+#include "log.h"
 #include "pointUtils.h"
-#include "utils.h"
 
 using namespace std;
 
@@ -85,7 +86,7 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	void PCMThread::newFrameAvailable()
+	void PCMThread::newFrameAvailable(bool forceDetection)
 	{
 		ofxScopedMutex osm(isNewFrameAvailableMutex);
 		isNewFrameAvailable = detectMode;
@@ -112,10 +113,8 @@ namespace mapinect {
 
 				if(newFrameAvailable)
 				{
-					cout << "Procesando..." << endl;
 					processCloud();
-					cout << "Fin procesamiento" << endl;
-
+					setPCMThreadStatus("");
 				}
 				
 				unlock();
@@ -136,6 +135,8 @@ namespace mapinect {
 		//Separo en clusters
 		PCPtr tableCluster (new PC());
 
+		setPCMThreadStatus("Searching table cluster...");
+		log(kLogFilePCMThread, "Searching table cluster...");
 		std::vector<pcl::PointIndices> cluster_indices =
 			findClusters(cloud, MAX_TABLE_CLUSTER_TOLERANCE, MIN_TABLE_CLUSTER_SIZE, MAX_TABLE_CLUSTER_SIZE);
 
@@ -176,6 +177,8 @@ namespace mapinect {
 		//Quito el plano más grande
 		pcl::ModelCoefficients coefficients;
 		PCPtr remainingCloud = PCPtr(new PC());
+		setPCMThreadStatus("Creating objects over table cloud...");
+		log(kLogFilePCMThread, "Creating objects over table cloud...");
 
 		{
 			ofxScopedMutex osm(gModel->tableMutex);
@@ -217,40 +220,29 @@ namespace mapinect {
 		return remainingCloud;
 	}
 
-	PCPtr PCMThread::getDifferenceCloudFromModel(const PCPtr& cloud, vector<Polygon3D>& mathModel)
+	PCPtr PCMThread::getDifferenceCloudFromModel(const PCPtr& cloud)
 	{
 		//saveCloudAsFile("sourceCloud.pcd", *cloud);
 
-		PCPtr modelsCloud(new PC);
-		{
-			ofxScopedMutex osmo(gModel->objectsMutex);
-			// TODO: se puede hacer cache para mejorar performance
-			for(int i = 0; i < gModel->getObjects().size(); i++)
-			{
-				PCModelObject* pcm = dynamic_cast<PCModelObject*>(gModel->getObjects().at(i).get());
-				if (pcm != NULL)
-				{
-					*modelsCloud += *(pcm->getCloud());
-					vector<Polygon3D> pcmp(pcm->getMathModelApproximation());
-					mathModel.insert(mathModel.begin(), pcmp.begin(), pcmp.end());
-				}
-			}
-
-			ofxScopedMutex osmt(gModel->tableMutex);
-			vector<Polygon3D> tp(gModel->getTable()->getMathModelApproximation());
-			mathModel.insert(mathModel.begin(), tp.begin(), tp.end());
-		}
+		PCPtr modelsCloud(gModel->getCloudSum());
 		//saveCloudAsFile("modelsCloud.pcd", *modelsCloud);
 
 		PCPtr filteredCloud(new PointCloud<PointXYZ>);
 		int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, 0.01);
-		//cout << "Diferencia: " << ofToString(dif) << endl;
+		//cout << "Differences count: " << ofToString(dif) << endl;
 
 		//saveCloudAsFile("dif.pcd", *filteredCloud);
 
 		return filteredCloud;
 	}
 
+	//--------------------------------------------------------------
+	bool isStatusReleased(const TrackedTouchPtr& trackedTouchPoint)
+	{
+		return trackedTouchPoint->getTouchStatus() == kTouchTypeReleased;
+	}
+
+	//--------------------------------------------------------------
 	void PCMThread::processCloud()
 	{
 		bool dif;
@@ -259,14 +251,18 @@ namespace mapinect {
 		objectsThread.setCloud(objectsOnTableTopCloud);
 
 		// split the new cloud from the existing one
-		vector<Polygon3D> mathModel;
-		PCPtr differenceCloud = getDifferenceCloudFromModel(objectsOnTableTopCloud, mathModel);
+		setPCMThreadStatus("Obtaining difference cloud from model...");
+		log(kLogFilePCMThread, "Obtaining difference cloud from model...");
+		PCPtr differenceCloud = getDifferenceCloudFromModel(objectsOnTableTopCloud);
+		vector<IObjectPtr> mathModel(gModel->getMathModelApproximation());
 		
 		// touch detection and tracking
 
-		vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, MAX_CLUSTER_TOLERANCE, 40, 5000);
+		setPCMThreadStatus("Detecting touch points...");
+		log(kLogFilePCMThread, "Detecting touch points...");
+		vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, MAX_CLUSTER_TOLERANCE, 100, 5000);
 		
-		map<Polygon3D*, vector<ofVec3f> >	touchPoints;
+		map<IPolygonPtr, vector<ofVec3f> > pointsCloserToModel;
 
 		for (int i = 0; i < clusterIndices.size(); ++i)
 		{
@@ -277,30 +273,116 @@ namespace mapinect {
 			vector<ofVec3f> vCluster(pointCloudToOfVecVector(cluster));
 			for (vector<ofVec3f>::iterator v = vCluster.begin(); v != vCluster.end(); ++v)
 			{
-				for (vector<Polygon3D>::iterator p = mathModel.begin(); p != mathModel.end(); p++)
+				for (vector<IObjectPtr>::const_iterator ob = mathModel.begin(); ob != mathModel.end(); ++ob)
 				{
-					if (p->distance(*v) <= TOUCH_DISTANCE)
+					for (vector<IPolygonPtr>::const_iterator p = (*ob)->getPolygons().begin(); p != (*ob)->getPolygons().end(); ++p)
 					{
-						map<Polygon3D*, vector<ofVec3f> >::iterator it = touchPoints.find(&*p);
-						if (it == touchPoints.end())
+						if ((*p)->getMathModel().distance(*v) <= TOUCH_DISTANCE)
 						{
-							vector<ofVec3f> points;
-							touchPoints.insert(make_pair(&*p, points));
-							it = touchPoints.find(&*p);
+							map<IPolygonPtr, vector<ofVec3f> >::iterator it = pointsCloserToModel.find(*p);
+							if (it == pointsCloserToModel.end())
+							{
+								vector<ofVec3f> points;
+								pointsCloserToModel.insert(make_pair(*p, points));
+								it = pointsCloserToModel.find(*p);
+							}
+							it->second.push_back((*p)->getMathModel().project(*v));
+							break;
 						}
-						it->second.push_back(p->project(*v));
-						break;
 					}
 				}
 			}
 		}
 
-		vector<ofVec3f> touchVecs;
-		for (map<Polygon3D*, vector<ofVec3f> >::const_iterator it = touchPoints.begin(); it != touchPoints.end(); ++it)
+		list<TrackedTouchPtr> newTouchPoints;
+		for (map<IPolygonPtr, vector<ofVec3f> >::const_iterator i = pointsCloserToModel.begin(); i != pointsCloserToModel.end(); ++i)
 		{
+			PCPtr polygonTouchPointsCloud(ofVecVectorToPointCloud(i->second));
+			bool useClustering = false;
+			if (useClustering)
+			{
+				std::vector<pcl::PointIndices> cluster_indices =
+					findClusters(polygonTouchPointsCloud, 0.01, 2, 5000);
+
+				for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+				{
+					if (it->indices.size() <= 10)		// Avoid new big objects from being recognized as touch points
+					{
+						PCPtr cloud_cluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
+						ofVec3f touchPoint(computeCentroid(cloud_cluster));
+						newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
+					}
+				}
+			}
+			else
+			{
+				for (vector<ofVec3f>::const_iterator v = i->second.begin(); v != i->second.end(); ++v)
+				{
+					newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, *v)));
+				}
+			}
 		}
 
-		saveCloudAsFile("touchPoints.pcd", touchVecs);
+		// Look into the new touch points for the best fit
+		list<TrackedTouchPtr> touchPointsToMatch;
+		list<TrackedTouchPtr> touchPointsToAdd;
+
+		int max_iter = 10;
+		setPCMThreadStatus("Matching touch points with existing ones...");
+		log(kLogFilePCMThread, "Matching touch points with existing ones...");
+		do
+		{
+			for (list<TrackedTouchPtr>::iterator iter = newTouchPoints.begin(); iter != newTouchPoints.end(); iter++)
+			{
+				TrackedTouchPtr removed;
+				bool wasRemoved = false;
+				bool fitted = findBestFit(*iter, removed, wasRemoved);
+
+				if (wasRemoved)
+					touchPointsToMatch.push_back(removed);	// Push back the old cloud to try again
+				if (!fitted)
+					touchPointsToAdd.push_back(*iter);			// No matching cloud, this will be a new object
+			}
+			newTouchPoints = touchPointsToMatch;
+			touchPointsToMatch.clear();
+			max_iter--;
+		}
+		while (newTouchPoints.size() > 0 && max_iter > 0);
+
+		trackedTouchPoints.insert(trackedTouchPoints.end(), touchPointsToAdd.begin(), touchPointsToAdd.end());
+
+		// Effectuate the update of the tracked touch points with the new ones
+		setPCMThreadStatus("Updating touch points and pushing events to the application...");
+		log(kLogFilePCMThread, "Updating touch points and pushing events to the application...");
+		updateDetectedTouchPoints();
+
+		// Clear released touch points
+		trackedTouchPoints.remove_if(isStatusReleased);
+
+	}
+
+	//--------------------------------------------------------------
+	bool PCMThread::findBestFit(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved) {
+		for (list<TrackedTouchPtr>::iterator iter = trackedTouchPoints.begin(); iter != trackedTouchPoints.end(); iter++) {
+			if ((*iter)->matches(tracked, removed, wasRemoved))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	//--------------------------------------------------------------
+	void PCMThread::updateDetectedTouchPoints()
+	{
+		for (list<TrackedTouchPtr>::iterator iter = trackedTouchPoints.begin(); iter != trackedTouchPoints.end(); iter++)
+		{
+			(*iter)->updateMatching();
+			EventManager::addEvent(
+				MapinectEvent(kMapinectEventTypeObjectTouched,
+					(*iter)->getObject(),
+					(*iter)->getDataTouch()));
+		}
 	}
 
 }

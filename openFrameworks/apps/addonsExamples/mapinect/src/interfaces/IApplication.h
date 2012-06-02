@@ -31,10 +31,11 @@ namespace mapinect {
 
 		virtual void debugDraw() = 0;
 
-		virtual void objectDetected(const IObject*)								{ }
-		virtual void objectLost(const IObject*)									{ }
-		virtual void objectMoved(const IObject*, const DataMovement&)			{ }
-		virtual void objectTouched(const IObject*, const vector<DataTouch>&)	{ }
+		virtual void objectDetected(const IObjectPtr&)						{ }
+		virtual void objectUpdated(const IObjectPtr&)						{ }
+		virtual void objectLost(const IObjectPtr&)							{ }
+		virtual void objectMoved(const IObjectPtr&, const DataMovement&)	{ }
+		virtual void objectTouched(const IObjectPtr&, const DataTouch&)		{ }
 
 		/// <summary>
 		/// Interface for handling texture. Loading, binding and enabling

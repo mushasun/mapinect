@@ -82,18 +82,10 @@ namespace mapinect {
 				p1 != NULL &&
 				p2 != NULL)
 			{
-				/* TODO: Actualizar el MathModel de los poligonos cuando se hace el matching!!!
-
-				Plane3D plane0(p0->getMathModelApproximation().begin()->getPlane());
-				Plane3D plane1(p1->getMathModelApproximation().begin()->getPlane());
-				Plane3D plane2(p2->getMathModelApproximation().begin()->getPlane());*/
-				
-				//Temporal mientras no se haga el TODO anterior
-				Plane3D plane0(p0->getCoefficients());
-				Plane3D plane1(p1->getCoefficients());
-				Plane3D plane2(p2->getCoefficients());
-				////
-
+				// TODO: Actualizar el MathModel de los poligonos cuando se hace el matching!!!
+				Plane3D plane0(p0->getPolygonModelObject()->getMathModel().getPlane());
+				Plane3D plane1(p1->getPolygonModelObject()->getMathModel().getPlane());
+				Plane3D plane2(p2->getPolygonModelObject()->getMathModel().getPlane());
 				ofVec3f vertex = plane0.intersection(plane1, plane2);
 				p0->getPolygonModelObject()->setVertex(vertexIdx[i][0],vertex);
 				p1->getPolygonModelObject()->setVertex(vertexIdx[i][1],vertex);
@@ -119,7 +111,7 @@ namespace mapinect {
 		for(int i = 0; i < pcpolygons.size(); i ++)
 		{
 			saveCloudAsFile("p" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
-			saveCloudAsFile("v" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", pcpolygons.at(i)->getPolygonModelObject()->getVertexs());
+			saveCloudAsFile("v" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", pcpolygons.at(i)->getPolygonModelObject()->getMathModel().getVertexs());
 		}
 		//for(int i = 0; i < vertexs.size(); i++)
 		//{
@@ -223,7 +215,7 @@ namespace mapinect {
 		else
 		{
 			//Busco el largo que tengo que desplazar
-			vector<ofVec3f> vex = f1->getPolygonModelObject()->getVertexs();
+			vector<ofVec3f> vex = f1->getPolygonModelObject()->getMathModel().getVertexs();
 		
 			if(!parallelAndNotInContact && foundFace) // Busco los 2 puntos con menor 'y' para hallar el ancho de la cara
 			{
@@ -256,7 +248,6 @@ namespace mapinect {
 
 		PCPolygonPtr estimatedPol (new PCQuadrilateral(coeff,cloudMoved,f1->getId()*(-2),true));
 		estimatedPol->detectPolygon();
-		estimatedPol->getPolygonModelObject()->setContainer(this);
 		estimatedPol->getPolygonModelObject()->setName(polName);
 
 		saveCloudAsFile ("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
@@ -372,8 +363,8 @@ namespace mapinect {
 					next = partialEstimation.at(0);
 					prev = getOppositePolygon(next->getPolygonModelObject()->getName(),partialEstimation);//Estimate TOP
 
-					nextVec = next->getPolygonModelObject()->getVertexs();
-					prevVec = prev->getPolygonModelObject()->getVertexs();
+					nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
+					prevVec = prev->getPolygonModelObject()->getMathModel().getVertexs();
 
 					if(toEstimate == kPolygonNameBottom)
 					{
@@ -391,8 +382,8 @@ namespace mapinect {
 					next = getNextPolygon(toEstimate,partialEstimation);
 					prev = getPrevPolygon(toEstimate,partialEstimation);
 
-					nextVec = next->getPolygonModelObject()->getVertexs();
-					prevVec = prev->getPolygonModelObject()->getVertexs();
+					nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
+					prevVec = prev->getPolygonModelObject()->getMathModel().getVertexs();
 
 					bool ascending = toEstimate < 3;
 					if(ascending)
@@ -434,7 +425,6 @@ namespace mapinect {
 
 				PCPolygonPtr pcp(new PCQuadrilateral(coef, faceCloud, 99, true));
 				pcp->detectPolygon();
-				pcp->getPolygonModelObject()->setContainer(this);
 				pcp->getPolygonModelObject()->setName(toEstimate);
 
 					

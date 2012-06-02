@@ -7,8 +7,10 @@ namespace mapinect {
 
 	class Table : public PCQuadrilateral {
 		public:
-			Table(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId = -1)
-				: PCQuadrilateral(coefficients, cloud, objId) { }
+			Table(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
+				: PCQuadrilateral(coefficients, cloud, TABLE_ID) { }
+
+			virtual IObjectPtr		getMathModelApproximation() const;
 
 			inline bool detect()
 			{

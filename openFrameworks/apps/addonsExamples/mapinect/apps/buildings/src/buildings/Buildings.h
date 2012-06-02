@@ -28,11 +28,18 @@ namespace buildings {
 
 		virtual void debugDraw();
 
+		virtual void objectDetected(const IObjectPtr&);
+		virtual void objectUpdated(const IObjectPtr&);
+		virtual void objectLost(const IObjectPtr&);
+		virtual void objectMoved(const IObjectPtr&, const DataMovement&);
+		virtual void objectTouched(const IObjectPtr&, const DataTouch&);
+
 		static GLuint	videoTexture;
 		static GLuint	videoTexture2;
 
 	private:
 		std::map<int, Building*>	buildings;
+		std::map<int, DataTouch>	touchPoints;
 		Floor*						floor;
 	};
 }

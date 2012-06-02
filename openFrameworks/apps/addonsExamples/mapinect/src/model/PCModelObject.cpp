@@ -19,7 +19,7 @@ namespace mapinect {
 		transformation.setIdentity();
 		if (objId == -1)
 		{
-			static int objectId = 0;
+			static int objectId = 1;
 			objId = objectId++;
 		}
 		setId(objId);
@@ -30,6 +30,13 @@ namespace mapinect {
 
 	PCModelObject::~PCModelObject() {
 
+	}
+
+	IObjectPtr PCModelObject::getMathModelApproximation() const
+	{
+		// This method should never be called. Implemented to avoid this class from being abstract
+		assert(false);
+		return IObjectPtr();
 	}
 
 	void PCModelObject::detectPrimitives() {

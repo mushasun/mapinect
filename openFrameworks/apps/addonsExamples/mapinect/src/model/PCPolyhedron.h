@@ -15,10 +15,12 @@ namespace mapinect {
 
 	typedef boost::shared_ptr<PCPolyhedron> PCPolyhedronPtr;
 
-	class PCPolyhedron : public PCModelObject, public IObject {
+	class PCPolyhedron : public PCModelObject {
 		public:
 			PCPolyhedron(const PCPtr& cloud, int objId);
 			
+			virtual IObjectPtr		getMathModelApproximation() const;
+
 			virtual void			draw();
 			virtual void			detectPrimitives();
 			const PCPolygonPtr&		getPCPolygon(int index);
@@ -27,14 +29,6 @@ namespace mapinect {
 			virtual void			increaseLod(const PCPtr& nuCloud);
 			virtual void			addToModel(const PCPtr& nuCloud);
 			virtual void			setAndUpdateCloud(const PCPtr& cloud);
-
-			vector<Polygon3D>		getMathModelApproximation() const;
-
-			inline int						getId()							{ return PCModelObject::getId(); }
-
-			inline const ofVec3f&			getCenter()						{ return PCModelObject::getCenter(); }
-			inline const ofVec3f&			getScale()						{ return PCModelObject::getScale(); }
-			inline const ofVec3f&			getRotation()					{ return PCModelObject::getRotation(); }
 
 			const IPolygon*					getPolygon(const IPolygonName&);
 			inline const vector<IPolygon*>	getPolygons()					{ return polygonsCache; }

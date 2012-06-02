@@ -6,7 +6,7 @@
 namespace mapinect {
 	class Timer {
 	public:
-		Timer() {};
+		Timer();
 		virtual ~Timer() {};
 
 		void start();

@@ -12,40 +12,34 @@ namespace mapinect {
 
 	typedef boost::shared_ptr<Polygon> PolygonPtr;
 
-	class Polygon : public ModelObject, public IPolygon {
+	class Polygon : public ModelObject, public IPolygon
+	{
 		public:
-			Polygon() : vertexs(), container(NULL)				{ }
-			virtual ~Polygon()									{ }
+			Polygon(const pcl::ModelCoefficients& coefficients)
+				: name(kPolygonNameUnknown), mathModel()
+					{ mathModel.setPlane(coefficients); container.reset(); }
+			Polygon(const Polygon&);
+			virtual ~Polygon()										{ }
 
-			inline int						getId()				{ return ModelObject::getId(); }
-			inline const ofVec3f&			getCenter()			{ return ModelObject::getCenter(); }
-			inline const ofVec3f&			getScale()			{ return ModelObject::getScale(); }
-			inline const ofVec3f&			getRotation()		{ return ModelObject::getRotation(); }
-			inline const ofVec3f&			getNormal()			{ return normal; }
+			// IPolygon
+			inline int						getId() const			{ return ModelObject::getId(); }
+			inline const Polygon3D&			getMathModel() const	{ return mathModel; }
+			inline const IObjectPtr&		getContainer() const	{ return container; }
+			inline const IPolygonName&		getName() const			{ return name; }
 
-			inline const vector<ofVec3f>&	getVertexs()		{ return vertexs; }
-			inline const IObject*			getContainer()		{ return container; }
-			inline const IPolygonName&		getName()			{ return name; }
-
-			inline const Polygon3D&			getMathPolygon()	const	{ return mathPolygon; }
-
-			inline void			setContainer(IObject* object)	{ container = object; }
-
+			// Polygon specific method
+			IPolygonPtr			clone() const;
+			inline void			setContainer(const IObjectPtr& object)		{ container = object; }
 			void				setVertex(int vertexNum, const ofVec3f& v);
 			void				setVertexs(const vector<ofVec3f>& v);
-			void				sortVertexs();
-			void				setName(const IPolygonName&);
+			inline void			setName(const IPolygonName& newName)		{ name = newName; }
 
-			float				calculateArea();
-			ofVec3f				project(const ofVec3f&);
 			virtual void		draw();
 		
 		private:
-			vector<ofVec3f>		vertexs;
-			ofVec3f				normal;
 			IPolygonName		name;
-			IObject*			container;
-			Polygon3D			mathPolygon;
+			IObjectPtr			container;
+			Polygon3D			mathModel;
 	};
 }
 

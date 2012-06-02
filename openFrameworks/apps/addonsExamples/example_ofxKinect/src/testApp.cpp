@@ -58,11 +58,6 @@ void testApp::update()
 void testApp::draw()
 {	
 	camluc.render();
-	
-	glScalef(1, -1, 1);
-	glTranslatef(-0.3, 0.3, 1);
-	glColor3f(1, 1, 1);
-	glutWireTeapot(0.1);
 }
 
 void testApp::exit()

@@ -33,6 +33,9 @@ namespace mapinect {
 				case kMapinectEventTypeObjectDetected:
 					listener->objectDetected(e->object);
 					break;
+				case kMapinectEventTypeObjectUpdated:
+					listener->objectUpdated(e->object);
+					break;
 				case kMapinectEventTypeObjectLost:
 					listener->objectLost(e->object);
 					break;
@@ -40,7 +43,7 @@ namespace mapinect {
 					listener->objectMoved(e->object, e->movement);
 					break;
 				case kMapinectEventTypeObjectTouched:
-					listener->objectTouched(e->object, e->touchPoints);
+					listener->objectTouched(e->object, e->touchPoint);
 					break;
 				}
 			}

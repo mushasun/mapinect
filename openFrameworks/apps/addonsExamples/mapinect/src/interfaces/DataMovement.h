@@ -10,8 +10,8 @@ namespace mapinect {
 			DataMovement(const ofVec3f& translation, const ofVec3f& rotation)
 				: translation(translation), rotation(rotation) { }
 
-			const ofVec3f&		getTranslation()	{ return translation; }
-			const ofVec3f&		getRotation()		{ return rotation; }
+			const ofVec3f&		getTranslation() const	{ return translation; }
+			const ofVec3f&		getRotation() const		{ return rotation; }
 
 		private:
 			ofVec3f				translation;

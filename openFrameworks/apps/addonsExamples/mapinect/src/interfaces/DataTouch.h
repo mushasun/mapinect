@@ -13,17 +13,18 @@ namespace mapinect {
 	
 	struct DataTouch {
 		public:
-			DataTouch(const int id, IPolygon* polygon, const DataTouchType& type, const ofVec3f& touchPoint)
+			DataTouch() { }
+			DataTouch(const int id, IPolygonPtr polygon, const DataTouchType& type, const ofVec3f& touchPoint)
 				: id(id), polygon(polygon), type(type), touchPoint(touchPoint) { }
 
-			const int				getId()			{ return id; }
-			const IPolygon*			getPolygon()	{ return polygon; }
-			const DataTouchType&	getType()		{ return type; }
-			const ofVec3f&			getTouchPoint()	{ return touchPoint; }
+			const int				getId() const			{ return id; }
+			const IPolygonPtr		getPolygon() const		{ return polygon; }
+			const DataTouchType&	getType() const			{ return type; }
+			const ofVec3f&			getTouchPoint() const	{ return touchPoint; }
 
 		private:
 			int				id;
-			IPolygon*		polygon;
+			IPolygonPtr		polygon;
 			DataTouchType	type;
 			ofVec3f			touchPoint;
 	};

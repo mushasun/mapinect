@@ -1,7 +1,5 @@
 #include "Floor.h"
 
-#include "Table.h"
-
 #include "ofGraphicsUtils.h"
 
 namespace buildings {
@@ -11,17 +9,16 @@ namespace buildings {
 	//--------------------------------------------------------------
 	void Floor::draw(const ITxManager* txManager)
 	{
-		if (modelObject->hasObject()) 
-		{
-			mapinect::Polygon* q = modelObject->getPolygonModelObject();
+		txManager->enableTextures();
+		txManager->bindTexture(Floor::floorTexture);
 
-			txManager->enableTextures();
-			txManager->bindTexture(Floor::floorTexture);
+		ofDrawQuadTextured(
+			modelObject->getMathModel().getVertexs()[0],
+			modelObject->getMathModel().getVertexs()[1],
+			modelObject->getMathModel().getVertexs()[2],
+			modelObject->getMathModel().getVertexs()[3]);
 
-			ofDrawQuadTextured(q->getVertexs()[0], q->getVertexs()[1], q->getVertexs()[2], q->getVertexs()[3]);
-
-			txManager->disableTextures();
-		}			
+		txManager->disableTextures();
 	}
 
 }

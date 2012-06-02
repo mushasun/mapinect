@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "Globals.h"
+#include "Timer.h"
 
 namespace mapinect
 {

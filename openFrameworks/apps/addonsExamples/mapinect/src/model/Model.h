@@ -1,19 +1,27 @@
 #ifndef MAPINECT_Model_H__
 #define MAPINECT_Model_H__
 
+#include <vector>
+
+#include "IObject.h"
 #include "ModelObject.h"
 #include "ofxMutex.h"
-#include <vector>
 #include "Table.h"
 
-namespace mapinect {
-	class Model {
-
+namespace mapinect
+{
+	class Model
+	{
 	public:
 		Model();
 
-		inline const vector<ModelObjectPtr>&	getObjects()	{ return objects; }
-		inline const TablePtr&					getTable()		{ return table; }
+		// non-thread-safe
+		inline const vector<ModelObjectPtr>&	getObjects() const	{ return objects; }
+		inline const TablePtr&					getTable() const	{ return table; }
+
+		// thread-safe
+		PCPtr									getCloudSum() const;
+		vector<IObjectPtr>						getMathModelApproximation() const;
 
 		void addObject(const ModelObjectPtr&);
 		void removeObject(const ModelObjectPtr&);

@@ -10,55 +10,44 @@
 
 namespace mapinect {
 
+	Polygon::Polygon(const Polygon& polygon)
+		: name(polygon.name), container(polygon.container), mathModel(polygon.mathModel)
+	{
+	}
+
+	IPolygonPtr Polygon::clone() const
+	{
+		return IPolygonPtr(new Polygon(*this));
+	}
+
 	void Polygon::setVertex(int vertexNum, const ofVec3f& v)
 	{
-		vertexs[vertexNum] = v;
+		mathModel.setVertex(vertexNum, v);
 	}
 
 	void Polygon::setVertexs(const vector<ofVec3f>& v)
 	{
-		vertexs = v;
-		mathPolygon = Polygon3D(vertexs);
-	}
-
-	void Polygon::sortVertexs()
-	{
+		vector<ofVec3f> vertexs(v);
 		sort(vertexs.begin(), vertexs.end(), SortPolar(vertexs));
-		mathPolygon = Polygon3D(vertexs);
-	}
-	
-	float Polygon::calculateArea()
-	{
-		return mathPolygon.calculateArea();
-	}
-
-	ofVec3f Polygon::project(const ofVec3f& p)
-	{
-		return mathPolygon.project(p);
+		mathModel.setVertexs(vertexs);
 	}
 
 	void Polygon::draw() {
 		//cout << calculateArea() << endl;
 		glBegin(GL_POLYGON);
-			for (int i = 0; i < vertexs.size(); i++) {
-				glVertex3f(vertexs[i].x, vertexs[i].y, vertexs[i].z);
+			for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); ++v)
+			{
+				glVertex3f(v->x, v->y, v->z);
 			}
 		glEnd();
 		
 		int i = 1;
-		for (vector<ofVec3f>::iterator iter = vertexs.begin(); iter != vertexs.end(); iter++) {
+		for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); ++v) {
 			ofSetColor(0, 255 * i++ / 4.0f, 0);
-			ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
-			ofCircle(w.x,w.y,4);
+			ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(*v);
+			ofCircle(w.x, w.y, 4);
 		}
 		
 	}
 
-	void Polygon::setName(const IPolygonName& n)
-	{
-		this->name = n;
-	}
-
-
 }
-
