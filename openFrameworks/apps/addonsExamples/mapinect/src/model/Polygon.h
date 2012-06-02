@@ -33,7 +33,7 @@ namespace mapinect {
 			void				setVertex(int vertexNum, const ofVec3f& v);
 			void				setVertexs(const vector<ofVec3f>& v);
 			inline void			setName(const IPolygonName& newName)		{ name = newName; }
-
+			inline Polygon3D&	getMathModel() 	{ return mathModel; }
 			virtual void		draw();
 		
 		private:

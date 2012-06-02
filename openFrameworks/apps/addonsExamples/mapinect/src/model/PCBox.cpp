@@ -35,12 +35,7 @@ namespace mapinect {
 	{
 	}
 
-	void PCBox::detectPrimitives() {
-		PCPolyhedron::detectPrimitives();
-		if(pcpolygons.size() == 6)
-			partialEstimation = true;
-		messureBox();
-	}
+	
 
 	PCPolygonPtr PCBox::getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons)
 	{
@@ -72,6 +67,12 @@ namespace mapinect {
 											{2,1,3},
 											{1,2,0},
 											{0,3,3}};
+		vector<ofVec3f> vertexs [6];
+		for(int j = 0; j < 6; j++)
+		{
+			vertexs[j].resize(4);
+		}
+
 		for(int i = 0; i < 8; i++)
 		{
 			PCPolygonPtr p0 = getPCPolygon(vertexNames[i][0], pcpolygons);
@@ -87,32 +88,33 @@ namespace mapinect {
 				Plane3D plane1(p1->getPolygonModelObject()->getMathModel().getPlane());
 				Plane3D plane2(p2->getPolygonModelObject()->getMathModel().getPlane());
 				ofVec3f vertex = plane0.intersection(plane1, plane2);
-				p0->getPolygonModelObject()->setVertex(vertexIdx[i][0],vertex);
-				p1->getPolygonModelObject()->setVertex(vertexIdx[i][1],vertex);
-				p2->getPolygonModelObject()->setVertex(vertexIdx[i][2],vertex);
-				
+
+				vertexs[vertexNames[i][0]][vertexIdx[i][0]] = vertex;
+				vertexs[vertexNames[i][1]][vertexIdx[i][1]] = vertex;
+				vertexs[vertexNames[i][2]][vertexIdx[i][2]] = vertex;
+
 				unified.push_back(vertex);
 				//DEBUG
-				saveCloudAsFile("vmerged" + ofToString(i) + ".pcd", vertex);
+				/*saveCloudAsFile("vmerged" + ofToString(i) + ".pcd", vertex);
 				saveCloudAsFile("merged" + ofToString(i) + "1.pcd", *p0->getCloud());
 				saveCloudAsFile("merged" + ofToString(i) + "2.pcd", *p1->getCloud());
-				saveCloudAsFile("merged" + ofToString(i) + "3.pcd", *p2->getCloud());
+				saveCloudAsFile("merged" + ofToString(i) + "3.pcd", *p2->getCloud());*/
 
 			}
-
-			
-
-			
-
 		}
 		
+		for(int i = 0; i < 6; i++)
+		{
+			IPolygonName name = (IPolygonName)i;
+			getPCPolygon(name, pcpolygons)->getPolygonModelObject()->setVertexs(vertexs[i]);
+		}
 		saveCloudAsFile("UnifiedVertex.pcd", unified);
 
-		for(int i = 0; i < pcpolygons.size(); i ++)
+		/*for(int i = 0; i < pcpolygons.size(); i ++)
 		{
 			saveCloudAsFile("p" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
 			saveCloudAsFile("v" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", pcpolygons.at(i)->getPolygonModelObject()->getMathModel().getVertexs());
-		}
+		}*/
 		//for(int i = 0; i < vertexs.size(); i++)
 		//{
 		//	cout << "vertex " << ofToString(i) << ": " << vertexs.at(i).getPoint() << endl;
@@ -152,41 +154,10 @@ namespace mapinect {
 	
 	PCPolygonPtr PCBox::duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons)
 	{
-		PCPolygonPtr f1;
-
-		//Encuentro el poligono 'vecino' al que quiero duplicar
-		TablePtr t = gModel->getTable();
-		bool parallelAndNotInContact = t->isParallelToTable(polygon) && !t->isOnTable(polygon->getCloud());
-		bool foundFace = false;
-		//saveCloudAsFile ("from.pcd", *polygon->getCloud());
-		/// Si es paralelo a la mesa (cara techo), tomo cualquier otro poligono
-		/// Si es perpendicular, busco otro poligono perpendicular
-		for(int i = 0; i < newPolygons.size(); i ++)
-		{
-			if(newPolygons.at(i) != polygon)
-			{
-				if((!parallelAndNotInContact && (!t->isParallelToTable(newPolygons.at(i)) || t->isOnTable(newPolygons.at(i)->getCloud()))) ||
-					parallelAndNotInContact)
-				{
-					f1 = newPolygons.at(i);
-					foundFace = true;
-					break;
-				}
-			}
-		}
-		/// Si no encontre otro poligono que cumple las condiciones anteriores, tomo cualquier poligono 
-		/// que no sea el mismo
-		if(!foundFace)
-		{
-			for(int i = 0; i < newPolygons.size(); i ++)
-			{
-				if(newPolygons.at(i) != polygon)
-				{
-					f1 = newPolygons.at(i);
-					break;
-				}
-			}
-		}
+		pcl::ModelCoefficients coeff = polygon->getCoefficients();
+		PCPtr cloudToMove = polygon->getCloud();
+		PCPtr cloudMoved (new PC()); 
+		ofVec3f normal;
 
 		//Nombro el poligono a duplicar
 		IPolygonName polFatherName = polygon->getPolygonModelObject()->getName();
@@ -201,58 +172,109 @@ namespace mapinect {
 		else
 			polName = (IPolygonName)(polFatherName - 2);
 
-		pcl::ModelCoefficients coeff = polygon->getCoefficients();
-		PCPtr cloudToMove = polygon->getCloud();
-		PCPtr cloudMoved (new PC()); 
-		ofVec3f normal;
-
-		if(polName == kPolygonNameBottom)
+		if(partialEstimation)
 		{
-			coeff =  t->getCoefficients();
-			normal = t->getNormal();
-			cloudMoved = projectPointsInPlane(cloudToMove, coeff);
-		}
-		else
-		{
-			//Busco el largo que tengo que desplazar
-			vector<ofVec3f> vex = f1->getPolygonModelObject()->getMathModel().getVertexs();
-		
-			if(!parallelAndNotInContact && foundFace) // Busco los 2 puntos con menor 'y' para hallar el ancho de la cara
-			{
-				sort(vex.begin(), vex.end(), sortOnYDesc<ofVec3f>);
-			}
-			else // Busco los 2 puntos con menor 'x' para hallar el alto de la cara
-			{
-				sort(vex.begin(),vex.end(), sortOnXDesc<ofVec3f>);
-			}
-			ofVec3f min1 = vex.at(0);
-			ofVec3f min2 = vex.at(1);
-
-			saveCloudAsFile("min1_" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd",min1);
-			saveCloudAsFile("min2_"+ofToString(f1->getPolygonModelObject()->getName())+".pcd",min2);
-
-			float f1Width = abs((min1 - min2).length());
 			normal = polygon->getNormal();
-			ofVec3f traslation = normal * (-f1Width); 
+			ofVec3f traslation;
+			
+			if(polFatherName == kPolygonNameTop)
+				traslation = normal * (-height); 
+			else if(polFatherName == kPolygonNameSideA)
+				traslation = normal * (-depth); 
+			else if(polFatherName == kPolygonNameSideB)
+				traslation = normal * (-width); 
+
 			Eigen::Transform<float,3,Eigen::Affine> transformation;
 			transformation = Eigen::Translation<float,3>(traslation.x, traslation.y, traslation.z);
 
 			pcl::transformPointCloud(*cloudToMove,*cloudMoved,transformation);
 		}
+		else
+		{
+			PCPolygonPtr f1;
 
+			//Encuentro el poligono 'vecino' al que quiero duplicar
+			TablePtr t = gModel->getTable();
+			bool parallelAndNotInContact = t->isParallelToTable(polygon) && !t->isOnTable(polygon->getCloud());
+			bool foundFace = false;
+			//saveCloudAsFile ("from.pcd", *polygon->getCloud());
+			/// Si es paralelo a la mesa (cara techo), tomo cualquier otro poligono
+			/// Si es perpendicular, busco otro poligono perpendicular
+			for(int i = 0; i < newPolygons.size(); i ++)
+			{
+				if(newPolygons.at(i) != polygon)
+				{
+					if((!parallelAndNotInContact && (!t->isParallelToTable(newPolygons.at(i)) || t->isOnTable(newPolygons.at(i)->getCloud()))) ||
+						parallelAndNotInContact)
+					{
+						f1 = newPolygons.at(i);
+						foundFace = true;
+						break;
+					}
+				}
+			}
+			/// Si no encontre otro poligono que cumple las condiciones anteriores, tomo cualquier poligono 
+			/// que no sea el mismo
+			if(!foundFace)
+			{
+				for(int i = 0; i < newPolygons.size(); i ++)
+				{
+					if(newPolygons.at(i) != polygon)
+					{
+						f1 = newPolygons.at(i);
+						break;
+					}
+				}
+			}
+
+			if(polName == kPolygonNameBottom)
+			{
+				coeff =  t->getCoefficients();
+				normal = t->getNormal();
+				cloudMoved = projectPointsInPlane(cloudToMove, coeff);
+			}
+			else
+			{
+				//Busco el largo que tengo que desplazar
+				vector<ofVec3f> vex = f1->getPolygonModelObject()->getMathModel().getVertexs();
+		
+				if(!parallelAndNotInContact && foundFace) // Busco los 2 puntos con menor 'y' para hallar el ancho de la cara
+				{
+					sort(vex.begin(), vex.end(), sortOnYDesc<ofVec3f>);
+				}
+				else // Busco los 2 puntos con menor 'x' para hallar el alto de la cara
+				{
+					sort(vex.begin(),vex.end(), sortOnXDesc<ofVec3f>);
+				}
+				ofVec3f min1 = vex.at(0);
+				ofVec3f min2 = vex.at(1);
+
+				saveCloudAsFile("min1_" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd",min1);
+				saveCloudAsFile("min2_"+ofToString(f1->getPolygonModelObject()->getName())+".pcd",min2);
+
+				float f1Width = abs((min1 - min2).length());
+				normal = polygon->getNormal();
+				ofVec3f traslation = normal * (-f1Width); 
+				Eigen::Transform<float,3,Eigen::Affine> transformation;
+				transformation = Eigen::Translation<float,3>(traslation.x, traslation.y, traslation.z);
+
+				pcl::transformPointCloud(*cloudToMove,*cloudMoved,transformation);
+				saveCloudAsFile ("with" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd", *f1->getCloud());
+			}
+		}
 		//Corrección de coeficiente
 		//invierto la normal
 		normal *= -1;
 		Plane3D plane(POINTXYZ_OFXVEC3F(cloudMoved->at(0)), normal);
 		coeff = plane.getCoefficients();
 
-		PCPolygonPtr estimatedPol (new PCQuadrilateral(coeff,cloudMoved,f1->getId()*(-2),true));
+		PCPolygonPtr estimatedPol (new PCQuadrilateral(coeff,cloudMoved,polygon->getId()*(-2),true));
 		estimatedPol->detectPolygon();
 		estimatedPol->getPolygonModelObject()->setName(polName);
 
 		saveCloudAsFile ("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
 		saveCloudAsFile ("from" + ofToString(polygon->getPolygonModelObject()->getName()) + ".pcd", *polygon->getCloud());
-		saveCloudAsFile ("with" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd", *f1->getCloud());
+		
 
 		return estimatedPol;
 	}
@@ -442,15 +464,58 @@ namespace mapinect {
 		return estimated;
 	}
 
+	void PCBox::detectPrimitives() {
+		PCPolyhedron::detectPrimitives();
+		if(pcpolygons.size() == 6)
+		{
+			partialEstimation = true;
+			for(int i = 0; i < pcpolygons.size(); i ++)
+			{
+				IPolygonName name = pcpolygons.at(i)->getPolygonModelObject()->getName();
+				switch(name)
+				{
+					case kPolygonNameTop:
+						top = pcpolygons.at(i);
+						break;
+					case kPolygonNameSideA:
+						sideA = pcpolygons.at(i);
+						break;
+					case kPolygonNameSideB:
+						sideB = pcpolygons.at(i);
+						break;
+					case kPolygonNameSideC:
+						sideC = pcpolygons.at(i);
+						break;
+					case kPolygonNameSideD:
+						sideD = pcpolygons.at(i);
+						break;
+					case kPolygonNameBottom:
+						bottom = pcpolygons.at(i);
+						break;
+				}
+			}
+			messureBox();
+		}
+	}
+
 	void PCBox::addToModel(const PCPtr& nuCloud)
 	{
 		PCPolyhedron::addToModel(nuCloud);
-		messureBox();
+		//messureBox();
 	}
 
 	void PCBox::messureBox()
 	{
-		;
+		cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+		vector<ofVec3f> sideAVex = sideA->getPolygonModelObject()->getMathModel().getVertexs();
+		vector<ofVec3f> sideBVex = sideB->getPolygonModelObject()->getMathModel().getVertexs();
+		width = abs((sideAVex.at(1) - sideAVex.at(2)).length());
+		cout << "\tw: " << width << endl;
+		height = abs((sideAVex.at(0) - sideAVex.at(1)).length());
+		cout << "\th: " << height << endl;
+		depth = abs((sideBVex.at(1) - sideBVex.at(2)).length());
+		cout << "\td: " << depth << endl;
+
 	}
 
 	

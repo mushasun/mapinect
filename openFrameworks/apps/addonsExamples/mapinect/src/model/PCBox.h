@@ -24,14 +24,24 @@ namespace mapinect {
 			virtual vector<PCPolygonPtr>	estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons);
 
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
-
 			list<IPolygonName>				getMissing(const vector<PCPolygonPtr>& estimated);
 			PCPolygonPtr					getNextPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);
 			PCPolygonPtr					getPrevPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);
 			PCPolygonPtr					getOppositePolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);
 			PCPolygonPtr					getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons);
 
+			PCPolygonPtr					top;
+			PCPolygonPtr					sideA;
+			PCPolygonPtr					sideB;
+			PCPolygonPtr					sideC;
+			PCPolygonPtr					sideD;
+			PCPolygonPtr					bottom;
+
 			void							messureBox();
+			float							width;			//Respecto a la cara A
+			float							height;			//Respecto a la cara A
+			float							depth;			//Respecto a la cara B
+			bool							messured;
 
 	};
 }

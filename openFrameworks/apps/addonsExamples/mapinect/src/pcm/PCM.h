@@ -2,6 +2,8 @@
 #define PCM_H__
 
 #include "PCMThread.h"
+#include "ofGraphicsUtils.h"
+#include "ofMain.h"
 
 namespace mapinect {
 	class PCM {
@@ -18,7 +20,7 @@ namespace mapinect {
 
 	private:
 		bool			isActive();
-
+		ofTexture		calibratedTex; 
 		PCMThread		pcmThread;
 		bool			drawPC;
 		int 			pointCloudRotationY;

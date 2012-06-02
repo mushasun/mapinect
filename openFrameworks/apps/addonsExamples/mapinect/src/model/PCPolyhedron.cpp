@@ -241,189 +241,107 @@ namespace mapinect {
 		
 		vector<PCPolygonPtr> nuevos;
 		
-		if(false)
+		PCPtr cloud_p (new PC());
+		pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
+		pcl::SACSegmentation<pcl::PointXYZ> seg;
+		pcl::ExtractIndices<pcl::PointXYZ> extract;
+		std::vector<ofVec3f> vCloudHull;
+
+		// Optional
+		seg.setOptimizeCoefficients (true);
+		// Mandatory
+		seg.setModelType (pcl::SACMODEL_PLANE);
+		seg.setMethodType (pcl::SAC_RANSAC);
+		seg.setMaxIterations (50);
+		seg.setDistanceThreshold (planeTolerance); //original: 0.01
+		// Create the filtering object
+		int i = 0, nr_points = cloudTemp->points.size ();
+		// mientras 7% de la nube no se haya procesado
+
+		int numFaces = 0;
+		
+		while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < maxFaces)
 		{
-			pcl::ExtractIndices<pcl::PointXYZ> extract;
-			std::vector<ofVec3f> vCloudHull;
-			
-			double angle = 5*(PI/180);
-			for(int i = 0; i < pcpolygons.size(); i++)
-			{
-				PCPolygonPtr pol = pcpolygons.at(i);
-				if(!pol->isEstimated())
-				{
-					PCPtr cloud_p (new PC());
-					vector<int> inliersIdx;
-
-					pcl::SampleConsensusModelPerpendicularPlane<pcl::PointXYZ>::Ptr seg (new pcl::SampleConsensusModelPerpendicularPlane<pcl::PointXYZ>(cloudTemp));
-					seg->setEpsAngle(angle);
-					seg->setInputCloud(cloudTemp);
-	
-					Eigen::Vector3f axis(pol->getNormal().x,pol->getNormal().y,pol->getNormal().z);
-					seg->setAxis(axis);
-					pcl::RandomSampleConsensus<pcl::PointXYZ> ransac (seg);
-					ransac.setDistanceThreshold (planeTolerance);
-					ransac.computeModel();
-					ransac.getInliers(inliersIdx);
-					ransac.setMaxIterations(50);
-
-					for(int idx = 0; idx < inliersIdx.size(); idx++)
-					{
-						cloud_p->push_back(cloudTemp->at(inliersIdx.at(idx)));
-					}
-
-					saveCloudAsFile("parallelfrom" + ofToString(i) + ".pcd",*pol->getCloud());
-
-					saveCloudAsFile("parallel" + ofToString(i) + ".pcd",*cloud_p);
-			
-					//Remove outliers by clustering
-					PCPtr cloud_p_filtered (new PC());
-					pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-					tree->setInputCloud (cloud_p);
-
-					std::vector<pcl::PointIndices> cluster_indices;
-					pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-					ec.setClusterTolerance (0.02); 
-					ec.setMinClusterSize (5);
-					ec.setMaxClusterSize (10000);
-					ec.setSearchMethod (tree);
-					ec.setInputCloud(cloud_p);
-
-					ec.extract (cluster_indices);
-					int debuccount = 0;
-
-					//TODO: tomar mas de un cluster, no solo el primero
-					if(cluster_indices.size() > 0)
-					{
-						for (std::vector<int>::const_iterator pit = cluster_indices.at(0).indices.begin (); pit != cluster_indices.at(0).indices.end (); pit++)
-							cloud_p_filtered->points.push_back (cloud_p->points[*pit]); //*
-					}
-
-					saveCloudAsFile("postfilter_parallel" + ofToString(i) + ".pcd",*cloud_p_filtered);
-					if (cloud_p_filtered->size() < 4)
-						break;
-
-					pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
-					Eigen::VectorXf coeff;
-					ransac.getModelCoefficients(coeff);
-					float a = coeff.x();
-					float d = coeff.w();
-					coefficients->values.push_back(coeff.x());
-					coefficients->values.push_back(coeff.y());
-					coefficients->values.push_back(coeff.z());
-					coefficients->values.push_back(coeff.w());
-
-					PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, cloud_p_filtered));
-					pcp->detectPolygon();
-			
-					nuevos.push_back(pcp);
-				}
+			pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
+			// Segment the largest planar component from the remaining cloud
+			seg.setInputCloud (cloudTemp);
+			seg.segment (*inliers, *coefficients);
+			if (inliers->indices.size () == 0) {
+				std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+				break;
 			}
-		}
-		else
-		{
-			PCPtr cloud_p (new PC());
-			pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
-			pcl::SACSegmentation<pcl::PointXYZ> seg;
-			pcl::ExtractIndices<pcl::PointXYZ> extract;
-			std::vector<ofVec3f> vCloudHull;
 
-			// Optional
-			seg.setOptimizeCoefficients (true);
-			// Mandatory
-			seg.setModelType (pcl::SACMODEL_PLANE);
-			seg.setMethodType (pcl::SAC_RANSAC);
-			seg.setMaxIterations (50);
-			seg.setDistanceThreshold (planeTolerance); //original: 0.01
-			// Create the filtering object
-			int i = 0, nr_points = cloudTemp->points.size ();
-			// mientras 7% de la nube no se haya procesado
-
-			int numFaces = 0;
-		
-			while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < maxFaces)
+			//FIX
+			PCPtr cloud_filtered_temp_inliers (new PC());
+			PCPtr cloud_filtered_temp_outliers (new PC());
+			if(inliers->indices.size() != cloudTemp->size())
 			{
-				pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
-				// Segment the largest planar component from the remaining cloud
-				seg.setInputCloud (cloudTemp);
-				seg.segment (*inliers, *coefficients);
-				if (inliers->indices.size () == 0) {
-					std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
-					break;
-				}
-
-				//FIX
-				PCPtr cloud_filtered_temp_inliers (new PC());
-				PCPtr cloud_filtered_temp_outliers (new PC());
-				if(inliers->indices.size() != cloudTemp->size())
-				{
-					// Extract the inliers
-					extract.setInputCloud (cloudTemp);
-					extract.setIndices (inliers);
-					extract.setNegative (false);
-					extract.filter (*cloud_filtered_temp_inliers);
-					cloud_p = cloud_filtered_temp_inliers;
-				}
-				else
-					cloud_p = cloudTemp;
-		
-				// Create the filtering object
+				// Extract the inliers
 				extract.setInputCloud (cloudTemp);
 				extract.setIndices (inliers);
-				extract.setNegative (true);
+				extract.setNegative (false);
+				extract.filter (*cloud_filtered_temp_inliers);
+				cloud_p = cloud_filtered_temp_inliers;
+			}
+			else
+				cloud_p = cloudTemp;
+		
+			// Create the filtering object
+			extract.setInputCloud (cloudTemp);
+			extract.setIndices (inliers);
+			extract.setNegative (true);
 
 		
-				if(cloud_p->size() != cloudTemp->size())
-					extract.filter (*cloud_filtered_temp_outliers);
+			if(cloud_p->size() != cloudTemp->size())
+				extract.filter (*cloud_filtered_temp_outliers);
 
-				cloudTemp = cloud_filtered_temp_outliers;
+			cloudTemp = cloud_filtered_temp_outliers;
 
-				saveCloudAsFile("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
+			saveCloudAsFile("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
 			
-				//Remove outliers by clustering
-				PCPtr cloud_p_filtered (new PC());
-				pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-				tree->setInputCloud (cloud_p);
+			//Remove outliers by clustering
+			PCPtr cloud_p_filtered (new PC());
+			pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+			tree->setInputCloud (cloud_p);
 
-				std::vector<pcl::PointIndices> cluster_indices;
-				pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-				ec.setClusterTolerance (0.02); 
-				ec.setMinClusterSize (5);
-				ec.setMaxClusterSize (10000);
-				ec.setSearchMethod (tree);
-				ec.setInputCloud(cloud_p);
+			std::vector<pcl::PointIndices> cluster_indices;
+			pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+			ec.setClusterTolerance (0.02); 
+			ec.setMinClusterSize (5);
+			ec.setMaxClusterSize (10000);
+			ec.setSearchMethod (tree);
+			ec.setInputCloud(cloud_p);
 
-				ec.extract (cluster_indices);
-				int debuccount = 0;
+			ec.extract (cluster_indices);
+			int debuccount = 0;
 
-				if(cluster_indices.size() > 0)
-				{
-					for (std::vector<int>::const_iterator pit = cluster_indices.at(0).indices.begin (); pit != cluster_indices.at(0).indices.end (); pit++)
-						cloud_p_filtered->points.push_back (cloud_p->points[*pit]); //*
-				}
-
-				saveCloudAsFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
-				if (cloud_p_filtered->size() < 4)
-					break;
-
-				//proyecto los puntos sobre el plano
-				pcl::ProjectInliers<pcl::PointXYZ> proj; 
-				proj.setModelType(pcl::SACMODEL_PLANE); 
-				PCPtr projected_cloud (new PC()); 
-				proj.setInputCloud(cloud_p_filtered); 
-				proj.setModelCoefficients(coefficients); 
-				proj.filter(*projected_cloud);
-
-				saveCloudAsFile("postfilter_pol_proy" + ofToString(i) + ".pcd",*projected_cloud);
-
-				PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projected_cloud));
-				pcp->detectPolygon();
-			
-				nuevos.push_back(pcp);
-			
-				i++;
-				numFaces++;
+			if(cluster_indices.size() > 0)
+			{
+				for (std::vector<int>::const_iterator pit = cluster_indices.at(0).indices.begin (); pit != cluster_indices.at(0).indices.end (); pit++)
+					cloud_p_filtered->points.push_back (cloud_p->points[*pit]); //*
 			}
+
+			saveCloudAsFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
+			if (cloud_p_filtered->size() < 4)
+				break;
+
+			//proyecto los puntos sobre el plano
+			pcl::ProjectInliers<pcl::PointXYZ> proj; 
+			proj.setModelType(pcl::SACMODEL_PLANE); 
+			PCPtr projected_cloud (new PC()); 
+			proj.setInputCloud(cloud_p_filtered); 
+			proj.setModelCoefficients(coefficients); 
+			proj.filter(*projected_cloud);
+
+			saveCloudAsFile("postfilter_pol_proy" + ofToString(i) + ".pcd",*projected_cloud);
+
+			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projected_cloud));
+			pcp->detectPolygon();
+			
+			nuevos.push_back(pcp);
+			
+			i++;
+			numFaces++;
 		}
 
 		return nuevos;
@@ -449,6 +367,9 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::detectPrimitives() {
+		
+		ofxScopedMutex osm(pcPolygonsMutex);
+
 		vector<PCPolygonPtr> nuevos = detectPolygons(cloud); 
 		nuevos = discardPolygonsOutOfBox(nuevos); 
 		namePolygons(nuevos);
@@ -552,9 +473,9 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::draw() {
-		for (vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++) {
-			(*iter)->draw();
-		}
+		ofxScopedMutex osm(pcPolygonsMutex);
+		for (int i = 0; i < pcpolygons.size(); i++)
+			pcpolygons[i]->draw();
 	}
 
 	const PCPolygonPtr& PCPolyhedron::getPCPolygon(int index)
@@ -621,6 +542,8 @@ namespace mapinect {
 
 	void PCPolyhedron::addToModel(const PCPtr& nuCloud)
 	{
+		ofxScopedMutex osm(pcPolygonsMutex);
+
 		PCModelObject::addToModel(nuCloud);
 
 		///TODO:
@@ -666,12 +589,13 @@ namespace mapinect {
 		else
 		{
 			//Descarto caras que no sean paralelas a la mesa o esten apoyadas sobre la mesa
-			cout << "pre discard: " << nuevos.size() << endl;
+			/*cout << "pre discard: " << nuevos.size() << endl;
 			nuevos = discardPolygonsOutOfBox(nuevos);
-			cout << "post discard: " << nuevos.size() << endl;
+			cout << "post discard: " << nuevos.size() << endl;*/
 			namePolygons(nuevos);
 			nuevos = mergePolygons(nuevos);
 			vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos);
+			estimated = mergePolygons(estimated);
 			nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());
 		}
 		

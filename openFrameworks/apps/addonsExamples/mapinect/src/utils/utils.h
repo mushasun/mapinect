@@ -10,7 +10,7 @@
 
 extern int					objId;
 
-#define MATH_EPSILON		0.001
+#define MATH_EPSILON		0.005
 
 #define MAX_FLOAT			FLT_MAX
 

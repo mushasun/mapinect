@@ -86,8 +86,15 @@ namespace mapinect {
 	{
 		cv.draw();
 		pcm.draw();
+		
+		
 		app->debugDraw();
 		
+		//ofEnableAlphaBlending();  
+		//ofSetColor(255,255,255,128);
+		//gKinect->draw(0,0);
+		//ofDisableAlphaBlending();
+
 		ofSetHexColor(0);
 		stringstream reportStream;
 		reportStream

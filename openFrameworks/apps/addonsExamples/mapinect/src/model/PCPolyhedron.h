@@ -9,6 +9,8 @@
 #include "Vertex.h"
 #include <list>
 
+#include "ofxMutex.h"
+
 namespace mapinect {
 
 	class PCPolyhedron;
@@ -42,6 +44,9 @@ namespace mapinect {
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
 			virtual void					namePolygons(vector<PCPolygonPtr>& toName);
 			
+			//temporal
+			ofxMutex						pcPolygonsMutex;
+			///
 		protected:
 			vector<PCPolygonPtr>			pcpolygons;
 			vector<IPolygon*>				polygonsCache;
