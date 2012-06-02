@@ -28,13 +28,14 @@ namespace mapinect {
 		ofVec3f				lookAt(ofVec3f point);
 		ofVec3f				lookingAt();
 		Eigen::Affine3f		getWorldTransformation();
+		char*				read();
 		
 
 	private:
 		bool				isActive();
 
-		void				sendMotor(char value, int id);
-		char*				read();
+		void				sendMotor(int value, int id);
+		
 
 
 		ofSerial			serial;
