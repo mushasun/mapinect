@@ -13,10 +13,15 @@ namespace mapinect {
 	static float nearPlane;
 	static float farPlane;
 
-	static float transX =  -0.088;	//0.019;
-	static float transY =   0.004;	//-0.003;
+	static float transX =   -0.106;  //-0.065; //-0.088;	//0.019;
+	static float transY =    0.007;  //0.008; // 0.004;	//-0.003;
 	static float transZ =   0;		//-0.050;
 	static float rotYAxis = 0;
+
+	static ofVec3f currentModelviewT(0,0,0);
+	static ofVec3f modelviewRight(0,0,0);
+	static ofVec3f modelviewUp(0,0,0);
+	static ofVec3f modelviewFwd(0,0,0);
 
 	static float proj_matrix_glproj[16];
 	static float proj_fx;
@@ -56,6 +61,8 @@ namespace mapinect {
  		loadProjCalibData(const_cast<char*>(proj_calib_file.c_str()));
 		loadKinectExtrinsics(const_cast<char*>(kinect_calib_file.c_str()));		
 //		keyPressed('0');
+
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	// Load calibration parameters for projector
@@ -77,10 +84,10 @@ namespace mapinect {
 		proj_cy = (float) cvGetReal2D(projector_intrinsics, 1, 2);
 
 		// Pruebo de modificar los parámetros intrínsecos para ver si se ajusta mejor el tamaño
-		proj_fx = 2143.8887f;
-		proj_fy = 1718.2029f;
-//		proj_cx = 822.8236f;
-//		proj_cy = 490.3096f;
+		proj_fx = 1978.0f;						//2100.0f;
+		proj_fy = 1586.0f;						//1794.0f;
+		proj_cx = 642.0f;						//658.0f;
+		proj_cy = 370.0f;						//504.0f;
 		 
 		float proj_width = (float) cvGetReal2D(projector_size, 0, 0);
 		float proj_height = (float) cvGetReal2D(projector_size, 0, 1);
@@ -143,9 +150,9 @@ namespace mapinect {
 			proj_matrix_RT[i+12] = (float) cvGetReal2D(projector_T,i,0);
 		}
 		// prueba
-		proj_matrix_RT[12] *= -1; // -tx Hay que invertirla esta componente
-		proj_matrix_RT[13] *= -1; // -ty Hay que invertirla esta componente
-		proj_matrix_RT[14] *= -1; // -tz No hay demasiada diferencia invirtiendo esta componente
+//		proj_matrix_RT[12] *= -1; // -tx Hay que invertirla esta componente
+//		proj_matrix_RT[13] *= -1; // -ty Hay que invertirla esta componente
+//		proj_matrix_RT[14] *= -1; // -tz No hay demasiada diferencia invirtiendo esta componente
 		proj_matrix_RT[15] = 1;
 
 		// Calculate inverse transformation with preMultTranslate
@@ -302,26 +309,42 @@ namespace mapinect {
 			Aplicar transformación inversa de (R|T) (del archivo de calibración del proyector). 			
 */
 
-/*		glMatrixMode(GL_MODELVIEW);
+		glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
-			glScalef(1,-1,-1);					//3 - Pasar del sist. de coord. del proyector al de OpenGL (invertir Y y Z)
 			glTranslatef(transX,transY,transZ);
+			glScalef(1,-1,-1);					//3 - Pasar del sist. de coord. del proyector al de OpenGL (invertir Y y Z)
 			//		glRotatef(rotYAxis,0,1,0);
 			// R | -T
 			glMultMatrixf(inv_proj_RT_premult);	//2 - Pasar de rgb-camera space al sistema de coordenadas del proyector (aplicar (R|T) del proyector)	
 			// inv(R|T) = (T*R)^-1 = R^-1 * T^-1 = -R^-1*T
 			glMultMatrixf(kinect_matrix_RT);	//1 - Pasar de depth-camera space a rgb-camera space (aplicar inverso de (R|T) del Kinect)		
-*/
 
-		// Otra prueba:
+			// Check current translation after multiplying matrices
+			GLfloat matrix[16]; 
+			glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
+			currentModelviewT.x = matrix[12];
+			currentModelviewT.y = matrix[13];
+			currentModelviewT.z = matrix[14];
+			modelviewRight.x = matrix[0];
+			modelviewRight.y = matrix[1];
+			modelviewRight.z = matrix[2];
+			modelviewUp.x = matrix[4];
+			modelviewUp.y = matrix[5];
+			modelviewUp.z = matrix[6];
+			modelviewFwd.x = -matrix[8];
+			modelviewFwd.y = -matrix[9];
+			modelviewFwd.z = -matrix[10];
+
+
+
+/*		// Otra prueba:
 		glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			glScalef(1,-1,-1);					//3 - Pasar del sist. de coord. del proyector al de OpenGL (invertir Y y Z)
-			glTranslatef(transX,transY,transZ);
 			glMultMatrixf(proj_matrix_RT);		//2 - Pasar de rgb-camera space al sistema de coordenadas del proyector (aplicar (R|T) del proyector)
 			//glMultMatrixf(inv_kinect_matrix_RT);//1 - Pasar de depth-camera space a rgb-camera space (aplicar inverso de (R|T) del Kinect)			glScalef(-1, -1, 1);			
 			glMultMatrixf(inv_kinect_RT_premult);
-
+*/
 		// Hasta ahora
 /*		glMatrixMode(GL_MODELVIEW);
 //		ofPushMatrix();
@@ -341,7 +364,6 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void VM::draw() {
 		CHECK_ACTIVE;
-
 	}
 
 	//--------------------------------------------------------------
@@ -361,114 +383,85 @@ namespace mapinect {
 		CHECK_ACTIVE;
 				
 		float varProj = 1.0f;
-
-		float var = 0.01f;
-		float varX = 0.001f;
-		float varY = 0.001f;
-		float varZ = 0.001f;
+		float varTrans = 0.001f;
 
 		switch (key) {
 			/*********************
-				  ADJUST VIEWING 
-					 EYE    = (XPROJ,YPROJ,0)
-					 LOOKAT = (XPROJ+TRANSXAT,
-						YPROJ+TRANSYAT,
-						-900.0)
-			*********************
-				YPROJ	= UP+
-				YPROJ	= DOWN-
-				XPROJ	= RIGHT+
-				XPROJ	= LEFT-
-				ZPROJ	= ++
-				ZPROJ	= --
-				TRANSXAT= l+
-				TRANSXAT= j-
-				TRANSYAT= i+
-				TRANSYAT= k-
+				fy		++	= UP
+				fy		--	= DOWN
+				fx		++	= RIGHT
+				fx		--	= LEFT
+				transY	++	= w
+				transY	--	= s
+				transX	++	= d
+				transX	--	= a
+				transZ	++	= +
+				transZ	--	= -
+			
 			********************/	
 			case OF_KEY_UP:
 				proj_fy +=varProj;
 				printf("proj_fy increased: %f \n",proj_fy);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
 				break;
-				/*transY +=varY;
-				proj_loc.y += varY;
-				proj_trg.y += varY;
-				printf("proj_loc.y increased: %f \n", proj_loc.y);
-				break; */
 			case OF_KEY_DOWN:
 				proj_fy -=varProj;
 				printf("proj_fy decreased: %f \n",proj_fy);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
 				break;
-				/*transY -=varY;
-				proj_loc.y -= varY;
-				proj_trg.y -= varY;
-				printf("proj_loc.y decreased: %f \n", proj_loc.y);
-				break;*/
 			case OF_KEY_LEFT:
 				proj_fx -=varProj;
 				printf("proj_fx decreased: %f \n",proj_fx);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
 				break;
-				/*transX -=varX;
-				proj_loc.x -= varX;
-				proj_trg.x -= varX;
-				printf("proj_loc.x decreased: %f \n", proj_loc.x);
-				break;*/
 			case OF_KEY_RIGHT:
 				proj_fx +=varProj;
 				printf("proj_fx increased: %f \n",proj_fx);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
 				break;
-				/*transX +=varX;
-				proj_loc.x += varX;
-				proj_trg.x += varX;
-				printf("proj_loc.x increased: %f \n", proj_loc.x);
-				break;*/
-			case 'w':
-/*				proj_cy +=varProj;
-				printf("proj_cy increased: %f \n",proj_cy);
-				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
-				break;
-*/				transY += varY;
-				printf("Y translation inc: %f \n", transY);
-				break;
-			case 's':
-/*				proj_cy -=varProj;
-				printf("proj_cy decreased: %f \n",proj_cy);
-				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
-				break;
-*/				transY -= varY;
-				printf("Y translation dec: %f \n", transY);
-				break;
-			case 'a':
-/*				proj_cx -=varProj;
+			case 'j':
+				proj_cx -=varProj;
 				printf("proj_cx decreased: %f \n",proj_cx);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
 				break;
-*/				transX -= varX;
-				printf("X translation dec: %f \n", transX);
-				break;
-			case 'd':
-/*				proj_cx +=varProj;
+			case 'l':
+				proj_cx +=varProj;
 				printf("proj_cx increased: %f \n",proj_cx);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
 				break;
-*/				transX += varX;
+			case 'i':
+				proj_cy +=varProj;
+				printf("proj_cy increased: %f \n",proj_cy);
+				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
+				break;
+			case 'k':
+				proj_cy -=varProj;
+				printf("proj_cy decreased: %f \n",proj_cy);
+				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
+				break;
+			case 'w':
+				transY += varTrans;
+				printf("Y translation inc: %f \n", transY);
+				break;
+			case 's':
+				transY -= varTrans;
+				printf("Y translation dec: %f \n", transY);
+				break;
+			case 'a':
+				transX -= varTrans;
+				printf("X translation dec: %f \n", transX);
+				break;
+			case 'd':
+				transX += varTrans;
 				printf("X translation inc: %f \n", transX);
 				break;
 			case '-':
-				transZ -=varZ;
-				proj_loc.z -= varZ;
-				proj_trg.z -= varZ;
-				printf("proj_loc.z decreased: %f \n", proj_loc.z);
+				transZ -= varTrans;
+				printf("Z translation dec: %f \n", transZ);
 				break;
 			case '+':
-				transZ +=varZ;
-				proj_loc.z += varZ;
-				proj_trg.z += varZ;
-				printf("zProj increased: %f \n", proj_loc.z);
+				transZ += varTrans;
+				printf("Z translation inc: %f \n", transZ);
 				break;
 
 			/*********************
@@ -490,11 +483,11 @@ namespace mapinect {
 			  SHOW STATUS	 - q
 			*********************/
 			case 'q':
-				printf("Current viewing parameters: \n");
-				printf("	Eye    = (%.6f,%.6f,%.6f) \n", proj_loc.x, proj_loc.y, proj_loc.z);
-				printf("	LookAt = (%.6f,%.6f,%.6f) \n", proj_trg.x, proj_trg.y, proj_trg.z);
+				printf("Current parameters: \n");
+				printf("	Modelview Trans [x,y,z] = (%.4f,%.4f,%.4f) \n",currentModelviewT.x, currentModelviewT.y, currentModelviewT.z);
+				printf("	Proj intrinsics [fx,fy,cx,cy] = (%.4f,%.4f,%.4f,%.4f) \n", proj_fx, proj_fy, proj_cx, proj_cy);
+				printf("	Model glTransl  [x,y,z] = (%.4f,%.4f,%.4f) \n", transX, transY, transZ);
 				break;
-
 		case 'o':
 			rotYAxis -= 1;
 			//nearPlane += 0.005f;
