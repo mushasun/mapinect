@@ -23,6 +23,7 @@ namespace mapinect {
 			virtual vector<PCPolygonPtr>	estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons);
 
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
+			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard, const vector<PCPolygonPtr>& inPolygon);
 			list<IPolygonName>				getMissing(const vector<PCPolygonPtr>& estimated);
 			PCPolygonPtr					getNextPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);
 			PCPolygonPtr					getPrevPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);

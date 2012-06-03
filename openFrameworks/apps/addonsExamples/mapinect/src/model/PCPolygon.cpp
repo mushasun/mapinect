@@ -33,6 +33,7 @@ namespace mapinect {
 			}
 		}
 		matchedDistance = numeric_limits<float>::max();
+		matchedEstimator= numeric_limits<float>::max();
 		modelObject = ModelObjectPtr(new Polygon(coefficients));
 	}
 
@@ -69,7 +70,7 @@ namespace mapinect {
 				ofSetColor(255,0,0);
 				ofVec3f avg = computeCentroid(getPolygonModelObject()->getMathModel().getVertexs());
 				ofVec3f sAvg = gKinect->getScreenCoordsFromWorldCoords(avg);
-				ofDrawBitmapString(ofToString(getId()), sAvg.x, sAvg.y);
+				ofDrawBitmapString(ofToString(getMathPolygonModelApproximation()->getName()), sAvg.x, sAvg.y);
 			}
 		}
 	}
@@ -128,22 +129,24 @@ namespace mapinect {
 
 	bool PCPolygon::matches(const PCPolygonPtr& polygon, PCPolygonPtr& removed, bool& wasRemoved)
 	{
-		bool result = true;
+		bool result = false;
 		wasRemoved = false;
 		
 		ofVec3f myNormal = getNormal();
 		ofVec3f yourNormal = polygon->getNormal();
 		ofVec3f axis;
 		{
-			ofxScopedMutex osm(gModel->tableMutex);
+			gModel->tableMutex.lock();
 			axis = gModel->getTable()->getNormal();
+			gModel->tableMutex.unlock();
+
 		}
 		float angle = acos(myNormal.dot(yourNormal));
 		float estimator = fabsf(fabsf(angle - PI * 0.5) - PI * 0.5);
 		const float NORMAL_TOLERANCE = PI / 4.0;
 		bool sameDirection = myNormal.dot(yourNormal) > 0;
 		if (estimator < NORMAL_TOLERANCE && sameDirection) {
-			if (matched == NULL || estimator < matchedEstimator) {
+			if (estimator < matchedEstimator) {
 				Eigen::Vector4f myCentroid, yourCentroid;
 				pcl::compute3DCentroid(*cloud,myCentroid);
 				pcl::compute3DCentroid(*polygon->getCloud(),yourCentroid);
@@ -152,7 +155,7 @@ namespace mapinect {
 
 				float distEstimator = abs((v1 - v2).length());
 				cout << "size: " << distEstimator << endl;
-				if(matched == NULL || (distEstimator < 0.2 && distEstimator < matchedDistance))
+				if((distEstimator < 0.05 && distEstimator < matchedDistance))
 				{
 					wasRemoved = matched != NULL;
 					removed = matched;
@@ -160,10 +163,10 @@ namespace mapinect {
 					matchedEstimator = estimator;
 					matchedDistance = distEstimator;
 					
-					/*saveCloudAsFile("original" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
-					saveCloudAsFile("matched" + ofToString(this->getPolygonModelObject()->getName()) + "m.pcd", *polygon->getCloud());*/
+					saveCloudAsFile("original" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
+					saveCloudAsFile("matched" + ofToString(this->getPolygonModelObject()->getName()) + "m.pcd", *polygon->getCloud());
 
-
+					result = true;
 					////Establezco la transformacion
 					//Eigen::Vector4f myCentroid, yourCentroid;
 					//pcl::compute3DCentroid(*cloud,myCentroid);
@@ -174,9 +177,6 @@ namespace mapinect {
 					////matchingAngleRotation = angle;
 				}
 			}
-		}
-		else {
-			result = false;
 		}
 		return result;
 	}
@@ -239,6 +239,7 @@ namespace mapinect {
 		if (hasMatching()) {
 			matched.reset();
 			matchedEstimator = MAX_FLOAT;
+			matchedDistance = MAX_FLOAT;
 		}
 	}
 

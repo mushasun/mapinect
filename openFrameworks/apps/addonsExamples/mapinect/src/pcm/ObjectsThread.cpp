@@ -34,8 +34,9 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void ObjectsThread::setCloud(const PCPtr& cloud)
 	{
-		ofxScopedMutex osm(inCloudMutex);
+		inCloudMutex.lock();
 		inCloud = cloud;
+		inCloudMutex.unlock();
 	}
 
 	//--------------------------------------------------------------
@@ -46,9 +47,11 @@ namespace mapinect {
 				
 				bool newCloudAvailable = false;
 				{
-					ofxScopedMutex osm(inCloudMutex);
+					inCloudMutex.lock();
 					if (inCloud.get() != NULL)
 						newCloudAvailable = true;
+					inCloudMutex.unlock();
+
 				}
 
 				if(newCloudAvailable)
@@ -74,9 +77,10 @@ namespace mapinect {
 	{
 		PCPtr cloud;
 		{
-			ofxScopedMutex osm(inCloudMutex);
+			inCloudMutex.lock();
 			cloud = PCPtr(new PC(*inCloud));
 			inCloud.reset();
+			inCloudMutex.unlock();
 		}
 
 		// Updating temporal detections

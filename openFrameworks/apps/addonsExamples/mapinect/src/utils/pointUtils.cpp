@@ -431,8 +431,9 @@ float evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& p
 
 float boxProbability(const PCPtr& cloud)
 {
-	ofxScopedMutex osm(gModel->tableMutex);
+	gModel->tableMutex.lock();
 	mapinect::TablePtr table = gModel->getTable();
+	gModel->tableMutex.unlock();
 	if(table != NULL && table->isOnTable(cloud))
 	{
 		//pcl::io::savePCDFile("isBox.pcd",*cloud);

@@ -40,7 +40,7 @@ namespace mapinect {
 
 	IObjectPtr PCPolyhedron::getMathModelApproximation() const
 	{
-		ofxScopedMutex osm(pcPolygonsMutex);
+		pcPolygonsMutex.lock();
 		vector<IPolygonPtr> polygons;
 		for (vector<PCPolygonPtr>::const_iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
 		{
@@ -51,6 +51,7 @@ namespace mapinect {
 		{
 			dynamic_cast<Polygon*>(p->get())->setContainer(result);
 		}
+		pcPolygonsMutex.unlock();
 		return result;
 	}
 
@@ -102,6 +103,7 @@ namespace mapinect {
 		//	keep.insert(keep.end(),adjust.begin(),adjust.end());
 		//}
 
+		aAgregar = discardPolygonsOutOfBox(aAgregar,keep);
 
 		for (int i = 0; i < aAgregar.size(); i++) {
 			if (indexOf(pcpolygons, aAgregar[i]) < 0) {
@@ -356,7 +358,7 @@ namespace mapinect {
 		sort(toName.begin(), toName.end(), sortOnCenterXAsc<PCPolygonPtr>);
 		for(int i = 0; i < toName.size(); i++)
 		{
-			ofxScopedMutex osm(gModel->tableMutex);
+			gModel->tableMutex.lock();
 			if(gModel->getTable()->isParallelToTable(toName.at(i)))
 				toName.at(i)->getPolygonModelObject()->setName(kPolygonNameTop);
 			else
@@ -364,13 +366,13 @@ namespace mapinect {
 				toName.at(i)->getPolygonModelObject()->setName((IPolygonName)sideFacesName);
 				sideFacesName++;
 			}
+			gModel->tableMutex.unlock();
 		}
 	}
 
 	void PCPolyhedron::detectPrimitives() {
 		
-		ofxScopedMutex osm(pcPolygonsMutex);
-
+		pcPolygonsMutex.lock();
 		vector<PCPolygonPtr> nuevos = detectPolygons(cloud); 
 		nuevos = discardPolygonsOutOfBox(nuevos); 
 		namePolygons(nuevos);
@@ -383,6 +385,8 @@ namespace mapinect {
 		{
 			saveCloudAsFile ("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
 		}
+		pcPolygonsMutex.unlock();
+
 	}
 
 	void PCPolyhedron::updatePolygons() {
@@ -474,9 +478,11 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::draw() {
-		ofxScopedMutex osm(pcPolygonsMutex);
+		pcPolygonsMutex.lock();
 		for (int i = 0; i < pcpolygons.size(); i++)
 			pcpolygons[i]->draw();
+		pcPolygonsMutex.unlock();
+
 	}
 
 	const PCPolygonPtr& PCPolyhedron::getPCPolygon(int index)
@@ -490,12 +496,12 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::resetLod() {
-		ofxScopedMutex osm(pcPolygonsMutex);
-
+		pcPolygonsMutex.lock();
 		PCModelObject::resetLod();
 		for (int i = 0; i < pcpolygons.size(); i++) {
 			pcpolygons[i]->resetLod();
 		}
+		pcPolygonsMutex.unlock();
 	}
 
 	void PCPolyhedron::increaseLod(const PCPtr& nuCloud) {
@@ -513,7 +519,7 @@ namespace mapinect {
 
 		//pcl::io::savePCDFile("table.pcd",table->getCloud());
 		
-		ofxScopedMutex osm(gModel->tableMutex);
+		gModel->tableMutex.lock();
 		for(int i = 0; i < toDiscard.size(); i++)
 		{
 			//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
@@ -533,10 +539,16 @@ namespace mapinect {
 			}
 
 		}
+		gModel->tableMutex.unlock();
+
 
 		return polygonsInBox;
 	}
 	
+	vector<PCPolygonPtr>	PCPolyhedron::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard, const vector<PCPolygonPtr>& inPolygon)
+	{
+		return toDiscard;
+	}
 
 	vector<PCPolygonPtr> PCPolyhedron::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons)
 	{
@@ -545,8 +557,7 @@ namespace mapinect {
 
 	void PCPolyhedron::addToModel(const PCPtr& nuCloud)
 	{
-		ofxScopedMutex osm(pcPolygonsMutex);
-
+		pcPolygonsMutex.lock();
 		PCModelObject::addToModel(nuCloud);
 
 		///TODO:
@@ -609,6 +620,9 @@ namespace mapinect {
 		{
 			saveCloudAsFile ("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
 		}
+
+		pcPolygonsMutex.unlock();
+
 	}
 
 	void PCPolyhedron::setAndUpdateCloud(const PCPtr& cloud)
