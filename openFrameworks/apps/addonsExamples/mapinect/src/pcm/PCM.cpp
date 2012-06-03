@@ -60,16 +60,19 @@ namespace mapinect {
 			ofResetColor();
 			ofPushMatrix();
 			{
-				ofxScopedMutex osm(gModel->objectsMutex);
+				gModel->objectsMutex.lock();
 				for (vector<ModelObjectPtr>::const_iterator it = gModel->getObjects().begin(); it != gModel->getObjects().end(); it++)
 				{
 					(*it)->drawObject();
 				}
+				gModel->objectsMutex.unlock();
+
 			}
 			{
-				ofxScopedMutex osm(gModel->tableMutex);
+				gModel->tableMutex.lock();
 				if(gModel->getTable().get() != NULL)
 					gModel->getTable()->draw();	
+				gModel->tableMutex.unlock();
 			}
 
 			ofPopMatrix();

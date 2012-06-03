@@ -96,4 +96,10 @@ namespace mapinect
 
 	}
 
+	bool Plane3D::isPerpendicular(const Plane3D& plane) const
+	{
+		float dot = abs(normal.dot(plane.getNormal()));
+		return dot < 0.1;
+	}
+
 }

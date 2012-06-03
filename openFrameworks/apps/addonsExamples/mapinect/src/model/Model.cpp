@@ -12,7 +12,7 @@ namespace mapinect
 	{
 		PCPtr cloud(new PC);
 		{
-			ofxScopedMutex osm(objectsMutex);
+			objectsMutex.lock();
 			// TODO: se puede hacer cache para mejorar performance
 			for (vector<ModelObjectPtr>::const_iterator ob = objects.begin(); ob != objects.end(); ++ob)
 			{
@@ -22,13 +22,16 @@ namespace mapinect
 					*cloud += *(pcm->getCloud());
 				}
 			}
+			objectsMutex.unlock();
 		}
 		{
-			ofxScopedMutex osmt(tableMutex);
+			tableMutex.lock();
 			if (table.get() != NULL)
 			{
 				*cloud += *(table->getCloud());
 			}
+			tableMutex.unlock();
+
 		}
 		return cloud;
 	}
@@ -37,21 +40,19 @@ namespace mapinect
 	{
 		vector<IObjectPtr> mathModel;
 		{
-			ofxScopedMutex osmo(objectsMutex);
-		}
-		{
-			ofxScopedMutex osmt(tableMutex);
+			tableMutex.lock();
 			if (table.get() != NULL)
 			{
 				mathModel.push_back(table->getMathModelApproximation());
 			}
+			tableMutex.unlock();
 		}
 		return mathModel;
 	}
 
 	void Model::addObject(const ModelObjectPtr& object)
 	{
-		ofxScopedMutex osm(objectsMutex);
+		objectsMutex.lock();
 		objects.push_back(object);
 		PCModelObject* pcmo = dynamic_cast<PCModelObject*>(object.get());
 		if (pcmo != NULL)
@@ -59,11 +60,12 @@ namespace mapinect
 			IObjectPtr iObject = pcmo->getMathModelApproximation();
 			EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectDetected, iObject));
 		}
+		objectsMutex.unlock();
 	}
 
 	void Model::removeObject(const ModelObjectPtr& object)
 	{
-		ofxScopedMutex osm(objectsMutex);
+		objectsMutex.lock();
 		for (vector<ModelObjectPtr>::iterator it = objects.begin(); it != objects.end(); ++it)
 		{
 			if (it->get() == object.get())
@@ -78,11 +80,13 @@ namespace mapinect
 			IObjectPtr iObject = pcmo->getMathModelApproximation();
 			EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectLost, iObject));
 		}
+		objectsMutex.unlock();
+
 	}
 
 	void Model::resetObjects()
 	{
-		ofxScopedMutex osm(objectsMutex);
+		objectsMutex.lock();
 		for (vector<ModelObjectPtr>::iterator it = objects.begin(); it != objects.end(); ++it)
 		{
 			PCModelObject* pcmo = dynamic_cast<PCModelObject*>(it->get());
@@ -93,22 +97,25 @@ namespace mapinect
 			}
 		}
 		objects.clear();
+		objectsMutex.unlock();
 	}
 
 	void Model::setTable(const TablePtr& newTable)
 	{
-		ofxScopedMutex osm(tableMutex);
+		tableMutex.lock();
 		table = newTable;
 		IObjectPtr iObject = table->getMathModelApproximation();
 		EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectDetected, iObject));
+		tableMutex.unlock();
 	}
 
 	void Model::resetTable()
 	{
-		ofxScopedMutex osm(tableMutex);
+		tableMutex.lock();
 		IObjectPtr iObject = table->getMathModelApproximation();
 		EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectLost, iObject));
 		table.reset();
+		tableMutex.unlock();
 	}
 
 }

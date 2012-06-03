@@ -29,8 +29,8 @@ namespace mapinect
 		void setTable(const TablePtr&);
 		void resetTable();
 
-		ofxMutex						objectsMutex;
-		ofxMutex						tableMutex;
+		mutable ofxMutex						objectsMutex;
+		mutable ofxMutex						tableMutex;
 
 	private:
 		vector<ModelObjectPtr>			objects;

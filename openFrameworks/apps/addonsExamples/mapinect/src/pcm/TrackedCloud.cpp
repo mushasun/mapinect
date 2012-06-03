@@ -201,7 +201,7 @@ namespace mapinect {
 		{ 
 			if(hasMatching())
 			{
-				ofxScopedMutex osm(gModel->objectsMutex);
+				gModel->objectsMutex.lock();
 				cloud = matchingCloud->getTrackedCloud();
 				if(objectInModel.get() != NULL)
 				{
@@ -215,6 +215,7 @@ namespace mapinect {
 					objectInModel->addToModel(cloud);
 					objectInModel->setCloud(cloud);
 				}
+				gModel->objectsMutex.unlock();
 			}
 			
 		}
@@ -268,8 +269,10 @@ namespace mapinect {
 			//Quito los puntos que pertenecen a la mesa
 			ModelCoefficients tableCoef;
 			{
-				ofxScopedMutex osm(gModel->tableMutex);
+				gModel->tableMutex.lock();
 				tableCoef = gModel->getTable()->getCoefficients();
+				gModel->tableMutex.unlock();
+
 			}
 			PointIndices::Ptr tableIdx = adjustPlane(tableCoef,nuCloud);
 
@@ -290,8 +293,9 @@ namespace mapinect {
 			
 			///Added for debug
 			{
-				ofxScopedMutex osm(gModel->objectsMutex);
+				gModel->objectsMutex.lock();
 				objectInModel->addToModel(nuCloudFilteredNoTable);
+				gModel->objectsMutex.unlock();
 			}
 		}
 	}

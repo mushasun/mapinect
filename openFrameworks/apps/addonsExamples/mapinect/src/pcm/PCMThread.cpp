@@ -182,7 +182,7 @@ namespace mapinect {
 		log(kLogFilePCMThread, "Creating objects over table cloud...");
 
 		{
-			ofxScopedMutex osm(gModel->tableMutex);
+			gModel->tableMutex.lock();
 			if (gModel->getTable().get() == NULL)
 			{
 				PCPtr biggestPlaneCloud = extractBiggestPlane(tableCluster, coefficients, remainingCloud, 0.009);
@@ -202,6 +202,8 @@ namespace mapinect {
 						remainingCloud->push_back(tableCluster->at(i));
 				}
 			}
+			gModel->tableMutex.unlock();
+
 		}
 		// TODO: OJO A LA CONCURRENCIA SOBRE gModel!!
 		/* Actualización de la mesa

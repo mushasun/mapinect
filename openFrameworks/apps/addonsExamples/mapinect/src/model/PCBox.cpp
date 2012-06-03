@@ -47,82 +47,89 @@ namespace mapinect {
 	}
 
 	void PCBox::unifyVertexs() {
-		/*PCPolyhedron::unifyVertexs();
-		return;*/
+		//PCPolyhedron::unifyVertexs();
+		//return;
 
-		vector<ofVec3f> unified;
-		IPolygonName vertexNames[8][3]	= {{kPolygonNameSideA,kPolygonNameSideB,kPolygonNameTop},
-									      {kPolygonNameSideA,kPolygonNameSideB,kPolygonNameBottom},
-										  {kPolygonNameSideA,kPolygonNameSideD,kPolygonNameBottom},
-										  {kPolygonNameSideA,kPolygonNameSideD,kPolygonNameTop},
-										  {kPolygonNameSideC,kPolygonNameSideB,kPolygonNameTop},
-									      {kPolygonNameSideC,kPolygonNameSideB,kPolygonNameBottom},
-										  {kPolygonNameSideC,kPolygonNameSideD,kPolygonNameBottom},
-										  {kPolygonNameSideC,kPolygonNameSideD,kPolygonNameTop}};
-		int vertexIdx[8][3]				= {	{0,3,1},
-											{1,2,2},
-											{2,1,1},
-											{3,0,2},
-											{3,0,0},
-											{2,1,3},
-											{1,2,0},
-											{0,3,3}};
-		vector<ofVec3f> vertexs [6];
-		for(int j = 0; j < 6; j++)
+		if(getMissing(pcpolygons).size() > 0)
 		{
-			vertexs[j].resize(4);
+			PCPolyhedron::unifyVertexs();
 		}
-
-		for(int i = 0; i < 8; i++)
+		else
 		{
-			PCPolygonPtr p0 = getPCPolygon(vertexNames[i][0], pcpolygons);
-			PCPolygonPtr p1 = getPCPolygon(vertexNames[i][1], pcpolygons);
-			PCPolygonPtr p2 = getPCPolygon(vertexNames[i][2], pcpolygons);
-
-			if( p0 != NULL &&
-				p1 != NULL &&
-				p2 != NULL)
+			vector<ofVec3f> unified;
+			IPolygonName vertexNames[8][3]	= {{kPolygonNameSideA,kPolygonNameSideB,kPolygonNameTop},
+											  {kPolygonNameSideA,kPolygonNameSideB,kPolygonNameBottom},
+											  {kPolygonNameSideA,kPolygonNameSideD,kPolygonNameBottom},
+											  {kPolygonNameSideA,kPolygonNameSideD,kPolygonNameTop},
+											  {kPolygonNameSideC,kPolygonNameSideB,kPolygonNameTop},
+											  {kPolygonNameSideC,kPolygonNameSideB,kPolygonNameBottom},
+											  {kPolygonNameSideC,kPolygonNameSideD,kPolygonNameBottom},
+											  {kPolygonNameSideC,kPolygonNameSideD,kPolygonNameTop}};
+			int vertexIdx[8][3]				= {	{0,3,1},
+												{1,2,2},
+												{2,1,1},
+												{3,0,2},
+												{3,0,0},
+												{2,1,3},
+												{1,2,0},
+												{0,3,3}};
+			vector<ofVec3f> vertexs [6];
+			for(int j = 0; j < 6; j++)
 			{
-				// TODO: Actualizar el MathModel de los poligonos cuando se hace el matching!!!
-				Plane3D plane0(p0->getPolygonModelObject()->getMathModel().getPlane());
-				Plane3D plane1(p1->getPolygonModelObject()->getMathModel().getPlane());
-				Plane3D plane2(p2->getPolygonModelObject()->getMathModel().getPlane());
-				ofVec3f vertex = plane0.intersection(plane1, plane2);
-
-				vertexs[vertexNames[i][0]][vertexIdx[i][0]] = vertex;
-				vertexs[vertexNames[i][1]][vertexIdx[i][1]] = vertex;
-				vertexs[vertexNames[i][2]][vertexIdx[i][2]] = vertex;
-
-				unified.push_back(vertex);
-				//DEBUG
-				/*saveCloudAsFile("vmerged" + ofToString(i) + ".pcd", vertex);
-				saveCloudAsFile("merged" + ofToString(i) + "1.pcd", *p0->getCloud());
-				saveCloudAsFile("merged" + ofToString(i) + "2.pcd", *p1->getCloud());
-				saveCloudAsFile("merged" + ofToString(i) + "3.pcd", *p2->getCloud());*/
-
+				vertexs[j].resize(4);
 			}
-		}
-		
-		for(int i = 0; i < 6; i++)
-		{
-			IPolygonName name = (IPolygonName)i;
-			PCPolygonPtr p0 = getPCPolygon(name, pcpolygons);
-			if(p0 != NULL)
-				p0->getPolygonModelObject()->setVertexs(vertexs[i]);
-		}
-		saveCloudAsFile("UnifiedVertex.pcd", unified);
 
-		/*for(int i = 0; i < pcpolygons.size(); i ++)
-		{
-			saveCloudAsFile("p" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
-			saveCloudAsFile("v" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", pcpolygons.at(i)->getPolygonModelObject()->getMathModel().getVertexs());
-		}*/
-		//for(int i = 0; i < vertexs.size(); i++)
-		//{
-		//	cout << "vertex " << ofToString(i) << ": " << vertexs.at(i).getPoint() << endl;
-		//	for(int j = 0; j < vertexs.at(i).Polygons.size(); j ++)
-		//		cout << "\t" << vertexs.at(i).Polygons.at(j)->getPolygonModelObject()->getName() << endl;
-		//}
+			for(int i = 0; i < 8; i++)
+			{
+				PCPolygonPtr p0 = getPCPolygon(vertexNames[i][0], pcpolygons);
+				PCPolygonPtr p1 = getPCPolygon(vertexNames[i][1], pcpolygons);
+				PCPolygonPtr p2 = getPCPolygon(vertexNames[i][2], pcpolygons);
+
+				if( p0 != NULL &&
+					p1 != NULL &&
+					p2 != NULL)
+				{
+					// TODO: Actualizar el MathModel de los poligonos cuando se hace el matching!!!
+					Plane3D plane0(p0->getPolygonModelObject()->getMathModel().getPlane());
+					Plane3D plane1(p1->getPolygonModelObject()->getMathModel().getPlane());
+					Plane3D plane2(p2->getPolygonModelObject()->getMathModel().getPlane());
+					ofVec3f vertex = plane0.intersection(plane1, plane2);
+
+					vertexs[vertexNames[i][0]][vertexIdx[i][0]] = vertex;
+					vertexs[vertexNames[i][1]][vertexIdx[i][1]] = vertex;
+					vertexs[vertexNames[i][2]][vertexIdx[i][2]] = vertex;
+
+					unified.push_back(vertex);
+					//DEBUG
+					/*saveCloudAsFile("vmerged" + ofToString(i) + ".pcd", vertex);
+					saveCloudAsFile("merged" + ofToString(i) + "1.pcd", *p0->getCloud());
+					saveCloudAsFile("merged" + ofToString(i) + "2.pcd", *p1->getCloud());
+					saveCloudAsFile("merged" + ofToString(i) + "3.pcd", *p2->getCloud());*/
+
+				}
+			}
+		
+			for(int i = 0; i < 6; i++)
+			{
+				IPolygonName name = (IPolygonName)i;
+				PCPolygonPtr p0 = getPCPolygon(name, pcpolygons);
+				if(p0 != NULL)
+					p0->getPolygonModelObject()->setVertexs(vertexs[i]);
+			}
+			saveCloudAsFile("UnifiedVertex.pcd", unified);
+
+			/*for(int i = 0; i < pcpolygons.size(); i ++)
+			{
+				saveCloudAsFile("p" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
+				saveCloudAsFile("v" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", pcpolygons.at(i)->getPolygonModelObject()->getMathModel().getVertexs());
+			}*/
+			//for(int i = 0; i < vertexs.size(); i++)
+			//{
+			//	cout << "vertex " << ofToString(i) << ": " << vertexs.at(i).getPoint() << endl;
+			//	for(int j = 0; j < vertexs.at(i).Polygons.size(); j ++)
+			//		cout << "\t" << vertexs.at(i).Polygons.at(j)->getPolygonModelObject()->getName() << endl;
+			//}
+		}
 	}
 	
 	vector<PCPolygonPtr> PCBox::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard)
@@ -154,6 +161,31 @@ namespace mapinect {
 		return polygonsInBox;
 	}
 	
+	vector<PCPolygonPtr> PCBox::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard, const vector<PCPolygonPtr>& inPolygon)
+	{
+		vector<PCPolygonPtr> polygonsInBox;
+		for(int i = 0; i < toDiscard.size(); i++)
+		{
+			bool belongsToBox = true;
+			Plane3D dPlane = toDiscard.at(i)->getMathPolygonModelApproximation()->getMathModel().getPlane();
+			//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
+			for(int j = 0; j < inPolygon.size(); j++)
+			{
+				if(!dPlane.isPerpendicular(inPolygon.at(j)->getMathPolygonModelApproximation()->getMathModel().getPlane()))
+				{
+					belongsToBox = false;
+					break;
+				}
+			}
+			if(belongsToBox)
+				polygonsInBox.push_back(toDiscard.at(i));
+			else
+				saveCloudAsFile("Discared.pcd",*toDiscard.at(i)->getCloud());
+		}
+
+		return polygonsInBox;
+	}
+
 	PCPolygonPtr PCBox::duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons)
 	{
 		pcl::ModelCoefficients coeff = polygon->getCoefficients();
@@ -181,9 +213,9 @@ namespace mapinect {
 			
 			if(polFatherName == kPolygonNameTop)
 				traslation = normal * (-height); 
-			else if(polFatherName == kPolygonNameSideA)
+			else if(polFatherName == kPolygonNameSideA || polFatherName == kPolygonNameSideC)
 				traslation = normal * (-depth); 
-			else if(polFatherName == kPolygonNameSideB)
+			else if(polFatherName == kPolygonNameSideB || polFatherName == kPolygonNameSideD)
 				traslation = normal * (-width); 
 
 			Eigen::Transform<float,3,Eigen::Affine> transformation;
@@ -468,8 +500,7 @@ namespace mapinect {
 
 	void PCBox::detectPrimitives() {
 		PCPolyhedron::detectPrimitives();
-		ofxScopedMutex osm(pcPolygonsMutex);
-
+		pcPolygonsMutex.lock();
 		if(pcpolygons.size() == 6)
 		{
 			partialEstimation = true;
@@ -500,6 +531,7 @@ namespace mapinect {
 			}
 			messureBox();
 		}
+		pcPolygonsMutex.unlock();
 	}
 
 

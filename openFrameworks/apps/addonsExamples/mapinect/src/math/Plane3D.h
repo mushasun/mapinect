@@ -26,6 +26,8 @@ namespace mapinect
 		inline const ofVec3f&	getNormal() const						{ return normal; }
 		pcl::ModelCoefficients	getCoefficients() const;
 
+		bool					isPerpendicular(const Plane3D& plane) const;
+
 	private:
 		ofVec3f					normal;
 		float					d;
