@@ -43,7 +43,6 @@ namespace mapinect
 	std::vector<float>	MAX_LENGTH_FINGERS;
 }
 
-int						objId = 0;
 ofxKinect*				gKinect = NULL;
 mapinect::Model*		gModel = NULL;
 

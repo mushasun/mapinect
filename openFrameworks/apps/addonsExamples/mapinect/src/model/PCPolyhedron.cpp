@@ -40,6 +40,7 @@ namespace mapinect {
 
 	IObjectPtr PCPolyhedron::getMathModelApproximation() const
 	{
+		ofxScopedMutex osm(pcPolygonsMutex);
 		vector<IPolygonPtr> polygons;
 		for (vector<PCPolygonPtr>::const_iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
 		{
@@ -489,6 +490,8 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::resetLod() {
+		ofxScopedMutex osm(pcPolygonsMutex);
+
 		PCModelObject::resetLod();
 		for (int i = 0; i < pcpolygons.size(); i++) {
 			pcpolygons[i]->resetLod();
@@ -613,16 +616,5 @@ namespace mapinect {
 		setCloud(cloud);
 	}
 
-	const IPolygon* PCPolyhedron::getPolygon(const IPolygonName& name)
-	{
-		for (vector<IPolygon*>::iterator iter = polygonsCache.begin(); iter != polygonsCache.end(); ++iter)
-		{
-			if ((*iter)->getName() == name)
-			{
-				return *iter;
-			}
-		}
-		return NULL;
-	}
 
 }

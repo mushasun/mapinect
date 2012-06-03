@@ -12,10 +12,9 @@ namespace mapinect {
 
 	class PCBox : public PCPolyhedron{
 		public:
-			PCBox(const PCPtr& cloud, int objId);
+			PCBox(const PCPtr& cloud, int objId = -1);
 			
 			virtual void			detectPrimitives();
-			virtual void			addToModel(const PCPtr& nuCloud);
 			//BoxVertex&				getVertex(BoxVertexName v);
 
 		private:

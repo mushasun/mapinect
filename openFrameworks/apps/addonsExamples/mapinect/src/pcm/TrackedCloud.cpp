@@ -88,12 +88,8 @@ namespace mapinect {
 
 			switch(objType)
 			{
-				case HAND:
-					objectInModel = PCModelObjectPtr(new PCHand(cloud, objId));
-					cout << "HAND DETECTED" << endl;
-					break;
 				case BOX:
-					objectInModel = PCModelObjectPtr(new PCBox(cloud, objId));
+					objectInModel = PCModelObjectPtr(new PCBox(cloud));
 					cout << "BOX DETECTED" << endl;
 					break;
 				case UNRECOGNIZED:

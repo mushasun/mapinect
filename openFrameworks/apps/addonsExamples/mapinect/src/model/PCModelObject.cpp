@@ -17,7 +17,7 @@ namespace mapinect {
 		drawPointCloud = true;
 		findPointCloudBoundingBox(cloud, vMin, vMax);
 		transformation.setIdentity();
-		if (objId == -1)
+		if (objId == -1)	
 		{
 			static int objectId = 1;
 			objId = objectId++;
