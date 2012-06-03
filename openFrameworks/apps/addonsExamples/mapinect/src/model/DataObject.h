@@ -15,7 +15,7 @@ namespace mapinect
 			: id(id), center(center), scale(scale), rotation(rotation), polygons(polygons) { }
 		virtual ~DataObject() { }
 
-		inline	int							getId() const							{ return objId; }
+		inline	int							getId() const							{ return id; }
 
 		inline	const ofVec3f&				getCenter() const						{ return center; }
 		inline	const ofVec3f&				getScale() const						{ return scale; }

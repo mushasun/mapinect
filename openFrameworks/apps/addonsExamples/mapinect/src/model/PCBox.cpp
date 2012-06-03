@@ -106,7 +106,9 @@ namespace mapinect {
 		for(int i = 0; i < 6; i++)
 		{
 			IPolygonName name = (IPolygonName)i;
-			getPCPolygon(name, pcpolygons)->getPolygonModelObject()->setVertexs(vertexs[i]);
+			PCPolygonPtr p0 = getPCPolygon(name, pcpolygons);
+			if(p0 != NULL)
+				p0->getPolygonModelObject()->setVertexs(vertexs[i]);
 		}
 		saveCloudAsFile("UnifiedVertex.pcd", unified);
 
@@ -466,6 +468,8 @@ namespace mapinect {
 
 	void PCBox::detectPrimitives() {
 		PCPolyhedron::detectPrimitives();
+		ofxScopedMutex osm(pcPolygonsMutex);
+
 		if(pcpolygons.size() == 6)
 		{
 			partialEstimation = true;
@@ -498,11 +502,6 @@ namespace mapinect {
 		}
 	}
 
-	void PCBox::addToModel(const PCPtr& nuCloud)
-	{
-		PCPolyhedron::addToModel(nuCloud);
-		//messureBox();
-	}
 
 	void PCBox::messureBox()
 	{

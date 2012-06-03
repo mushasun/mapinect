@@ -25,14 +25,11 @@ namespace mapinect {
 
 			virtual void			draw();
 			virtual void			detectPrimitives();
-			const PCPolygonPtr&		getPCPolygon(int index);
-			int						getPCPolygonSize();
 			virtual void			resetLod();
 			virtual void			increaseLod(const PCPtr& nuCloud);
 			virtual void			addToModel(const PCPtr& nuCloud);
 			virtual void			setAndUpdateCloud(const PCPtr& cloud);
 
-			const IPolygon*					getPolygon(const IPolygonName&);
 			inline const vector<IPolygon*>	getPolygons()					{ return polygonsCache; }
 			//vector<Vertex&>					getVertexs();
 		private:
@@ -44,15 +41,15 @@ namespace mapinect {
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
 			virtual void					namePolygons(vector<PCPolygonPtr>& toName);
 			
-			//temporal
-			ofxMutex						pcPolygonsMutex;
-			///
 		protected:
 			vector<PCPolygonPtr>			pcpolygons;
 			vector<IPolygon*>				polygonsCache;
 			//vector<Vertex&>					vertexs;
 			bool							partialEstimation;
 			virtual void					unifyVertexs();
+			const PCPolygonPtr&		getPCPolygon(int index);
+			int						getPCPolygonSize();
+			ofxMutex						pcPolygonsMutex;
 
 	};
 }

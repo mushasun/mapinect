@@ -8,8 +8,6 @@
 #define KINECT_DEFAULT_WIDTH		640
 #define KINECT_DEFAULT_HEIGHT		480
 
-extern int					objId;
-
 #define MATH_EPSILON		0.005
 
 #define MAX_FLOAT			FLT_MAX
