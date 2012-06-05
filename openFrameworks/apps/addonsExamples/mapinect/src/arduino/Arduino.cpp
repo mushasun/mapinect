@@ -3,6 +3,7 @@
 #include "Feature.h"
 #include "ofxXmlSettings.h"
 #include <direct.h> // for getcwd
+#include "Plane3D.h"
 #define M_PI_2     1.57079632679489661923
 
 namespace mapinect {
@@ -103,6 +104,10 @@ namespace mapinect {
 			//reset();
 			return true;
 		}
+
+		mira = ofVec3f(20, 0, 0);
+		posicion = ofVec3f(ARM_LENGTH, 0, 0);
+
 		return false;
 	}
 
@@ -259,8 +264,8 @@ namespace mapinect {
 
 	void Arduino::setKinect3dCoordinates(float x, float y, float z)
 	{
-		int angleMotor2 = round(atan(z/x) * 180 / M_PI);			//el de la base, x no deberia ser 0 nunca
-		int angleMotor1 = 0;
+		angleMotor2 = round(atan(z/x) * 180 / M_PI);			//el de la base, x no deberia ser 0 nunca
+		angleMotor1 = 0;
 		if (y != 0) {
 			if (y < 0) 
 			{
@@ -273,6 +278,7 @@ namespace mapinect {
 		}
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
+		posicion = ofVec3f(x, y, z);
 	}
 
 	ofVec3f Arduino::setKinect3dCoordinates(ofVec3f position)
@@ -321,6 +327,57 @@ namespace mapinect {
 
 	ofVec3f	Arduino::lookAt(ofVec3f point)
 	{
+		//posicion = donde se encuentra ubicado
+		//mira = donde estoy mirando ATM
+		Eigen::Vector3f axisY (0, 0, 1); //para Eigen el Z es nuestro Y ?
+		Eigen::Affine3f rotationY;
+		rotationY = Eigen::AngleAxis<float>(0, axisY);
+
+		Eigen::Vector3f axisX (0, 1, 0);
+		Eigen::Affine3f rotationX;
+		rotationX = Eigen::AngleAxis<float>(0, axisX);
+
+		Eigen::Affine3f composed_matrix;
+		composed_matrix = rotationY * rotationX;
+
+		Eigen::Vector3f e_point = Eigen::Vector3f(point.z, point.x, point.y);
+		Eigen::Vector3f e_mira = Eigen::Vector3f(mira.z, mira.x, mira.y);
+		Eigen::Vector3f e_posicion = Eigen::Vector3f(posicion.z, posicion.x, posicion.y);
+
+		Eigen::Vector3f et_point = composed_matrix * e_point;
+		Eigen::Vector3f et_mira = composed_matrix * e_mira;
+		Eigen::Vector3f et_posicion = composed_matrix * e_posicion;
+
+		ofVec3f t_point = ofVec3f(et_point.y(), et_point.z(), et_point.x());
+		ofVec3f t_mira = ofVec3f(et_mira.y(), et_mira.z(), et_mira.x());
+		ofVec3f t_posicion = ofVec3f(et_posicion.y(), et_posicion.z(), et_posicion.x());
+
+		ofVec3f origen = ofVec3f(0, 0, 0);
+		ofVec3f eje_y = ofVec3f(0, 1, 0);
+		Plane3D horizontal = Plane3D(origen, eje_y); //lo defino con el plano que xz y normal y
+
+		ofVec3f pht_point = horizontal.project(t_point);
+		ofVec3f pht_mira = horizontal.project(t_mira);
+		ofVec3f pht_posicion = horizontal.project(t_posicion);
+
+		ofVec3f hv_mira = pht_mira - pht_posicion;
+		ofVec3f hv_point = pht_point - pht_posicion;
+
+		float angulo_h = hv_mira.angle(hv_point);//motor 8
+
+		ofVec3f eje_z = ofVec3f(0, 0, 1);
+		eje_z = eje_z.rotate(-angulo_h, eje_y);
+		Plane3D vertical = Plane3D(t_posicion, eje_z); //lo defino con el plano paralelo que xz y normal y
+
+		ofVec3f pvt_point = vertical.project(t_point);
+		ofVec3f pvt_mira = vertical.project(t_mira);
+		ofVec3f pvt_posicion = vertical.project(t_posicion);
+
+		ofVec3f vv_mira = pvt_mira - pvt_posicion;
+		ofVec3f vv_point = pvt_point - pvt_posicion;
+
+		float angulo_v = vv_mira.angle(vv_point);//motor 4
+
 		return NULL;
 	}
 	bool Arduino::isActive()
