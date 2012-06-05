@@ -43,6 +43,8 @@ namespace mapinect {
 		signed int			angleMotor2;
 		signed int			angleMotor4;
 		signed int			angleMotor8;
+		ofVec3f				posicion;
+		ofVec3f				mira;
 		
 		float round(float input)
 		{
