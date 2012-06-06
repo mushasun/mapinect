@@ -99,14 +99,15 @@ namespace mapinect {
 
 		}
 
+		mira = ofVec3f(20, 0, 0);
+		posicion = ofVec3f(ARM_LENGTH, 0, 0);
+
 		serial.enumerateDevices();
 		if (serial.setup(COM_PORT, 9600)) {
 			//reset();
 			return true;
 		}
 
-		mira = ofVec3f(20, 0, 0);
-		posicion = ofVec3f(ARM_LENGTH, 0, 0);
 
 		return false;
 	}
@@ -363,11 +364,30 @@ namespace mapinect {
 		ofVec3f hv_mira = pht_mira - pht_posicion;
 		ofVec3f hv_point = pht_point - pht_posicion;
 
-		float angulo_h = hv_mira.angle(hv_point);//motor 8
+		float angulo_h = 0;
+		float DELTA = 0.01;
+		// Para monitorear los valores
+		ofVec3f h_normal = horizontal.getNormal();
+		float hv_mira_len = hv_mira.length();
+		float hv_point_len = hv_point.length();
+		float hv_mira_dot = hv_mira.dot(h_normal);
+		float h_normal_len = h_normal.length();
+		float hv_point_dot = hv_point.dot(h_normal);
+		//
+		if (!(abs(hv_mira.length()) <= DELTA || abs(hv_point.length()) <= DELTA	
+				|| (abs(hv_mira.dot(h_normal) - hv_mira.length()*h_normal.length()) <= DELTA)
+				|| (abs(hv_point.dot(h_normal) - hv_point.length()*h_normal.length()) <= DELTA) )) {
+				//if (length de alguno de los vectores < delta || alguno de los vectores es "casi" paralelo a la normal del plano)	
+				angulo_h = hv_mira.angle(hv_point);//motor 8
+		}		 
 
 		ofVec3f eje_z = ofVec3f(0, 0, 1);
 		eje_z = eje_z.rotate(-angulo_h, eje_y);
 		Plane3D vertical = Plane3D(t_posicion, eje_z); //lo defino con el plano paralelo que xz y normal y
+
+		ofVec3f mira_trans = ofVec3f(t_mira.x - posicion.x, t_mira.y - posicion.y, t_mira.z - posicion.z); 
+		mira_trans = mira_trans.rotate(-angulo_h, eje_y);
+		t_mira = ofVec3f(mira_trans.x + posicion.x, mira_trans.y + posicion.y, mira_trans.z + posicion.z);
 
 		ofVec3f pvt_point = vertical.project(t_point);
 		ofVec3f pvt_mira = vertical.project(t_mira);
@@ -376,10 +396,25 @@ namespace mapinect {
 		ofVec3f vv_mira = pvt_mira - pvt_posicion;
 		ofVec3f vv_point = pvt_point - pvt_posicion;
 
-		float angulo_v = vv_mira.angle(vv_point);//motor 4
+		float angulo_v = 0;
+		ofVec3f v_normal = vertical.getNormal();
+		// Para monitorear los valores
+		float vv_mira_len = vv_mira.length();
+		float vv_point_len = vv_point.length();
+		float vv_mira_dot = vv_mira.dot(v_normal);
+		float v_normal_len = v_normal.length();
+		float vv_point_dot = vv_point.dot(v_normal);
+		//
+		if (!(abs(vv_mira.length()) <= DELTA || abs(vv_point.length()) <= DELTA	
+				|| (abs(vv_mira.dot(v_normal) - vv_mira.length()*v_normal.length()) <= DELTA)
+				|| (abs(vv_point.dot(v_normal) - vv_point.length()*v_normal.length()) <= DELTA) )) {
+				//if (length de alguno de los vectores < delta || alguno de los vectores es "casi" paralelo a la normal del plano)	
+				angulo_v = vv_mira.angle(vv_point);//motor 4		
+		}		 	
 
 		return NULL;
 	}
+
 	bool Arduino::isActive()
 	{
 		return IsFeatureArduinoActive();
