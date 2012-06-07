@@ -377,13 +377,17 @@ namespace mapinect {
 		if (!(abs(hv_mira.length()) <= DELTA || abs(hv_point.length()) <= DELTA	
 				|| (abs(hv_mira.dot(h_normal) - hv_mira.length()*h_normal.length()) <= DELTA)
 				|| (abs(hv_point.dot(h_normal) - hv_point.length()*h_normal.length()) <= DELTA) )) {
-				//if (length de alguno de los vectores < delta || alguno de los vectores es "casi" paralelo a la normal del plano)	
+				//if (length de alguno de los vectores < delta || alguno de los vectores es "casi" paralelo a la normal del plano)
 				angulo_h = hv_mira.angle(hv_point);//motor 8
+				if (point.z < 0)
+				{
+					angulo_h *= -1;
+				}
 		}		 
 
 		ofVec3f eje_z = ofVec3f(0, 0, 1);
 		eje_z = eje_z.rotate(-angulo_h, eje_y);
-		Plane3D vertical = Plane3D(t_posicion, eje_z); //lo defino con el plano paralelo que xz y normal y
+		Plane3D vertical = Plane3D(t_posicion, eje_z);
 
 		ofVec3f mira_trans = ofVec3f(t_mira.x - posicion.x, t_mira.y - posicion.y, t_mira.z - posicion.z); 
 		mira_trans = mira_trans.rotate(-angulo_h, eje_y);
@@ -409,8 +413,15 @@ namespace mapinect {
 				|| (abs(vv_mira.dot(v_normal) - vv_mira.length()*v_normal.length()) <= DELTA)
 				|| (abs(vv_point.dot(v_normal) - vv_point.length()*v_normal.length()) <= DELTA) )) {
 				//if (length de alguno de los vectores < delta || alguno de los vectores es "casi" paralelo a la normal del plano)	
-				angulo_v = vv_mira.angle(vv_point);//motor 4		
+				angulo_v = vv_mira.angle(vv_point);//motor 4
+				if (point.y < 0)
+				{
+					angulo_v *= -1;
+				}
 		}		 	
+
+		sendMotor(angulo_v, ID_MOTOR_4);
+		sendMotor(angulo_h, ID_MOTOR_8);
 
 		return NULL;
 	}
@@ -435,6 +446,7 @@ namespace mapinect {
 		//[ 0    0   1  0]
 		//[ 0    0   0  1]
 		//se la pido a Eigen 8)
+
 		Eigen::Vector3f axisY (0, 0, 1); //para Eigen el Z es nuestro Y ?
 		Eigen::Affine3f rotationY;
 		rotationY = Eigen::AngleAxis<float>(-angleMotor1, axisY);
@@ -462,7 +474,6 @@ namespace mapinect {
 		Eigen::Affine3f composed_matrix;
 		composed_matrix = rotationY * rotationX * rotationZ * translationY * translationX;
 		return composed_matrix;
-
 
 	}
 }
