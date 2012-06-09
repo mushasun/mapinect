@@ -74,4 +74,7 @@ PCPtr projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& pl
 vector<ofVec3f> projectPointsInPlane(const vector<Eigen::Vector3f>& points, const pcl::ModelCoefficients& plane);
 
 vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& coefficients);
+
+void setTransformMatrix(const Eigen::Affine3f& transform);
+
 #endif // POINT_UTILS_H__

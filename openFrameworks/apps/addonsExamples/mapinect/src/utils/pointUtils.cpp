@@ -32,6 +32,8 @@
 #include "Feature.h"
 #include "Plane3D.h"
 
+static Eigen::Affine3f transformationMatrix ();
+
 void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z) {
 	p.x = x;
 	p.y = y;
@@ -771,4 +773,9 @@ vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v)
 		vec.push_back(ofVec3f(ev.x(),ev.y(),ev.z()));
 	}
 	return vec;
+}
+
+void setTransformMatrix(const Eigen::Affine3f& t)
+{
+	transformationMatrix = t;
 }
