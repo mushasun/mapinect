@@ -85,10 +85,9 @@ namespace mapinect {
 		arduino.update();
 
 		// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
-		setTransformMatrix(arduino.getWorldTransformation());	
-		// Set position and lookat for VM
-		//TODO: vm.setCameraPosition(arduino->getKinect3dCoordinates());
-		//TODO: vm.setCameraLookAt(arduino->getKinect3dCoordinates());
+		setTransformMatrix(arduino.getWorldTransformation());	// Method from pointUtils	
+		// Set transformation matrix in VM to apply to Modelview matrix
+		vm.setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
 
 		EventManager::fireEvents(app);
 		
@@ -179,7 +178,7 @@ namespace mapinect {
 			float  cx_d, cy_d, cx_rgb, cy_rgb;
 			ofVec3f T_rgb;
 			ofMatrix4x4 R_rgb;
-			getKinectCalibData(const_cast<char*>(VM::kinect_calib_file.c_str()), fx_d, fy_d, cx_d, cy_d,
+			getKinectCalibData(const_cast<char*>(vm.getKinectCalibFile().c_str()), fx_d, fy_d, cx_d, cy_d,
 										fx_rgb, fy_rgb, cx_rgb, cy_rgb, T_rgb, R_rgb);
 			gKinect->getCalibration().setCalibValues( fx_d, fy_d, cx_d, cy_d,
 										fx_rgb, fy_rgb, cx_rgb, cy_rgb, T_rgb, R_rgb);

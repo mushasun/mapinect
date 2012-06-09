@@ -32,7 +32,7 @@
 #include "Feature.h"
 #include "Plane3D.h"
 
-static Eigen::Affine3f transformationMatrix ();
+static Eigen::Affine3f transformationMatrix = Eigen::Affine3f();
 
 void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z) {
 	p.x = x;
