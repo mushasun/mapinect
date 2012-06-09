@@ -2,6 +2,9 @@
 #define VM_H__
 
 #include <string>
+#include "ofVec3f.h"
+#include <Eigen/Geometry>
+#include "ofxOpenCv.h"
 
 namespace mapinect {
 
@@ -21,14 +24,31 @@ namespace mapinect {
 		virtual void mouseReleased(int x, int y, int button);
 		virtual void windowResized(int w, int h);
 
-		static std::string proj_calib_file;
-		static std::string kinect_calib_file;
+/*		virtual void setCameraPosition(ofVec3f position);
+		virtual void setCameraLookat(ofVec3f lookAt);
+*/
+		virtual void setInverseWorldTransformationMatrix(const Eigen::Affine3f& t);
+
+		virtual std::string getKinectCalibFile();
 
 	private:
 		bool		 isActive();
-		virtual void loadProjCalibData(char* proj_calib_file);
-		virtual void loadKinectExtrinsics(char* kinect_calib_file);
+		virtual void loadProjCalibData(char* projCalibFile);
+		virtual void loadKinectExtrinsics(char* kinectCalibFile);
+		
 		virtual	void setProjMatrix(float fx, float fy, float cx, float cy);
+
+		virtual float*	getTransformationMatrixOpenGL(CvMat* R, CvMat* T);
+		virtual float*	getInverseTransformationMatrixOpenGL(CvMat* R, CvMat* T);
+
+		static std::string projCalibFile;
+		static std::string kinectCalibFile;
+
+		static float projWidth;
+		static float projHeight;
+
+		static float nearPlane;
+		static float farPlane;
 
 	};
 }
