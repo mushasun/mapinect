@@ -4,6 +4,8 @@
 #include "ofxXmlSettings.h"
 #include <direct.h> // for getcwd
 #include "Plane3D.h"
+#include "utils.h"
+
 #define M_PI_2     1.57079632679489661923
 
 namespace mapinect {
@@ -330,28 +332,28 @@ namespace mapinect {
 	{
 		//posicion = donde se encuentra ubicado
 		//mira = donde estoy mirando ATM
-		Eigen::Vector3f axisY (0, 0, 1); //para Eigen el Z es nuestro Y ?
+		Eigen::Vector3f axisY (0, 1, 0); //para Eigen el Z es nuestro Y ?
 		Eigen::Affine3f rotationY;
 		rotationY = Eigen::AngleAxis<float>(0, axisY);
 
-		Eigen::Vector3f axisX (0, 1, 0);
+		Eigen::Vector3f axisX (1, 0, 0);
 		Eigen::Affine3f rotationX;
 		rotationX = Eigen::AngleAxis<float>(0, axisX);
 
 		Eigen::Affine3f composed_matrix;
 		composed_matrix = rotationY * rotationX;
-
-		Eigen::Vector3f e_point = Eigen::Vector3f(point.z, point.x, point.y);
-		Eigen::Vector3f e_mira = Eigen::Vector3f(mira.z, mira.x, mira.y);
-		Eigen::Vector3f e_posicion = Eigen::Vector3f(posicion.z, posicion.x, posicion.y);
+		
+		Eigen::Vector3f e_point = Eigen::Vector3f(point.x, point.y, point.z);
+		Eigen::Vector3f e_mira = Eigen::Vector3f(mira.x, mira.y, mira.z);
+		Eigen::Vector3f e_posicion = Eigen::Vector3f(posicion.x, posicion.y, posicion.z);
 
 		Eigen::Vector3f et_point = composed_matrix * e_point;
 		Eigen::Vector3f et_mira = composed_matrix * e_mira;
 		Eigen::Vector3f et_posicion = composed_matrix * e_posicion;
 
-		ofVec3f t_point = ofVec3f(et_point.y(), et_point.z(), et_point.x());
-		ofVec3f t_mira = ofVec3f(et_mira.y(), et_mira.z(), et_mira.x());
-		ofVec3f t_posicion = ofVec3f(et_posicion.y(), et_posicion.z(), et_posicion.x());
+		ofVec3f t_point = ofVec3f(et_point.x(), et_point.y(), et_point.z());
+		ofVec3f t_mira = ofVec3f(et_mira.x(), et_mira.y(), et_mira.z());
+		ofVec3f t_posicion = ofVec3f(et_posicion.x(), et_posicion.y(), et_posicion.z());
 
 		ofVec3f origen = ofVec3f(0, 0, 0);
 		ofVec3f eje_y = ofVec3f(0, 1, 0);
@@ -365,7 +367,7 @@ namespace mapinect {
 		ofVec3f hv_point = pht_point - pht_posicion;
 
 		float angulo_h = 0;
-		float DELTA = 0.01;
+		
 		// Para monitorear los valores
 		ofVec3f h_normal = horizontal.getNormal();
 		float hv_mira_len = hv_mira.length();
@@ -374,10 +376,10 @@ namespace mapinect {
 		float h_normal_len = h_normal.length();
 		float hv_point_dot = hv_point.dot(h_normal);
 		//
-		if (!(abs(hv_mira.length()) <= DELTA || abs(hv_point.length()) <= DELTA	
-				|| (abs(hv_mira.dot(h_normal) - hv_mira.length()*h_normal.length()) <= DELTA)
-				|| (abs(hv_point.dot(h_normal) - hv_point.length()*h_normal.length()) <= DELTA) )) {
-				//if (length de alguno de los vectores < delta || alguno de los vectores es "casi" paralelo a la normal del plano)
+		if (!(abs(hv_mira.length()) <= MATH_EPSILON || abs(hv_point.length()) <= MATH_EPSILON	
+				|| (abs(hv_mira.dot(h_normal) - hv_mira.length()*h_normal.length()) <= MATH_EPSILON)
+				|| (abs(hv_point.dot(h_normal) - hv_point.length()*h_normal.length()) <= MATH_EPSILON) )) {
+				//if (length de alguno de los vectores < MATH_EPSILON || alguno de los vectores es "casi" paralelo a la normal del plano)
 				angulo_h = hv_mira.angle(hv_point);//motor 8
 				if (point.z < 0)
 				{
@@ -409,10 +411,10 @@ namespace mapinect {
 		float v_normal_len = v_normal.length();
 		float vv_point_dot = vv_point.dot(v_normal);
 		//
-		if (!(abs(vv_mira.length()) <= DELTA || abs(vv_point.length()) <= DELTA	
-				|| (abs(vv_mira.dot(v_normal) - vv_mira.length()*v_normal.length()) <= DELTA)
-				|| (abs(vv_point.dot(v_normal) - vv_point.length()*v_normal.length()) <= DELTA) )) {
-				//if (length de alguno de los vectores < delta || alguno de los vectores es "casi" paralelo a la normal del plano)	
+		if (!(abs(vv_mira.length()) <= MATH_EPSILON || abs(vv_point.length()) <= MATH_EPSILON	
+				|| (abs(vv_mira.dot(v_normal) - vv_mira.length()*v_normal.length()) <= MATH_EPSILON)
+				|| (abs(vv_point.dot(v_normal) - vv_point.length()*v_normal.length()) <= MATH_EPSILON) )) {
+				//if (length de alguno de los vectores < MATH_EPSILON || alguno de los vectores es "casi" paralelo a la normal del plano)	
 				angulo_v = vv_mira.angle(vv_point);//motor 4
 				if (point.y < 0)
 				{
@@ -447,17 +449,17 @@ namespace mapinect {
 		//[ 0    0   0  1]
 		//se la pido a Eigen 8)
 
-		Eigen::Vector3f axisY (0, 0, 1); //para Eigen el Z es nuestro Y ?
+		Eigen::Vector3f axisY (0, 1, 0);
 		Eigen::Affine3f rotationY;
-		rotationY = Eigen::AngleAxis<float>(-angleMotor1, axisY);
+		rotationY = Eigen::AngleAxis<float>(-angleMotor2, axisY);
 
-		Eigen::Vector3f axisX (0, 1, 0);
+		Eigen::Vector3f axisX (1, 0, 0);
 		Eigen::Affine3f rotationX;
-		rotationX = Eigen::AngleAxis<float>(-angleMotor2, axisX);
+		rotationX = Eigen::AngleAxis<float>(-angleMotor4, axisX);
 
-		Eigen::Vector3f axisZ (1, 0, 0);
+		Eigen::Vector3f axisZ (0, 0, 1);
 		Eigen::Affine3f rotationZ;
-		rotationZ = Eigen::AngleAxis<float>(-angleMotor4, axisZ);
+		rotationZ = Eigen::AngleAxis<float>(-angleMotor1, axisZ);
 
 		//con estas tres matrices tengo todas las rotaciones que preciso, ahora
 		//preciso hallar la traslacion de altura donde esta la camara
@@ -472,7 +474,7 @@ namespace mapinect {
 		translationX = Eigen::Translation<float,3>(-ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
 
 		Eigen::Affine3f composed_matrix;
-		composed_matrix = rotationY * rotationX * rotationZ * translationY * translationX;
+		composed_matrix = rotationY * rotationX * translationY * translationX * rotationZ;
 		return composed_matrix;
 
 	}
