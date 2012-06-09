@@ -66,9 +66,6 @@ namespace mapinect {
 	{
 		CHECK_ACTIVE false;
 		ofxXmlSettings XML;
-		char CurrentPath[255];
-		getcwd(CurrentPath, 255);
-		cout << CurrentPath << endl;
 		if(XML.loadFile("Arduino_Config.xml")) {
 
 			COM_PORT = XML.getValue(ARDUINO_CONFIG "COM_PORT", "COM3");
@@ -103,13 +100,14 @@ namespace mapinect {
 
 		mira = ofVec3f(20, 0, 0);
 		posicion = ofVec3f(ARM_LENGTH, 0, 0);
-
+		
 		serial.enumerateDevices();
 		if (serial.setup(COM_PORT, 9600)) {
 			//reset();
+			lookAt(ofVec3f(10, -3, 10));
+			setKinect3dCoordinates(posicion);
 			return true;
 		}
-
 
 		return false;
 	}
@@ -174,6 +172,16 @@ namespace mapinect {
 			cout << "motor 4: " << angleMotor4 << endl;
 			cout << "motor 8: " << angleMotor8 << endl;
 		}
+		else if (key == 'z')
+		{
+			ofVec3f cualquiera = ofVec3f(10, 0, 2.5);
+			setKinect3dCoordinates(cualquiera);
+		}
+		else if (key == 'x')
+		{
+			ofVec3f cualquiera = ofVec3f(10, 0, 0.5);
+			setKinect3dCoordinates(cualquiera);
+		}
 	}
 
 
@@ -219,8 +227,6 @@ namespace mapinect {
 			value = -value;
 			value |= 1 << 7; //MAGIC!
 		}
-		cout << value <<endl;
-		cout << my_byte_to_binary(value) <<endl;
 		char id_char = (char) id;
 		serial.writeByte(id_char);
 		serial.writeByte(value);
@@ -268,9 +274,8 @@ namespace mapinect {
 	void Arduino::setKinect3dCoordinates(float x, float y, float z)
 	{
 		angleMotor2 = round(atan(z/x) * 180 / M_PI);			//el de la base, x no deberia ser 0 nunca
-		angleMotor1 = 0;
 		if (y != 0) {
-			if (y < 0) 
+			if (y > 0)
 			{
 				angleMotor1 = (int)round(asin(-y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
 			}
@@ -330,6 +335,7 @@ namespace mapinect {
 
 	ofVec3f	Arduino::lookAt(ofVec3f point)
 	{
+		//TODO: tener el cuenta la traslacion del grueso de los motores de la punta
 		//posicion = donde se encuentra ubicado
 		//mira = donde estoy mirando ATM
 		Eigen::Vector3f axisY (0, 1, 0); //para Eigen el Z es nuestro Y ?
@@ -422,6 +428,9 @@ namespace mapinect {
 				}
 		}		 	
 
+		angleMotor4 = angulo_v;
+		angleMotor8 = angulo_h;
+
 		sendMotor(angulo_v, ID_MOTOR_4);
 		sendMotor(angulo_h, ID_MOTOR_8);
 
@@ -466,15 +475,15 @@ namespace mapinect {
 		//y luego la traslacion a lo largo del brazo
 
 		Eigen::Affine3f translationY;
-		translationY = Eigen::Translation<float,3>(0, -5, 0);//puse 5 como un valor cualquiera, hay que ajustarlo
+		translationY = Eigen::Translation<float, 3>(0, 5, 0);//puse 5 como un valor cualquiera, hay que ajustarlo
 
 		//luego hay que correrlo el largo del brazo
 		
 		Eigen::Affine3f translationX;
-		translationX = Eigen::Translation<float,3>(-ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
+		translationX = Eigen::Translation<float, 3>(-ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
 
 		Eigen::Affine3f composed_matrix;
-		composed_matrix = rotationY * rotationX * translationY * translationX * rotationZ;
+		composed_matrix = rotationY * rotationX  * rotationZ * translationY * translationX;
 		return composed_matrix;
 
 	}
