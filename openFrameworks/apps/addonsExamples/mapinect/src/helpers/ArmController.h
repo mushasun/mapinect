@@ -29,8 +29,6 @@ namespace mapinect {
 		ofVec3f			eye;
 		ofVec3f			target;
 
-		void			setWorldTransform();
-
 	};
 }
 
