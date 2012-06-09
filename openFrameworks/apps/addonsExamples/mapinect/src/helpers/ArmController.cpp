@@ -1,6 +1,4 @@
 #include "ArmController.h"
-#include "pointUtils.h"
-
 
 namespace mapinect {
 
@@ -28,14 +26,6 @@ namespace mapinect {
 	int ArmController::getJointRotation(int jointId)
 	{
 		return 0;
-	}
-
-	void ArmController::setWorldTransform()
-	{
-		// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
-		setTransformMatrix(arduino->getWorldTransformation());	
-		// Set position and lookat for VM
-		arduino->getKinect3dCoordinates();
 	}
 
 }

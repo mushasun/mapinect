@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "ofxKinect.h"
 #include "TxManager.h"
+#include "pointUtils.h"
 
 namespace mapinect {
 
@@ -45,6 +46,13 @@ namespace mapinect {
 
 		app->txManager = new TxManager(fenster);
 		app->armController = new ArmController(&arduino);
+
+		// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
+		setTransformMatrix(arduino.getWorldTransformation());	
+		// Set position and lookat for VM
+		//TODO: vm.setCameraPosition(arduino->getKinect3dCoordinates());
+		//TODO: vm.setCameraLookAt(arduino->getKinect3dCoordinates());
+
 		app->setup();
 
 	}
@@ -71,10 +79,16 @@ namespace mapinect {
 			gKinect->update();
 			isKinectFrameNew = gKinect->isFrameNew();
 		}
-		
+
 		cv.update(isKinectFrameNew);
 		pcm.update(isKinectFrameNew);
 		arduino.update();
+
+		// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
+		setTransformMatrix(arduino.getWorldTransformation());	
+		// Set position and lookat for VM
+		//TODO: vm.setCameraPosition(arduino->getKinect3dCoordinates());
+		//TODO: vm.setCameraLookAt(arduino->getKinect3dCoordinates());
 
 		EventManager::fireEvents(app);
 		
