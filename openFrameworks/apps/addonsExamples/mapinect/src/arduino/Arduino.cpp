@@ -451,8 +451,14 @@ namespace mapinect {
 	{
 		angleMotor1 = 0;
 		angleMotor2 = 0;
-		angleMotor4 = -90;
+		angleMotor4 = 0;
 		angleMotor8 = 0;
+
+		float angleMotor1Rad = ofDegToRad(angleMotor1);
+		float angleMotor2Rad = ofDegToRad(angleMotor2);
+		float angleMotor4Rad = ofDegToRad(angleMotor4);
+		float angleMotor8Rad = ofDegToRad(angleMotor8);
+
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 		//CvMat* mat = cvCreateMat(4,4,CV_32FC1);
 		//primero giramos según el eje vertical (Y)
@@ -467,23 +473,23 @@ namespace mapinect {
 		Eigen::Vector3f axisX (1, 0, 0);
 
 		Eigen::Affine3f rotationY;
-		rotationY = Eigen::AngleAxis<float>(-angleMotor2, axisY);
+		rotationY = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
 		
 		Eigen::Affine3f rotationZ;
-		rotationZ = Eigen::AngleAxis<float>(-angleMotor1, axisZ);
+		rotationZ = Eigen::AngleAxis<float>(-angleMotor1Rad, axisZ);
 
 		//luego hay que correrlo el largo del brazo
 		Eigen::Affine3f translationX;
 		translationX = Eigen::Translation<float, 3>(-ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
 
 		Eigen::Affine3f rotationY2;
-		rotationY2 = Eigen::AngleAxis<float>(-angleMotor8, axisY);
+		rotationY2 = Eigen::AngleAxis<float>(-angleMotor8Rad, axisY);
 
 		Eigen::Affine3f translationY;
 		translationY = Eigen::Translation<float, 3>(0, 5, 0);//puse 5 como un valor cualquiera, hay que ajustarlo
 
 		Eigen::Affine3f rotationX;
-		rotationX = Eigen::AngleAxis<float>(-angleMotor4, axisX);
+		rotationX = Eigen::AngleAxis<float>(-angleMotor4Rad, axisX);
 
 		Eigen::Affine3f translationY2;
 		translationY2 = Eigen::Translation<float, 3>(0, 11, 0);//puse 5 como un valor cualquiera, hay que ajustarlo
