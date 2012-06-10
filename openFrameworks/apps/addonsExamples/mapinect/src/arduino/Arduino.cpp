@@ -98,14 +98,15 @@ namespace mapinect {
 
 		}
 
-		mira = ofVec3f(20, 0, 0);
+		mira = ofVec3f(100, 0, 0);
 		posicion = ofVec3f(ARM_LENGTH, 0, 0);
 		
 		serial.enumerateDevices();
 		if (serial.setup(COM_PORT, 9600)) {
-			//reset();
-			lookAt(ofVec3f(10, -3, 10));
+			//NO DEBERIA ESTAR ACA
+			lookAt(ofVec3f(35, -3, 10));
 			setKinect3dCoordinates(posicion);
+			//
 			return true;
 		}
 
@@ -179,7 +180,7 @@ namespace mapinect {
 		}
 		else if (key == 'x')
 		{
-			ofVec3f cualquiera = ofVec3f(10, 0, 0.5);
+			ofVec3f cualquiera = ofVec3f(10, 0, 0);
 			setKinect3dCoordinates(cualquiera);
 		}
 	}
@@ -448,6 +449,10 @@ namespace mapinect {
 
 	Eigen::Affine3f Arduino::getWorldTransformation()
 	{
+		angleMotor1 = 0;
+		angleMotor2 = 0;
+		angleMotor4 = -90;
+		angleMotor8 = 0;
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 		//CvMat* mat = cvCreateMat(4,4,CV_32FC1);
 		//primero giramos según el eje vertical (Y)
@@ -456,34 +461,49 @@ namespace mapinect {
 		//[sen  cos  0  0]
 		//[ 0    0   1  0]
 		//[ 0    0   0  1]
-		//se la pido a Eigen 8)
 
 		Eigen::Vector3f axisY (0, 1, 0);
+		Eigen::Vector3f axisZ (0, 0, 1);
+		Eigen::Vector3f axisX (1, 0, 0);
+
 		Eigen::Affine3f rotationY;
 		rotationY = Eigen::AngleAxis<float>(-angleMotor2, axisY);
-
-		Eigen::Vector3f axisX (1, 0, 0);
-		Eigen::Affine3f rotationX;
-		rotationX = Eigen::AngleAxis<float>(-angleMotor4, axisX);
-
-		Eigen::Vector3f axisZ (0, 0, 1);
+		
 		Eigen::Affine3f rotationZ;
 		rotationZ = Eigen::AngleAxis<float>(-angleMotor1, axisZ);
 
-		//con estas tres matrices tengo todas las rotaciones que preciso, ahora
-		//preciso hallar la traslacion de altura donde esta la camara
-		//y luego la traslacion a lo largo del brazo
+		//luego hay que correrlo el largo del brazo
+		Eigen::Affine3f translationX;
+		translationX = Eigen::Translation<float, 3>(-ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
+
+		Eigen::Affine3f rotationY2;
+		rotationY2 = Eigen::AngleAxis<float>(-angleMotor8, axisY);
 
 		Eigen::Affine3f translationY;
 		translationY = Eigen::Translation<float, 3>(0, 5, 0);//puse 5 como un valor cualquiera, hay que ajustarlo
 
-		//luego hay que correrlo el largo del brazo
-		
-		Eigen::Affine3f translationX;
-		translationX = Eigen::Translation<float, 3>(-ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
+		Eigen::Affine3f rotationX;
+		rotationX = Eigen::AngleAxis<float>(-angleMotor4, axisX);
 
+		Eigen::Affine3f translationY2;
+		translationY2 = Eigen::Translation<float, 3>(0, 11, 0);//puse 5 como un valor cualquiera, hay que ajustarlo
+
+		//con estas tres matrices tengo todas las rotaciones que preciso, ahora
+		//preciso hallar la traslacion de altura donde esta la camara
+		//y luego la traslacion a lo largo del brazo
+		
 		Eigen::Affine3f composed_matrix;
-		composed_matrix = rotationY * rotationX  * rotationZ * translationY * translationX;
+		composed_matrix = rotationY * rotationZ * translationX * rotationY2 * translationY * rotationX * translationY2;
+		//composed_matrix = translationY2 * rotationX * translationY * rotationY2 * translationX * rotationZ * rotationY;
+		composed_matrix = composed_matrix.inverse();
+
+		Eigen::Vector3f ejemplo (0, 0, 0);
+
+		ejemplo = composed_matrix * ejemplo;
+		float x = ejemplo.x();
+		float y = ejemplo.y();
+		float z = ejemplo.z();
+
 		return composed_matrix;
 
 	}
