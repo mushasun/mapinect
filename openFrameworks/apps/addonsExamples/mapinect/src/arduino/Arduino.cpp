@@ -39,8 +39,9 @@ namespace mapinect {
 	static char		RESET_ANGLE4;
 	static char		RESET_ANGLE8;
 	static int		ANGLE_STEP;
-	static int		ARM_HEIGHT;
 	static int		ARM_LENGTH;
+	static int		KINECT_HEIGHT;
+	static int		MOTORS_HEIGHT;
 	static int		MOTOR_ANGLE_OFFSET;
 
 	Arduino::Arduino()
@@ -93,9 +94,9 @@ namespace mapinect {
 			RESET_ANGLE8 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE8", ANGLE_DEFAULT);
 			MOTOR_ANGLE_OFFSET	= XML.getValue(ARDUINO_CONFIG "MOTOR_ANGLE_OFFSET", MOTOR_ANGLE_OFFSET_DEFAULT);
 
-			ARM_HEIGHT = XML.getValue(ARDUINO_CONFIG "ARM_HEIGHT", 0);
+			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0);
+			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0);
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0);
-
 		}
 
 		mira = ofVec3f(100, 0, 0);
@@ -376,13 +377,15 @@ namespace mapinect {
 		float angulo_h = 0;
 		
 		// Para monitorear los valores
+
 		ofVec3f h_normal = horizontal.getNormal();
-		float hv_mira_len = hv_mira.length();
+/*		*****FOR DEBUG*****		*/
+/*		float hv_mira_len = hv_mira.length();
 		float hv_point_len = hv_point.length();
 		float hv_mira_dot = hv_mira.dot(h_normal);
 		float h_normal_len = h_normal.length();
 		float hv_point_dot = hv_point.dot(h_normal);
-		//
+*/		//
 		if (!(abs(hv_mira.length()) <= MATH_EPSILON || abs(hv_point.length()) <= MATH_EPSILON	
 				|| (abs(hv_mira.dot(h_normal) - hv_mira.length()*h_normal.length()) <= MATH_EPSILON)
 				|| (abs(hv_point.dot(h_normal) - hv_point.length()*h_normal.length()) <= MATH_EPSILON) )) {
@@ -411,13 +414,13 @@ namespace mapinect {
 
 		float angulo_v = 0;
 		ofVec3f v_normal = vertical.getNormal();
-		// Para monitorear los valores
-		float vv_mira_len = vv_mira.length();
+/*		*****FOR DEBUG*****		*/
+/*		float vv_mira_len = vv_mira.length();
 		float vv_point_len = vv_point.length();
 		float vv_mira_dot = vv_mira.dot(v_normal);
 		float v_normal_len = v_normal.length();
 		float vv_point_dot = vv_point.dot(v_normal);
-		//
+*/		//
 		if (!(abs(vv_mira.length()) <= MATH_EPSILON || abs(vv_point.length()) <= MATH_EPSILON	
 				|| (abs(vv_mira.dot(v_normal) - vv_mira.length()*v_normal.length()) <= MATH_EPSILON)
 				|| (abs(vv_point.dot(v_normal) - vv_point.length()*v_normal.length()) <= MATH_EPSILON) )) {
@@ -454,10 +457,10 @@ namespace mapinect {
 		angleMotor4 = 0;
 		angleMotor8 = 0;
 
-		float angleMotor1Rad = ofDegToRad(angleMotor1);
-		float angleMotor2Rad = ofDegToRad(angleMotor2);
-		float angleMotor4Rad = ofDegToRad(angleMotor4);
-		float angleMotor8Rad = ofDegToRad(angleMotor8);
+		float angleMotor1Rad = ofDegToRad(angleMotor1);	// Motor que mueve la varilla "horizontal"
+		float angleMotor2Rad = ofDegToRad(angleMotor2); // Motor de abajo del brazo, con la varilla "vertical"
+		float angleMotor4Rad = ofDegToRad(angleMotor4); // Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
+		float angleMotor8Rad = ofDegToRad(angleMotor8); // Motor de los de la punta, el de más abajo
 
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 		//CvMat* mat = cvCreateMat(4,4,CV_32FC1);
@@ -480,19 +483,19 @@ namespace mapinect {
 
 		//luego hay que correrlo el largo del brazo
 		Eigen::Affine3f translationX;
-		translationX = Eigen::Translation<float, 3>(-ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
+		translationX = Eigen::Translation<float, 3>(ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
 
 		Eigen::Affine3f rotationY2;
 		rotationY2 = Eigen::AngleAxis<float>(-angleMotor8Rad, axisY);
 
 		Eigen::Affine3f translationY;
-		translationY = Eigen::Translation<float, 3>(0, 5, 0);//puse 5 como un valor cualquiera, hay que ajustarlo
+		translationY = Eigen::Translation<float, 3>(0, -MOTORS_HEIGHT, 0);
 
 		Eigen::Affine3f rotationX;
 		rotationX = Eigen::AngleAxis<float>(-angleMotor4Rad, axisX);
 
 		Eigen::Affine3f translationY2;
-		translationY2 = Eigen::Translation<float, 3>(0, 11, 0);//puse 5 como un valor cualquiera, hay que ajustarlo
+		translationY2 = Eigen::Translation<float, 3>(0, -KINECT_HEIGHT, 0);
 
 		//con estas tres matrices tengo todas las rotaciones que preciso, ahora
 		//preciso hallar la traslacion de altura donde esta la camara
@@ -500,8 +503,6 @@ namespace mapinect {
 		
 		Eigen::Affine3f composed_matrix;
 		composed_matrix = rotationY * rotationZ * translationX * rotationY2 * translationY * rotationX * translationY2;
-		//composed_matrix = translationY2 * rotationX * translationY * rotationY2 * translationX * rotationZ * rotationY;
-		composed_matrix = composed_matrix.inverse();
 
 		Eigen::Vector3f ejemplo (0, 0, 0);
 
