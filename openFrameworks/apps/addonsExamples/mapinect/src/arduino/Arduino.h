@@ -60,8 +60,6 @@ namespace mapinect {
 
 		void		getTransformationWorldTransformation();
 		
-		void getTransformation();
-
 	};
 }
 
