@@ -39,17 +39,13 @@ namespace mapinect {
 	static char		RESET_ANGLE4;
 	static char		RESET_ANGLE8;
 	static int		ANGLE_STEP;
-	static int		ARM_LENGTH;
-	static int		KINECT_HEIGHT;
-	static int		MOTORS_HEIGHT;
-	static int		MOTOR_ANGLE_OFFSET;
+	static float	ARM_LENGTH;
+	static float	KINECT_HEIGHT;
+	static float	MOTORS_HEIGHT;
+	static float	MOTOR_ANGLE_OFFSET;
 
 	Arduino::Arduino()
 	{
-		/*angleMotor1 = 8;
-		angleMotor2 = 0;
-		angleMotor4 = -10;
-		angleMotor8 = 18;*/
 		angleMotor1 = 0;
 		angleMotor2 = 0;
 		angleMotor4 = 0;
@@ -94,18 +90,18 @@ namespace mapinect {
 			RESET_ANGLE8 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE8", ANGLE_DEFAULT);
 			MOTOR_ANGLE_OFFSET	= XML.getValue(ARDUINO_CONFIG "MOTOR_ANGLE_OFFSET", MOTOR_ANGLE_OFFSET_DEFAULT);
 
-			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0);
-			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0);
-			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0);
+			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.0);
+			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.0);
+			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.0);
 		}
 
-		mira = ofVec3f(100, 0, 0);
+		mira = ofVec3f(1, 0, 0);
 		posicion = ofVec3f(ARM_LENGTH, 0, 0);
 		
 		serial.enumerateDevices();
 		if (serial.setup(COM_PORT, 9600)) {
 			//NO DEBERIA ESTAR ACA
-			lookAt(ofVec3f(35, -3, 10));
+			lookAt(ofVec3f(0.35, -0.03, 0.10));
 			setKinect3dCoordinates(posicion);
 			//
 			return true;
@@ -176,12 +172,12 @@ namespace mapinect {
 		}
 		else if (key == 'z')
 		{
-			ofVec3f cualquiera = ofVec3f(10, 0, 2.5);
+			ofVec3f cualquiera = ofVec3f(ARM_LENGTH, 0, 0.25);
 			setKinect3dCoordinates(cualquiera);
 		}
 		else if (key == 'x')
 		{
-			ofVec3f cualquiera = ofVec3f(10, 0, 0);
+			ofVec3f cualquiera = ofVec3f(0.10, 0, 0);
 			setKinect3dCoordinates(cualquiera);
 		}
 	}
@@ -288,6 +284,8 @@ namespace mapinect {
 		}
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
+		cout << read() << endl;
+		cout << endl;
 		posicion = ofVec3f(x, y, z);
 	}
 
@@ -452,11 +450,6 @@ namespace mapinect {
 
 	Eigen::Affine3f Arduino::getWorldTransformation()
 	{
-		angleMotor1 = 0;
-		angleMotor2 = 0;
-		angleMotor4 = 0;
-		angleMotor8 = 0;
-
 		float angleMotor1Rad = ofDegToRad(angleMotor1);	// Motor que mueve la varilla "horizontal"
 		float angleMotor2Rad = ofDegToRad(angleMotor2); // Motor de abajo del brazo, con la varilla "vertical"
 		float angleMotor4Rad = ofDegToRad(angleMotor4); // Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
@@ -471,9 +464,9 @@ namespace mapinect {
 		//[ 0    0   1  0]
 		//[ 0    0   0  1]
 
+		Eigen::Vector3f axisX (1, 0, 0);
 		Eigen::Vector3f axisY (0, 1, 0);
 		Eigen::Vector3f axisZ (0, 0, 1);
-		Eigen::Vector3f axisX (1, 0, 0);
 
 		Eigen::Affine3f rotationY;
 		rotationY = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
@@ -481,7 +474,6 @@ namespace mapinect {
 		Eigen::Affine3f rotationZ;
 		rotationZ = Eigen::AngleAxis<float>(-angleMotor1Rad, axisZ);
 
-		//luego hay que correrlo el largo del brazo
 		Eigen::Affine3f translationX;
 		translationX = Eigen::Translation<float, 3>(ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
 
