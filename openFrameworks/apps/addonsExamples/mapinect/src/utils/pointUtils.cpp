@@ -16,6 +16,7 @@
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/segment_differences.h>
 #include <pcl/surface/convex_hull.h>
+#include <pcl/common/transforms.h>
 
 #include "ofxKinect.h"
 #include "ofxOpenCv.h"
@@ -380,8 +381,14 @@ PCPtr getPartialCloudRealCoords(const ofVec3f& min, const ofVec3f& max, int dens
 	pass.setFilterFieldName("z");
 	pass.setFilterLimits(0.001, 4.0);
 	pass.filter (*filteredCloud);
+	PCPtr transformedFilteredCloud = PCPtr(new PC());
+
+	saveCloudAsFile("noTrasladada.pcd", *filteredCloud);
+
+	pcl::transformPointCloud(*filteredCloud, *transformedFilteredCloud, transformationMatrix);
 
 	return filteredCloud;
+	//return transformedFilteredCloud;
 
 }
 
