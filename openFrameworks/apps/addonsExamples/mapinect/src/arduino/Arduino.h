@@ -11,8 +11,9 @@ namespace mapinect {
 	class Arduino{
 	
 	public:
-		Arduino();
+		static Arduino* getInstance();
 		virtual ~Arduino();
+		Arduino();
 
 		virtual bool		setup();
 		virtual void		exit();
@@ -33,11 +34,7 @@ namespace mapinect {
 
 	private:
 		bool				isActive();
-
 		void				sendMotor(int value, int id);
-		
-
-
 		ofSerial			serial;
 		signed int			angleMotor1;
 		signed int			angleMotor2;

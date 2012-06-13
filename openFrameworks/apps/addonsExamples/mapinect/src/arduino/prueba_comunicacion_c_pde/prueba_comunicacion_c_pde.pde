@@ -97,11 +97,12 @@ void loop()
     byte id = Serial.read();
     byte angulo = Serial.read();
     int angulo_pasado = pasarAngulo(angulo);
-    Serial.print("Angulo p: ");
-    Serial.println(angulo_pasado, DEC);
     Serial.print("id: ");
     Serial.println(id, DEC);
-//    angulo_pasado = 512 - angulo_pasado;
+    Serial.print("Angulo o: ");
+    Serial.println(angulo, DEC);
+    Serial.print("Angulo p: ");
+    Serial.println(angulo_pasado, DEC);
     if (id==1){
       posicion1 = angulo_pasado;
     }
@@ -122,13 +123,13 @@ void loop()
     }
   }
   delay(50);
-  motor1.setPosVel (posicion1, 20);
+  motor1.setPosVel (posicion1, 30);
   delay(100);
-  motor2.setPosVel (posicion2, 20);
+  motor2.setPosVel (posicion2, 30);
   delay(100);
-  motor4.setPosVel (posicion4, 20);
+  motor4.setPosVel (posicion4, 30);
   delay(100);
-  motor8.setPosVel (posicion8, 15);
+  motor8.setPosVel (posicion8, 20);
   delay(50);
 
 }
