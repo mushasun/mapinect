@@ -77,4 +77,7 @@ vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& 
 
 void setTransformMatrix(const Eigen::Affine3f& transform);
 
+const vector<ofVec3f>& getScreenCoords(const vector<ofVec3f>& transformedWorldPoints);
+ofVec3f getScreenCoords(ofVec3f transformedWorldPoint);
+
 #endif // POINT_UTILS_H__

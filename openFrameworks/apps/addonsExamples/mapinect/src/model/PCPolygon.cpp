@@ -69,7 +69,7 @@ namespace mapinect {
 			if (getPolygonModelObject() != NULL) {
 				ofSetColor(255,0,0);
 				ofVec3f avg = computeCentroid(getPolygonModelObject()->getMathModel().getVertexs());
-				ofVec3f sAvg = gKinect->getScreenCoordsFromWorldCoords(avg);
+				ofVec3f sAvg = getScreenCoords(avg);
 				ofDrawBitmapString(ofToString(getMathPolygonModelApproximation()->getName()), sAvg.x, sAvg.y);
 			}
 		}

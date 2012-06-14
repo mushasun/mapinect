@@ -62,7 +62,7 @@ namespace mapinect {
 			glBegin(GL_POINTS);
 			for (size_t i = 0; i < cloud->size(); i++) {
 				ofVec3f v = POINTXYZ_OFXVEC3F(cloud->at(i));
-				w = gKinect->getScreenCoordsFromWorldCoords(v);
+				w = getScreenCoords(v);
 				glVertex3f(w.x, w.y, 5);
 			}
 			glEnd();
