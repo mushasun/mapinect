@@ -7,6 +7,7 @@
 #include "ofVecUtils.h"
 #include "SortPolar.h"
 #include "utils.h"
+#include "pointUtils.h"
 
 namespace mapinect {
 
@@ -44,7 +45,7 @@ namespace mapinect {
 		int i = 1;
 		for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); ++v) {
 			ofSetColor(0, 255 * i++ / 4.0f, 0);
-			ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(*v);
+			ofVec3f w = getScreenCoords(*v);
 			ofCircle(w.x, w.y, 4);
 		}
 		

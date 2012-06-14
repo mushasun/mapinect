@@ -1,6 +1,7 @@
 #include "Buildings.h"
 
 #include "Globals.h"
+#include "pointUtils.h"		// Esto vamos a tener que sacarlo
 
 namespace buildings {
 	
@@ -43,6 +44,7 @@ namespace buildings {
 	//--------------------------------------------------------------
 	void Buildings::debugDraw()
 	{
+		// Esto vamos a tener que sacarlo
 		map<int, DataTouch> keep;
 		for (map<int, DataTouch>::const_iterator it = touchPoints.begin(); it != touchPoints.end(); ++it)
 		{
@@ -52,7 +54,7 @@ namespace buildings {
 				ofSetHexColor(0x00FF00);
 			else
 				ofSetHexColor(0x0000FF);
-			ofVec2f s = gKinect->getScreenCoordsFromWorldCoords(it->second.getTouchPoint());
+			ofVec2f s = getScreenCoords(it->second.getTouchPoint());
 			ofCircle(s.x, s.y, 4);
 			if (it->second.getType() != kTouchTypeReleased)
 				keep.insert(make_pair(it->first, it->second));

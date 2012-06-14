@@ -123,12 +123,12 @@ namespace mapinect {
 		int i = 1;
 		for (vector<ofVec3f>::iterator iter = fingerTips.begin(); iter != fingerTips.end(); iter++) {
 			ofSetColor(100,255 * i++ / 4.0f,0);
-			ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(*iter);
+			ofVec3f w = getScreenCoords(*iter);
 			ofCircle(w.x,w.y,4);
 		}
 
 		ofSetColor(255,200,0);
-		ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(this->getCenter());
+		ofVec3f w = getScreenCoords(this->getCenter());
 		ofCircle(w.x,w.y,10);
 	}
 
