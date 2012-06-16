@@ -12,6 +12,7 @@
 #include <pcl/octree/octree_pointcloud_density.h>
 #include <pcl/range_image/range_image.h>
 #include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/ransac.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/segment_differences.h>
@@ -308,7 +309,7 @@ ofVec3f normalEstimation(const PCPtr& plane, const pcl::PointIndices::Ptr& indic
 	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
 
 	// Use all neighbors in a sphere of radius 3cm
-	ne.setRadiusSearch (0.3);
+	ne.setRadiusSearch (0.03);
 
 	// Compute the features
 	ne.compute (*cloud_normals);
@@ -513,8 +514,8 @@ float boxProbability(const PCPtr& cloud)
 			else
 				cloud_p = cloudTemp;
 		
-			ofVec3f norm = normalEstimation(cloud_p);
-
+			//ofVec3f norm = normalEstimation(cloud_p);
+			ofVec3f norm (coefficients->values[0],coefficients->values[1],coefficients->values[2]);
 			//Chequeo que las normales sean perpendiculares entre si y paraleas o perpendiculares a la mesa.
 			if(table != NULL)
 			{
@@ -525,7 +526,7 @@ float boxProbability(const PCPtr& cloud)
 					return 0;
 				//si es paralela a la mesa, chequeo que esté sobre la mesa
 				if(dot > 0.9)
-					if(!table->isOnTable(cloud_p))
+					if(!table->isOverTable(cloud_p))
 						return 0;
 			}
 			for(int i = 0; i < normals.size(); i++)
@@ -801,7 +802,28 @@ vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v)
 	return vec;
 }
 
+PCPtr getHalo(const ofVec3f& min, const ofVec3f& max, const float& haloSize, const PCPtr& cloudSrc)
+{
+	PCPtr trimmedCloud (new PC());
+	vector<int> indices;
+	ofVec3f vMin = min - haloSize;
+	ofVec3f vMax = max + haloSize;
+
+	Eigen::Vector4f eMax(vMax.x,vMax.y,vMax.z,1);
+	Eigen::Vector4f eMin(vMin.x,vMin.y,vMin.z,1);
+	
+	pcl::getPointsInBox(*cloudSrc,eMin,eMax,indices);
+			
+	for(int i = 0; i < indices.size(); i++)
+		trimmedCloud->push_back(cloudSrc->at(indices.at(i)));
+	return trimmedCloud;
+}
+
 void setTransformMatrix(const Eigen::Affine3f& t)
 {
 	transformationMatrix = t;
 }
+
+
+
+//--------------------------------------------------------------

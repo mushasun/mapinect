@@ -75,6 +75,8 @@ vector<ofVec3f> projectPointsInPlane(const vector<Eigen::Vector3f>& points, cons
 
 vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& coefficients);
 
+PCPtr getHalo(const ofVec3f& min, const ofVec3f& max, const float& haloSize, const PCPtr& cloudSrc);
+
 void setTransformMatrix(const Eigen::Affine3f& transform);
 
 const vector<ofVec3f>& getScreenCoords(const vector<ofVec3f>& transformedWorldPoints);
