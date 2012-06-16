@@ -101,21 +101,27 @@ void loop()
     Serial.println(id, DEC);
     Serial.print("Angulo o: ");
     Serial.println(angulo, DEC);
-    Serial.print("Angulo p: ");
-    Serial.println(angulo_pasado, DEC);
     if (id==1){
       posicion1 = angulo_pasado;
+      Serial.print("Angulo p: ");
+      Serial.println(posicion1, DEC);
     }
     else if (id==2){
       posicion2 = angulo_pasado;
+      Serial.print("Angulo p: ");
+      Serial.println(posicion2, DEC);
     }
     else if (id==4)
     {
       posicion4 = angulo_pasado;
+      Serial.print("Angulo p: ");
+      Serial.println(posicion4, DEC);
     }
     else if (id==8)
     {
       posicion8 = angulo_pasado + 70;//el cero está corrido :@
+      Serial.print("Angulo p: ");
+      Serial.println(posicion8, DEC);
     }
     else
     {
