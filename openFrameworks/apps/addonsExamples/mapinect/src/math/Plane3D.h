@@ -22,6 +22,8 @@ namespace mapinect
 		ofVec3f					project(const ofVec3f& p) const;
 		Line3D					intersection(const Plane3D& otherPlane) const;
 		ofVec3f					intersection(const Plane3D& otherPlane1, const Plane3D& otherPlane2) const;
+		ofVec3f					intersection(const Line3D& line) const;
+
 
 		inline const ofVec3f&	getNormal() const						{ return normal; }
 		pcl::ModelCoefficients	getCoefficients() const;

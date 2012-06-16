@@ -4,6 +4,8 @@
 #include "Globals.h"
 #include "log.h"
 #include "pointUtils.h"
+#include "PCPolyhedron.h"
+#include <pcl/octree/octree.h>
 
 using namespace std;
 
@@ -32,10 +34,11 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	void ObjectsThread::setCloud(const PCPtr& cloud)
+	void ObjectsThread::setClouds(const PCPtr& cloud, const PCPtr& rawCloud)
 	{
 		inCloudMutex.lock();
 		inCloud = cloud;
+		inRawCloud = rawCloud;
 		inCloudMutex.unlock();
 	}
 
@@ -48,7 +51,7 @@ namespace mapinect {
 				bool newCloudAvailable = false;
 				{
 					inCloudMutex.lock();
-					if (inCloud.get() != NULL)
+					if (inCloud.get() != NULL && inRawCloud.get() != NULL )
 						newCloudAvailable = true;
 					inCloudMutex.unlock();
 
@@ -91,6 +94,7 @@ namespace mapinect {
 		
 		if(cloud->empty())
 		{
+			updateDetectedObjects();
 			return;
 		}
 
@@ -99,6 +103,7 @@ namespace mapinect {
 
 		{
 				setObjectsThreadStatus("Detecting clusters...");
+				saveCloudAsFile("rawClusters.pcd", *cloud);
 				std::vector<pcl::PointIndices> cluster_indices =
 				findClusters(cloud, MAX_CLUSTER_TOLERANCE, MIN_CLUSTER_SIZE, MAX_CLUSTER_SIZE);
 
@@ -150,30 +155,127 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	bool ObjectsThread::findBestFit(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud, bool &removed) {
+		float currentDist = numeric_limits<float>::max();
+		TrackedCloudPtr currentMatch;
+		removed = false;
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			if ((*iter)->matches(trackedCloud, removedCloud, removed))
+			float dist = (*iter)->matchingTrackedObjects(trackedCloud);
+			if (dist != -1 && dist < currentDist)
 			{
-				return true;
+				currentMatch = (*iter);
+				currentDist = dist;
 			}
+		}
+		if(currentDist != numeric_limits<float>::max())
+		{
+			removed = currentMatch->confirmMatch(trackedCloud,removedCloud);
+			return true;
 		}
 		return false;
 	}
 
 	//--------------------------------------------------------------
+	vector<TrackedCloudPtr> ObjectsThread::computeOcclusions(const vector<TrackedCloudPtr>& potentialOcclusions)
+	{
+		vector<TrackedCloudPtr> occlusions;
+		ofVec3f origin(0,0,0);
+
+		inCloudMutex.lock();
+		PCPtr cloud = PCPtr(new PC(*inRawCloud));
+		inRawCloud.reset();
+		inCloudMutex.unlock();
+
+		saveCloudAsFile("rawInternal.pcd",*cloud);
+		pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ> octree(0.01);
+		pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ>::AlignedPointTVector voxelList;
+
+		octree.setInputCloud(cloud);
+		octree.defineBoundingBox();
+		octree.addPointsFromInputCloud();
+
+		for(int i = 0; i < potentialOcclusions.size(); i++)
+		{
+			bool occluded = false;
+			PCPolyhedron* polyhedron = dynamic_cast<PCPolyhedron*>(potentialOcclusions.at(i)->getTrackedObject().get());
+
+			vector<ofVec3f> vexs = polyhedron->getVertexs();
+			/*for(int o = 0; o < vexs.size() && !occluded; o++)
+			{
+				Line3D ray (vexs.at(o), ofVec3f(0,0,0));
+				for(int j = 0; j < occluders.size() && !occluded; j ++)
+				{
+					vector<IPolygonPtr> pols  = occluders.at(i)->getTrackedObject()->getMathModelApproximation()->getPolygons();
+					for(int k = 0; k < pols.size() && !occluded; k ++)
+						occluded = pols.at(j)->getMathModel().isInPolygon(ray);
+				}
+				if(occluded)
+					occlusions.push_back(potentialOcclusions.at(i));
+			}*/
+		
+			for(int o = 0; o < vexs.size() && !occluded; o++)
+			{
+				ofVec3f end = vexs.at(o);
+				Eigen::Vector3f endPoint(end.x,end.y,end.z);
+				Eigen::Vector3f originPoint(0,0,0);
+				voxelList.clear();
+
+				int voxs = octree.getApproxIntersectedVoxelCentersBySegment(originPoint,endPoint,voxelList,0.01);
+
+				for(int i = 0; i < voxelList.size(); i ++)
+				{
+					if(octree.isVoxelOccupiedAtPoint(voxelList.at(i)))
+					{
+						ofVec3f intersect (voxelList.at(i).x,voxelList.at(i).y,voxelList.at(i).z);
+						if((intersect - origin).length() < (end - origin).length())
+							occluded = true;
+					}
+				}
+
+				if(occluded)
+					occlusions.push_back(potentialOcclusions.at(i));
+			}
+
+		}
+		return occlusions;
+	}
+
 	void ObjectsThread::updateDetectedObjects()
 	{
+		vector<TrackedCloudPtr> occluders;
+		vector<TrackedCloudPtr> potentialOcclusions;
+		vector<TrackedCloudPtr> occlusions;
+
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
 			if ((*iter)->hasMatching())
 			{
+				saveCloudAsFile("objPreMatched.pcd",*(*iter)->getTrackedCloud());
 				(*iter)->updateMatching();
+				saveCloudAsFile("objPostMatched.pcd",*(*iter)->getTrackedCloud());
+
 				if (!((*iter)->hasObject())) {
 					(*iter)->addCounter(2);
 				}
 				else
+				{
 					(*iter)->addCounter(1);
+					occluders.push_back(*iter);
+				}
 				(*iter)->removeMatching();
+			}
+			else if ((*iter)->hasObject())
+			{
+
+				potentialOcclusions.push_back(*iter);
+			}
+		}
+
+		if(potentialOcclusions.size() > 0)
+		{
+			occlusions = computeOcclusions(potentialOcclusions);
+			for(int i = 0; i < occlusions.size(); i++)
+			{
+				occlusions.at(i)->addCounter(1);
 			}
 		}
 	}
-
 }

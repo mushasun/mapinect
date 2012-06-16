@@ -33,8 +33,8 @@ class AlignmentDetector{
 
 		AlignmentDetector () :
 		min_sample_distance_ (0.05f),
-		max_correspondence_distance_ (0.1f*0.1f),
-		nr_iterations_ (100)
+		max_correspondence_distance_ (0.01),
+		nr_iterations_ (1000)
 		{
 			// Intialize the parameters in the Sample Consensus Intial Alignment (SAC-IA) algorithm
 			sac_ia_.setMinSampleDistance (min_sample_distance_);

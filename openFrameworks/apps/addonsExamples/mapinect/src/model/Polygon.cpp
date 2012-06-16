@@ -43,12 +43,13 @@ namespace mapinect {
 		glEnd();
 		
 		int i = 1;
-		for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); ++v) {
-			ofSetColor(0, 255 * i++ / 4.0f, 0);
-			ofVec3f w = getScreenCoords(*v);
-			ofCircle(w.x, w.y, 4);
+		if(this->getId() == TABLE_ID)
+		{
+			for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); ++v) {
+				ofSetColor(0, 255 * i++ / 4.0f, 0);
+				ofVec3f w = getScreenCoords(*v);
+				ofCircle(w.x, w.y, 4);
+			}
 		}
-		
 	}
-
 }

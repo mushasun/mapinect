@@ -31,6 +31,7 @@ namespace mapinect {
 			virtual void			setAndUpdateCloud(const PCPtr& cloud);
 
 			inline const vector<IPolygon*>	getPolygons()					{ return polygonsCache; }
+			inline const vector<ofVec3f>	getVertexs()					{ return vertexs; }
 		private:
 			void							updatePolygons();
 			bool							findBestFit(const PCPolygonPtr&, PCPolygonPtr& removed, bool& wasRemoved);
@@ -44,11 +45,13 @@ namespace mapinect {
 		protected:
 			vector<PCPolygonPtr>			pcpolygons;
 			vector<IPolygon*>				polygonsCache;
-			bool							partialEstimation;
+			vector<ofVec3f>					vertexs;
+			bool							fullEstimation;
+
 			virtual void					unifyVertexs();
 			const PCPolygonPtr&				getPCPolygon(int index);
 			int								getPCPolygonSize();
-			
+
 			mutable ofxMutex				pcPolygonsMutex;
 
 	};

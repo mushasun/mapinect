@@ -96,6 +96,27 @@ namespace mapinect
 
 	}
 
+	ofVec3f Plane3D::intersection(const Line3D& line) const
+	{
+		// http://paulbourke.net/geometry/3planes/
+
+		ofVec3f P1 = line.getOrigin();
+		ofVec3f P1P2 = line.getOrigin() - line.getDestination();
+		ofVec3f P2P1 = line.getDestination() - line.getOrigin();
+
+		float den = normal.dot(P1P2);
+
+		if (fabsf(den) < MATH_EPSILON)
+			return BAD_OFVEC3F;
+
+		float u = normal.dot(P1) + d;
+		u *= 1/den;
+
+		ofVec3f pto = P1 + u*P2P1;
+		return pto;
+
+	}
+
 	bool Plane3D::isPerpendicular(const Plane3D& plane) const
 	{
 		float dot = abs(normal.dot(plane.getNormal()));

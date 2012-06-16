@@ -18,14 +18,17 @@ namespace mapinect
 		void						exit();
 		virtual void				threadedFunction();
 
-		void						setCloud(const PCPtr& cloud);
+		void						setClouds(const PCPtr& cloud,const PCPtr& rawCloud);
 
 	private:
 		void						processCloud();
 		bool						findBestFit(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud, bool &removed);
 		void						updateDetectedObjects();
+		vector<TrackedCloudPtr>		computeOcclusions(const vector<TrackedCloudPtr>& potentialOcclusions);
 
 		PCPtr						inCloud;
+		PCPtr						inRawCloud;
+
 		ofxMutex					inCloudMutex;
 
 		list<TrackedCloudPtr>		trackedClouds;

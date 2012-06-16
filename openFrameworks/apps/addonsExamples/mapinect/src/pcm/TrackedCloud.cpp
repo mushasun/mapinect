@@ -17,6 +17,7 @@
 #include "pointUtils.h"
 #include "Table.h"
 #include "utils.h"
+#include "EventManager.h"
 
 namespace mapinect {
 
@@ -131,69 +132,63 @@ namespace mapinect {
 		 minPointDif = numeric_limits<int>::max();
 	}
 	
-	//Compara si trackedCloud se corresponde con la TrackedCloud actual
-	//En caso de tener una correspondencia (matchingCloud) previamente asociada, la devuelve en removedCloud
-	//y setea removed a false
-	bool TrackedCloud::matches(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud, bool &removed)
+	bool TrackedCloud::confirmMatch(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud)
 	{
-		removed = false;
-		if(this->hasObject())
+		bool removed = false;
+		if(matchingCloud != NULL)
 		{
-			Eigen::Affine3f transformation;
-			if(matchingTrackedObjects(trackedCloud, transformation))
-			{
-				objectInModel->setTransformation(&transformation);
-				
-				if(matchingCloud != NULL)
-				{
-					removedCloud = matchingCloud;
-					removed = true;
-				}
-
-				matchingCloud = trackedCloud;
-				return true;
-			}
+			removedCloud = matchingCloud;
+			removed = true;
 		}
-		else //Si no tiene un objeto asociado, sólo compara las distancias entre las distintas nubes.
-		{
-			PCPtr difCloud (new PC());
-			Eigen::Vector4f clusterCentroid;
-			Eigen::Vector4f objCentroid;
-			compute3DCentroid(*trackedCloud->getTrackedCloud(),clusterCentroid);
-			compute3DCentroid(*cloud,objCentroid);
-			Eigen::Vector4f translationVector = clusterCentroid - objCentroid;
-			if(translationVector.norm() < this->nearest)
-			{
-				this->nearest = translationVector.norm();
-				if(matchingCloud != NULL)
-				{
-					removedCloud = matchingCloud;
-					removed = true;
-				}
-				matchingCloud = trackedCloud;
-				hand = trackedCloud->isPotentialHand();
 
-				//getDifferencesCloud -> tiene problemas!!!
-				//int dif = getDifferencesCloud(cloud, trackedCloud->getCloud(), difCloud, OCTREE_RES);
-			
-				//if(dif < DIFF_IN_OBJ)
-				//{
-				//	if(matchingCloud != NULL)
-				//	{
-				//		removedCloud = matchingCloud;
-				//		removed = true;
-				//	}
-				//	//debug
-				//	//matchingCloud = trackedCloud;
-				//	return true;
-				//}
-				return true;
-			}
+		PCPtr cluster;
+		if(hasObject())
+			cluster = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.05,trackedCloud->getTrackedCloud());
+		else
+			cluster = trackedCloud->getTrackedCloud();
+		PCPtr obj_cloud (new PC(*cloud));
+
+		Eigen::Vector4f clusterCentroid;
+		Eigen::Vector4f objCentroid;
+		compute3DCentroid(*cluster,clusterCentroid);
+		compute3DCentroid(*obj_cloud,objCentroid);
+
+		Eigen::Vector4f translationVector = clusterCentroid - objCentroid;
+		nearest = translationVector.norm();
+
+		Eigen::Affine3f traslation;
+		traslation = Eigen::Translation<float,3>(translationVector.x(),translationVector.y(),translationVector.z());
+
+		pcl::transformPointCloud(*obj_cloud,*obj_cloud,traslation);
+		matchingCloud = trackedCloud;
+
+		if(hasObject())
+		{
+			///Elimino la comparación de diferencia de nubes, solo tomo la mas cercana.
+			///Pero usa un limite de diferencia entre nubes para saber si recalcular las caras
+			///////////////////////
+			int difCount = getDifferencesCount(obj_cloud, cluster, RES_IN_OBJ2);;
+			int maxDif = obj_cloud->points.size() * MIN_DIF_PERCENT;
+
+			if(difCount > maxDif)
+				needRecalculateFaces = true;
 			else
-				return false;
+				needRecalculateFaces = false;
+			////////////////////////////////////////////////////////
+			if(nearest > TRANSLATION_DISTANCE_TOLERANCE)
+				needApplyTransformation = true;
+			else
+				needApplyTransformation = false;
 		}
-		return false;
+		
+		return removed;
 	}
+
+	
+	//float TrackedCloud::matches(const TrackedCloudPtr& trackedCloud)
+	//{
+	//	return matchingTrackedObjects(trackedCloud);
+	//}
 
 	void TrackedCloud::updateMatching()
 	{
@@ -214,6 +209,8 @@ namespace mapinect {
 					objectInModel->resetLod();
 					objectInModel->addToModel(cloud);
 					objectInModel->setCloud(cloud);
+					IObjectPtr iObject = objectInModel->getMathModelApproximation();
+					EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectMoved, iObject));
 				}
 				gModel->objectsMutex.unlock();
 			}
@@ -221,39 +218,9 @@ namespace mapinect {
 		}
 		else if(objectInModel != NULL && objectInModel->getLod() < MAX_OBJ_LOD)								//Si no llegue al nivel maximo de detalle, aumento el detalle
 		{
-			ofVec3f vMax,vMin;
-			findPointCloudBoundingBox(objectInModel->getCloud(), vMin, vMax);
-
 			int density = CLOUD_RES - objectInModel->getLod();
-			
-
-			ofVec3f halo(0.005, 0.005, 0.005);
-			halo /= (float)objectInModel->getLod();
-			vMin -= halo;
-			vMax += halo;
-
 			PCPtr cloud = getCloud(density);
-
-			Eigen::Vector4f eMax,eMin;
-			eMax[0] = vMax.x;
-			eMax[1] = vMax.y;
-			eMax[2] = vMax.z;
-			eMin[0] = vMin.x;
-			eMin[1] = vMin.y;
-			eMin[2] = vMin.z;
-
-			//Necesito alguna forma de pasar de coordenadas de kinect a indices para obtener esta nube
-			/*PCPtr cloud = getPartialCloudRealCoords(ofPoint(min(vMax.x,vMin.x),min(vMax.y,vMin.y)),
-													ofPoint(max(vMax.x,vMin.x),max(vMax.y,vMin.y)),	
-													density);*/
-
-			vector<int> indices;
-
-			pcl::getPointsInBox(*cloud,eMin,eMax,indices);
-			PCPtr nuCloud (new PC());
-			
-			for(int i = 0; i < indices.size(); i++)
-				nuCloud->push_back(cloud->at(indices.at(i)));
+			PCPtr nuCloud = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.005,cloud);
 
 			PCPtr nuCloudFiltered (new PC());
 			PCPtr nuCloudFilteredNoTable (new PC());
@@ -295,6 +262,8 @@ namespace mapinect {
 			{
 				gModel->objectsMutex.lock();
 				objectInModel->addToModel(nuCloudFilteredNoTable);
+				IObjectPtr iObject = objectInModel->getMathModelApproximation();
+				EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectMoved, iObject));
 				gModel->objectsMutex.unlock();
 			}
 		}
@@ -304,46 +273,20 @@ namespace mapinect {
 		return other.get() == this;
 	}
 
-	bool TrackedCloud::matchingTrackedObjects(const TrackedCloudPtr& tracked_temp, Eigen::Affine3f &transformation)
+	///Retorna la distancia de matcheo entre las dos nubes
+	///Retorna -1 en caso de no matchear
+	float TrackedCloud::matchingTrackedObjects(const TrackedCloudPtr& tracked_temp)
 	{
-		///////////////////////////Metodo con Alignment////////////////////////
-		//AlignmentDetector ad;
-		//ad.setTargetCloud(tracked_temp);
-		//ad.setTemplateCloud(*this);
-		//AlignmentDetector::Result r = ad.align();
+		PCPtr diff;
+		PCPtr cluster;
+		PCPtr obj_cloud(new PC(*cloud));
+		if(hasObject())
+			cluster = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.03,tracked_temp->getTrackedCloud());
+		else
+			cluster = tracked_temp->getTrackedCloud();
 
-		//cout<<"result: " << r.fitness_score << endl;
-
-		//if(r.fitness_score < nearest &&
-		//	r.fitness_score < 0.00005f)
-		//{
-		//	cout << "match!" << endl;
-		//	transformation = r.final_transformation;
-		//	nearest = r.fitness_score;
-		//	needApplyTransformation = true;
-		//	needRecalculateFaces = true;
-
-		//	//pcl::PointCloud<pcl::FPFHSignature33>::Ptr f1 = this->getLocalFeatures();
-		//	//pcl::PointCloud<pcl::FPFHSignature33>::Ptr f2 = this->matchingCloud->getLocalFeatures();
-
-		//	//pcl::io::savePCDFile("featureSource.pcd",*f1);
-		//	//pcl::io::savePCDFile("featureTarget.pcd",*f2);
-
-		//	//cout << transformation << endl;
-		//	return true;
-		//}
-
-		///////////////////////////Fin Metodo con Alignment////////////////////////
-
-		///////////////////////////Metodo Previo.//////////////////////////////
-		//PCDWriter writer;
-		//writer.write<pcl::PointXYZ> ("obj.pcd", *obj_cloud, false);
-		/*writer.write<pcl::PointXYZ> ("cluster.pcd", *cluster, false);
-		*/
-		PCPtr cluster = tracked_temp->getTrackedCloud();
-		//PCPtr obj_cloud (new PointCloud<PointXYZ>(objectInModel->getCloud()));
-		PCPtr obj_cloud (new PC(*cloud));
-
+		if(cluster->size() < cloud->size() * 0.2)
+			return -1;
 		//Hallo la traslación 
 
 		Eigen::Vector4f clusterCentroid;
@@ -354,61 +297,11 @@ namespace mapinect {
 		Eigen::Vector4f translationVector = clusterCentroid - objCentroid;
 
 		if(translationVector.norm() > nearest)
-			return false;
-
-		Eigen::Affine3f traslation;
-		traslation = Eigen::Translation<float,3>(translationVector.x(),translationVector.y(),translationVector.z());
-
-		//Elimino el calculo de las normales y rotacion/////////////////////////////////////////
-		//ofVec3f clusterNormal = normalEstimation(cluster);
-		//ofVec3f objNormal = normalEstimation(obj_cloud);
-
-		////Hallo la rotación http://www.gamedev.net/topic/472246-rotation-matrix-between-two-vectors/
-		//ofVec3f w (objNormal);
-		//w = w.cross(clusterNormal);
-
-		//float angle = asin(w.length());
-		//w = w.normalize();
-		//Eigen::Vector3f axis (w.x, w.y, w.z);
-		//Eigen::Affine3f rotation;
-		//rotation = Eigen::AngleAxis<float>(angle,axis);
-
-		////PCPtr out (new PointCloud<PointXYZ>());
-		//pcl::transformPointCloud(*obj_cloud,*obj_cloud,t);
-		////////////////////////////////////////////////////////////////////////
-
-
-		PCPtr out2 (new PC());
-		pcl::transformPointCloud(*obj_cloud,*obj_cloud,traslation);
-
-
-		//transformation = traslation*rotation;
-		transformation = traslation;
-
-		/*PCPtr out3 (new PointCloud<PointXYZ>());
-		pcl::transformPointCloud(*cluster,*out3,t2);*/
-
-
-		///Elimino la comparación de diferencia de nubes, solo tomo la mas cercana.
-		///Pero usa un limite de diferencia entre nubes para saber si recalcular las caras
-		///////////////////////
-		int difCount = getDifferencesCount(obj_cloud, cluster, RES_IN_OBJ2);;
-		int maxDif = obj_cloud->points.size() * MIN_DIF_PERCENT;
-
-		if(difCount > maxDif)
-			needRecalculateFaces = true;
+			return -1;
 		else
-			needRecalculateFaces = false;
-		////////////////////////////////////////////////////////
-		nearest = translationVector.norm();
-		if(nearest > TRANSLATION_DISTANCE_TOLERANCE)
-			needApplyTransformation = true;
-		else
-			needApplyTransformation = false;
-
-		return true;
-		//////////////////////////////////////////////////////////
-		///////////////////////////Fin Metodo Previo.//////////////////////////////
+			return translationVector.norm();
+			
+		
 	}
 
 	pcl::PointCloud<pcl::FPFHSignature33>::Ptr TrackedCloud::getLocalFeatures ()
