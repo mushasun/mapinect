@@ -35,6 +35,8 @@ namespace mapinect {
 		matchedDistance = numeric_limits<float>::max();
 		matchedEstimator= numeric_limits<float>::max();
 		modelObject = ModelObjectPtr(new Polygon(coefficients));
+
+		modelObject->setId(getId());
 	}
 
 	PCPolygon::~PCPolygon() {

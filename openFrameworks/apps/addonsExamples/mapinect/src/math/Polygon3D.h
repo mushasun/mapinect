@@ -33,6 +33,7 @@ namespace mapinect
 		float				calculateArea() const;
 
 		bool				isInPolygon(const ofVec3f& p) const;
+		bool				isInPolygon(const Line3D& l) const;
 		bool				operator==(const Polygon3D&) const;
 
 	private:

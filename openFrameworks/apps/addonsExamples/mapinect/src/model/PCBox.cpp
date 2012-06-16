@@ -56,7 +56,7 @@ namespace mapinect {
 		}
 		else
 		{
-			vector<ofVec3f> unified;
+			vertexs.clear();
 			IPolygonName vertexNames[8][3]	= {{kPolygonNameSideA,kPolygonNameSideB,kPolygonNameTop},
 											  {kPolygonNameSideA,kPolygonNameSideB,kPolygonNameBottom},
 											  {kPolygonNameSideA,kPolygonNameSideD,kPolygonNameBottom},
@@ -73,10 +73,10 @@ namespace mapinect {
 												{2,1,3},
 												{1,2,0},
 												{0,3,3}};
-			vector<ofVec3f> vertexs [6];
+			vector<ofVec3f> tempVertexs [6];
 			for(int j = 0; j < 6; j++)
 			{
-				vertexs[j].resize(4);
+				tempVertexs[j].resize(4);
 			}
 
 			for(int i = 0; i < 8; i++)
@@ -95,11 +95,11 @@ namespace mapinect {
 					Plane3D plane2(p2->getPolygonModelObject()->getMathModel().getPlane());
 					ofVec3f vertex = plane0.intersection(plane1, plane2);
 
-					vertexs[vertexNames[i][0]][vertexIdx[i][0]] = vertex;
-					vertexs[vertexNames[i][1]][vertexIdx[i][1]] = vertex;
-					vertexs[vertexNames[i][2]][vertexIdx[i][2]] = vertex;
+					tempVertexs[vertexNames[i][0]][vertexIdx[i][0]] = vertex;
+					tempVertexs[vertexNames[i][1]][vertexIdx[i][1]] = vertex;
+					tempVertexs[vertexNames[i][2]][vertexIdx[i][2]] = vertex;
 
-					unified.push_back(vertex);
+					vertexs.push_back(vertex);
 					//DEBUG
 					/*saveCloudAsFile("vmerged" + ofToString(i) + ".pcd", vertex);
 					saveCloudAsFile("merged" + ofToString(i) + "1.pcd", *p0->getCloud());
@@ -114,9 +114,9 @@ namespace mapinect {
 				IPolygonName name = (IPolygonName)i;
 				PCPolygonPtr p0 = getPCPolygon(name, pcpolygons);
 				if(p0 != NULL)
-					p0->getPolygonModelObject()->setVertexs(vertexs[i]);
+					p0->getPolygonModelObject()->setVertexs(tempVertexs[i]);
 			}
-			saveCloudAsFile("UnifiedVertex.pcd", unified);
+			saveCloudAsFile("UnifiedVertex.pcd", vertexs);
 
 			/*for(int i = 0; i < pcpolygons.size(); i ++)
 			{
@@ -206,7 +206,7 @@ namespace mapinect {
 		else
 			polName = (IPolygonName)(polFatherName - 2);
 
-		if(partialEstimation)
+		if(fullEstimation)
 		{
 			normal = polygon->getNormal();
 			ofVec3f traslation;
@@ -479,6 +479,26 @@ namespace mapinect {
 					faceCloud->push_back(OFXVEC3F_POINTXYZ(faceVertex.at(i)));
 				}
 
+				//top face correction
+				if(fullEstimation && toEstimate == kPolygonNameTop)
+				{
+					gModel->tableMutex.lock();
+					TablePtr t = gModel->getTable();
+					gModel->tableMutex.unlock();
+
+					float calcHeight = t->getPolygonModelObject()->getMathModel().distance(POINTXYZ_OFXVEC3F(faceCloud->at(0)));
+					ofVec3f translationCorrection = normal * (height - calcHeight);
+					
+					PCPtr correctionCloud (new PC());
+					Eigen::Transform<float,3,Eigen::Affine> transformationCorrection;
+					transformationCorrection = Eigen::Translation<float,3>(translationCorrection.x, translationCorrection.y, translationCorrection.z);
+					pcl::transformPointCloud(*faceCloud,*correctionCloud,transformationCorrection);
+					
+					*faceCloud = *correctionCloud;
+					Plane3D orientedPlane(POINTXYZ_OFXVEC3F(faceCloud->at(0)),normal);
+					coef = orientedPlane.getCoefficients();
+				}
+
 				PCPolygonPtr pcp(new PCQuadrilateral(coef, faceCloud, 99, true));
 				pcp->detectPolygon();
 				pcp->getPolygonModelObject()->setName(toEstimate);
@@ -503,7 +523,7 @@ namespace mapinect {
 		pcPolygonsMutex.lock();
 		if(pcpolygons.size() == 6)
 		{
-			partialEstimation = true;
+			fullEstimation = true;
 			for(int i = 0; i < pcpolygons.size(); i ++)
 			{
 				IPolygonName name = pcpolygons.at(i)->getPolygonModelObject()->getName();

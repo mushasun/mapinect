@@ -27,7 +27,7 @@ namespace mapinect
 		void						processCloud();
 
 	private:
-		PCPtr						getObjectsOnTableTopCloud();
+		PCPtr						getObjectsOnTableTopCloud(PCPtr& occludersCloud);
 		PCPtr						getDifferenceCloudFromModel(const PCPtr& cloud);
 
 		bool						findBestFit(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved);

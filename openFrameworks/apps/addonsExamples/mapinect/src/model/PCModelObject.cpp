@@ -26,6 +26,8 @@ namespace mapinect {
 		lod = 1;
 
 		this->setCenter(computeCentroid(cloud));
+
+		this->setColor(ofColor(rand()%255,rand()%255,rand()%255).getHex());
 	}
 
 	PCModelObject::~PCModelObject() {

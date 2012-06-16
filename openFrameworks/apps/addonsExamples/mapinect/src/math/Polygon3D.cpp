@@ -108,26 +108,66 @@ namespace mapinect
 
 	bool Polygon3D::isInPolygon(const ofVec3f& p) const
 	{
-		if (plane.distance(p) < MATH_EPSILON)
+		if(true)
 		{
-			ofVec3f projected(plane.project(p));
-			PositionToLine position = edges2d[0].positionTo(discardCoordinateOfVec3f(projected, discardCoord));
-			for (int i = 1; i < edges2d.size(); i++)
+			int i;
+			double m1,m2;
+			double anglesum=0,costheta;
+			ofVec3f p1,p2;
+			int n = vertexs.size();
+			for (i = 0; i < n; i++) {
+
+				p1.x = vertexs[i].x - p.x;
+				p1.y = vertexs[i].y - p.y;
+				p1.z = vertexs[i].z - p.z;
+				p2.x = vertexs[(i+1)%n].x - p.x;
+				p2.y = vertexs[(i+1)%n].y - p.y;
+				p2.z = vertexs[(i+1)%n].z - p.z;
+
+				m1 = p1.length();
+				m2 = p2.length();
+				if (m1*m2 <= MATH_EPSILON)
+					return true; /* We are on a node, consider this inside */
+				else
+					costheta = (p1.x*p2.x + p1.y*p2.y + p1.z*p2.z) / (m1*m2);
+
+				anglesum += acos(costheta);
+			}
+			return fabs(anglesum - TWO_PI) < MATH_EPSILON;
+		}
+		else
+		{
+			if (plane.distance(p) < MATH_EPSILON)
 			{
-				PositionToLine positionI = edges2d[i].positionTo(discardCoordinateOfVec3f(projected, discardCoord));
-				if (positionI != position)
+				ofVec3f projected(plane.project(p));
+				PositionToLine position = edges2d[0].positionTo(discardCoordinateOfVec3f(projected, discardCoord));
+				for (int i = 1; i < edges2d.size(); i++)
 				{
-					if (position == kPositionedInLine)
+					PositionToLine positionI = edges2d[i].positionTo(discardCoordinateOfVec3f(projected, discardCoord));
+					if (positionI != position)
 					{
-						position = positionI;
-					}
-					else
-					{
-						return false;
+						if (position == kPositionedInLine)
+						{
+							position = positionI;
+						}
+						else
+						{
+							return false;
+						}
 					}
 				}
+				return true;
 			}
-			return true;
+			return false;
+		}
+	}
+
+	bool Polygon3D::isInPolygon(const Line3D& l) const
+	{
+		ofVec3f intersection = plane.intersection(l);
+		if (intersection != BAD_OFVEC3F)
+		{
+			return isInPolygon(intersection);
 		}
 		return false;
 	}

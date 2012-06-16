@@ -30,7 +30,7 @@ namespace mapinect {
 
 		private:
 			ofVec3f							vCenter, vScale, vRotation;
-			int								color;
+			int							color;
 			int								objId;
 		
 	};

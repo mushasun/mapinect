@@ -35,7 +35,7 @@ namespace mapinect {
 	PCPolyhedron::PCPolyhedron(const PCPtr& cloud, int objId)
 				: PCModelObject(cloud, objId)
 	{
-		partialEstimation = false;
+		fullEstimation = false;
 	}
 
 	IObjectPtr PCPolyhedron::getMathModelApproximation() const
@@ -302,6 +302,7 @@ namespace mapinect {
 
 			saveCloudAsFile("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
 			
+			//TODO: Chequear un minimo de puntos
 			//Remove outliers by clustering
 			PCPtr cloud_p_filtered (new PC());
 			pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
@@ -396,6 +397,8 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::unifyVertexs() {
+		vertexs.clear();
+
 		struct VertexInPCPolygon
 		{
 			VertexInPCPolygon(PCPolygon* pcp, int vertex) : pcp(pcp), vertex(vertex) { }
@@ -442,6 +445,7 @@ namespace mapinect {
 						updateVertexs.at(i).pcp->getPolygonModelObject()->setVertex(updateVertexs.at(i).vertex, avg);
 						//vx.Polygons.push_back(PCPolygonPtr(updateVertexs.at(i).pcp));
 					}
+					this->vertexs.push_back(avg);
 					//vx.setPoint(avg);
 					//vertexs.push_back(vx);
 				}
@@ -481,6 +485,12 @@ namespace mapinect {
 		pcPolygonsMutex.lock();
 		for (int i = 0; i < pcpolygons.size(); i++)
 			pcpolygons[i]->draw();
+		for(int i = 0; i < vertexs.size(); i++)
+		{
+			ofSetHexColor(this->getColor());
+			ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(vertexs.at(i));
+			ofCircle(w.x, w.y, 4);
+		}
 		pcPolygonsMutex.unlock();
 
 	}
@@ -566,26 +576,8 @@ namespace mapinect {
 		/// 3 - Matchear caras de la nube anterior con las nuevas caras
 		/// 4 - Estimar caras ocultas (?)
 		
-		PCPtr trimmedCloud (new PC());
-		vector<int> indices;
-		ofVec3f vMin = this->getvMin();
-		ofVec3f vMax = this->getvMax();
-		vMin -= 0.05;
-		vMax += 0.05;
-
-		Eigen::Vector4f eMax;
-		Eigen::Vector4f eMin;
-		eMax[0] = vMax.x;
-		eMax[1] = vMax.y;
-		eMax[2] = vMax.z;
-		eMin[0] = vMin.x;
-		eMin[1] = vMin.y;
-		eMin[2] = vMin.z;
-
-		pcl::getPointsInBox(*nuCloud,eMin,eMax,indices);
-			
-		for(int i = 0; i < indices.size(); i++)
-			trimmedCloud->push_back(nuCloud->at(indices.at(i)));
+		//TODO: CHequear si es necesario, en TrackedCLoud ya se hace
+		PCPtr trimmedCloud = getHalo(this->getvMin(),this->getvMax(),0.05,nuCloud);
 		
 		saveCloudAsFile("nucloud.pcd",*nuCloud);
 		saveCloudAsFile("trimmed.pcd",*trimmedCloud);
@@ -593,33 +585,29 @@ namespace mapinect {
 		//Detecto nuevas caras
 		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,0.003,2.6,false); 
 		
-		if(false) //partialestimation
-		{
-			nuevos = mergePolygons(nuevos);
-			vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos);
-			estimated = mergePolygons(estimated);
-			nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());
-		}
-		else
-		{
-			//Descarto caras que no sean paralelas a la mesa o esten apoyadas sobre la mesa
-			/*cout << "pre discard: " << nuevos.size() << endl;
-			nuevos = discardPolygonsOutOfBox(nuevos);
-			cout << "post discard: " << nuevos.size() << endl;*/
-			namePolygons(nuevos);
-			nuevos = mergePolygons(nuevos);
-			vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos);
-			estimated = mergePolygons(estimated);
-			nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());
-		}
+		namePolygons(nuevos);
+		nuevos = mergePolygons(nuevos);
+		vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos);
+		estimated = mergePolygons(estimated);
+		nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());
 		
 		pcpolygons = nuevos;
 		unifyVertexs();
 		
+		PCPtr finalCloud (new PC());
 		for(int i = 0; i < pcpolygons.size(); i ++)
 		{
+			*finalCloud += *pcpolygons.at(i)->getCloud();
 			saveCloudAsFile ("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
 		}
+		saveCloudAsFile ("finalCloud" + ofToString(getId()) + ".pcd", *finalCloud);
+
+		cloud = finalCloud;
+		findPointCloudBoundingBox(cloud, vMin, vMax);
+		
+		this->setCenter(computeCentroid(cloud));
+
+		
 
 		pcPolygonsMutex.unlock();
 

@@ -125,7 +125,7 @@ namespace mapinect {
 	}
 	
 	//--------------------------------------------------------------
-	PCPtr PCMThread::getObjectsOnTableTopCloud(){
+	PCPtr PCMThread::getObjectsOnTableTopCloud(PCPtr &occludersCloud){
 		PCPtr cloud = getCloud();
 		//saveCloudAsFile("rawCloud.pcd", *cloud);
 		
@@ -141,13 +141,16 @@ namespace mapinect {
 		std::vector<pcl::PointIndices> cluster_indices =
 			findClusters(cloud, MAX_TABLE_CLUSTER_TOLERANCE, MIN_TABLE_CLUSTER_SIZE, MAX_TABLE_CLUSTER_SIZE);
 
-		//Busco el cluster más cercano
+		//Busco el cluster más cercano y guardo posibles occluders
 		int count = 1;
 		float min_dist2 = MAX_FLOAT;
 		ofVec3f newCentroid(tableClusterLastCentroid);
+		vector<PCPtr> potentialOccluders;
 		for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 		{
 			PCPtr cloud_cluster = getCloudFromIndices(cloud, *it);
+			potentialOccluders.push_back(cloud_cluster);
+
 			//savePC(*cloud_cluster, "cluster" + ofToString(count++) + ".pcd");
 
 			Eigen::Vector4f clusterCentroid;
@@ -189,7 +192,7 @@ namespace mapinect {
 				saveCloudAsFile("table.pcd", *biggestPlaneCloud);
 				TablePtr table = TablePtr(new Table(coefficients, biggestPlaneCloud));
 				table->detect();
-				table->setDrawPointCloud(false);
+				//table->setDrawPointCloud(false);
 				gModel->setTable(table);
 			}
 			else
@@ -202,7 +205,18 @@ namespace mapinect {
 						remainingCloud->push_back(tableCluster->at(i));
 				}
 			}
+
+			//Filtro occluders
+			for(int i = 0; i < potentialOccluders.size(); i++)
+			{
+				if(potentialOccluders.at(i) != tableCluster &&
+				   gModel->getTable()->isOverTable(potentialOccluders.at(i)))
+				   *occludersCloud += *potentialOccluders.at(i);
+			}
+			*occludersCloud += *remainingCloud;
 			gModel->tableMutex.unlock();
+
+			saveCloudAsFile("occludersCluster.pcd", *occludersCloud);
 
 		}
 		// TODO: OJO A LA CONCURRENCIA SOBRE gModel!!
@@ -249,9 +263,10 @@ namespace mapinect {
 	void PCMThread::processCloud()
 	{
 		bool dif;
-		PCPtr objectsOnTableTopCloud = getObjectsOnTableTopCloud();
+		PCPtr occluders (new PC());
+		PCPtr objectsOnTableTopCloud = getObjectsOnTableTopCloud(occluders);
 
-		objectsThread.setCloud(objectsOnTableTopCloud);
+		objectsThread.setClouds(objectsOnTableTopCloud,occluders);
 
 		if(IsFeatureActive(FEATURE_HAND_DETECTION))
 		{

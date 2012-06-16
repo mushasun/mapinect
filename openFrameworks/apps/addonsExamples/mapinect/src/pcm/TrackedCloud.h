@@ -30,7 +30,10 @@ namespace mapinect {
 		TrackedCloud(const PCPtr& cloud, bool isHand, bool forceCreate);
 		virtual ~TrackedCloud();
 
-		bool matches(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud, bool &removed);
+		//float	matches(const TrackedCloudPtr& trackedCloud);
+		bool	confirmMatch(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud);
+		float	matchingTrackedObjects(const TrackedCloudPtr& tracked_temp);
+
 		void addCounter(int diff);
 		void updateMatching();
 		inline int getCounter() { return counter; }
@@ -40,9 +43,10 @@ namespace mapinect {
 		inline bool isPotentialHand() { return hand; }
 		void removeMatching();
 		void updateCloud(const PCPtr& cloud_cluster);
-		bool matchingTrackedObjects(const TrackedCloudPtr& tracked_temp, Eigen::Affine3f &transformation);
+		
 		bool operator==(const TrackedCloudPtr& other) const ;
 		pcl::PointCloud<pcl::FPFHSignature33>::Ptr getLocalFeatures ();
+		inline const PCModelObjectPtr& getTrackedObject() { return objectInModel; }
 		//bool matchingTrackedObjects(TrackedCloud tracked_temp, TrackedCloud tracked_obj, Eigen::Affine3f &transformation);
 	protected:
 		// Compute the surface normals and local features
