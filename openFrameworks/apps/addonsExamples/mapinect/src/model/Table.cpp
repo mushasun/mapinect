@@ -38,6 +38,15 @@ namespace mapinect
 
 	bool Table::isOverTable(const PCPtr& cloud)
 	{
+		Polygon3D pol = this->getMathPolygonModelApproximation()->getMathModel();
+
+		for(int i = 0; i < cloud->size(); i++)
+		{
+			if (pol.isInPolygon(pol.getPlane().project(POINTXYZ_OFXVEC3F(cloud->at(i)))))
+				return true;
+		}
+		return false;
+
 		ofVec3f tableNorm = this->getNormal();
 	
 		ofVec3f minV, maxV;
