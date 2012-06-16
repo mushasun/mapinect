@@ -172,13 +172,16 @@ namespace mapinect {
 		}
 		else if (key == 'z')
 		{
-			ofVec3f cualquiera = ofVec3f(ARM_LENGTH, 0, 0.25);
+			ofVec3f cualquiera = ofVec3f(ARM_LENGTH, 0, 0.15);
 			setKinect3dCoordinates(cualquiera);
 		}
 		else if (key == 'x')
 		{
-			ofVec3f cualquiera = ofVec3f(0.10, 0, 0);
-			setKinect3dCoordinates(cualquiera);
+			lookAt(ofVec3f(0.35, 0.0, 0.10));
+		}
+		else if (key == 'c')
+		{
+			lookAt(ofVec3f(0.35, -0.03, 0.10));
 		}
 	}
 
@@ -294,6 +297,7 @@ namespace mapinect {
 		//wrapper para posicionar desde un ofVec3f
 		ofVec3f closest_position = find_closest_point_to_sphere(position);
 		setKinect3dCoordinates(closest_position.x, closest_position.y, closest_position.z);
+		//lookAt(mira_actual);
 		return closest_position;
 	}
 
@@ -433,6 +437,8 @@ namespace mapinect {
 		angleMotor4 = angulo_v;
 		angleMotor8 = angulo_h;
 
+		mira_actual = point;
+
 		sendMotor(angulo_v, ID_MOTOR_4);
 		sendMotor(angulo_h, ID_MOTOR_8);
 
@@ -453,7 +459,7 @@ namespace mapinect {
 		float angleMotor1Rad = ofDegToRad(angleMotor1);	// Motor que mueve la varilla "horizontal"
 		float angleMotor2Rad = ofDegToRad(angleMotor2); // Motor de abajo del brazo, con la varilla "vertical"
 		float angleMotor4Rad = ofDegToRad(angleMotor4); // Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
-		float angleMotor8Rad = ofDegToRad(angleMotor8); // Motor de los de la punta, el de más abajo
+		float angleMotor8Rad = ofDegToRad(90 - angleMotor8); // Motor de los de la punta, el de más abajo
 
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 		//CvMat* mat = cvCreateMat(4,4,CV_32FC1);
@@ -484,7 +490,7 @@ namespace mapinect {
 		translationY = Eigen::Translation<float, 3>(0, -MOTORS_HEIGHT, 0);
 
 		Eigen::Affine3f rotationX;
-		rotationX = Eigen::AngleAxis<float>(-angleMotor4Rad, axisX);
+		rotationX = Eigen::AngleAxis<float>(angleMotor4Rad, axisX);
 
 		Eigen::Affine3f translationY2;
 		translationY2 = Eigen::Translation<float, 3>(0, -KINECT_HEIGHT, 0);
@@ -494,9 +500,10 @@ namespace mapinect {
 		//y luego la traslacion a lo largo del brazo
 		
 		Eigen::Affine3f composed_matrix;
-		composed_matrix = rotationY * rotationZ * translationX * rotationY2 * translationY * rotationX * translationY2;
+		//composed_matrix = rotationY * rotationZ * translationX * rotationY2 * translationY * rotationX * translationY2;
+		composed_matrix = rotationY * rotationZ *  translationX * rotationY2 * translationY * rotationX * translationY2;
 
-		Eigen::Vector3f ejemplo (0, 0, 0);
+		Eigen::Vector3f ejemplo (0.0, 0.0, 0.01);
 
 		ejemplo = composed_matrix * ejemplo;
 		float x = ejemplo.x();
