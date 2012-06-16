@@ -26,6 +26,7 @@ namespace mapinect
 			gFeatures[FEATURE_RECTANGLE_VERTEX] = XML.getValue(FEATURE_CONFIG "RECTANGLE_VERTEX", false);
 			gFeatures[FEATURE_SHOW_RGB] = XML.getValue(FEATURE_CONFIG "SHOW_RGB", false);
 			gFeatures[FEATURE_HAND_DETECTION] = XML.getValue(FEATURE_CONFIG "HAND_DETECTION", false);
+			gFeatures[FEATURE_MOVE_ARM] = XML.getValue(FEATURE_CONFIG "MOVE_ARM",false);
 		}
 
 	}
@@ -63,6 +64,11 @@ namespace mapinect
 	bool IsFeatureSaveCloudActive()
 	{
 		return IsFeatureActive(FEATURE_SAVE_CLOUD);
+	}
+
+	bool IsFeatureMoveArmActive()
+	{
+		return IsFeatureActive(FEATURE_MOVE_ARM);
 	}
 
 }

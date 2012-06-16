@@ -198,10 +198,11 @@ namespace mapinect {
 			glLoadIdentity();
 			glTranslatef(transX,transY,transZ);
 			//		glRotatef(rotYAxis,0,1,0);
-			glScalef(1,-1,-1);										//3 - Pasar del sist. de coord. de nuestro modelo al de OpenGL (X,-Y,-Z)
-			glMultMatrixf(inv_proj_RT_premult);						//2 - Pasar de rgb-camera space al sistema de coord. del proyector
-			glMultMatrixf(kinect_matrix_RT);						//1 - Pasar de depth-camera space a rgb-camera space
-//			glMultMatrixf(inverseWorldTransformationMatrix.data()); //0 - Aplicar transformación de mundo real
+			glScalef(1,-1,-1);											//3 - Pasar del sist. de coord. de nuestro modelo al de OpenGL (X,-Y,-Z)
+			glMultMatrixf(inv_proj_RT_premult);							//2 - Pasar de rgb-camera space al sistema de coord. del proyector
+			glMultMatrixf(kinect_matrix_RT);							//1 - Pasar de depth-camera space a rgb-camera space			
+			if (IsFeatureMoveArmActive())
+				glMultMatrixf(inverseWorldTransformationMatrix.data()); //0 - Aplicar transformación de mundo real
 
 			// Check current translation after multiplying matrices
 			GLfloat matrix[16]; 

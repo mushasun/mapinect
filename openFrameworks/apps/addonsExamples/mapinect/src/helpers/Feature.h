@@ -14,6 +14,7 @@ namespace mapinect
 		FEATURE_RECTANGLE_VERTEX,
 		FEATURE_SHOW_RGB,
 		FEATURE_HAND_DETECTION,
+		FEATURE_MOVE_ARM,
 
 		FEATURE_COUNT
 	};
@@ -28,6 +29,7 @@ namespace mapinect
 	bool IsFeaturePCMActive();
 	bool IsFeatureVMActive();
 	bool IsFeatureSaveCloudActive();
+	bool IsFeatureMoveArmActive();
 
 	#define CHECK_ACTIVE		if (!isActive()) return
 }
