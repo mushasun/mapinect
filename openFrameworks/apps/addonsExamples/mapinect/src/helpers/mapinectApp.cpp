@@ -47,11 +47,12 @@ namespace mapinect {
 		app->txManager = new TxManager(fenster);
 		app->armController = new ArmController(&arduino);
 
-		// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
-		setTransformMatrix(arduino.getWorldTransformation());	
-		// Set position and lookat for VM
-		//TODO: vm.setCameraPosition(arduino->getKinect3dCoordinates());
-		//TODO: vm.setCameraLookAt(arduino->getKinect3dCoordinates());
+		if (IsFeatureMoveArmActive()) {
+			// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
+			setTransformMatrix(arduino.getWorldTransformation());	
+			// Set transformation matrix in VM to apply to Modelview matrix
+			vm.setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
+		}
 
 		app->setup();
 
@@ -84,10 +85,12 @@ namespace mapinect {
 		pcm.update(isKinectFrameNew);
 		arduino.update();
 
-		// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
-		setTransformMatrix(arduino.getWorldTransformation());	// Method from pointUtils	
-		// Set transformation matrix in VM to apply to Modelview matrix
-		vm.setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
+		if  (IsFeatureMoveArmActive()) {
+			// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
+			setTransformMatrix(arduino.getWorldTransformation());	// Method from pointUtils	
+			// Set transformation matrix in VM to apply to Modelview matrix
+			vm.setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
+		}
 
 		EventManager::fireEvents(app);
 		

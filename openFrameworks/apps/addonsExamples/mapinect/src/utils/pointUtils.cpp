@@ -386,30 +386,41 @@ PCPtr getPartialCloudRealCoords(const ofVec3f& min, const ofVec3f& max, int dens
 
 	saveCloudAsFile("noTrasladada.pcd", *filteredCloud);
 
-	pcl::transformPointCloud(*filteredCloud, *transformedFilteredCloud, transformationMatrix);
-
-	//return filteredCloud;
-	return transformedFilteredCloud;
+	if (mapinect::IsFeatureMoveArmActive()) {
+		pcl::transformPointCloud(*filteredCloud, *transformedFilteredCloud, transformationMatrix);
+		return transformedFilteredCloud;
+	} else {
+		return filteredCloud;
+	}
+		
 }
 
 const vector<ofVec3f>& getScreenCoords(const vector<ofVec3f>& transformedWorldPoints)
 {
 	vector<ofVec3f> screenPoints;
 	for (vector<ofVec3f>::const_iterator v = transformedWorldPoints.begin(); v != transformedWorldPoints.end(); ++v) {
-		// Aplicar a cada punto del Sistema de Coordenadas de Mundo la trasnformación inversa
-		// Una vez que se tienen los puntos en el Sistema de Coordenadas del Kinect, trasnformar a 2D, para dibujar en ventana debug
-		pcl::PointXYZ transf = pcl::transformPoint(pcl::PointXYZ(v->x,v->y,v->z),transformationMatrix.inverse());
-		screenPoints.push_back(gKinect->getScreenCoordsFromWorldCoords(ofVec3f(transf.x, transf.y, transf.z)));
+		if (mapinect::IsFeatureMoveArmActive()){
+			// Aplicar a cada punto del Sistema de Coordenadas de Mundo la trasnformación inversa
+			pcl::PointXYZ transf = pcl::transformPoint(pcl::PointXYZ(v->x,v->y,v->z),transformationMatrix.inverse());
+			// Una vez que se tienen los puntos en el Sistema de Coordenadas del Kinect, trasnformar a 2D, para dibujar en ventana debug
+			screenPoints.push_back(gKinect->getScreenCoordsFromWorldCoords(ofVec3f(transf.x, transf.y, transf.z)));
+		} else {
+			screenPoints.push_back(gKinect->getScreenCoordsFromWorldCoords(*v));
+		}
 	}
 	return screenPoints;
 }
 
 ofVec3f getScreenCoords(ofVec3f transformedWorldPoint)
 {
-	// Aplicar al punto del Sistema de Coordenadas de Mundo la transformación inversa
-	// Una vez que se tiene el punto en el Sistema de Coordenadas del Kinect, transformar a 2D, para dibujar en ventana debug
-	pcl::PointXYZ transf = pcl::transformPoint(pcl::PointXYZ(transformedWorldPoint.x,transformedWorldPoint.y,transformedWorldPoint.z),transformationMatrix.inverse());
-	return gKinect->getScreenCoordsFromWorldCoords(ofVec3f(transf.x, transf.y, transf.z));
+	if (mapinect::IsFeatureMoveArmActive()){
+		// Aplicar al punto del Sistema de Coordenadas de Mundo la transformación inversa
+		pcl::PointXYZ transf = pcl::transformPoint(pcl::PointXYZ(transformedWorldPoint.x,transformedWorldPoint.y,transformedWorldPoint.z),transformationMatrix.inverse());
+		// Una vez que se tiene el punto en el Sistema de Coordenadas del Kinect, transformar a 2D, para dibujar en ventana debug
+		return gKinect->getScreenCoordsFromWorldCoords(ofVec3f(transf.x, transf.y, transf.z));
+	} else {
+		return gKinect->getScreenCoordsFromWorldCoords(transformedWorldPoint);
+	}
 }
 
 PCPtr getCloud(int density)
