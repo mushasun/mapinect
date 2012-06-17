@@ -49,7 +49,11 @@ namespace mapinect {
 		angleMotor1 = 0;
 		angleMotor2 = 0;
 		angleMotor4 = 0;
-		angleMotor8 = 0;
+		//angleMotor8 = 0;  
+		angleMotor8 = 90; // La posición inicial de este motor es mirando de costado. 
+		if (serial.setup(COM_PORT, 9600)) {
+			sendMotor((char) angleMotor8, ID_MOTOR_8);
+		}
 	}
 
 	Arduino::~Arduino()
@@ -95,15 +99,19 @@ namespace mapinect {
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.0);
 		}
 
-		mira = ofVec3f(1, 0, 0);
-		posicion = ofVec3f(ARM_LENGTH, 0, 0);
-		
+		//mira = ofVec3f(1, 0, 0);
+		//posicion = ofVec3f(ARM_LENGTH, 0, 0);
+
+		mira = ofVec3f(ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 1.0);
+		posicion = ofVec3f(ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
+
 		serial.enumerateDevices();
+		
 		if (serial.setup(COM_PORT, 9600)) {
 			//NO DEBERIA ESTAR ACA
-			lookAt(ofVec3f(0.35, -0.03, 0.10));
-			setKinect3dCoordinates(posicion);
-			//
+//			lookAt(ofVec3f(0.35, -0.03, 0.10));
+//			setKinect3dCoordinates(posicion);
+		
 			return true;
 		}
 
@@ -257,7 +265,8 @@ namespace mapinect {
 
 	ofVec3f Arduino::getKinect3dCoordinates()
 	{
-		//angleMotor1 = motor de la base
+		return posicion;	
+/*		//angleMotor1 = motor de la base
 		//angleMotor2 = motor del medio
 		//angleMotor4 = motor de la punta
 		//angleMotor8 = motor de mas de la punta
@@ -270,7 +279,7 @@ namespace mapinect {
 		double x = sin((float)angleMotor1) * y;
 		ofVec3f position = ofVec3f(float(x), float (y), float (z));
 		return position;
-	}
+*/	}
 
 	void Arduino::setKinect3dCoordinates(float x, float y, float z)
 	{
@@ -285,8 +294,8 @@ namespace mapinect {
 				angleMotor1 = -(int)round(asin(y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
 			}
 		}
-		sendMotor(angleMotor1, ID_MOTOR_1);
-		sendMotor(angleMotor2, ID_MOTOR_2);
+		sendMotor((char) angleMotor1, ID_MOTOR_1);
+		sendMotor((char) angleMotor2, ID_MOTOR_2);
 		cout << read() << endl;
 		cout << endl;
 		posicion = ofVec3f(x, y, z);
@@ -342,13 +351,15 @@ namespace mapinect {
 		//TODO: tener el cuenta la traslacion del grueso de los motores de la punta
 		//posicion = donde se encuentra ubicado
 		//mira = donde estoy mirando ATM
-		Eigen::Vector3f axisY (0, 1, 0); //para Eigen el Z es nuestro Y ?
+		Eigen::Vector3f axisY (0, 1, 0); 
 		Eigen::Affine3f rotationY;
-		rotationY = Eigen::AngleAxis<float>(0, axisY);
+		float angleMotor2Rad = ofDegToRad(angleMotor2); // Motor de abajo del brazo, con la varilla "vertical"
+		rotationY = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
 
 		Eigen::Vector3f axisX (1, 0, 0);
 		Eigen::Affine3f rotationX;
-		rotationX = Eigen::AngleAxis<float>(0, axisX);
+		float angleMotor1Rad = ofDegToRad(angleMotor1);	// Motor que mueve la varilla "horizontal"
+		rotationX = Eigen::AngleAxis<float>(-angleMotor1Rad, axisX);
 
 		Eigen::Affine3f composed_matrix;
 		composed_matrix = rotationY * rotationX;
@@ -437,10 +448,11 @@ namespace mapinect {
 		angleMotor4 = angulo_v;
 		angleMotor8 = angulo_h;
 
-		mira_actual = point;
+		//mira_actual = point;
+		mira = point;
 
-		sendMotor(angulo_v, ID_MOTOR_4);
-		sendMotor(angulo_h, ID_MOTOR_8);
+		sendMotor((char) angulo_v, ID_MOTOR_4);
+		sendMotor((char) angulo_h, ID_MOTOR_8);
 
 		return NULL;
 	}
@@ -451,7 +463,8 @@ namespace mapinect {
 	}
 	ofVec3f	Arduino::lookingAt()
 	{
-		return NULL;
+		//return NULL;
+		return mira;
 	}
 
 	Eigen::Affine3f Arduino::getWorldTransformation()
@@ -459,7 +472,7 @@ namespace mapinect {
 		float angleMotor1Rad = ofDegToRad(angleMotor1);	// Motor que mueve la varilla "horizontal"
 		float angleMotor2Rad = ofDegToRad(angleMotor2); // Motor de abajo del brazo, con la varilla "vertical"
 		float angleMotor4Rad = ofDegToRad(angleMotor4); // Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
-		float angleMotor8Rad = ofDegToRad(90 - angleMotor8); // Motor de los de la punta, el de más abajo
+		float angleMotor8Rad = ofDegToRad(angleMotor8 - 90); // Motor de los de la punta, el de más abajo. La posición inicial de referencia será 90 grados.
 
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 		//CvMat* mat = cvCreateMat(4,4,CV_32FC1);
@@ -468,7 +481,7 @@ namespace mapinect {
 		//[cos -sin  0  0]
 		//[sen  cos  0  0]
 		//[ 0    0   1  0]
-		//[ 0    0   0  1]
+		//[ 0    0   0  1]		// Coment Vero: Ojo que esta matriz es una rotación según el eje Z, no el Y
 
 		Eigen::Vector3f axisX (1, 0, 0);
 		Eigen::Vector3f axisY (0, 1, 0);
@@ -478,7 +491,7 @@ namespace mapinect {
 		rotationY = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
 		
 		Eigen::Affine3f rotationZ;
-		rotationZ = Eigen::AngleAxis<float>(-angleMotor1Rad, axisZ);
+		rotationZ = Eigen::AngleAxis<float>(angleMotor1Rad, axisZ);
 
 		Eigen::Affine3f translationX;
 		translationX = Eigen::Translation<float, 3>(ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
@@ -500,15 +513,67 @@ namespace mapinect {
 		//y luego la traslacion a lo largo del brazo
 		
 		Eigen::Affine3f composed_matrix;
-		//composed_matrix = rotationY * rotationZ * translationX * rotationY2 * translationY * rotationX * translationY2;
-		composed_matrix = rotationY * rotationZ *  translationX * rotationY2 * translationY * rotationX * translationY2;
+		composed_matrix = rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (rotationX * translationY2)))));
+		//composed_matrix = translationY2 * rotationX * translationY * rotationY2 * translationX * rotationZ * rotationY;
 
-		Eigen::Vector3f ejemplo (0.0, 0.0, 0.01);
+		/*
+			Pruebas para verificar que se estén calculando bien las transformaciones
+		*/
 
-		ejemplo = composed_matrix * ejemplo;
-		float x = ejemplo.x();
-		float y = ejemplo.y();
-		float z = ejemplo.z();
+		/* Las siguientes pruebas utilizan los valores de ángulos:
+				angleMotor1 = -45;
+				angleMotor2 = 0;
+				angleMotor4 = 0;
+				angleMotor8 = 90;		*/
+
+		//Eigen::Vector3f ejemplo (0.0, 0.0, 0.0); //En Sist de Coordenadas Local, del Kinect
+		// Debería dar como resultado: X = 0.14, Y = -0.35, Z = 0	=> Dio OK
+
+		// Eigen::Vector3f ejemplo (0.0, MOTORS_HEIGHT + KINECT_HEIGHT, 0.0); //En Sist de Coordenadas Local, del Kinect
+		// Debería dar como resultado: X = 0.25, Y = -0.25, Z = 0	=> Dio OK
+
+		/* Las siguientes pruebas utilizan los valores de ángulos:
+				angleMotor1 = -45;
+				angleMotor2 = 0;
+				angleMotor4 = -45;
+				angleMotor8 = 90;		*/
+
+		//Eigen::Vector3f ejemplo (0.0, 0.0, 0.0); //En Sist de Coordenadas Local, del Kinect
+		// Dio como resultado: X = 0.14, Y = -0.33, Z = 0.07	=> Parece OK
+
+		//Eigen::Vector3f ejemplo (0.1, 0.1, 0.1); //En Sist de Coordenadas Local, del Kinect
+		// Dio como resultado: X = 0.32, Y = -0.30, Z = 0.07	=> Parece razonable...
+
+		/* Las siguientes pruebas utilizan los valores de ángulos:
+				angleMotor1 = 0;
+				angleMotor2 = 0;
+				angleMotor4 = -45;
+				angleMotor8 = 45;		*/
+
+		//Eigen::Vector3f ejemplo (0.0, 0.0, 0.0); //En Sist de Coordenadas Local, del Kinect
+		// Dio como resultado: X = 0.40, Y = -0.13, Z = 0.05	=> Parece OK
+
+		/* Las siguientes pruebas utilizan los valores de ángulos:
+				angleMotor1 = 0;
+				angleMotor2 = 45;
+				angleMotor4 = 0;
+				angleMotor8 = 90;		*/
+
+		//Eigen::Vector3f ejemplo (0.0, 0.0, 0.0); //En Sist de Coordenadas Local, del Kinect
+		// Dio como resultado: X = 0.24, Y = -0.16, Z = 0.24	=> Parece OK
+
+		/*
+		ejemplo = translationY2 * ejemplo;
+		ejemplo = rotationX * ejemplo;
+		ejemplo = translationY * ejemplo;
+		ejemplo = rotationY2 * ejemplo;
+		ejemplo = translationX * ejemplo;
+		ejemplo = rotationZ * ejemplo;
+		ejemplo = rotationY * ejemplo; 
+
+		Eigen::Vector3f ej (0.0, 0.0, 0.0);
+		ej = composed_matrix * ej;
+		*/
 
 		return composed_matrix;
 
