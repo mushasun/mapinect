@@ -1,11 +1,13 @@
 #include "Drawing.h"
 
 #include "Globals.h"
+#include "ofGraphicsUtils.h"
 
 namespace drawing {
 	
 	//--------------------------------------------------------------
 	Drawing::Drawing()
+		: backColor(kRGBWhite), foreColor(kRGBBlack)
 	{
 	}
 
@@ -17,12 +19,6 @@ namespace drawing {
 	//--------------------------------------------------------------
 	void Drawing::setup()
 	{
-		for (int i = 0; i < 6; i++)
-		{
-			ofSoundPlayer sound;
-			sound.loadSound("sounds/sound" + ofToString(i) + ".mp3");
-			sounds.push_back(sound);
-		}
 	}
 
 	//--------------------------------------------------------------
@@ -33,21 +29,6 @@ namespace drawing {
 	//--------------------------------------------------------------
 	void Drawing::debugDraw()
 	{
-		map<int, DataTouch> keep;
-		for (map<int, DataTouch>::const_iterator it = touchPoints.begin(); it != touchPoints.end(); ++it)
-		{
-			if (it->second.getType() == kTouchTypeStarted)
-				ofSetHexColor(0xFF0000);
-			else if (it->second.getType() == kTouchTypeHolding)
-				ofSetHexColor(0x00FF00);
-			else
-				ofSetHexColor(0x0000FF);
-			ofVec2f s = gKinect->getScreenCoordsFromWorldCoords(it->second.getTouchPoint());
-			ofCircle(s.x, s.y, 4);
-			if (it->second.getType() != kTouchTypeReleased)
-				keep.insert(make_pair(it->first, it->second));
-		}
-		touchPoints = keep;
 	}
 
 	//--------------------------------------------------------------
@@ -94,6 +75,17 @@ namespace drawing {
 	//--------------------------------------------------------------
 	void Drawing::objectDetected(const IObjectPtr& object)
 	{
+		map<int, map<int, Canvas*> >::iterator ob = canvas.find(object->getId());
+		assert(ob == canvas.end());
+		if (ob == canvas.end())
+		{
+			map<int, Canvas*> objectCanvas;
+			for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
+			{
+				objectCanvas[(*p)->getId()] = new Canvas(txManager, *p, backColor, foreColor);
+			}
+			canvas[object->getId()] = objectCanvas;
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -114,18 +106,16 @@ namespace drawing {
 	//--------------------------------------------------------------
 	void Drawing::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
-		map<int, DataTouch>::iterator it = touchPoints.find(touchPoint.getId());
-		if (it == touchPoints.end())
+		map<int, map<int, Canvas*> >::iterator ob = canvas.find(object->getId());
+		assert(ob != canvas.end());
+		if (ob != canvas.end())
 		{
-			assert(touchPoint.getType() == kTouchTypeStarted);
-			touchPoints.insert(make_pair(touchPoint.getId(), touchPoint));
-			static int s = 0;
-			sounds[s].play();
-			s = (s + 1) % sounds.size();
-		}
-		else
-		{
-			it->second = touchPoint;
+			map<int, Canvas*>::iterator p = ob->second.find(touchPoint.getPolygon()->getId());
+			assert(p != ob->second.end());
+			if (p != ob->second.end())
+			{
+				p->second->touchEvent(touchPoint);
+			}
 		}
 	}
 }

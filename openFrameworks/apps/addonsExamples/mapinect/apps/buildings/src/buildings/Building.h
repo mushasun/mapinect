@@ -19,12 +19,13 @@ namespace buildings {
 		void update();
 		void draw(const ITxManager* txManager, const Floor& floor);
 
-		static GLuint	buildingTexture;
-		static GLuint	roofTexture;
-
 	private:
 		float			progress;
 		IObjectPtr		object;
+
+		static ofImage* buildingTexture;
+		static ofImage* roofTexture;
+
 	};
 }
 

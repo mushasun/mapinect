@@ -35,6 +35,7 @@ namespace mapinect
 			virtual const IObjectPtr&		getContainer() const = 0;
 			virtual const IPolygonName&		getName() const = 0;
 
+			virtual int						getBestOriginVertexIndex() const = 0;
 	};
 }
 

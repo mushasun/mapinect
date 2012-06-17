@@ -36,8 +36,6 @@ namespace mapinect {
 
 		if(isKinectFrameNew)
 		{
-			ofBackground(100, 100, 100);
-
 			colorImg.setFromPixels(gKinect->getPixels(), gKinect->width, gKinect->height);
 
 			grayImage.setFromPixels(gKinect->getDepthPixels(), gKinect->width, gKinect->height);
@@ -87,7 +85,8 @@ namespace mapinect {
 	void OpenCV::draw() {
 		CHECK_ACTIVE;
 
-		ofResetColor();
+		ofBackground(100, 100, 100);
+
 		colorImg.draw(10, 10, 400, 300);
 		grayImage.draw(10, 320, 400, 300);
 

@@ -5,23 +5,17 @@
 #include "ofMain.h"
 #include "mapinectApp.h"
 #include "ofAppGlutWindow.h"
-#include "ofxFenster.h"
+#include "ofxFensterManager.h"
 
 namespace mapinect {
 	void startMapinect(IApplication* app) {
 
-		ofAppGlutWindow window;
-		ofSetupOpenGL(&window, 680,720, OF_WINDOW);			// <-------- setup the GL context
-
-		mapinectApp* mapApp = new mapinectApp(app);
-	
-		ofxFenster fenster;
-		fenster.init(mapApp, "mapinect_aux");
+		ofSetupOpenGL(ofxFensterManager::get(), 800, 600, OF_WINDOW);			// <-------- setup the GL context
 
 		// this kicks off the running of my app
 		// can be OF_WINDOW or OF_FULLSCREEN
 		// pass in width and height too:
-		ofRunApp(mapApp);
+		ofRunFensterApp(new userApp(ofxFensterManager::get()->getPrimaryWindow(), app));
 
 	}
 }

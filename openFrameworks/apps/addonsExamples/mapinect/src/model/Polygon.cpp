@@ -21,6 +21,17 @@ namespace mapinect {
 		return IPolygonPtr(new Polygon(*this));
 	}
 
+	int Polygon::getBestOriginVertexIndex() const
+	{
+		switch (name)
+		{
+		case kPolygonNameTop:
+			return 1;
+		default:
+			return 3;
+		}
+	}
+
 	void Polygon::setVertex(int vertexNum, const ofVec3f& v)
 	{
 		mathModel.setVertex(vertexNum, v);
@@ -48,7 +59,7 @@ namespace mapinect {
 			for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); ++v) {
 				ofSetColor(0, 255 * i++ / 4.0f, 0);
 				ofVec3f w = getScreenCoords(*v);
-				ofCircle(w.x, w.y, 4);
+				ofCircle(w.x, w.y, 4, 4);
 			}
 		}
 	}

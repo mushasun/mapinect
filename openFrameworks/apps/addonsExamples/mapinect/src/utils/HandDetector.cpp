@@ -37,18 +37,18 @@ namespace mapinect {
 
 		ofVec3f min2, max2;
 		PCPtr tableCloud (table->getCloud());
-		findPointCloudBoundingBox(tableCloud, min2, max2);
+		computeBoundingBox(tableCloud, min2, max2);
 		//createCloud(min2, "min2.pcd");
 		//createCloud(max2, "max2.pcd");
 	
 
 		//Calculo el bounding box
-		min_x = minf(min2.x,max2.x);
-		min_y = minf(min2.y,max2.y);
-		min_z = minf(min2.z,max2.z);
-		max_x = maxf(min2.x,max2.x);
-		max_y = maxf(min2.y,max2.y);
-		max_z = maxf(min2.z,max2.z);
+		min_x = min(min2.x,max2.x);
+		min_y = min(min2.y,max2.y);
+		min_z = min(min2.z,max2.z);
+		max_x = max(min2.x,max2.x);
+		max_y = max(min2.y,max2.y);
+		max_z = max(min2.z,max2.z);
 
 		//pcl::io::savePCDFileASCII ("hand_preCliped.pcd", *hand); 
 

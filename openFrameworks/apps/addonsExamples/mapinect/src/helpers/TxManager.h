@@ -2,13 +2,15 @@
 #define TX_MANAGER_H__
 
 #include "ITxManager.h"
-#include "ofxFenster.h"
+
+#include <map>
+#include "ofVideoPlayer.h"
 
 namespace mapinect {
 
 	class TxManager : public ITxManager {
 	public:
-		TxManager(ofxFenster* f);
+		TxManager();
 
 		GLuint	loadImageTexture(string imgFile);
 		
@@ -22,7 +24,6 @@ namespace mapinect {
 		void	disableTextures() const;
 
 	private:
-		ofxFenster* fenster;
 		std::map<GLuint,ofVideoPlayer*> videoMap;
 		std::map<GLuint,unsigned char*> videoPix;
 

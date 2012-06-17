@@ -1,4 +1,6 @@
 #include "Line2D.h"
+
+#include "ofVecUtils.h"
 #include "utils.h"
 
 namespace mapinect {
@@ -51,7 +53,12 @@ namespace mapinect {
 
 	bool Line2D::isInSegment(float k) const
 	{
-		return 0 <= k && k <= 1;
+		return inRange(k, 0.0f, 1.0f);
+	}
+
+	float Line2D::segmentLength() const
+	{
+		return (destination - origin).length();
 	}
 
 	float Line2D::evaluate(const ofVec2f& p) const
@@ -74,6 +81,26 @@ namespace mapinect {
 		{
 			return kPositionedAtRight;
 		}		
+	}
+
+	Line2D Line2D::parallelLineThrough(const ofVec2f& p) const
+	{
+		ofVec2f pDestination(p + (destination - origin));
+		return Line2D(p, pDestination);
+	}
+
+	ofVec2f Line2D::intersection(const Line2D& l) const
+	{
+		ofVec2f dif(destination - origin);
+		ofVec2f ldif(l.destination - l.origin);
+		float den = ldif.y * dif.x - ldif.x * dif.y;
+		if (abs(den) < MATH_EPSILON)
+			return BAD_OFVEC2F;
+		float numA = ldif.x * (l.origin.y - origin.y) - ldif.y * (origin.x - l.origin.x);
+		
+		ofVec2f result(origin + (dif * numA / den));
+
+		return result;
 	}
 
 }

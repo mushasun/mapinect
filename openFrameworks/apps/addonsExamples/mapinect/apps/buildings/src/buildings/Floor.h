@@ -4,6 +4,7 @@
 #include "IPolygon.h"
 #include "ITxManager.h"
 #include "ofGraphics.h"
+#include "ofImage.h"
 
 using namespace mapinect;
 
@@ -11,7 +12,7 @@ namespace buildings {
 
 	class Floor {
 	public:
-		Floor(const IPolygonPtr& modelObject)					{ this->modelObject = modelObject; }
+		Floor(const IPolygonPtr& modelObject);
 		virtual ~Floor()										{ }
 
 		inline const IPolygonPtr& getModelObject() const		{ return modelObject; }
@@ -19,10 +20,10 @@ namespace buildings {
 
 		virtual void	draw(const ITxManager* txManager);
 
-		static GLuint	floorTexture;
-
 	private:
-		IPolygonPtr		modelObject;
+		IPolygonPtr			modelObject;
+
+		static ofImage*		floorTexture;
 	};
 }
 

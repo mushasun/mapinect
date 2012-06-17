@@ -12,9 +12,8 @@
 
 #define MAX_FLOAT			FLT_MAX
 
-inline float minf(float a, float b) { return a < b ? a : b; }
-inline float maxf(float a, float b) { return a > b ? a : b; }
-inline bool inRange(float x, float a, float b) { return a <= x && x <= b; }
+template<typename T>
+bool inRange(T x, T a, T b) { return a <= x && x <= b; }
 
 std::vector<float> parseArray(const std::string& str);
 

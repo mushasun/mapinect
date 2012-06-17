@@ -318,19 +318,41 @@ namespace mapinect {
 			for (map<IPolygonPtr, vector<ofVec3f> >::const_iterator i = pointsCloserToModel.begin(); i != pointsCloserToModel.end(); ++i)
 			{
 				PCPtr polygonTouchPointsCloud(ofVecVectorToPointCloud(i->second));
-				bool useClustering = false;
+				bool useClustering = true;
+				bool usePCL = true;
 				if (useClustering)
 				{
-					std::vector<pcl::PointIndices> cluster_indices =
-						findClusters(polygonTouchPointsCloud, 0.01, 2, 5000);
-
-					for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+					const double tolerance = 0.01;
+					const int minClusterSize = 1;
+					const int maxClusterSize = 5000;
+					const int maxTouchClusterSize = 10;
+					if (usePCL)
 					{
-						if (it->indices.size() <= 10)		// Avoid new big objects from being recognized as touch points
+						std::vector<pcl::PointIndices> cluster_indices =
+							findClusters(polygonTouchPointsCloud, tolerance, minClusterSize, maxClusterSize);
+
+						for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 						{
-							PCPtr cloud_cluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
-							ofVec3f touchPoint(computeCentroid(cloud_cluster));
-							newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
+							if (it->indices.size() <= maxTouchClusterSize)		// Avoid new big objects from being recognized as touch points
+							{
+								PCPtr cloud_cluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
+								ofVec3f touchPoint(computeCentroid(cloud_cluster));
+								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
+							}
+						}
+					}
+					else
+					{
+						vector<vector<ofVec3f> > clusters = findClusters(pointCloudToOfVecVector(polygonTouchPointsCloud),
+							tolerance, minClusterSize, maxClusterSize);
+
+						for (vector<vector<ofVec3f> >::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
+						{
+							if (it->size() <= maxTouchClusterSize)
+							{
+								ofVec3f touchPoint(computeCentroid(*it));
+								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
+							}
 						}
 					}
 				}

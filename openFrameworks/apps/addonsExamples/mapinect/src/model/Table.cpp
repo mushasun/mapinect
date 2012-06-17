@@ -26,7 +26,14 @@ namespace mapinect
 			}
 		}
 
-		return abs(evaluatePoint(getCoefficients(),POINTXYZ_OFXVEC3F(cloud->points.at(idx_max)))) < 0.03;
+		if (idx_max >= 0)
+		{
+			return abs(evaluatePoint(getCoefficients(),POINTXYZ_OFXVEC3F(cloud->points.at(idx_max)))) < 0.03;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	bool Table::isParallelToTable(const PCPolygonPtr& polygon)

@@ -8,6 +8,7 @@
 
 #include "AlignmentDetector.h"
 #include "Constants.h"
+#include "EventManager.h"
 #include "Model.h"
 #include "Globals.h"
 #include "objectTypesEnum.h"
@@ -192,7 +193,8 @@ namespace mapinect {
 
 	void TrackedCloud::updateMatching()
 	{
-		if(needApplyTransformation || needRecalculateFaces || objectInModel == NULL)		//Necesito recalcular algo
+		bool sendUpdate = false;
+		if(needApplyTransformation || needRecalculateFaces || objectInModel.get() == NULL)		//Necesito recalcular algo
 		{ 
 			if(hasMatching())
 			{
@@ -206,18 +208,18 @@ namespace mapinect {
 					objectInModel->detectPrimitives();
 					*/
 				
+					sendUpdate = true;
 					objectInModel->resetLod();
 					objectInModel->addToModel(cloud);
 					objectInModel->setCloud(cloud);
-					IObjectPtr iObject = objectInModel->getMathModelApproximation();
-					EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectMoved, iObject));
 				}
 				gModel->objectsMutex.unlock();
 			}
 			
 		}
-		else if(objectInModel != NULL && objectInModel->getLod() < MAX_OBJ_LOD)								//Si no llegue al nivel maximo de detalle, aumento el detalle
+		else if(objectInModel.get() != NULL && objectInModel->getLod() < MAX_OBJ_LOD)								//Si no llegue al nivel maximo de detalle, aumento el detalle
 		{
+			sendUpdate = true;
 			int density = CLOUD_RES - objectInModel->getLod();
 			PCPtr cloud = getCloud(density);
 			PCPtr nuCloud = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.005,cloud);
@@ -262,10 +264,13 @@ namespace mapinect {
 			{
 				gModel->objectsMutex.lock();
 				objectInModel->addToModel(nuCloudFilteredNoTable);
-				IObjectPtr iObject = objectInModel->getMathModelApproximation();
-				EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectMoved, iObject));
 				gModel->objectsMutex.unlock();
 			}
+		}
+
+		if (sendUpdate && objectInModel.get() != NULL)
+		{
+			EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectUpdated, objectInModel->getMathModelApproximation()));
 		}
 	}
 

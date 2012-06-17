@@ -26,6 +26,7 @@ namespace mapinect {
 			inline const Polygon3D&			getMathModel() const	{ return mathModel; }
 			inline const IObjectPtr&		getContainer() const	{ return container; }
 			inline const IPolygonName&		getName() const			{ return name; }
+						 int				getBestOriginVertexIndex() const;
 
 			// Polygon specific method
 			IPolygonPtr			clone() const;

@@ -326,21 +326,6 @@ namespace mapinect {
 				break;
 
 			/*********************
-			  TOGGLE FULLSCREEN	 - 0 
-			*********************/
-			case '0':
-				if (!bCustomFullscreen) 
-				{
-					ofBeginCustomFullscreen(ofGetScreenWidth(), 0, VM::projWidth, VM::projHeight);
-					bCustomFullscreen = true;
-				} else 
-				{
-					ofEndCustomFullscreen();
-					bCustomFullscreen = false;
-				}
-				break;
-
-			/*********************
 			  SHOW STATUS	 - q
 			*********************/
 			case 'q':
@@ -358,6 +343,18 @@ namespace mapinect {
 			printf("increased rotation angle Axis Y: %f \n",rotYAxis);
 			break;
 		}
+	}
+
+	//--------------------------------------------------------------
+	void VM::keyReleased(int key)
+	{
+		CHECK_ACTIVE;
+	}
+
+	//--------------------------------------------------------------
+	void VM::windowMoved(int x, int y)
+	{
+		CHECK_ACTIVE;
 	}
 
 	//--------------------------------------------------------------
@@ -385,7 +382,7 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	void VM::windowResized(int w, int h)
+	void VM::dragEvent(ofDragInfo info)
 	{
 		CHECK_ACTIVE;
 	}

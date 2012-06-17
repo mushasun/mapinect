@@ -5,13 +5,20 @@
 
 namespace buildings {
 
-	GLuint Building::buildingTexture = 0;
-	GLuint Building::roofTexture = 0;
+	ofImage* Building::buildingTexture = NULL;
+	ofImage* Building::roofTexture = NULL;
 
 	Building::Building(const IObjectPtr& object)
-		: object(object)
+		: object(object), progress(0)
 	{
-		progress = 0;
+		if (buildingTexture == NULL)
+		{
+			buildingTexture = new ofImage("data/texturas/Building_texture.jpg");
+		}
+		if (roofTexture == NULL)
+		{
+			roofTexture = new ofImage("data/texturas/oba.jpg");
+		}
 	}
 
 	Building::~Building() {
@@ -26,8 +33,6 @@ namespace buildings {
 
 		for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 		{
-			txManager->enableTextures();
-
 			static ofVec3f vA,vB,vC,vD;
 
 			vA = (*p)->getMathModel().getVertexs()[0];
@@ -77,18 +82,33 @@ namespace buildings {
 				float h03 = std::abs(v3.y - v0.y);			
 			
 				// Bind Texture
-				txManager->bindTexture(Building::buildingTexture);
+				buildingTexture->bind();
 
 				ofVec3f v3p(v3.x, v0.y + progress * h03, v3.z);
 				ofVec3f v2p(v2.x, v1.y + progress * h12, v2.z);
-				ofDrawQuadTextured(v1, v0, v3p, v2p, 0, 0, progress, 0, progress, progress, 0, progress);
+				
+				vector<ofVec2f> texCoords(ofTexCoordsFor(*buildingTexture));
+				for (vector<ofVec2f>::iterator t = texCoords.begin(); t != texCoords.end(); ++t)
+				{
+					*t *= progress;
+				}
 
+				vector<ofVec3f> vertexs;
+				vertexs.push_back(v1);
+				vertexs.push_back(v0);
+				vertexs.push_back(v3p);
+				vertexs.push_back(v2p);
+
+				ofDrawQuadTextured(vertexs, texCoords);
+
+				buildingTexture->unbind();
 			}
-			else {
-				txManager->bindTexture(Building::roofTexture);
-				ofDrawQuadTextured(vA, vB, vC, vD);
+			else
+			{
+				roofTexture->bind();
+				ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(*roofTexture));
+				roofTexture->unbind();
 			}
-			txManager->disableTextures();
 		}
 	}
 
