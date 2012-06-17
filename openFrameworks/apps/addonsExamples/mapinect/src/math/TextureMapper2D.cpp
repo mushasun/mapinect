@@ -31,11 +31,16 @@ namespace mapinect
 					break;
 			}
 		}
-		assert(ix == 2);
-		Line2D line0 = texEdges[kix[0]].parallelLineThrough(texEdges[kix[1]].calculateValue(k[kix[1]]));
-		Line2D line1 = texEdges[kix[1]].parallelLineThrough(texEdges[kix[0]].calculateValue(k[kix[0]]));
-
-		return line0.intersection(line1);
+		if (ix == 2)
+		{
+			Line2D line0 = texEdges[kix[0]].parallelLineThrough(texEdges[kix[1]].calculateValue(k[kix[1]]));
+			Line2D line1 = texEdges[kix[1]].parallelLineThrough(texEdges[kix[0]].calculateValue(k[kix[0]]));
+			return line0.intersection(line1);
+		}
+		else
+		{
+			return ofVec2f();
+		}
 	}
 
 }

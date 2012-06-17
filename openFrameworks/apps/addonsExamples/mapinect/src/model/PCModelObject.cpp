@@ -58,8 +58,8 @@ namespace mapinect {
 			modelObject->draw();
 		}
 		if (drawPointCloud) {
-			static int colors[] = { kRGBBlue, kRGBGreen, kRGBMagenta, kRGBCyan, kRGBYellow, kRGBPurple };
-			ofSetHexColor(colors[getId() % 6]);
+			static ofColor colors[] = { kRGBBlue, kRGBGreen, kRGBMagenta, kRGBCyan, kRGBYellow, kRGBPurple };
+			ofSetColor(colors[getId() % 6]);
 			ofVec3f w;
 			glBegin(GL_POINTS);
 			for (size_t i = 0; i < cloud->size(); i++) {

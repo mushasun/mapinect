@@ -10,7 +10,7 @@ namespace drawing
 	class Trace : public IDrawer
 	{
 	public:
-		Trace(const ofVec2f& startPoint, int color);
+		Trace(const ofVec2f& startPoint, const ofColor& color);
 		virtual ~Trace();
 
 		void update(const ofVec2f&);
@@ -18,7 +18,7 @@ namespace drawing
 
 	private:
 		ofVec2f			lastPoint;
-		int				color;
+		ofColor			color;
 		ofPolyline		polyline;
 	};
 }

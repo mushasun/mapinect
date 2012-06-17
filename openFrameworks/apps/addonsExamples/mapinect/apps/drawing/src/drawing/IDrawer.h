@@ -8,7 +8,7 @@ namespace drawing
 	class IDrawer
 	{
 	public:
-		static IDrawer* SCreate(const ofVec2f&, int color);
+		static IDrawer* SCreate(const ofVec2f&, const ofColor& color);
 		virtual void update(const ofVec2f&) = 0;
 		virtual void draw(ofxCairoTexture&) = 0;
 	};

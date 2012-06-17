@@ -58,4 +58,9 @@ namespace mapinect
 		}
 	}
 
+	void TrackedTouch::updateToHolding()
+	{
+		status = kTouchTypeHolding;
+	}
+
 }

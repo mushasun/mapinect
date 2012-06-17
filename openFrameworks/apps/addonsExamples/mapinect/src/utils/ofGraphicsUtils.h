@@ -3,29 +3,26 @@
 
 #include "ofGraphics.h"
 
-enum BasicColors
-{
-	kRGBWhite			= 0xFFFFFF,
-	kRGBBlack			= 0x000000,
-	kRGBLightGray		= 0xC0C0C0,
-	kRGBDarkGray		= 0x808080,
-	kRGBRed				= 0xFF0000,
-	kRGBGreen			= 0x00FF00,
-	kRGBBlue			= 0x0000FF,
-	kRGBCyan			= 0x00FFFF,
-	kRGBYellow			= 0xFFFF00,
-	kRGBMagenta			= 0xFF00FF,
-	kRGBDarkGreen		= 0x008000,
-	kRGBOrange			= 0xFF8000,
-	kRGBBrown			= 0x804000,
-	kRGBSkyBlue			= 0x0080FF,
-	kRGBViolet			= 0x800080,
-	kRGBPurple			= 0x400040,
-	kRGBBeige			= 0x808000
-};
+const ofColor kRGBWhite			(255, 255, 255);
+const ofColor kRGBBlack			(0, 0, 0);
+const ofColor kRGBLightGray		(192, 192, 192);
+const ofColor kRGBDarkGray		(128, 128, 128);
+const ofColor kRGBRed			(255, 0, 0);
+const ofColor kRGBGreen			(0, 255, 0);
+const ofColor kRGBBlue			(0, 0, 255);
+const ofColor kRGBCyan			(0, 255, 255);
+const ofColor kRGBYellow		(255, 255, 0);
+const ofColor kRGBMagenta		(255, 0, 255);
+const ofColor kRGBDarkGreen		(0, 128, 0);
+const ofColor kRGBOrange		(255, 128, 0);
+const ofColor kRGBBrown			(128, 64, 0);
+const ofColor kRGBSkyBlue		(0, 128, 255);
+const ofColor kRGBViolet		(128, 0, 128);
+const ofColor kRGBPurple		(64, 0, 64);
+const ofColor kRGBBeige			(128, 128, 0);
 
 inline void ofResetColor() {
-	ofSetHexColor(kRGBWhite);
+	ofSetColor(kRGBWhite);
 }
 
 void ofDrawQuadTextured(const ofPoint& vA, const ofPoint& vB, const ofPoint& vC, const ofPoint& vD,

@@ -2,6 +2,7 @@
 #define MAPINECT_MODELOBJECT_H__
 
 #include "mapinectTypes.h"
+#include "ofColor.h"
 
 namespace mapinect {
 	
@@ -23,14 +24,14 @@ namespace mapinect {
 			inline void						setScale(const ofVec3f& scale)			{ vScale = scale; }
 			inline virtual const ofVec3f&	getRotation() const						{ return vRotation; }
 			inline void						setRotation(const ofVec3f& rotation)	{ vRotation = rotation; }
-			inline int						getColor() const 						{ return color; }
-			inline void						setColor(int color)						{ this->color = color; }
+			inline ofColor					getColor() const 						{ return color; }
+			inline void						setColor(const ofColor& color)			{ this->color = color; }
 			inline virtual int				getId() const							{ return objId; }
 			inline void						setId(int id)							{ objId = id; }
 
 		private:
 			ofVec3f							vCenter, vScale, vRotation;
-			int							color;
+			ofColor							color;
 			int								objId;
 		
 	};

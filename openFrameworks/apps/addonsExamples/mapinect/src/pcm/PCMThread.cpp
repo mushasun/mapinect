@@ -398,8 +398,6 @@ namespace mapinect {
 			log(kLogFilePCMThread, "Updating touch points and pushing events to the application...");
 			updateDetectedTouchPoints();
 
-			// Clear released touch points
-			trackedTouchPoints.remove_if(isStatusReleased);
 		}
 	}
 
@@ -424,6 +422,13 @@ namespace mapinect {
 				MapinectEvent(kMapinectEventTypeObjectTouched,
 					(*iter)->getObject(),
 					(*iter)->getDataTouch()));
+		}
+		// Clear released touch points
+		trackedTouchPoints.remove_if(isStatusReleased);
+
+		for (list<TrackedTouchPtr>::iterator iter = trackedTouchPoints.begin(); iter != trackedTouchPoints.end(); iter++)
+		{
+			(*iter)->updateToHolding();
 		}
 	}
 

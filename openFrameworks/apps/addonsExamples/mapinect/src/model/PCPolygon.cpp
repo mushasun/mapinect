@@ -69,7 +69,7 @@ namespace mapinect {
 		PCModelObject::draw();
 		if (drawPointCloud) {
 			if (getPolygonModelObject() != NULL) {
-				ofSetHexColor(kRGBRed);
+				ofSetColor(kRGBRed);
 				ofVec3f avg = computeCentroid(getPolygonModelObject()->getMathModel().getVertexs());
 				ofVec3f sAvg = getScreenCoords(avg);
 				ofDrawBitmapString(ofToString(getPolygonModelObject()->getName()), sAvg.x, sAvg.y);

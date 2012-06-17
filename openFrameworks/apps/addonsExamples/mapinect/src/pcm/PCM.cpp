@@ -86,9 +86,9 @@ namespace mapinect {
 			for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
 			{
 				ofVec3f s(getScreenCoords(t->second.getTouchPoint()));
-				ofSetHexColor(kRGBBlue);
+				ofSetColor(kRGBBlue);
 				ofCircle(s.x, s.y, 3, 4);
-				ofSetHexColor(kRGBRed);
+				ofSetColor(kRGBRed);
 				ofDrawBitmapString(ofToString(t->first), s.x, s.y);
 			}
 		}
