@@ -173,6 +173,12 @@ namespace mapinect {
 	{
 	}
 
+	//--------------------------------------------------------------
+	PCM* mapinectApp::getPCM()
+	{
+		return &pcm;
+	}
+
 	
 
 	//--------------------------------------------------------------
@@ -234,7 +240,7 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void userApp::update()
 	{
-		EventManager::fireEvents(app);
+		EventManager::fireEvents(app, mapinectAppPtr->getPCM());
 
 		vm->update();
 		app->update();

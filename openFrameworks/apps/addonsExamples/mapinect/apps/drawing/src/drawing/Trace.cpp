@@ -3,27 +3,29 @@
 namespace drawing
 {
 
-	IDrawer* IDrawer::SCreate(IMapper* mapper, const DataTouch& touchPoint, int color)
+	IDrawer* IDrawer::SCreate(const ofVec2f& startPoint, int color)
 	{
-		return new Trace(mapper, touchPoint, color);
+		return new Trace(startPoint, color);
 	}
 	
-	Trace::Trace(IMapper* mapper, const DataTouch& touchPoint, int color)
-		: lastTouchPoint(touchPoint), color(color)
+	Trace::Trace(const ofVec2f& startPoint, int color)
+		: lastPoint(startPoint), color(color)
 	{
-		this->mapper = mapper;
 	}
 
 	Trace::~Trace()
 	{
 	}
 
-	void Trace::update(const DataTouch& touchPoint)
+	void Trace::update(const ofVec2f& mappedPoint)
 	{
+		polyline.curveTo(mappedPoint.x, mappedPoint.y);
+		lastPoint = mappedPoint;
 	}
 
 	void Trace::draw(ofxCairoTexture& texture)
 	{
+		texture.draw(polyline);
 	}
 
 }

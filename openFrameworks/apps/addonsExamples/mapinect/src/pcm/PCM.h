@@ -9,21 +9,24 @@ namespace mapinect {
 	class PCM {
 	public:
 
-		virtual void	setup();
-		virtual void	exit();
-		virtual void	update(bool isKinectFrameNew);
-		virtual void	draw();
+		virtual void		setup();
+		virtual void		exit();
+		virtual void		update(bool isKinectFrameNew);
+		virtual void		draw();
 
-		virtual void	keyPressed(int key);
+		virtual void		keyPressed(int key);
 
-		void			drawPointCloud();
+		virtual void		objectTouched(const IObjectPtr&, const DataTouch&);
+
+		void				drawPointCloud();
 
 	private:
-		bool			isActive();
-		ofTexture		calibratedTex; 
-		PCMThread		pcmThread;
-		bool			drawPC;
-		int 			pointCloudRotationY;
+		bool				isActive();
+		ofTexture			calibratedTex; 
+		PCMThread			pcmThread;
+		bool				drawPC;
+		int 				pointCloudRotationY;
+		map<int, DataTouch>	touchPoints;
 
 	};
 }

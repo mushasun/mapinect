@@ -3,6 +3,7 @@
 
 #include "IMapper.h"
 
+#include "DataTouch.h"
 #include "IDrawer.h"
 #include "IPolygon.h"
 #include "TextureMapper2D.h"

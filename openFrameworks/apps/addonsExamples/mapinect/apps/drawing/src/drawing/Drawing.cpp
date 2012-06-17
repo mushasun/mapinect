@@ -1,13 +1,12 @@
 #include "Drawing.h"
 
-#include "Globals.h"
 #include "ofGraphicsUtils.h"
 
 namespace drawing {
 	
 	//--------------------------------------------------------------
 	Drawing::Drawing()
-		: backColor(kRGBWhite), foreColor(kRGBBlack)
+		: backColor(kRGBWhite), foreColor(kRGBRed)
 	{
 	}
 
@@ -34,8 +33,14 @@ namespace drawing {
 	//--------------------------------------------------------------
 	void Drawing::draw()
 	{
+		for (map<int, map<int, Canvas*> >::iterator ob = canvas.begin(); ob != canvas.end(); ++ob)
+		{
+			for (map<int, Canvas*>::iterator p = ob->second.begin(); p != ob->second.end(); ++p)
+			{
+				p->second->draw();
+			}
+		}
 	}
-
 
 	//--------------------------------------------------------------
 	void Drawing::update()
@@ -44,6 +49,16 @@ namespace drawing {
 
 	//--------------------------------------------------------------
 	void Drawing::keyPressed(int key)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void Drawing::keyReleased(int key)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void Drawing::windowMoved(int x, int y)
 	{
 	}
 
@@ -68,7 +83,7 @@ namespace drawing {
 	}
 
 	//--------------------------------------------------------------
-	void Drawing::windowResized(int w, int h)
+	void Drawing::dragEvent(ofDragInfo info)
 	{
 	}
 
@@ -117,5 +132,6 @@ namespace drawing {
 				p->second->touchEvent(touchPoint);
 			}
 		}
+
 	}
 }

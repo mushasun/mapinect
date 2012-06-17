@@ -20,6 +20,7 @@ public:
 	~ofxCairoTexture();
 	
 	unsigned char * getPixels();
+	ofImage* getTextureRef() { return &tex; }
 	
 	void setup(int w, int h);
 	void setup(bool b3D = false, ofRectangle viewport = ofRectangle(0,0,0,0));

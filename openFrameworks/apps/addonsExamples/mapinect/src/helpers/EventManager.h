@@ -1,9 +1,11 @@
 #ifndef EVENT_MANAGER_H__
 #define EVENT_MANAGER_H__
 
+#include <vector>
+
 #include "IApplication.h"
 #include "ofxMutex.h"
-#include <vector>
+#include "PCM.h"
 
 namespace mapinect {
 
@@ -37,7 +39,7 @@ namespace mapinect {
 	public:
 		static void addEvent(const MapinectEvent& mapinectEvent);
 
-		static void fireEvents(IApplication* listener);
+		static void fireEvents(IApplication* listener, PCM* pcm);
 
 	private:
 		EventManager();

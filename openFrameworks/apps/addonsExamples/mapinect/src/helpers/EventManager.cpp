@@ -9,7 +9,7 @@ namespace mapinect {
 
 	void EventManager::addEvent(const MapinectEvent& mapinectEvent)
 	{
-		ofxScopedMutex osm(EventManager::mutexInstance);
+		EventManager::mutexInstance.lock();
 
 		if (instance == NULL)
 		{
@@ -17,11 +17,13 @@ namespace mapinect {
 		}
 
 		instance->eventsToFire.push_back(mapinectEvent);
+
+		EventManager::mutexInstance.unlock();
 	}
 
-	void EventManager::fireEvents(IApplication* listener)
+	void EventManager::fireEvents(IApplication* listener, PCM* pcm)
 	{
-		ofxScopedMutex osm(EventManager::mutexInstance);
+		EventManager::mutexInstance.lock();
 
 		if (instance != NULL)
 		{
@@ -44,11 +46,14 @@ namespace mapinect {
 					break;
 				case kMapinectEventTypeObjectTouched:
 					listener->objectTouched(e->object, e->touchPoint);
+					pcm->objectTouched(e->object, e->touchPoint);
 					break;
 				}
 			}
 			instance->eventsToFire.clear();
 		}
+
+		EventManager::mutexInstance.unlock();
 	}
 
 }
