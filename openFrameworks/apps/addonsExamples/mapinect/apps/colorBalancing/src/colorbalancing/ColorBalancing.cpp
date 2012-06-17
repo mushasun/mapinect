@@ -2,7 +2,7 @@
 
 #include "Globals.h"
 
-namespace colorbalancing {
+namespace colorBalancing {
 #define KWIDTH		640
 #define KHEIGHT		480
 
@@ -72,6 +72,16 @@ namespace colorbalancing {
 	}
 
 	//--------------------------------------------------------------
+	void ColorBalancing::keyReleased(int key) {
+
+	}
+
+	//--------------------------------------------------------------
+	void ColorBalancing::windowMoved(int x, int y) {
+
+	}
+
+	//--------------------------------------------------------------
 	void ColorBalancing::mouseMoved(int x, int y)
 	{
 	}
@@ -92,7 +102,32 @@ namespace colorbalancing {
 	}
 
 	//--------------------------------------------------------------
-	void ColorBalancing::windowResized(int w, int h)
+	void ColorBalancing::dragEvent(ofDragInfo info)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void ColorBalancing::objectDetected(const IObjectPtr&)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void ColorBalancing::objectUpdated(const IObjectPtr&)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void ColorBalancing::objectLost(const IObjectPtr&)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void ColorBalancing::objectMoved(const IObjectPtr&, const DataMovement&)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void ColorBalancing::objectTouched(const IObjectPtr&, const DataTouch&)
 	{
 	}
 

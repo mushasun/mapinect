@@ -157,6 +157,16 @@ namespace bouncing {
 	}
 
 	//--------------------------------------------------------------
+	void BouncingBall::keyReleased(int key)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void BouncingBall::windowMoved(int x, int y)
+	{
+	}
+
+	//--------------------------------------------------------------
 	void BouncingBall::mouseMoved(int x, int y)
 	{
 	}
@@ -177,10 +187,11 @@ namespace bouncing {
 	}
 
 	//--------------------------------------------------------------
-	void BouncingBall::windowResized(int w, int h)
+	void BouncingBall::dragEvent(ofDragInfo info)
 	{
 	}
 
+	//--------------------------------------------------------------
 	void BouncingBall::objectDetected(const IObjectPtr& object)
 	{
 		if (object->getId() == TABLE_ID)
@@ -263,11 +274,23 @@ namespace bouncing {
 		}
 	}
 
+	//--------------------------------------------------------------
 	void BouncingBall::objectUpdated(const IObjectPtr& object)
 	{
 	}
 
+	//--------------------------------------------------------------
 	void BouncingBall::objectLost(const IObjectPtr& object)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void BouncingBall::objectMoved(const IObjectPtr&, const DataMovement&)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void BouncingBall::objectTouched(const IObjectPtr&, const DataTouch&)
 	{
 	}
 

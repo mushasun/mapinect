@@ -4,7 +4,7 @@
 //========================================================================
 int main() {
 	
-	mapinect::IApplication* app = new colorbalancing::ColorBalancing();
+	mapinect::IApplication* app = new colorBalancing::ColorBalancing();
 
 	mapinect::startMapinect(app);
 

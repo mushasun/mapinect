@@ -94,6 +94,16 @@ namespace calibration {
 	}
 
 	//--------------------------------------------------------------
+	void Calibration::keyReleased(int key) {
+
+	}
+
+	//--------------------------------------------------------------
+	void Calibration::windowMoved(int x, int y)
+	{
+	}
+
+	//--------------------------------------------------------------
 	void Calibration::mouseMoved(int x, int y)
 	{
 	}
@@ -114,7 +124,32 @@ namespace calibration {
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::windowResized(int w, int h)
+	void Calibration::dragEvent(ofDragInfo info)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void Calibration::objectDetected(const IObjectPtr& object)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void Calibration::objectUpdated(const IObjectPtr& object)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void Calibration::objectLost(const IObjectPtr& object)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void Calibration::objectMoved(const IObjectPtr&, const DataMovement&)
+	{
+	}
+
+	//--------------------------------------------------------------
+	void Calibration::objectTouched(const IObjectPtr&, const DataTouch&)
 	{
 	}
 

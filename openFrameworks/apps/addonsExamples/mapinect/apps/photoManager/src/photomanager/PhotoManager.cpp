@@ -315,8 +315,35 @@ float weight[32] = {0.0294,0.0331,0.0654,0.0756,0.0554,0.0314,0.0454,0.0469,0.09
 	{
 	}
 
-	//--------------------------------------------------------------
-	void PhotoManager::windowResized(int w, int h)
+	void PhotoManager::keyReleased(int key)
+	{
+	}
+
+	void PhotoManager::windowMoved(int x, int y)
+	{
+	}
+
+	void PhotoManager::dragEvent(ofDragInfo info)
+	{
+	}
+
+	void PhotoManager::objectDetected(const IObjectPtr&)
+	{
+	}
+
+	void PhotoManager::objectUpdated(const IObjectPtr&)
+	{
+	}
+
+	void PhotoManager::objectLost(const IObjectPtr&)
+	{
+	}
+
+	void PhotoManager::objectMoved(const IObjectPtr&, const DataMovement&)
+	{
+	}
+
+	void PhotoManager::objectTouched(const IObjectPtr&, const DataTouch&)
 	{
 	}
 
