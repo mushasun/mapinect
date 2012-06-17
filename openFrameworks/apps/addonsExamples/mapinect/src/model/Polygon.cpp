@@ -49,7 +49,7 @@ namespace mapinect {
 		if(this->getId() == TABLE_ID)
 		{
 			for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); ++v) {
-				ofSetHexColor(kRGBGreen);
+				ofSetColor(kRGBGreen);
 				ofVec3f w = getScreenCoords(*v);
 				ofCircle(w.x, w.y, 4, 4);
 			}

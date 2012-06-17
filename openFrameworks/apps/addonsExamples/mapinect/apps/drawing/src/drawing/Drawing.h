@@ -42,8 +42,8 @@ namespace drawing
 		map<int, map<int, Canvas*> >		canvas;
 		map<int, DataTouch>					touchPoints;
 
-		int									backColor;
-		int									foreColor;
+		ofColor								backColor;
+		ofColor								foreColor;
 	};
 }
 

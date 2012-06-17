@@ -28,6 +28,7 @@ namespace mapinect
 
 				bool				matches(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved);
 				void				updateMatching();
+				void				updateToHolding();
 
 				void				removeMatching();
 

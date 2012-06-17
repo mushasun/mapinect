@@ -20,30 +20,29 @@ namespace drawing
 	class Canvas : public IMapper
 	{
 	public:
-		Canvas(ITxManager*, const IPolygonPtr& polygon, int backColor, int foreColor);
+		Canvas(const IPolygonPtr& polygon, const ofColor& backColor, const ofColor& foreColor);
 		virtual ~Canvas();
 
-		void				draw();
-		void				touchEvent(const DataTouch&);
+		void					draw();
+		void					touchEvent(const DataTouch&);
 
-		inline ofVec2f		mapToTexture(const ofVec3f& p) const				{ return texMapper.map(p); }
+		inline ofVec2f			mapToTexture(const ofVec3f& p) const	{ return texMapper.map(p); }
 
-		inline int			getBackColor() const					{ return backColor; }
-		void				setBackColor(int);
-		inline int			getForeColor() const					{ return foreColor; }
-		void				setForeColor(int);
+		inline const ofColor&	getBackColor() const					{ return backColor; }
+		void					setBackColor(const ofColor&);
+		inline const ofColor&	getForeColor() const					{ return foreColor; }
+		void					setForeColor(const ofColor&);
 
 	private:
-		IPolygonPtr			polygon;
-		ofxCairoTexture		texture;
-		int					backColor;
-		int					foreColor;
-		ofVec2f				dimensions;
-		vector<ofVec2f>		texCoords;
-		TextureMapper2D		texMapper;
+		IPolygonPtr				polygon;
+		ofxCairoTexture			texture;
+		ofColor					backColor;
+		ofColor					foreColor;
+		ofVec2f					dimensions;
+		vector<ofVec2f>			texCoords;
+		TextureMapper2D			texMapper;
 
-		map<int, IDrawer*>	drawers;
-		GLuint				textureID;
+		map<int, IDrawer*>		drawers;
 	};
 }
 

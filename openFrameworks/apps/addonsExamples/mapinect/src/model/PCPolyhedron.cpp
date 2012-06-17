@@ -487,7 +487,7 @@ namespace mapinect {
 			pcpolygons[i]->draw();
 		for(int i = 0; i < vertexs.size(); i++)
 		{
-			ofSetHexColor(this->getColor());
+			ofSetColor(this->getColor());
 			ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(vertexs.at(i));
 			ofCircle(w.x, w.y, 4);
 		}

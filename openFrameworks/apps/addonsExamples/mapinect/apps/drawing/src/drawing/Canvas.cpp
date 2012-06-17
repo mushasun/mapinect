@@ -5,7 +5,7 @@
 
 namespace drawing {
 	
-	Canvas::Canvas(ITxManager* txManager, const IPolygonPtr& polygon, int backColor, int foreColor)
+	Canvas::Canvas(const IPolygonPtr& polygon, const ofColor& backColor, const ofColor& foreColor)
 		: polygon(polygon), backColor(backColor), foreColor(foreColor)
 	{
 		int vertexCount = polygon->getMathModel().getVertexs().size();
@@ -32,12 +32,13 @@ namespace drawing {
 	{
 	}
 
-	void Canvas::setBackColor(int color)
+	void Canvas::setBackColor(const ofColor& color)
 	{
 		backColor = color;
+		texture.background(backColor);
 	}
 
-	void Canvas::setForeColor(int color)
+	void Canvas::setForeColor(const ofColor& color)
 	{
 		foreColor = color;
 	}
@@ -69,6 +70,7 @@ namespace drawing {
 			assert(d != drawers.end());
 			delete drawers[id];
 			drawers.erase(id);
+			setBackColor(ofColor(rand() % 255, rand() % 255, rand() % 255));
 			break;
 		}
 	}

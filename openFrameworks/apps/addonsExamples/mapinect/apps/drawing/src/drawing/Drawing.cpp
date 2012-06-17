@@ -97,7 +97,7 @@ namespace drawing {
 			map<int, Canvas*> objectCanvas;
 			for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 			{
-				objectCanvas[(*p)->getId()] = new Canvas(txManager, *p, backColor, foreColor);
+				objectCanvas[(*p)->getId()] = new Canvas(*p, backColor, foreColor);
 			}
 			canvas[object->getId()] = objectCanvas;
 		}
