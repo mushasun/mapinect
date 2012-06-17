@@ -27,9 +27,13 @@ namespace mapinect {
 		bool isInLine(const ofVec2f& p) const;
 		bool isInSegment(const ofVec2f &p) const;
 		bool isInSegment(float k) const;
+		float segmentLength() const;
 
 		float evaluate(const ofVec2f& p) const;
 		PositionToLine positionTo(const ofVec2f& p) const;
+
+		Line2D parallelLineThrough(const ofVec2f& p) const;
+		ofVec2f intersection(const Line2D&) const;
 
 	private:
 		ofVec2f origin;

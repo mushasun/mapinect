@@ -4,21 +4,25 @@
 
 namespace buildings {
 
-	GLuint Floor::floorTexture = 0;
+	ofImage* Floor::floorTexture = NULL;
+
+	Floor::Floor(const IPolygonPtr& modelObject)
+		: modelObject(modelObject)
+	{
+		if (floorTexture == NULL)
+		{
+			floorTexture = new ofImage("data/texturas/135367.jpg");
+		}
+	}
 
 	//--------------------------------------------------------------
 	void Floor::draw(const ITxManager* txManager)
 	{
-		txManager->enableTextures();
-		txManager->bindTexture(Floor::floorTexture);
+		floorTexture->bind();
 
-		ofDrawQuadTextured(
-			modelObject->getMathModel().getVertexs()[0],
-			modelObject->getMathModel().getVertexs()[1],
-			modelObject->getMathModel().getVertexs()[2],
-			modelObject->getMathModel().getVertexs()[3]);
+		ofDrawQuadTextured(modelObject->getMathModel().getVertexs(), ofTexCoordsFor(*floorTexture));
 
-		txManager->disableTextures();
+		floorTexture->unbind();
 	}
 
 }

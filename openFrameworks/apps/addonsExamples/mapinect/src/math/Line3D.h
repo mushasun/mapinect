@@ -25,6 +25,8 @@ namespace mapinect {
 		bool isInSegment(const ofVec3f &p) const;
 		bool isInSegment(float k) const;
 
+		float segmentLength() const;
+
 	private:
 		bool		valid;
 		ofVec3f		origin;

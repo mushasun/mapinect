@@ -15,7 +15,7 @@ namespace mapinect {
 		: cloud(new PC(*cloud))
 	{
 		drawPointCloud = true;
-		findPointCloudBoundingBox(cloud, vMin, vMax);
+		computeBoundingBox(cloud, vMin, vMax);
 		transformation.setIdentity();
 		if (objId == -1)	
 		{
@@ -99,7 +99,7 @@ namespace mapinect {
 	void PCModelObject::setAndUpdateCloud(const PCPtr& cloud)
 	{
 		setCloud(cloud);
-		findPointCloudBoundingBox(cloud, vMin, vMax);
+		computeBoundingBox(cloud, vMin, vMax);
 		
 		this->setCenter(computeCentroid(cloud));
 

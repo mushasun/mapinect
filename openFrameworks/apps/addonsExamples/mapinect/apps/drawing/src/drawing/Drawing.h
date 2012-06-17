@@ -4,8 +4,7 @@
 #include "IApplication.h"
 
 #include <map>
-#include <vector>
-#include "ofSoundPlayer.h"
+#include "Canvas.h"
 
 using namespace mapinect;
 
@@ -38,8 +37,10 @@ namespace drawing
 		virtual void objectTouched(const IObjectPtr&, const DataTouch&);
 
 	private:
-		std::map<int, DataTouch>	touchPoints;
-		vector<ofSoundPlayer>		sounds;
+		map<int, map<int, Canvas*> >		canvas;
+
+		int									backColor;
+		int									foreColor;
 	};
 }
 

@@ -50,4 +50,8 @@ namespace mapinect {
 		return 0 <= k && k <= 1;
 	}
 
+	float Line3D::segmentLength() const
+	{
+		return (destination - origin).length();
+	}
 }

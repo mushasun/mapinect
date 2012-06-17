@@ -1,108 +1,222 @@
-/*
- *  ofxFenster.h
- *  ofxFensterExample
- *
- *  Created by Philip Whitfield on 5/19/10.
- *  Copyright 2010 undef.ch. All rights reserved.
- *
- */
+#ifndef OFXFENSTER_H
+#define OFXFENSTER_H
 
-#ifndef _CLASS_ofxFenster_
-#define _CLASS_ofxFenster_
+#define GHOST_COCOA
+#define FREE_WINDOWS
 
-#include "ofMain.h"
-#include "ofAppGlutWindow.h"
+#include <GHOST_ITimerTask.h>
+#include <ofTypes.h>
+#include "ofAppBaseWindow.h"
+#include "ofBaseApp.h"
+#include "ofGLRenderer.h"
+#include <set>
+
+class GHOST_IWindow;
 
 class ofxFenster;
 
-class ofxFensterEvent{
+class eventGroup
+{
 public:
-	ofxFenster* fenster;
+	ofEvent<ofEventArgs> 		setup;
+	ofEvent<ofEventArgs> 		update;
+	ofEvent<ofEventArgs> 		draw;
+	ofEvent<ofEventArgs> 		exit;
+	ofEvent<ofResizeEventArgs> 	windowResized;
+
+	ofEvent<ofKeyEventArgs> 	keyPressed;
+	ofEvent<ofKeyEventArgs> 	keyReleased;
+
+	ofEvent<ofMouseEventArgs> 	mouseMoved;
+	ofEvent<ofMouseEventArgs> 	mouseDragged;
+	ofEvent<ofMouseEventArgs> 	mousePressed;
+	ofEvent<ofMouseEventArgs> 	mouseReleased;
+
+	ofEvent<ofTouchEventArgs>	touchDown;
+	ofEvent<ofTouchEventArgs>	touchUp;
+	ofEvent<ofTouchEventArgs>	touchMoved;
+	ofEvent<ofTouchEventArgs>	touchDoubleTap;
+	ofEvent<ofTouchEventArgs>	touchCancelled;
+
+	ofEvent<ofMessage>			messageEvent;
+	ofEvent<ofDragInfo>			fileDragEvent;
 };
 
-class ofxFensterResizeEvent: public ofxFensterEvent{
+class ofxFensterListener: public ofBaseApp
+{
 public:
-	int w;
-	int h;
+	virtual void setup(ofxFenster* f) {
+		setup();
+	}
+	virtual void setup() {};
+	virtual void update(ofxFenster* f) {
+		update();
+	}
+	virtual void update() {};
+	virtual void draw(ofxFenster* f) {
+		draw();
+	}
+	virtual void draw() {};
+	virtual void keyPressed(int key, ofxFenster* f) {
+		keyPressed(key);
+	}
+
+	//KEY
+	virtual void keyPressed(int key) {};
+	virtual void keyReleased(int key, ofxFenster* f) {
+		keyReleased(key);
+	}
+	virtual void keyReleased(int key) {};
+
+	//WINDOW
+	virtual void windowMoved(int x, int y, ofxFenster* f) {
+		windowMoved(x, y);
+	}
+	virtual void windowMoved(int x, int y) {};
+
+	//MOUSE
+	virtual void mouseMoved(int x, int y, ofxFenster* f) {
+		mouseMoved(x, y);
+	}
+	virtual void mouseMoved(int x, int y) {};
+	virtual void mouseDragged(int x, int y, int button,  ofxFenster* f) {
+		mouseDragged(x, y, button);
+	}
+	virtual void mouseDragged(int x, int y, int button) {};
+	virtual void mousePressed(int x, int y, int btn, ofxFenster* f) {
+		mousePressed(x, y, btn);
+	}
+	virtual void mousePressed(int x, int y, int btn) {};
+	virtual void mouseReleased(int x, int y, int btn, ofxFenster* f) {
+		mouseReleased(x, y, btn);
+		mouseReleased();
+	}
+	virtual void mouseReleased(int x, int y, int btn) {}
+	virtual void mouseReleased() {};
+
+	virtual void dragEvent(ofDragInfo info){}
+	virtual void dragEvent(ofDragInfo info, ofxFenster* f){dragEvent(info);}
+
+	bool isUpdated;
 };
 
-class ofxFensterEventsStruct{
+typedef ofxFensterListener* ofxFensterListenerPtr;
+typedef std::vector< ofxFensterListenerPtr > ofxFensterListenerList;
+
+//class ofxFenster: public ofAppBaseWindow, public ofBaseApp {
+class ofxFenster
+{
+
 public:
-	ofEvent<ofxFensterEvent> setup; // Fenster setup added
-	ofEvent<ofxFensterEvent> draw;
-	ofEvent<ofxFensterEvent> update;
-	ofEvent<ofxFensterResizeEvent> resize;
-};
 
-extern ofxFensterEventsStruct ofxFensterEvents;
-
-class ofxFensterListener{
-public:
-	virtual void fensterUpdate(){}
-	virtual void fensterDraw(){ofGetAppPtr()->draw();};
-
-	virtual void fensterSetup(){ofGetAppPtr()->setup();}; // Fenster setup added
-
-	virtual void fensterKeyPressed  (int key){ofGetAppPtr()->keyPressed(key);};
-	virtual void fensterKeyReleased(int key){ofGetAppPtr()->keyReleased(key);};
-	virtual void fensterMouseMoved(int x, int y ){ofGetAppPtr()->mouseMoved(x, y);};
-	virtual void fensterMouseDragged(int x, int y, int button){ofGetAppPtr()->mouseDragged(x, y, button);};
-	virtual void fensterMousePressed(int x, int y, int button){ofGetAppPtr()->mousePressed(x, y, button);};
-	virtual void fensterMouseReleased(int x, int y, int button){ofGetAppPtr()->mouseReleased(x, y, button);};
-	virtual void fensterWindowResized(int w, int h){};
-	
-	ofxFenster* fenster;
-};
-
-class ofxFenster: public ofRectangle{
-public:
 	ofxFenster();
 	~ofxFenster();
-	void init(ofxFensterListener* l, string title=""); //open the window
+
+	void dragEvent(ofDragInfo dragInfo);
+
+	void setup();
+	void update(ofEventArgs& e);
 	void update();
-	void setup();	// Fenster setup added
-	void draw(bool force=false);
-	
-	void setFPS(int fps);
-	void setFPS(int fpsU, int fpsD);
-	
-	void toContext();
-	void toMainContext();
-	
-	ofRectangle getBounds();
-	void setBounds(ofRectangle r);
-	void setBounds(int x, int y, int w, int h);
-	void toggleFullscreen();
-	void setBackground(int r, int g, int b, int a=255);
-	
-	ofxFensterListener* listener;
-	
-	int getX();
-	int getY();
-	int getWidth();
+	void draw(ofEventArgs& e);
+	void draw();
+	void windowResized(int w, int h);
+	void windowMoved(int x, int y);
+
+	void keyPressed(int key);
+	void keyReleased(int key);
+	void mouseDragged(int x, int y, int button);
+	void mouseMoved(int x, int y);
+	void mousePressed(int x, int y, int button);
+	void mousePressed(int button);
+	void mouseReleased();
+	void mouseReleased(int x, int y, int button);
+	void mouseReleased(int btn);
+	void fileDropped(ofDragInfo info);
+
+	bool getMousePressed(int button = -1);
+	int getMouseX();
+	int getMouseY();
+
+	void disableSetupScreen();
+	void enableSetupScreen();
+	int getFrameNum();
+	float getFrameRate();
 	int getHeight();
-	
-protected:
+	double getLastFrameTime();
+	ofOrientation getOrientation();
+	ofPoint getScreenSize();
+	int getWidth();
+	int getWindowMode();
+	ofPoint getWindowPosition();
+	ofPoint getWindowSize();
+	void hideCursor();
+	void initializeWindow();
+	void runAppViaInfiniteLoop(ofPtr<ofBaseApp> appPtr);
+	void setFrameRate(float targetRate);
+	void setFullscreen(bool fullscreen);
+	void setOrientation(ofOrientation orientation);
+	void setWindowPosition(int x, int y);
+	void setWindowShape(int w, int h);
+	void setWindowTitle(string title);
+	void move(int x, int y);
+	string getWindowTitle();
+	bool setupOpenGL(int l, int t, int w, int h, int screenMode);
+	void showCursor();
+	void toggleFullscreen();
+	void activateDrawingContext();
+	void destroy();
+
+	void setBackgroundColor(int gray, int alpha=255);
+	void setBackgroundColor(int r, int g, int b, int a=255);
+	void setBackgroundColor(ofColor color);
+	void setBackgroundClearAuto(bool bgAuto);
+
+	void setBorder(bool border);
+	void setDraggable(bool draggable);
+
+	void setIcon(ofPixelsRef pixels);
+	void setCursor(ofPixelsRef pixels, int hotX = 0, int hotY = 0);
+
+	void setActive();
+
+	GHOST_IWindow* getWindow();
+
+	void addListener(ofxFensterListener* listener);
+	void addListener(ofBaseApp* app);
+	void onTimer(GHOST_ITimerTask* task, GHOST_TUns64 time);
+
+	void setDragAndDrop(bool on);
+
+	bool isButtonDown;
+	int buttonDown;
+	int id;
+
+	/* available events, not all mapped yet */
+	eventGroup events;
+
 private:
-	void update(ofEventArgs &e);
-	void draw(ofEventArgs &e);
-	void setup(ofEventArgs &e);	// Fenster setup added
+	void updateListenersMousePos();
 	
-	int fpsUpdate;
-	int fpsDraw;
-	
-	int winRef;
-	int mainWinRef;
-	int nextRender();
-	
-	int nextWinUpdate;
-	int nextWinDraw;
-	bool hasGlut;
+	string windowTitle;
+	bool isDestroyed;
+	int framesElapsed;
+	ofxFensterListenerList listeners;
 	bool isFullscreen;
-	
-	int mainContextSkip;
-	
-	ofRectangle origSize;
+	int frameNum;
+	GHOST_IWindow* win;
+	GHOST_ITimerTask* timer;
+	ofPtr<ofBaseRenderer> renderer;
+	ofPoint mousePos;
+	ofPoint mouseLastPos;
+	set<int> pressedMouseButtons;
+
+	int width;
+	int height;
+	ofPoint pos;
+	ofColor bgColor;
+	bool bClearAuto;
+	bool hasBorder;
+	bool isDraggable;
 };
 
-#endif
+#endif // OFXFENSTER_H

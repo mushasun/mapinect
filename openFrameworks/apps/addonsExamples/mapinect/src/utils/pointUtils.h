@@ -19,8 +19,8 @@ PCPtr			ofVecVectorToPointCloud(const vector<ofVec3f>& v);
 vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v);
 
 
-void findPointCloudBoundingBox(const PCPtr& cloud, pcl::PointXYZ& min, pcl::PointXYZ& max);
-void findPointCloudBoundingBox(const PCPtr& cloud, ofVec3f& min, ofVec3f& max);
+void computeBoundingBox(const PCPtr& cloud, pcl::PointXYZ& min, pcl::PointXYZ& max);
+void computeBoundingBox(const PCPtr& cloud, ofVec3f& min, ofVec3f& max);
 
 //Obtiene el punto con menor Z
 float getNearestPoint(const PCPtr& cloud);
@@ -80,6 +80,6 @@ PCPtr getHalo(const ofVec3f& min, const ofVec3f& max, const float& haloSize, con
 void setTransformMatrix(const Eigen::Affine3f& transform);
 
 const vector<ofVec3f>& getScreenCoords(const vector<ofVec3f>& transformedWorldPoints);
-ofVec3f getScreenCoords(ofVec3f transformedWorldPoint);
+ofVec3f getScreenCoords(const ofVec3f& transformedWorldPoint);
 
 #endif // POINT_UTILS_H__

@@ -1,15 +1,16 @@
 #include "TxManager.h"
 
+#include "ofImage.h"
+
 namespace mapinect {
 
-	TxManager::TxManager(ofxFenster* f) {
-		fenster = f;
+	TxManager::TxManager()
+	{
 	}
 
 	GLuint TxManager::loadImageTexture(string imgFile)
 	{
 		GLuint result = -1;
-		fenster->toContext();
 
 		if (!imgFile.empty()) {
 			ofImage img;
@@ -33,14 +34,12 @@ namespace mapinect {
 			}
 		}
 
-		fenster->toMainContext();
 		return result;
 	} 
 
 	GLuint TxManager::loadVideoTexture(string videoFile)
 	{
 		GLuint result = -1;
-		fenster->toContext();
 
 		if (!videoFile.empty()) {
 			ofVideoPlayer* video = new ofVideoPlayer();
@@ -71,7 +70,6 @@ namespace mapinect {
 				videoPix.insert(std::pair<GLuint,unsigned char*>(result,videoPixels));
 			}
 
-			fenster->toMainContext();
 			return result;
 		}
 	}

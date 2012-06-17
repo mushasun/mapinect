@@ -226,6 +226,24 @@
     <ClCompile Include="src\utils\log.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\math\TextureMapper2D.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxCairoTexture\src\ofxCairoTexture.cpp">
+      <Filter>addons\ofxCairoTexture\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxFenster\src\ofxDisplay.cpp">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxFenster\src\ofxDisplayManager.cpp">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxFenster\src\ofxFensterCanvas.cpp">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxFenster\src\ofxFensterManager.cpp">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -519,6 +537,24 @@
     <ClInclude Include="src\utils\log.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\math\TextureMapper2D.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxCairoTexture\src\ofxCairoTexture.h">
+      <Filter>addons\ofxCairoTexture\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxFenster\src\ofxDisplay.h">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxFenster\src\ofxDisplayManager.h">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxFenster\src\ofxFensterCanvas.h">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxFenster\src\ofxFensterManager.h">
+      <Filter>addons\ofxFenster\src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -598,6 +634,12 @@
     </Filter>
     <Filter Include="interfaces">
       <UniqueIdentifier>{db5971d0-36d6-4b5a-ac65-a9d42bedf2b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxCairoTexture">
+      <UniqueIdentifier>{09f9df25-94f3-4049-b94d-b6b67dbcad5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxCairoTexture\src">
+      <UniqueIdentifier>{f74c5479-e0d9-417c-84ec-67328a5b8e03}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

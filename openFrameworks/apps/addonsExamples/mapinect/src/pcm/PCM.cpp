@@ -29,7 +29,13 @@ namespace mapinect {
 		CHECK_ACTIVE;
 
 		if (isKinectFrameNew)
+		{
 			pcmThread.newFrameAvailable();
+			if (IsFeatureActive(FEATURE_SHOW_RGB))
+			{
+				calibratedTex.loadData(gKinect->getCalibratedRGBPixels(),640,480,GL_RGB);
+			}
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -52,7 +58,6 @@ namespace mapinect {
 			{
 				ofEnableAlphaBlending();
 				ofSetColor(255,255,255,128);
-				calibratedTex.loadData(gKinect->getCalibratedRGBPixels(),640,480,GL_RGB); 
 				calibratedTex.draw(0,0); 
 				ofDisableAlphaBlending();
 			}

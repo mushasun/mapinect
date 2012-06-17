@@ -8,6 +8,7 @@
 #include "utils.h"
 
 extern ofVec3f BAD_OFVEC3F;
+extern ofVec2f BAD_OFVEC2F;
 
 void computeBoundingBox(const std::vector<ofVec3f>& v, ofVec3f& min, ofVec3f& max);
 
@@ -35,6 +36,8 @@ T computeCentroid(const vector<T>& v)
 	result /= (float)(v.size());
 	return result;
 }
+
+vector<vector<ofVec3f> > findClusters(const vector<ofVec3f>& v, float tolerance, float minClusterSize, float maxClusterSize);
 
 inline ofVec3f scaleFromMtsToMms(const ofVec3f& p) { return p * 1000; }
 

@@ -5,6 +5,12 @@
     <ClCompile Include="src\drawing\Drawing.cpp">
       <Filter>drawing</Filter>
     </ClCompile>
+    <ClCompile Include="src\drawing\Trace.cpp">
+      <Filter>drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\drawing\Canvas.cpp">
+      <Filter>drawing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="drawing">
@@ -13,6 +19,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\drawing\Drawing.h">
+      <Filter>drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\drawing\Trace.h">
+      <Filter>drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\drawing\Canvas.h">
+      <Filter>drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\drawing\IDrawer.h">
+      <Filter>drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\drawing\IMapper.h">
       <Filter>drawing</Filter>
     </ClInclude>
   </ItemGroup>

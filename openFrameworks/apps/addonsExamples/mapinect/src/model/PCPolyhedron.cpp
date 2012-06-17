@@ -603,7 +603,7 @@ namespace mapinect {
 		saveCloudAsFile ("finalCloud" + ofToString(getId()) + ".pcd", *finalCloud);
 
 		cloud = finalCloud;
-		findPointCloudBoundingBox(cloud, vMin, vMax);
+		computeBoundingBox(cloud, vMin, vMax);
 		
 		this->setCenter(computeCentroid(cloud));
 
