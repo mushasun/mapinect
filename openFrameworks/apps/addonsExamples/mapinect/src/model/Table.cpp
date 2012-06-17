@@ -9,7 +9,9 @@ namespace mapinect
 	{
 		vector<IPolygonPtr> polygons;
 		polygons.push_back(getMathPolygonModelApproximation());
-		return IObjectPtr(new DataObject(getId(), getCenter(), getScale(), getRotation(), polygons));
+		IObjectPtr result(new DataObject(getId(), getCenter(), getScale(), getRotation(), polygons));
+		dynamic_cast<Polygon*>(polygons[0].get())->setContainer(result);
+		return result;
 	}
 
 	bool Table::isOnTable(const PCPtr& cloud)

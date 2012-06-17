@@ -5,22 +5,21 @@
 
 #include "ofxCairoTexture.h"
 
-using namespace mapinect;
-
 namespace drawing
 {
 	class Trace : public IDrawer
 	{
 	public:
-		Trace(IMapper*, const DataTouch&, int color);
+		Trace(const ofVec2f& startPoint, int color);
 		virtual ~Trace();
 
-		void update(const DataTouch&);
+		void update(const ofVec2f&);
 		void draw(ofxCairoTexture&);
 
 	private:
-		DataTouch		lastTouchPoint;
+		ofVec2f			lastPoint;
 		int				color;
+		ofPolyline		polyline;
 	};
 }
 

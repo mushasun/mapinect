@@ -319,7 +319,7 @@ namespace mapinect {
 			{
 				PCPtr polygonTouchPointsCloud(ofVecVectorToPointCloud(i->second));
 				bool useClustering = true;
-				bool usePCL = true;
+				bool usePCL = false;
 				if (useClustering)
 				{
 					const double tolerance = 0.01;

@@ -1,4 +1,4 @@
-<VMConfig>
+<VMConfig>	
 	<NEAR_PLANE>0.01</NEAR_PLANE>
 	<FAR_PLANE>400.0</FAR_PLANE>
 	
@@ -7,4 +7,5 @@
 	
 	<PROJ_WIDTH>1280</PROJ_WIDTH>
 	<PROJ_HEIGHT>768</PROJ_HEIGHT>
+	
 </VMConfig>

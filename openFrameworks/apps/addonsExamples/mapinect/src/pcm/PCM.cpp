@@ -3,6 +3,7 @@
 #include "Feature.h"
 #include "Globals.h"
 #include "log.h"
+#include "pointUtils.h"
 #include "utils.h"
 
 using namespace std;
@@ -81,6 +82,15 @@ namespace mapinect {
 			}
 
 			ofPopMatrix();
+
+			for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
+			{
+				ofVec3f s(getScreenCoords(t->second.getTouchPoint()));
+				ofSetHexColor(kRGBBlue);
+				ofCircle(s.x, s.y, 3, 4);
+				ofSetHexColor(kRGBRed);
+				ofDrawBitmapString(ofToString(t->first), s.x, s.y);
+			}
 		}
 	}
 
@@ -140,6 +150,21 @@ namespace mapinect {
 		//case 't':
 		//	setTransformation();
 		//	break;
+	}
+
+	//--------------------------------------------------------------
+	void PCM::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
+	{
+		switch (touchPoint.getType())
+		{
+		case kTouchTypeStarted:
+		case kTouchTypeHolding:
+			touchPoints[touchPoint.getId()] = touchPoint;
+			break;
+		case kTouchTypeReleased:
+			touchPoints.erase(touchPoint.getId());
+			break;
+		}
 	}
 
 	//--------------------------------------------------------------

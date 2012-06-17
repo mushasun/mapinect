@@ -42,6 +42,8 @@ namespace mapinect {
 		virtual void mouseReleased(int x, int y, int button);
 		virtual void dragEvent(ofDragInfo info);
 		
+		PCM*			getPCM();
+
 	private:
 		int				angle;
 

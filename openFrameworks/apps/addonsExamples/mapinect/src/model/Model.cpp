@@ -40,6 +40,18 @@ namespace mapinect
 	{
 		vector<IObjectPtr> mathModel;
 		{
+			objectsMutex.lock();
+			for (vector<ModelObjectPtr>::const_iterator ob = objects.begin(); ob != objects.end(); ++ob)
+			{
+				PCModelObject* pcm = dynamic_cast<PCModelObject*>(ob->get());
+				if (pcm != NULL)
+				{
+					mathModel.push_back(pcm->getMathModelApproximation());
+				}
+			}
+			objectsMutex.unlock();
+		}
+		{
 			tableMutex.lock();
 			if (table.get() != NULL)
 			{
