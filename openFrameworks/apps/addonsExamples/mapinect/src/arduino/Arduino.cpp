@@ -49,11 +49,7 @@ namespace mapinect {
 		angleMotor1 = 0;
 		angleMotor2 = 0;
 		angleMotor4 = 0;
-		//angleMotor8 = 0;  
-		angleMotor8 = 90; // La posición inicial de este motor es mirando de costado. 
-		if (serial.setup(COM_PORT, 9600)) {
-			sendMotor((char) angleMotor8, ID_MOTOR_8);
-		}
+		angleMotor8 = 0;  
 	}
 
 	Arduino::~Arduino()
@@ -97,6 +93,11 @@ namespace mapinect {
 			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.0);
 			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.0);
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.0);
+		}
+
+		angleMotor8 = 90; // La posición inicial de este motor es mirando de costado. 
+		if (serial.setup(COM_PORT, 9600)) {
+			sendMotor((char) angleMotor8, ID_MOTOR_8);
 		}
 
 		//mira = ofVec3f(1, 0, 0);
