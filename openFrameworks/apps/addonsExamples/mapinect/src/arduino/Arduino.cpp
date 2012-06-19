@@ -110,18 +110,21 @@ namespace mapinect {
 		//mira = ofVec3f(1, 0, 0);
 		//posicion = ofVec3f(ARM_LENGTH, 0, 0);
 
-		mira = ofVec3f(ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 1.0);
-		posicion = ofVec3f(ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
+		posicion = getKinect3dCoordinates();
+		mira = lookingAt();
+
+		//mira = ofVec3f(ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 1.0);
+		//posicion = ofVec3f(ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
 
 		serial.enumerateDevices();
 		
-		if (serial.setup(COM_PORT, 9600)) {
+//		if (serial.setup(COM_PORT, 9600)) {
 			//NO DEBERIA ESTAR ACA
 //			lookAt(ofVec3f(0.35, -0.03, 0.10));
 //			setKinect3dCoordinates(posicion);
 		
-			return true;
-		}
+//			return true;
+	//	}
 
 		return false;
 	}
@@ -359,7 +362,7 @@ namespace mapinect {
 		//TODO: tener el cuenta la traslacion del grueso de los motores de la punta
 		//posicion = donde se encuentra ubicado
 		//mira = donde estoy mirando ATM
-		Eigen::Vector3f axisY (0, 1, 0); 
+		Eigen::Vector3f axisY (0, 1, 0);
 		Eigen::Affine3f rotationY;
 		float angleMotor2Rad = ofDegToRad(angleMotor2); // Motor de abajo del brazo, con la varilla "vertical"
 		rotationY = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
