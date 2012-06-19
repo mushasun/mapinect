@@ -97,7 +97,8 @@ namespace drawing {
 			map<int, Canvas*> objectCanvas;
 			for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 			{
-				objectCanvas[(*p)->getId()] = new Canvas(*p, backColor, foreColor);
+				objectCanvas[(*p)->getName()] = new Canvas(*p, backColor, foreColor);
+				backColor = ofColor(rand() % 255, rand() % 255, rand() % 255);
 			}
 			canvas[object->getId()] = objectCanvas;
 		}
@@ -106,11 +107,32 @@ namespace drawing {
 	//--------------------------------------------------------------
 	void Drawing::objectUpdated(const IObjectPtr& object)
 	{
+		map<int, map<int, Canvas*> >::iterator ob = canvas.find(object->getId());
+		if (ob != canvas.end())
+		{
+			for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
+			{
+				map<int, Canvas*>::iterator c = ob->second.find((*p)->getName());
+				if (c != ob->second.end())
+				{
+					c->second->update(*p);
+				}
+			}
+		}
 	}
 
 	//--------------------------------------------------------------
 	void Drawing::objectLost(const IObjectPtr& object)
 	{
+		map<int, map<int, Canvas*> >::iterator ob = canvas.find(object->getId());
+		if (ob != canvas.end())
+		{
+			for (map<int, Canvas*>::iterator c = ob->second.begin(); c != ob->second.end(); ++c)
+			{
+				delete c->second;
+			}
+			canvas.erase(object->getId());
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -125,7 +147,7 @@ namespace drawing {
 		assert(ob != canvas.end());
 		if (ob != canvas.end())
 		{
-			map<int, Canvas*>::iterator p = ob->second.find(touchPoint.getPolygon()->getId());
+			map<int, Canvas*>::iterator p = ob->second.find(touchPoint.getPolygon()->getName());
 			assert(p != ob->second.end());
 			if (p != ob->second.end())
 			{

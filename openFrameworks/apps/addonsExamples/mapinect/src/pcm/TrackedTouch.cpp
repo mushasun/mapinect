@@ -3,10 +3,12 @@
 namespace mapinect
 {
 
+#define kTrackedTouchLifeFrames		3
+
 	static int gId = 0;
 
 	TrackedTouch::TrackedTouch(const IPolygonPtr& polygon, const ofVec3f& point)
-		: id(gId++), status(kTouchTypeStarted), polygon(polygon), point(point)
+		: id(gId++), status(kTouchTypeStarted), polygon(polygon), point(point), lifeCounter(kTrackedTouchLifeFrames)
 	{
 		removeMatching();
 	}
@@ -43,19 +45,33 @@ namespace mapinect
 		return false;
 	}
 
-	void TrackedTouch::updateMatching()
+	bool TrackedTouch::updateMatching()
 	{
+		bool hasChanged = true;
 		if (hasMatching())
 		{
 			status = kTouchTypeHolding;
-			point = matchingTouch->point;
+			lifeCounter = kTrackedTouchLifeFrames;
+			if (point == matchingTouch->point)
+			{
+				hasChanged = false;
+			}
+			else
+			{
+				point = matchingTouch->point;
+			}
 			polygon = matchingTouch->polygon;
 			removeMatching();
 		}
 		else if (status == kTouchTypeHolding)
 		{
-			status = kTouchTypeReleased;
+			lifeCounter--;
+			if (lifeCounter == 0)
+			{
+				status = kTouchTypeReleased;
+			}
 		}
+		return hasChanged;
 	}
 
 	void TrackedTouch::updateToHolding()

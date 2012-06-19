@@ -23,6 +23,7 @@ namespace drawing
 		Canvas(const IPolygonPtr& polygon, const ofColor& backColor, const ofColor& foreColor);
 		virtual ~Canvas();
 
+		void					update(const IPolygonPtr& polygon);
 		void					draw();
 		void					touchEvent(const DataTouch&);
 
@@ -34,6 +35,8 @@ namespace drawing
 		void					setForeColor(const ofColor&);
 
 	private:
+		void					redraw();
+
 		IPolygonPtr				polygon;
 		ofxCairoTexture			texture;
 		ofColor					backColor;

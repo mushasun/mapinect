@@ -15,17 +15,10 @@ namespace drawing {
 		dimensions.x = floor(polygon->getMathModel().getEdges()[origin].segmentLength() * 1000);
 		dimensions.y = floor(polygon->getMathModel().getEdges()[(origin + vertexCount - 1) % vertexCount].segmentLength() * 1000);
 
-		texCoords.push_back(ofVec2f(0, 0));
-		texCoords.push_back(ofVec2f(dimensions.x, 0));
-		texCoords.push_back(ofVec2f(dimensions.x, dimensions.y));
-		texCoords.push_back(ofVec2f(0, dimensions.y));
-
-		texMapper = TextureMapper2D(polygon->getMathModel(), texCoords, origin);
-		
 		texture.setup((int)dimensions.x, (int)dimensions.y);
 		texture.background(backColor);
 
-		
+		update(polygon);
 	}
 
 	Canvas::~Canvas()
@@ -35,12 +28,41 @@ namespace drawing {
 	void Canvas::setBackColor(const ofColor& color)
 	{
 		backColor = color;
-		texture.background(backColor);
+		redraw();
 	}
 
 	void Canvas::setForeColor(const ofColor& color)
 	{
 		foreColor = color;
+	}
+
+	void Canvas::update(const IPolygonPtr& polygon)
+	{
+		this->polygon = polygon;
+
+		int vertexCount = polygon->getMathModel().getVertexs().size();
+		assert(vertexCount >= 3);
+		int origin = polygon->getBestOriginVertexIndex();
+
+		texCoords.clear();
+		texCoords.push_back(ofVec2f(0, 0));
+		texCoords.push_back(ofVec2f(dimensions.x, 0));
+		texCoords.push_back(ofVec2f(dimensions.x, dimensions.y));
+		texCoords.push_back(ofVec2f(0, dimensions.y));
+
+		texMapper = TextureMapper2D(polygon->getMathModel(), texCoords, origin);
+	}
+
+	void Canvas::redraw()
+	{
+		texture.background(backColor);
+
+		for (map<int, IDrawer*>::iterator d = drawers.begin(); d != drawers.end(); ++d)
+		{
+			d->second->draw(texture);
+		}
+
+		texture.update();
 	}
 
 	void Canvas::draw()
@@ -60,17 +82,16 @@ namespace drawing {
 		{
 		case kTouchTypeStarted:
 			drawers[id] = IDrawer::SCreate(mapToTexture(touchPoint.getTouchPoint()), foreColor);
+			setBackColor(ofColor(rand() % 255, rand() % 255, rand() % 255));
+			setForeColor(ofColor(rand() % 255, rand() % 255, rand() % 255));
 			break;
 		case kTouchTypeHolding:
-			assert(d != drawers.end());
-			d->second->update(mapToTexture(touchPoint.getTouchPoint()));
-			d->second->draw(texture);
-			break;
-		case kTouchTypeReleased:
-			assert(d != drawers.end());
-			delete drawers[id];
-			drawers.erase(id);
-			setBackColor(ofColor(rand() % 255, rand() % 255, rand() % 255));
+			if (d != drawers.end())
+			{
+				d->second->update(mapToTexture(touchPoint.getTouchPoint()));
+				d->second->draw(texture);
+				redraw();
+			}
 			break;
 		}
 	}
