@@ -94,9 +94,16 @@ namespace mapinect {
 			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.0);
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.0);
 		}
-
-		angleMotor8 = 90; // La posición inicial de este motor es mirando de costado. 
+		
+		angleMotor1 = RESET_ANGLE1;
+		angleMotor2 = RESET_ANGLE2;
+		angleMotor4 = RESET_ANGLE4;
+		angleMotor8 = RESET_ANGLE8;
+		//angleMotor8 = 90; // La posición inicial de este motor es mirando de costado. 
 		if (serial.setup(COM_PORT, 9600)) {
+			sendMotor((char) angleMotor1, ID_MOTOR_1);
+			sendMotor((char) angleMotor2, ID_MOTOR_2);
+			sendMotor((char) angleMotor4, ID_MOTOR_4);
 			sendMotor((char) angleMotor8, ID_MOTOR_8);
 		}
 
