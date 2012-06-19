@@ -276,7 +276,11 @@ namespace mapinect {
 
 	ofVec3f Arduino::getKinect3dCoordinates()
 	{
-		return posicion;	
+		Eigen::Vector3f kinectPos (0.0, 0.0, 0.0);		// Posicion inicial, en Sist. de Coord Local del Kinect
+		kinectPos = getWorldTransformation() * kinectPos;
+		return ofVec3f(kinectPos.x(), kinectPos.y(), kinectPos.z());		
+		//return posicion;	
+
 /*		//angleMotor1 = motor de la base
 		//angleMotor2 = motor del medio
 		//angleMotor4 = motor de la punta
@@ -474,8 +478,11 @@ namespace mapinect {
 	}
 	ofVec3f	Arduino::lookingAt()
 	{
+		Eigen::Vector3f kinectMira (0.0, 0.0, 1.0);		// Mira inicial, en Sist. de Coord Local del Kinect
+		kinectMira = getWorldTransformation() * kinectMira;
+		return ofVec3f(kinectMira.x(), kinectMira.y(), kinectMira.z());	
 		//return NULL;
-		return mira;
+		//return mira;
 	}
 
 	Eigen::Affine3f Arduino::getWorldTransformation()
