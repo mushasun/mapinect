@@ -1,7 +1,11 @@
 #include "Trace.h"
 
+#include "ofSoundPlayer.h"
+
 namespace drawing
 {
+
+	ofSoundPlayer*	sound;
 
 	IDrawer* IDrawer::SCreate(const ofVec2f& startPoint, const ofColor& color)
 	{
@@ -12,6 +16,12 @@ namespace drawing
 		: lastPoint(startPoint), color(color)
 	{
 		polyline.addVertex(startPoint.x, startPoint.y);
+		if (sound == NULL)
+		{
+			sound = new ofSoundPlayer();
+			sound->loadSound("data/sounds/sound0.mp3");
+		}
+		sound->play();
 	}
 
 	Trace::~Trace()
@@ -20,7 +30,7 @@ namespace drawing
 
 	void Trace::update(const ofVec2f& mappedPoint)
 	{
-		polyline.addVertex(mappedPoint.x, mappedPoint.y);
+		polyline.curveTo(mappedPoint.x, mappedPoint.y);
 		lastPoint = mappedPoint;
 	}
 

@@ -275,12 +275,33 @@ namespace mapinect {
 			log(kLogFilePCMThread, "Obtaining difference cloud from model...");
 			PCPtr differenceCloud = getDifferenceCloudFromModel(objectsOnTableTopCloud);
 			vector<IObjectPtr> mathModel(gModel->getMathModelApproximation());
-		
+
+			PC keep;
+			for (PC::iterator pic = differenceCloud->begin(); pic != differenceCloud->end(); ++pic)
+			{
+				bool found = false;
+				for (vector<IObjectPtr>::const_iterator ob = mathModel.begin(); !found && ob != mathModel.end(); ++ob)
+				{
+					for (vector<IPolygonPtr>::const_iterator p = (*ob)->getPolygons().begin(); !found && p != (*ob)->getPolygons().end(); ++p)
+					{
+						if ((*p)->getMathModel().distance(ofVec3f(pic->x, pic->y, pic->z)) >= TOUCH_DISTANCE / 4.0f)
+						{
+							found = true;
+						}
+					}
+				}
+				if (found)
+				{
+					keep.push_back(*pic);
+				}
+			}
+			*differenceCloud = keep;
+
 			// touch detection and tracking
 
 			setPCMThreadStatus("Detecting touch points...");
 			log(kLogFilePCMThread, "Detecting touch points...");
-			vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, MAX_CLUSTER_TOLERANCE, 100, 5000);
+			vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, MAX_CLUSTER_TOLERANCE / 2.0f, 100, 5000);
 		
 			map<IPolygonPtr, vector<ofVec3f> > pointsCloserToModel;
 
@@ -293,22 +314,31 @@ namespace mapinect {
 				vector<ofVec3f> vCluster(pointCloudToOfVecVector(cluster));
 				for (vector<ofVec3f>::iterator v = vCluster.begin(); v != vCluster.end(); ++v)
 				{
-					for (vector<IObjectPtr>::const_iterator ob = mathModel.begin(); ob != mathModel.end(); ++ob)
+					bool found = false;
+					for (vector<IObjectPtr>::const_iterator ob = mathModel.begin(); !found && ob != mathModel.end(); ++ob)
 					{
+						float minDistance = MAX_FLOAT;
+						IPolygonPtr polygon;
 						for (vector<IPolygonPtr>::const_iterator p = (*ob)->getPolygons().begin(); p != (*ob)->getPolygons().end(); ++p)
 						{
-							if ((*p)->getMathModel().distance(*v) <= TOUCH_DISTANCE)
+							float distance = (*p)->getMathModel().distance(*v);
+							if (inRange(distance, TOUCH_DISTANCE / 4.0f, TOUCH_DISTANCE) && distance < minDistance)
 							{
-								map<IPolygonPtr, vector<ofVec3f> >::iterator it = pointsCloserToModel.find(*p);
-								if (it == pointsCloserToModel.end())
-								{
-									vector<ofVec3f> points;
-									pointsCloserToModel.insert(make_pair(*p, points));
-									it = pointsCloserToModel.find(*p);
-								}
-								it->second.push_back((*p)->getMathModel().project(*v));
-								break;
+								minDistance = distance;
+								polygon = *p;
 							}
+						}
+						if (polygon.get() != NULL)
+						{
+							found = true;
+							map<IPolygonPtr, vector<ofVec3f> >::iterator it = pointsCloserToModel.find(polygon);
+							if (it == pointsCloserToModel.end())
+							{
+								vector<ofVec3f> points;
+								pointsCloserToModel.insert(make_pair(polygon, points));
+								it = pointsCloserToModel.find(polygon);
+							}
+							it->second.push_back((polygon)->getMathModel().project(*v));
 						}
 					}
 				}
@@ -322,10 +352,10 @@ namespace mapinect {
 				bool usePCL = false;
 				if (useClustering)
 				{
-					const double tolerance = 0.01;
+					const double tolerance = MAX_CLUSTER_TOLERANCE / 2;
 					const int minClusterSize = 1;
 					const int maxClusterSize = 5000;
-					const int maxTouchClusterSize = 10;
+					const int maxTouchClusterSize = 8;
 					if (usePCL)
 					{
 						std::vector<pcl::PointIndices> cluster_indices =
@@ -417,11 +447,13 @@ namespace mapinect {
 	{
 		for (list<TrackedTouchPtr>::iterator iter = trackedTouchPoints.begin(); iter != trackedTouchPoints.end(); iter++)
 		{
-			(*iter)->updateMatching();
-			EventManager::addEvent(
-				MapinectEvent(kMapinectEventTypeObjectTouched,
-					(*iter)->getObject(),
-					(*iter)->getDataTouch()));
+			if ((*iter)->updateMatching())
+			{
+				EventManager::addEvent(
+					MapinectEvent(kMapinectEventTypeObjectTouched,
+						(*iter)->getObject(),
+						(*iter)->getDataTouch()));
+			}
 		}
 		// Clear released touch points
 		trackedTouchPoints.remove_if(isStatusReleased);

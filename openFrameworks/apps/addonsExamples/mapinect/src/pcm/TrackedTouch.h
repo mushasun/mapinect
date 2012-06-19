@@ -27,7 +27,7 @@ namespace mapinect
 		inline	IObjectPtr			getObject() const					{ return polygon->getContainer(); }
 
 				bool				matches(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved);
-				void				updateMatching();
+				bool				updateMatching();
 				void				updateToHolding();
 
 				void				removeMatching();
@@ -38,6 +38,7 @@ namespace mapinect
 		IPolygonPtr					polygon;
 		ofVec3f						point;
 		TrackedTouchPtr				matchingTouch;
+		int							lifeCounter;
 
 		float						nearest;
 	};
