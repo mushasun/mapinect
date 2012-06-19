@@ -25,7 +25,7 @@ namespace mapinect {
 		void				reset();
 
 		ofVec3f				getKinect3dCoordinates();
-		ofVec3f				setKinect3dCoordinates(ofVec3f position);
+		ofVec3f				setArm3dCoordinates(ofVec3f position);
 		ofVec3f				lookAt(ofVec3f point);
 		ofVec3f				lookingAt();
 		Eigen::Affine3f		getWorldTransformation();
@@ -54,7 +54,7 @@ namespace mapinect {
 		ofVec3f				convert_3D_cart_to_spher(ofVec3f point);
 		ofVec3f				convert_3D_spher_to_cart(ofVec3f point);
 		ofVec3f				find_closest_point_to_sphere(ofVec3f point);
-		void				setKinect3dCoordinates(float x, float y, float z);
+		void				setArm3dCoordinates(float x, float y, float z);
 
 		void		getTransformationWorldTransformation();
 		

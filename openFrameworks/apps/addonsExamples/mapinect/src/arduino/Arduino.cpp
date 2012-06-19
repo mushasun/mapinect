@@ -94,39 +94,28 @@ namespace mapinect {
 			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.0);
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.0);
 		}
-		
+
 		angleMotor1 = RESET_ANGLE1;
 		angleMotor2 = RESET_ANGLE2;
 		angleMotor4 = RESET_ANGLE4;
-		angleMotor8 = RESET_ANGLE8;
-		//angleMotor8 = 90; // La posición inicial de este motor es mirando de costado. 
-		if (serial.setup(COM_PORT, 9600)) {
-			sendMotor((char) angleMotor1, ID_MOTOR_1);
-			sendMotor((char) angleMotor2, ID_MOTOR_2);
-			sendMotor((char) angleMotor4, ID_MOTOR_4);
-			sendMotor((char) angleMotor8, ID_MOTOR_8);
-		}
+		angleMotor8 = RESET_ANGLE8;	// La posición inicial de este motor es mirando de costado. 
 
-		//mira = ofVec3f(1, 0, 0);
-		//posicion = ofVec3f(ARM_LENGTH, 0, 0);
+		if (!serial.setup(COM_PORT, 9600)) {
+			cout << "Error en setup del Serial, puerto COM: " << COM_PORT << endl;
+			return false;
+		}
+			
+		sendMotor((char) angleMotor1, ID_MOTOR_1);
+		sendMotor((char) angleMotor2, ID_MOTOR_2);
+		sendMotor((char) angleMotor4, ID_MOTOR_4);
+		sendMotor((char) angleMotor8, ID_MOTOR_8);
 
 		posicion = getKinect3dCoordinates();
 		mira = lookingAt();
 
-		//mira = ofVec3f(ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 1.0);
-		//posicion = ofVec3f(ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
-
 		serial.enumerateDevices();
 		
-//		if (serial.setup(COM_PORT, 9600)) {
-			//NO DEBERIA ESTAR ACA
-//			lookAt(ofVec3f(0.35, -0.03, 0.10));
-//			setKinect3dCoordinates(posicion);
-		
-//			return true;
-	//	}
-
-		return false;
+		return true;
 	}
 
 	void Arduino::exit() {
@@ -192,7 +181,7 @@ namespace mapinect {
 		else if (key == 'z')
 		{
 			ofVec3f cualquiera = ofVec3f(ARM_LENGTH, 0, 0.15);
-			setKinect3dCoordinates(cualquiera);
+			setArm3dCoordinates(cualquiera);
 		}
 		else if (key == 'x')
 		{
@@ -296,8 +285,10 @@ namespace mapinect {
 		return position;
 */	}
 
-	void Arduino::setKinect3dCoordinates(float x, float y, float z)
+	void Arduino::setArm3dCoordinates(float x, float y, float z)
 	{
+		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
+		//		en coordenadas de mundo
 		angleMotor2 = round(atan(z/x) * 180 / M_PI);			//el de la base, x no deberia ser 0 nunca
 		if (y != 0) {
 			if (y > 0)
@@ -311,14 +302,16 @@ namespace mapinect {
 		}
 		sendMotor((char) angleMotor1, ID_MOTOR_1);
 		sendMotor((char) angleMotor2, ID_MOTOR_2);
-		posicion = ofVec3f(x, y, z);
+		posicion = getKinect3dCoordinates(); //ofVec3f(x, y, z);
 	}
 
-	ofVec3f Arduino::setKinect3dCoordinates(ofVec3f position)
+	ofVec3f Arduino::setArm3dCoordinates(ofVec3f position)
 	{
+		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
+		//		en coordenadas de mundo
 		//wrapper para posicionar desde un ofVec3f
 		ofVec3f closest_position = find_closest_point_to_sphere(position);
-		setKinect3dCoordinates(closest_position.x, closest_position.y, closest_position.z);
+		setArm3dCoordinates(closest_position.x, closest_position.y, closest_position.z);
 		//lookAt(mira_actual);
 		return closest_position;
 	}
