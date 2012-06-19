@@ -304,25 +304,13 @@ namespace mapinect {
 			
 			//TODO: Chequear un minimo de puntos
 			//Remove outliers by clustering
-			PCPtr cloud_p_filtered (new PC());
-			pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-			tree->setInputCloud (cloud_p);
-
-			std::vector<pcl::PointIndices> cluster_indices;
-			pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-			ec.setClusterTolerance (0.02); 
-			ec.setMinClusterSize (5);
-			ec.setMaxClusterSize (10000);
-			ec.setSearchMethod (tree);
-			ec.setInputCloud(cloud_p);
-
-			ec.extract (cluster_indices);
+			vector<pcl::PointIndices> cluster_indices(findClusters(cloud_p, 0.02, 5, 10000));
 			int debuccount = 0;
 
+			PCPtr cloud_p_filtered (new PC());
 			if(cluster_indices.size() > 0)
 			{
-				for (std::vector<int>::const_iterator pit = cluster_indices.at(0).indices.begin (); pit != cluster_indices.at(0).indices.end (); pit++)
-					cloud_p_filtered->points.push_back (cloud_p->points[*pit]); //*
+				cloud_p_filtered = getCloudFromIndices(cloud_p, cluster_indices.at(0));
 			}
 
 			saveCloudAsFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);

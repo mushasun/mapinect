@@ -5,6 +5,10 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release with debug info|Win32">
+      <Configuration>Release with debug info</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -22,6 +26,11 @@
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
@@ -30,6 +39,9 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
@@ -43,10 +55,14 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">obj\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">obj\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">true</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -99,6 +115,44 @@ if not exist "$(ProjectDir)bin\data" mkdir  "$(ProjectDir)bin\data"
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>atlthunk.lib; LIBC.lib; LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+    </Link>
+    <PostBuildEvent>
+      <Message>adding DLLs and creating data folder</Message>
+      <Command>xcopy /e /i /y "$(ProjectDir)..\..\..\..\..\export\vs2010\*.dll" "$(ProjectDir)\bin"
+if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">
+    <ClCompile>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>include;src;src\drawing;..\..\src;..\..\src\arduino;..\..\src\helpers;..\..\src\interfaces;..\..\src\math;..\..\src\model;..\..\src\open-cv;..\..\src\pcm;..\..\src\utils;..\..\src\vm;..\..\..\..\..\libs\openFrameworks;..\..\..\..\..\libs\openFrameworks\3d;..\..\..\..\..\libs\openFrameworks\app;..\..\..\..\..\libs\openFrameworks\communication;..\..\..\..\..\libs\openFrameworks\events;..\..\..\..\..\libs\openFrameworks\gl;..\..\..\..\..\libs\openFrameworks\graphics;..\..\..\..\..\libs\openFrameworks\math;..\..\..\..\..\libs\openFrameworks\sound;..\..\..\..\..\libs\openFrameworks\types;..\..\..\..\..\libs\openFrameworks\utils;..\..\..\..\..\libs\openFrameworks\video;..\..\..\..\..\libs\cairo\include\cairo;..\..\..\..\..\libs\fmodex\include;..\..\..\..\..\libs\freeImage\include;..\..\..\..\..\libs\freetype\include;..\..\..\..\..\libs\freetype\include\freetype2;..\..\..\..\..\libs\glew\include;..\..\..\..\..\libs\glu\include;..\..\..\..\..\libs\glut\include;..\..\..\..\..\libs\quicktime\include;..\..\..\..\..\libs\rtAudio\include;..\..\..\..\..\libs\poco\include;..\..\..\..\..\libs\tess2\include;..\..\..\..\..\libs\videoInput\include;..\..\..\..\..\addons;..\..\..\..\..\addons\ofx3DModelLoader\src;..\..\..\..\..\addons\ofxNetwork\src;..\..\..\..\..\addons\ofxDirList\src;..\..\..\..\..\addons\ofxCairoTexture\src;..\..\..\..\..\addons\ofxFenster\libs\ghost\include;..\..\..\..\..\addons\ofxFenster\libs\string\include;..\..\..\..\..\addons\ofxFenster\src;..\..\..\..\..\addons\ofxKinect\src;..\..\..\..\..\addons\ofxMSAInteractiveObject\src;..\..\..\..\..\addons\ofxMutex\src;..\..\..\..\..\addons\ofxObjLoader\src;..\..\..\..\..\addons\ofxOpenCv\src;..\..\..\..\..\addons\ofxOpenCv\libs\opencv\include;..\..\..\..\..\addons\ofxOsc\src;..\..\..\..\..\addons\ofxOsc\libs\oscpack\include\ip;..\..\..\..\..\addons\ofxOsc\libs\oscpack\include\osc;..\..\..\..\..\addons\ofxSimpleGuiToo\src;..\..\..\..\..\addons\ofxSimpleGuiToo\src\Controls;..\..\..\..\..\addons\ofxVectorGraphics\src;..\..\..\..\..\addons\ofxVectorGraphics\libs;..\..\..\..\..\addons\ofxXMLSettings\libs;..\..\..\..\..\addons\ofxXMLSettings\src;..\..\..\..\..\..\PCL\Boost\include;..\..\..\..\..\..\PCL\Eigen\include;..\..\..\..\..\..\PCL\Flann\include;..\..\..\..\..\..\PCL\PCL\include\pcl-1.5;..\..\..\..\..\..\PCL\Qhull\include;..\..\..\..\..\..\PCL\VTK\include\vtk-5.8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;POCO_STATIC;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>
+      </MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>openframeworksLib.lib;mapinect_wdi.lib;advapi32.lib;cairo-static.lib;comctl32.lib;comdlg32.lib;dsound.lib;flann_cpp_s.lib;fmodex_vc.lib;FreeImage.lib;freenect.lib;gdi32.lib;glew32s.lib;glu32.lib;glut32.lib;kernel32.lib;libboost_date_time-vc100-mt-1_47.lib;libboost_filesystem-vc100-mt-1_47.lib;libboost_system-vc100-mt-1_47.lib;libboost_thread-vc100-mt-1_47.lib;libfreetype.lib;libghost.lib;msimg32.lib;ole32.lib;oleaut32.lib;opencv_calib3d220.lib;opencv_contrib220.lib;opencv_core220.lib;opencv_features2d220.lib;opencv_flann220.lib;opencv_gpu220.lib;opencv_haartraining_engine.lib;opencv_highgui220.lib;opencv_imgproc220.lib;opencv_lapack.lib;opencv_legacy220.lib;opencv_ml220.lib;opencv_objdetect220.lib;opencv_ts220.lib;opencv_video220.lib;OpenGL32.lib;opengl32.lib;oscpack.lib;pcl_common_release.lib;pcl_features_release.lib;pcl_filters_release.lib;pcl_io_release.lib;pcl_kdtree_release.lib;pcl_keypoints_release.lib;pcl_octree_release.lib;pcl_range_image_border_extractor_release.lib;pcl_registration_release.lib;pcl_sample_consensus_release.lib;pcl_search_release.lib;pcl_segmentation_release.lib;pcl_surface_release.lib;pcl_tracking_release.lib;pcl_visualization_release.lib;pixman-1.lib;PocoFoundationmd.lib;PocoNetmd.lib;PocoUtilmd.lib;PocoXMLmd.lib;qhullstatic.lib;qtmlClient.lib;rtAudio.lib;setupapi.lib;shell32.lib;tess2.lib;user32.lib;uuid.lib;vfw32.lib;videoInput.lib;vtkCommon.lib;vtkDICOMParser.lib;vtkexoIIc.lib;vtkexpat.lib;vtkFiltering.lib;vtkfreetype.lib;vtkftgl.lib;vtkGraphics.lib;vtkHybrid.lib;vtkImaging.lib;vtkIO.lib;vtkjpeg.lib;vtkmetaio.lib;vtkNetCDF.lib;vtkNetCDF_cxx.lib;vtkpng.lib;vtkRendering.lib;vtksqlite.lib;vtksys.lib;vtktiff.lib;vtkverdict.lib;vtkWidgets.lib;vtkzlib.lib;winspool.lib;ws2_32.lib;wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>lib;..\..\lib;..\..\..\..\..\libs\openFrameworksCompiled\lib\vs2010;..\..\..\..\..\libs\cairo\lib\vs2010;..\..\..\..\..\libs\fmodex\lib\vs2010;..\..\..\..\..\libs\FreeImage\lib\vs2010;..\..\..\..\..\libs\freetype\lib\vs2010;..\..\..\..\..\libs\glew\lib\vs2010;..\..\..\..\..\libs\glu\lib\vs2010;..\..\..\..\..\libs\glut\lib\vs2010;..\..\..\..\..\libs\Poco\lib\vs2010;..\..\..\..\..\libs\quicktime\lib\vs2010;..\..\..\..\..\libs\rtAudio\lib\vs2010;..\..\..\..\..\libs\tess2\lib\vs2010;..\..\..\..\..\libs\videoInput\lib\vs2010;..\..\..\..\..\addons\ofxFenster\libs\ghost\lib\win_vs;..\..\..\..\..\addons\ofxKinect\libs;..\..\..\..\..\addons\ofxOpenCv\libs\opencv\lib\vs2010;..\..\..\..\..\addons\ofxOsc\libs\oscpack\lib\vs2010;..\..\..\..\..\..\PCL\PCL\lib;..\..\..\..\..\..\PCL\Flann\lib;..\..\..\..\..\..\PCL\Boost\lib;..\..\..\..\..\..\PCL\Qhull\lib;..\..\..\..\..\..\PCL\VTK\lib\vtk-5.8;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>atlthunk.lib; LIBC.lib; LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

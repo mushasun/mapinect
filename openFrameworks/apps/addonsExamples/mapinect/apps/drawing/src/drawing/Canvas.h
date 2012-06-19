@@ -46,6 +46,7 @@ namespace drawing
 		TextureMapper2D			texMapper;
 
 		map<int, IDrawer*>		drawers;
+		map<int, DataTouch>		touchPoints;
 	};
 }
 

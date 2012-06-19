@@ -71,6 +71,13 @@ namespace drawing {
 		cairoTexture->bind();
 		ofDrawQuadTextured(polygon->getMathModel().getVertexs(), texCoords);
 		cairoTexture->unbind();
+
+		for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
+		{
+			//ofSetColor(kRGBBlue);
+			ofVec3f tp(t->second.getTouchPoint());
+			ofCircle(tp.x, tp.y, tp.z, 0.003);
+		}
 	}
 
 	void Canvas::touchEvent(const DataTouch& touchPoint)
@@ -81,17 +88,22 @@ namespace drawing {
 		switch (touchPoint.getType())
 		{
 		case kTouchTypeStarted:
+			touchPoints[id] = touchPoint;
 			drawers[id] = IDrawer::SCreate(mapToTexture(touchPoint.getTouchPoint()), foreColor);
 			setBackColor(ofColor(rand() % 255, rand() % 255, rand() % 255));
 			setForeColor(ofColor(rand() % 255, rand() % 255, rand() % 255));
 			break;
 		case kTouchTypeHolding:
+			touchPoints[id] = touchPoint;
 			if (d != drawers.end())
 			{
 				d->second->update(mapToTexture(touchPoint.getTouchPoint()));
 				d->second->draw(texture);
 				redraw();
 			}
+			break;
+		case kTouchTypeReleased:
+			touchPoints.erase(id);
 			break;
 		}
 	}
