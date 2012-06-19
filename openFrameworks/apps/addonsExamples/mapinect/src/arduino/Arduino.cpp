@@ -105,10 +105,10 @@ namespace mapinect {
 			return false;
 		}
 			
-		sendMotor((char) angleMotor1, ID_MOTOR_1);
-		sendMotor((char) angleMotor2, ID_MOTOR_2);
-		sendMotor((char) angleMotor4, ID_MOTOR_4);
-		sendMotor((char) angleMotor8, ID_MOTOR_8);
+		sendMotor(angleMotor1, ID_MOTOR_1);
+		sendMotor(angleMotor2, ID_MOTOR_2);
+		sendMotor(angleMotor4, ID_MOTOR_4);
+		sendMotor(angleMotor8, ID_MOTOR_8);
 
 		posicion = getKinect3dCoordinates();
 		mira = lookingAt();
@@ -185,12 +185,17 @@ namespace mapinect {
 		}
 		else if (key == 'x')
 		{
-			lookAt(ofVec3f(0.35, 0.0, 0.10));
+			lookAt(ofVec3f(0.35, -0.16, 0.10));
 		}
 		else if (key == 'c')
 		{
 			lookAt(ofVec3f(0.35, -0.03, 0.10));
 		}
+		else if (key == 'a')
+		{
+			setArm3dCoordinates(ofVec3f(0.35, -0.05, 0.0));
+		}
+
 	}
 
 
@@ -300,8 +305,8 @@ namespace mapinect {
 				angleMotor1 = -(int)round(asin(y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
 			}
 		}
-		sendMotor((char) angleMotor1, ID_MOTOR_1);
-		sendMotor((char) angleMotor2, ID_MOTOR_2);
+		sendMotor(angleMotor1, ID_MOTOR_1);
+		sendMotor(angleMotor2, ID_MOTOR_2);
 		posicion = getKinect3dCoordinates(); //ofVec3f(x, y, z);
 	}
 
@@ -447,20 +452,20 @@ namespace mapinect {
 				|| (abs(vv_point.dot(v_normal) - vv_point.length()*v_normal.length()) <= MATH_EPSILON) )) {
 				//if (length de alguno de los vectores < MATH_EPSILON || alguno de los vectores es "casi" paralelo a la normal del plano)	
 				angulo_v = vv_mira.angle(vv_point);//motor 4
-				if (point.y < 0)
+				if (point.y > (- KINECT_HEIGHT - MOTORS_HEIGHT) )
 				{
 					angulo_v *= -1;
 				}
 		}		 	
 
-		angleMotor4 = angleMotor4 + (90 - angulo_v);
+		angleMotor4 = angulo_v;
 		angleMotor8 = angulo_h;
 
 		//mira_actual = point;
 		mira = point;
 
-		sendMotor((char) angleMotor4, ID_MOTOR_4);
-		sendMotor((char) angleMotor8, ID_MOTOR_8);
+		sendMotor(angleMotor4, ID_MOTOR_4);
+		sendMotor(angleMotor8, ID_MOTOR_8);
 
 		return NULL;
 	}
