@@ -42,18 +42,9 @@ namespace buildings {
 
 			ofVec3f floorNormal = floor.getModelObject()->getMathModel().getPlane().getNormal();
 			float prod = abs((*p)->getMathModel().getPlane().getNormal().dot(floorNormal));
-			prod = 1.0;
+			//prod = 1.0;
 			if (prod < 0.9)
 			{
-				std::vector<ofVec3f> pts_;
-			
-				pts_.push_back(vA);
-				pts_.push_back(vB);
-				pts_.push_back(vC);
-				pts_.push_back(vD);
-
-				sort(pts_.begin(), pts_.end(), sortOnYAsc<ofVec3f>);
-
 				/*	__________
 					|2		3|
 					|		 |
@@ -61,31 +52,19 @@ namespace buildings {
 					|1		0|
 				*/
 
-				std::vector<ofVec3f> pts_b;
-				pts_b.push_back(pts_[2]);
-				pts_b.push_back(pts_[3]);
+				ofVec3f v0 = vB;
+				ofVec3f v1 = vC;
+				ofVec3f v2 = vD;
+				ofVec3f v3 = vA;
 
-				sort(pts_b.begin(), pts_b.end(), sortOnXAsc<ofVec3f>);
-
-				std::vector<ofVec3f> pts_a;
-				pts_a.push_back(pts_[2]);
-				pts_a.push_back(pts_[3]);
-
-				sort(pts_a.begin(), pts_a.end(), sortOnXAsc<ofVec3f>);
-
-				ofVec3f v0 = pts_b[1];
-				ofVec3f v1 = pts_b[0];
-				ofVec3f v2 = pts_a[0];
-				ofVec3f v3 = pts_a[1];
-
-				float h12 = std::abs(v2.y - v1.y);
-				float h03 = std::abs(v3.y - v0.y);			
-			
 				// Bind Texture
 				buildingTexture->bind();
 
-				ofVec3f v3p(v3.x, v0.y + progress * h03, v3.z);
-				ofVec3f v2p(v2.x, v1.y + progress * h12, v2.z);
+				ofVec3f h12 = v2 - v1;
+				ofVec3f h03 = v3 - v0;			
+			
+				ofVec3f v3p = v3 - (h03*(1-progress)); //(v3.x, v0.y - progress * h03, v3.z);
+				ofVec3f v2p = v2 - (h12*(1-progress)); //(v2.x, v1.y - progress * h12, v2.z);
 				
 				vector<ofVec2f> texCoords(ofTexCoordsFor(*buildingTexture));
 				for (vector<ofVec2f>::iterator t = texCoords.begin(); t != texCoords.end(); ++t)

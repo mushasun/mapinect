@@ -295,6 +295,21 @@ namespace buildings {
 	//--------------------------------------------------------------
 	void Buildings::objectMoved(const IObjectPtr& object, const DataMovement& movement)
 	{
+		if (object->getId() == TABLE_ID)
+		{
+			if (floor != NULL)
+			{
+				floor->updateModelObject(object->getPolygons()[0]);
+			}
+		}
+		else
+		{
+			map<int, Building*>::iterator b = buildings.find(object->getId());
+			if (b != buildings.end())
+			{
+				b->second->updateModelObject(object);
+			}
+		}
 	}
 	
 	//--------------------------------------------------------------
