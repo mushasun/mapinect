@@ -11,7 +11,7 @@ namespace mapinect {
 
 	static Eigen::Affine3f inverseWorldTransformationMatrix = Eigen::Affine3f();
 
-	static float transX =   -0.112;  //-0.065; //-0.088;	//0.019;
+	static float transX =   -0.085;  //-0.112;  //-0.065; //-0.088;	//0.019;
 	static float transY =    0.007;  //0.008; // 0.004;	//-0.003;
 	static float transZ =   0;		//-0.050;
 	static float rotYAxis = 0;

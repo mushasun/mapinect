@@ -201,7 +201,7 @@ namespace mapinect {
 				coefficients = gModel->getTable()->getCoefficients();
 				for(int i = 0; i < tableCluster->size(); i++)
 				{
-					if(evaluatePoint(coefficients, POINTXYZ_OFXVEC3F(tableCluster->at(i))) > OCTREE_RES)
+					if(evaluatePoint(coefficients, POINTXYZ_OFXVEC3F(tableCluster->at(i))) > OCTREE_RES * 2)
 						remainingCloud->push_back(tableCluster->at(i));
 				}
 			}
@@ -301,7 +301,10 @@ namespace mapinect {
 
 			setPCMThreadStatus("Detecting touch points...");
 			log(kLogFilePCMThread, "Detecting touch points...");
-			vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, MAX_CLUSTER_TOLERANCE / 2.0f, 100, 5000);
+			const float clusterTolerance = MAX_CLUSTER_TOLERANCE / 4.0f;
+			const int clusterMinSize = 200;
+			const int clusterMaxSize = 5000;
+			vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, clusterTolerance, clusterMinSize, clusterMaxSize);
 		
 			map<IPolygonPtr, vector<ofVec3f> > pointsCloserToModel;
 
@@ -321,11 +324,15 @@ namespace mapinect {
 						IPolygonPtr polygon;
 						for (vector<IPolygonPtr>::const_iterator p = (*ob)->getPolygons().begin(); p != (*ob)->getPolygons().end(); ++p)
 						{
-							float distance = (*p)->getMathModel().distance(*v);
-							if (inRange(distance, TOUCH_DISTANCE / 4.0f, TOUCH_DISTANCE) && distance < minDistance)
+							ofVec3f planeProjected((*p)->getMathModel().getPlane().project(*v));
+							if ((*p)->getMathModel().isInPolygon(planeProjected))
 							{
-								minDistance = distance;
-								polygon = *p;
+								float distance = (*p)->getMathModel().distance(*v);
+								if (inRange(distance, TOUCH_DISTANCE / 4.0f, TOUCH_DISTANCE) && distance < minDistance)
+								{
+									minDistance = distance;
+									polygon = *p;
+								}
 							}
 						}
 						if (polygon.get() != NULL)
@@ -338,7 +345,7 @@ namespace mapinect {
 								pointsCloserToModel.insert(make_pair(polygon, points));
 								it = pointsCloserToModel.find(polygon);
 							}
-							it->second.push_back((polygon)->getMathModel().project(*v));
+							it->second.push_back((polygon)->getMathModel().getPlane().project(*v));
 						}
 					}
 				}
