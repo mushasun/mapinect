@@ -311,8 +311,6 @@ namespace mapinect {
 		}
 		sendMotor((char) angleMotor1, ID_MOTOR_1);
 		sendMotor((char) angleMotor2, ID_MOTOR_2);
-		cout << read() << endl;
-		cout << endl;
 		posicion = ofVec3f(x, y, z);
 	}
 
@@ -363,6 +361,8 @@ namespace mapinect {
 
 	ofVec3f	Arduino::lookAt(ofVec3f point)
 	{
+		ofVec3f miraHorizonte (ARM_LENGTH + 10.0, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
+
 		//TODO: tener el cuenta la traslacion del grueso de los motores de la punta
 		//posicion = donde se encuentra ubicado
 		//mira = donde estoy mirando ATM
@@ -380,7 +380,7 @@ namespace mapinect {
 		composed_matrix = rotationY * rotationX;
 		
 		Eigen::Vector3f e_point = Eigen::Vector3f(point.x, point.y, point.z);
-		Eigen::Vector3f e_mira = Eigen::Vector3f(mira.x, mira.y, mira.z);
+		Eigen::Vector3f e_mira = Eigen::Vector3f(miraHorizonte.x, miraHorizonte.y, miraHorizonte.z);
 		Eigen::Vector3f e_posicion = Eigen::Vector3f(posicion.x, posicion.y, posicion.z);
 
 		Eigen::Vector3f et_point = composed_matrix * e_point;
@@ -460,14 +460,14 @@ namespace mapinect {
 				}
 		}		 	
 
-		angleMotor4 = angulo_v;
+		angleMotor4 = angleMotor4 + (90 - angulo_v);
 		angleMotor8 = angulo_h;
 
 		//mira_actual = point;
 		mira = point;
 
-		sendMotor((char) angulo_v, ID_MOTOR_4);
-		sendMotor((char) angulo_h, ID_MOTOR_8);
+		sendMotor((char) angleMotor4, ID_MOTOR_4);
+		sendMotor((char) angleMotor8, ID_MOTOR_8);
 
 		return NULL;
 	}
