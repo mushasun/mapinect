@@ -324,7 +324,10 @@ namespace mapinect {
 				transZ += varTrans;
 				printf("Z translation inc: %f \n", transZ);
 				break;
-
+			case '1':
+				loadCalibParams();
+				printf("Parameters loaded from VM config file\n");
+				break;
 			/*********************
 			  SHOW STATUS	 - q
 			*********************/
@@ -540,5 +543,25 @@ namespace mapinect {
 		cvReleaseMat(&kinect_R);
 		cvReleaseMat(&kinect_T); 
 	}
+
+	// Load calib parameters
+	void VM::loadCalibParams() {
+		ofxXmlSettings XML;
+		if(XML.loadFile("VM_Config.xml")) {
+
+			proj_fx = XML.getValue(VM_CONFIG "PROJ_FX", 1978.0);
+			proj_fy = XML.getValue(VM_CONFIG "PROJ_FY", 1586.0);
+			proj_cx = XML.getValue(VM_CONFIG "PROJ_CX", 642.0);
+			proj_cy = XML.getValue(VM_CONFIG "PROJ_CY", 373.0);
+
+			transX = XML.getValue(VM_CONFIG "TRANS_X", -0.112);
+			transY = XML.getValue(VM_CONFIG "TRANS_Y",  0.020);
+			transZ = XML.getValue(VM_CONFIG "TRANS_Z",  0.000);
+		}
+		 
+		VM::setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
+
+	}
+
 
 }
