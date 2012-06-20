@@ -29,6 +29,7 @@ namespace mapinect {
 		ofVec3f				lookAt(ofVec3f point);
 		ofVec3f				lookingAt();
 		Eigen::Affine3f		getWorldTransformation();
+		Eigen::Affine3f		getWorldTransformation(float angle1, float angle2, float angle4, float angle8);
 		char*				read();
 		
 		signed int*			motorAngles() const;
