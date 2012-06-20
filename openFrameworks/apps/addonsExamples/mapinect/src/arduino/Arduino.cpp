@@ -504,10 +504,15 @@ namespace mapinect {
 
 	Eigen::Affine3f Arduino::getWorldTransformation()
 	{
-		float angleMotor1Rad = ofDegToRad(angleMotor1);	// Motor que mueve la varilla "horizontal"
-		float angleMotor2Rad = ofDegToRad(angleMotor2); // Motor de abajo del brazo, con la varilla "vertical"
-		float angleMotor4Rad = ofDegToRad(angleMotor4); // Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
-		float angleMotor8Rad = ofDegToRad(angleMotor8 - 90); // Motor de los de la punta, el de más abajo. La posición inicial de referencia será 90 grados.
+		return getWorldTransformation(angleMotor1, angleMotor2, angleMotor4, angleMotor8);
+	}
+
+	Eigen::Affine3f Arduino::getWorldTransformation(float angle1, float angle2, float angle4, float angle8)
+	{
+		float angleMotor1Rad = ofDegToRad(angle1);		// Motor que mueve la varilla "horizontal"
+		float angleMotor2Rad = ofDegToRad(angle2);		// Motor de abajo del brazo, con la varilla "vertical"
+		float angleMotor4Rad = ofDegToRad(angle4);		// Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
+		float angleMotor8Rad = ofDegToRad(angle8 - 90);	// Motor de los de la punta, el de más abajo. La posición inicial de referencia será 90 grados.
 
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 		//CvMat* mat = cvCreateMat(4,4,CV_32FC1);
