@@ -53,6 +53,13 @@ namespace mapinect {
 		static float farPlane;
 
 	};
+
+
+	//--------------------------------------------------------------
+	void getKinectCalibData(const string& kinect_calib_file,
+							double& d_fx, double& d_fy, float& d_cx, float& d_cy,
+							double& rgb_fx, double& rgb_fy, float& rgb_cx, float& rgb_cy,
+							ofVec3f& T, ofMatrix4x4& R);
 }
 
 #endif	// VM_H__

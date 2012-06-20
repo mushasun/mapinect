@@ -31,7 +31,11 @@ namespace mapinect {
 		Eigen::Affine3f		getWorldTransformation();
 		char*				read();
 		
+		signed int*			motorAngles() const;
 
+		static float		ARM_LENGTH;
+		static float		KINECT_HEIGHT;
+		static float		MOTORS_HEIGHT;
 	private:
 		bool				isActive();
 		void				sendMotor(int value, int id);
