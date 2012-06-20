@@ -186,15 +186,23 @@ namespace mapinect {
 		}
 		else if (key == 'x')
 		{
-			lookAt(ofVec3f(0.35, -0.16, 0.10));
+			lookAt(ofVec3f(0.35, -0.15, 0.10));
 		}
 		else if (key == 'c')
 		{
-			lookAt(ofVec3f(0.35, -0.03, 0.10));
+			lookAt(ofVec3f(0.35, -0.13, 0.10));
 		}
 		else if (key == 'a')
 		{
 			setArm3dCoordinates(ofVec3f(0.35, -0.05, 0.0));
+		}
+		else if (key == 's')
+		{
+			lookAt(ofVec3f(0.33, -KINECT_HEIGHT-MOTORS_HEIGHT, 0.1));
+		}
+		else if (key == 'q')
+		{
+			//getCloud();
 		}
 
 	}
