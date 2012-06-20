@@ -43,6 +43,8 @@ namespace mapinect {
 		virtual float*	getTransformationMatrixOpenGL(CvMat* R, CvMat* T);
 		virtual float*	getInverseTransformationMatrixOpenGL(CvMat* R, CvMat* T);
 
+		virtual void loadCalibParams();
+
 		static std::string projCalibFile;
 		static std::string kinectCalibFile;
 
