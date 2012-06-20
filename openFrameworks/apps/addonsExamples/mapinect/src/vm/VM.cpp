@@ -11,8 +11,8 @@ namespace mapinect {
 
 	static Eigen::Affine3f inverseWorldTransformationMatrix = Eigen::Affine3f();
 
-	static float transX =   -0.085;  //-0.112;  //-0.065; //-0.088;	//0.019;
-	static float transY =    0.007;  //0.008; // 0.004;	//-0.003;
+	static float transX =   -0.112;  //-0.112;  //-0.065; //-0.088;	//0.019;
+	static float transY =    0.020;  //0.008; // 0.004;	//-0.003;
 	static float transZ =   0;		//-0.050;
 	static float rotYAxis = 0;
 
@@ -93,10 +93,10 @@ namespace mapinect {
 		proj_cy = (float) cvGetReal2D(projector_intrinsics, 1, 2);
 
 		// Pruebo de modificar los parámetros intrínsecos para ver si se ajusta mejor el tamaño
-		proj_fx = 1978.0f;						//2100.0f;
-		proj_fy = 1586.0f;						//1794.0f;
-		proj_cx = 642.0f;						//658.0f;
-		proj_cy = 370.0f;						//504.0f;
+		proj_fx = 1929.0f;			//1978.0f;						//2100.0f;
+		proj_fy = 1593.0f;			//1586.0f;						//1794.0f;
+		proj_cx = 634.0f;			//642.0f;						//658.0f;
+		proj_cy = 373.0f;						//504.0f;
 		 
 		float proj_width = (float) cvGetReal2D(projector_size, 0, 0); 
 		float proj_height = (float) cvGetReal2D(projector_size, 0, 1);
@@ -260,22 +260,22 @@ namespace mapinect {
 				transZ	--	= -
 			
 			********************/	
-			case OF_KEY_UP:
+			case 't':
 				proj_fy +=varProj;
 				printf("proj_fy increased: %f \n",proj_fy);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
 				break;
-			case OF_KEY_DOWN:
+			case 'g':
 				proj_fy -=varProj;
 				printf("proj_fy decreased: %f \n",proj_fy);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
 				break;
-			case OF_KEY_LEFT:
+			case 'f':
 				proj_fx -=varProj;
 				printf("proj_fx decreased: %f \n",proj_fx);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
 				break;
-			case OF_KEY_RIGHT:
+			case 'h':
 				proj_fx +=varProj;
 				printf("proj_fx increased: %f \n",proj_fx);
 				setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
@@ -331,7 +331,7 @@ namespace mapinect {
 			case 'q':
 				printf("Current parameters: \n");
 				printf("	Modelview Trans [x,y,z] = (%.4f,%.4f,%.4f) \n",currentModelviewT.x, currentModelviewT.y, currentModelviewT.z);
-				printf("	Proj intrinsics [fx,fy,cx,cy] = (%.4f,%.4f,%.4f,%.4f) \n", proj_fx, proj_fy, proj_cx, proj_cy);
+				printf("	Proj intrinsics [fx,fy,cx,cy] = (%.1f,%.1f,%.1f,%.1f) \n", proj_fx, proj_fy, proj_cx, proj_cy);
 				printf("	Model glTransl  [x,y,z] = (%.4f,%.4f,%.4f) \n", transX, transY, transZ);
 				break;
 		case 'o':
