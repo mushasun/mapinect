@@ -148,8 +148,37 @@ void ofxFenster::draw() {
 	return;
 }
 
+int mapKeysToOfKeys(int key)
+{
+	if (key == 267)
+		return OF_KEY_LEFT;
+	else if (key == 268)
+		return OF_KEY_RIGHT;
+	else if (key == 269)
+		return OF_KEY_UP;
+	else if (key == 270)
+		return OF_KEY_DOWN;
+	else if (key == 271)
+		return OF_KEY_INSERT;
+	else if (key == 274)
+		return OF_KEY_DEL;
+	else if (key == 275)
+		return OF_KEY_HOME;
+	else if (key == 276)
+		return OF_KEY_END;
+	else if (key == 277)
+		return OF_KEY_PAGE_UP;
+	else if (key == 278)
+		return OF_KEY_PAGE_DOWN;
+	else if (key >= 295 && key <= 306)
+		return (key - 295) + OF_KEY_F1;
+
+	return key;
+}
+
 void ofxFenster::keyPressed(int key) {
 	static ofKeyEventArgs keyEventArgs;
+	key = mapKeysToOfKeys(key);
 	keyEventArgs.key = key;
 	ofxFensterListenerList::iterator it=listeners.begin();
 	ofNotifyEvent(ofEvents.keyPressed, keyEventArgs);
@@ -163,6 +192,7 @@ void ofxFenster::keyPressed(int key) {
 
 void ofxFenster::keyReleased(int key) {
 	static ofKeyEventArgs keyEventArgs;
+	key = mapKeysToOfKeys(key);
 	keyEventArgs.key = key;
 	ofxFensterListenerList::iterator it=listeners.begin();
 	ofNotifyEvent(ofEvents.keyReleased, keyEventArgs);
