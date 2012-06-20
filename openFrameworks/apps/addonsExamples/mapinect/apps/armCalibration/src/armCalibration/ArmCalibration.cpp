@@ -1,155 +1,285 @@
-#include "Calibration.h"
+#include "ArmCalibration.h"
 
+#include <pcl/common/transforms.h>
+
+#include "Constants.h"
+#include "Feature.h"
 #include "Globals.h"
+#include "ofxKinect.h"
+#include "ofxXmlSettings.h"
+#include "pointUtils.h"
+#include "VM.h"
 
-namespace calibration {
-
-	const int s = 4;
+namespace armCalibration {
 
 	//--------------------------------------------------------------
-	void Calibration::setup()
+	void ArmCalibration::setup()
 	{
-		pattern.loadImage("pattern.bmp");
-	}
+		ofSetWindowTitle("arm calibration");
 
-	//--------------------------------------------------------------
-	void Calibration::exit() {
+		LoadFeatures();
 
-	}
-
-	//--------------------------------------------------------------
-	void Calibration::draw()
-	{
-		static ofVec3f wc[KINECT_DEFAULT_WIDTH][KINECT_DEFAULT_HEIGHT];
-		for (int i = 0; i < KINECT_DEFAULT_WIDTH; i += s)
-			for (int j = 0; j < KINECT_DEFAULT_HEIGHT; j += s)
-				wc[i][j] = gKinect->getWorldCoordinateFor(i, j);
-
-		glBegin(GL_QUADS);
-		for (int i = 0, ci = 0; i < KINECT_DEFAULT_WIDTH; i += s, ci++)
+		gKinect = new ofxKinect();
+		if (IsFeatureKinectActive())
 		{
-			float fi = (float)i;
-			for (int j = 0, cj = 0; j < KINECT_DEFAULT_HEIGHT; j += s, cj++)
-			{
-				float fj = (float)j;
-				ofSetColor(pattern.getColor(ci % pattern.width, cj % pattern.height));
+			KINECT_WIDTH = KINECT_DEFAULT_WIDTH;
+			KINECT_HEIGHT = KINECT_DEFAULT_HEIGHT;
+			MAX_Z = 4.0f;
 
-				float qs = 0.005;
-				ofVec3f w = wc[i][j];
-				if (w.z > 0)
-				{
-					ofVec3f wr = w + ofVec3f(qs, 0, 0);
-					ofVec3f wrb = w + ofVec3f(qs, qs, 0);
-					ofVec3f wb = w + ofVec3f(0, qs, 0);
-					glVertex3f(w.x, w.y, w.z);
-					glVertex3f(wr.x, wr.y, wr.z);
-					glVertex3f(wrb.x, wrb.y, wrb.z);
-					glVertex3f(wb.x, wb.y, wb.z);
-				}
-				//if (w.z > 0)
-				//{
-				//	ofVec3f wr = (i+s < KINECT_DEFAULT_WIDTH && wc[i+s][j].z > 0) ? wc[i+s][j] : w + ofVec3f(qs, 0, 0);
-				//	ofVec3f wrb = (i+s < KINECT_DEFAULT_WIDTH && j+s < KINECT_DEFAULT_HEIGHT && wc[i+s][j+s].z > 0) ? wc[i+s][j+s] : w + ofVec3f(qs, qs, 0);
-				//	ofVec3f wb = (j+s < KINECT_DEFAULT_HEIGHT && wc[i][j+s].z > 0) ? wc[i][j+s] : w + ofVec3f(0, qs, 0);
-				//	glVertex3f(w.x, w.y, w.z);
-				//	glVertex3f(wr.x, wr.y, wr.z);
-				//	glVertex3f(wrb.x, wrb.y, wrb.z);
-				//	glVertex3f(wb.x, wb.y, wb.z);
-				//}
+			double fx_d, fy_d, fx_rgb, fy_rgb; 
+			float  cx_d, cy_d, cx_rgb, cy_rgb;
+			ofVec3f T_rgb;
+			ofMatrix4x4 R_rgb;
+			getKinectCalibData("data/calib/kinect-calib-27May.yml",
+						fx_d, fy_d, cx_d, cy_d,
+						fx_rgb, fy_rgb, cx_rgb, cy_rgb,
+						T_rgb, R_rgb);
+			gKinect->getCalibration().setCalibValues(
+						fx_d, fy_d, cx_d, cy_d,
+						fx_rgb, fy_rgb, cx_rgb, cy_rgb,
+						T_rgb, R_rgb);
+
+			gKinect->init();
+			gKinect->setVerbose(true);
+			gKinect->open();
+		}
+
+		arduino.setup();
+
+	}
+
+	//--------------------------------------------------------------
+	void ArmCalibration::exit()
+	{
+	}
+
+	//--------------------------------------------------------------
+	void ArmCalibration::draw()
+	{
+		if (IsFeatureKinectActive())
+		{
+			ofSetHexColor(0xFFFFFF);
+			gKinect->drawDepth(20, 20, KINECT_DEFAULT_WIDTH, KINECT_DEFAULT_HEIGHT);
+		}
+
+		ofSetHexColor(0x000000);
+		stringstream reportStream;
+		reportStream
+			<< "   ARM_LENGTH: " << Arduino::ARM_LENGTH << endl
+			<< "KINECT_HEIGHT: " << Arduino::KINECT_HEIGHT << endl
+			<< "MOTORS_HEIGHT: " << Arduino::MOTORS_HEIGHT << endl;
+		ofDrawBitmapString(reportStream.str(), 20, KINECT_DEFAULT_HEIGHT + 40);
+	}
+
+	//--------------------------------------------------------------
+	void ArmCalibration::debugDraw()
+	{
+	}
+
+	//--------------------------------------------------------------
+	void ArmCalibration::update()
+	{
+		if (IsFeatureKinectActive())
+		{
+			gKinect->update();
+		}
+	}
+
+	//--------------------------------------------------------------
+	void ArmCalibration::keyPressed(int key)
+	{
+		enum ArmCalibrationMode
+		{
+			kReadingClouds = 0,
+			kCheckingValues
+		};
+		static ArmCalibrationMode mode = kReadingClouds;
+
+		if (key == 'm')
+		{
+			mode = mode == kReadingClouds ? kCheckingValues : kReadingClouds;
+		}
+
+		if (mode == kReadingClouds)
+		{
+			switch (key)
+			{
+				case '1':
+					arduino.setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0.15));
+					arduino.lookAt(ofVec3f(0.35, -0.16, 0.10));
+					break;
+				case '2':
+
+					break;
+				case '3':
+
+					break;
+				case ' ':
+					storeCloud();
+					break;
+				case 'k':
+					saveRawClouds();
+					break;
+				case 'l':
+					loadRawClouds();
+					break;
 			}
 		}
-		glEnd();
-	}
-
-	//--------------------------------------------------------------
-	void Calibration::debugDraw()
-	{
-		glBegin(GL_QUADS);
-		for (int i = 0, ci = 0; i < KINECT_DEFAULT_WIDTH; i += s, ci++)
+		else
 		{
-			float fi = (float)i;
-			for (int j = 0, cj = 0; j < KINECT_DEFAULT_HEIGHT; j += s, cj++)
+			static short editingValue = 1;
+			const float kValueChange = 0.002;
+			switch (key)
 			{
-				float fj = (float)j;
-				ofSetColor(pattern.getColor(ci % pattern.width, cj % pattern.height));
+				case 'z':
+					changeValue(Arduino::ARM_LENGTH, -kValueChange);
+					break;
+				case 'a':
+					changeValue(Arduino::ARM_LENGTH, kValueChange);
+					break;
+				case 'x':
+					changeValue(Arduino::KINECT_HEIGHT, -kValueChange);
+					break;
+				case 's':
+					changeValue(Arduino::KINECT_HEIGHT, kValueChange);
+					break;
+				case 'c':
+					changeValue(Arduino::MOTORS_HEIGHT, -kValueChange);
+					break;
+				case 'd':
+					changeValue(Arduino::MOTORS_HEIGHT, kValueChange);
+					break;
 
-				float qs = (float)(s / 2);
-				glVertex3f(fi, fj, 0);
-				glVertex3f(fi + qs, fj, 0);
-				glVertex3f(fi + qs, fj + qs, 0);
-				glVertex3f(fi, fj + qs, 0);
+				case ' ':
+					saveTransformedClouds();
+					break;
 			}
 		}
-		glEnd();
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::update() {
-		
+	void ArmCalibration::changeValue(float& value, float delta)
+	{
+		value += delta;
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::keyPressed(int key) {
+	void ArmCalibration::storeCloud()
+	{
+		PCPtr cloud = getCloud(4);
+		storedClouds.push_back(MotorRotationsCloud(arduino.motorAngles(), cloud));
+	}
 
+#define STOREDCLOUD_CONFIG	"STOREDCLOUD:"
+
+	enum FileType
+	{
+		kFileTypeXML = 0,
+		kFileTypePCD
+	};
+
+	string getRawFilename(int i, FileType type)
+	{
+		string filename("storedCloud" + ofToString(i));
+		if (type == kFileTypeXML)
+			filename += ".xml";
+		else if (type == kFileTypePCD)
+			filename += ".pcd";
+		return filename;
+	}
+
+	string getTransformedFilename(int i)
+	{
+		return "transformedCloud" + ofToString(i) + ".pcd";
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::keyReleased(int key) {
-
+	void ArmCalibration::saveRawClouds()
+	{
+		int i = 1;
+		for (vector<MotorRotationsCloud>::const_iterator mrc = storedClouds.begin(); mrc != storedClouds.end(); ++mrc)
+		{
+			ofxXmlSettings XML;
+			XML.setValue(STOREDCLOUD_CONFIG "R1", mrc->rotations[0]);
+			XML.setValue(STOREDCLOUD_CONFIG "R2", mrc->rotations[1]);
+			XML.setValue(STOREDCLOUD_CONFIG "R4", mrc->rotations[2]);
+			XML.setValue(STOREDCLOUD_CONFIG "R8", mrc->rotations[3]);
+			XML.saveFile(getRawFilename(i, kFileTypeXML));
+			saveCloudAsFile(getRawFilename(i, kFileTypePCD), *mrc->cloud);
+			i++;
+		}
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::windowMoved(int x, int y)
+	void ArmCalibration::loadRawClouds()
+	{
+		ofxXmlSettings XML;
+		int i = 1;
+		while (XML.loadFile(getRawFilename(i, kFileTypeXML)))
+		{
+			signed int* rotations = new signed int[4];
+			rotations[0] = XML.getValue(STOREDCLOUD_CONFIG "R1", 0);
+			rotations[1] = XML.getValue(STOREDCLOUD_CONFIG "R2", 0);
+			rotations[2] = XML.getValue(STOREDCLOUD_CONFIG "R4", 0);
+			rotations[3] = XML.getValue(STOREDCLOUD_CONFIG "R8", 0);
+			PCPtr cloud = loadCloud(getRawFilename(i, kFileTypePCD));
+			storedClouds.push_back(MotorRotationsCloud(rotations, cloud));
+			i++;
+		}
+	}
+
+	//--------------------------------------------------------------
+	void ArmCalibration::saveTransformedClouds()
+	{
+		int i = 1;
+		for (vector<MotorRotationsCloud>::const_iterator mrc = storedClouds.begin(); mrc != storedClouds.end(); ++mrc)
+		{
+			Eigen::Affine3f transformationMatrix =
+				arduino.getWorldTransformation(mrc->rotations[0], mrc->rotations[1], mrc->rotations[2], mrc->rotations[3]);
+			PC transformedCloud;
+			pcl::transformPointCloud(*mrc->cloud, transformedCloud, transformationMatrix);
+			saveCloudAsFile(getTransformedFilename(i), transformedCloud);
+			i++;
+		}
+
+		string cmd = "pcd_viewer_release.exe";
+		for (int j = 1; j < i; j++)
+			cmd += " " + getTransformedFilename(j);
+		system(cmd.c_str());
+	}
+
+	//--------------------------------------------------------------
+	void ArmCalibration::keyReleased(int key)
 	{
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::mouseMoved(int x, int y)
+	void ArmCalibration::windowMoved(int x, int y)
 	{
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::mouseDragged(int x, int y, int button)
+	void ArmCalibration::mouseMoved(int x, int y)
 	{
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::mousePressed(int x, int y, int button)
+	void ArmCalibration::mouseDragged(int x, int y, int button)
 	{
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::mouseReleased(int x, int y, int button)
+	void ArmCalibration::mousePressed(int x, int y, int button)
 	{
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::dragEvent(ofDragInfo info)
+	void ArmCalibration::mouseReleased(int x, int y, int button)
 	{
 	}
 
 	//--------------------------------------------------------------
-	void Calibration::objectDetected(const IObjectPtr& object)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void Calibration::objectUpdated(const IObjectPtr& object)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void Calibration::objectLost(const IObjectPtr& object)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void Calibration::objectMoved(const IObjectPtr&, const DataMovement&)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void Calibration::objectTouched(const IObjectPtr&, const DataTouch&)
+	void ArmCalibration::dragEvent(ofDragInfo info)
 	{
 	}
 
