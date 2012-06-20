@@ -127,7 +127,7 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	PCPtr PCMThread::getObjectsOnTableTopCloud(PCPtr &occludersCloud){
 		PCPtr cloud = getCloud();
-		//saveCloudAsFile("rawCloud.pcd", *cloud);
+		saveCloudAsFile("rawCloud.pcd", *cloud);
 		
 		if (cloud->size() == 0) {
 			return cloud;
