@@ -38,11 +38,12 @@ namespace mapinect {
 	static char		RESET_ANGLE2;
 	static char		RESET_ANGLE4;
 	static char		RESET_ANGLE8;
-	static int		ANGLE_STEP;
-	static float	ARM_LENGTH;
-	static float	KINECT_HEIGHT;
-	static float	MOTORS_HEIGHT;
 	static float	MOTOR_ANGLE_OFFSET;
+	static int		ANGLE_STEP;
+
+	float			Arduino::ARM_LENGTH;
+	float			Arduino::KINECT_HEIGHT;
+	float			Arduino::MOTORS_HEIGHT;
 
 	Arduino::Arduino()
 	{
@@ -244,6 +245,16 @@ namespace mapinect {
 		char id_char = (char) id;
 		serial.writeByte(id_char);
 		serial.writeByte(value);
+	}
+
+	signed int* Arduino::motorAngles() const
+	{
+		signed int* result = new signed int[4];
+		result[0] = angleMotor1;
+		result[1] = angleMotor2;
+		result[2] = angleMotor4;
+		result[3] = angleMotor8;
+		return result;
 	}
 
 	char* Arduino::read()
