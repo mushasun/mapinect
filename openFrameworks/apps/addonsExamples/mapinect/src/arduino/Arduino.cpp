@@ -379,6 +379,7 @@ namespace mapinect {
 	ofVec3f	Arduino::lookAt(ofVec3f point)
 	{
 		ofVec3f miraHorizonte (ARM_LENGTH + 10.0, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
+		posicion = getKinect3dCoordinates();
 
 		//TODO: tener el cuenta la traslacion del grueso de los motores de la punta
 		//posicion = donde se encuentra ubicado
