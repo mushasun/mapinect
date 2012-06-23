@@ -300,7 +300,7 @@ namespace mapinect {
 
 			cloudTemp = cloud_filtered_temp_outliers;
 
-			saveCloudAsFile("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
+			saveCloud("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
 			
 			//TODO: Chequear un minimo de puntos
 			//Remove outliers by clustering
@@ -313,7 +313,7 @@ namespace mapinect {
 				cloud_p_filtered = getCloudFromIndices(cloud_p, cluster_indices.at(0));
 			}
 
-			saveCloudAsFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
+			saveCloud("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
 			if (cloud_p_filtered->size() < 4)
 				break;
 
@@ -325,7 +325,7 @@ namespace mapinect {
 			proj.setModelCoefficients(coefficients); 
 			proj.filter(*projected_cloud);
 
-			saveCloudAsFile("postfilter_pol_proy" + ofToString(i) + ".pcd",*projected_cloud);
+			saveCloud("postfilter_pol_proy" + ofToString(i) + ".pcd",*projected_cloud);
 
 			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projected_cloud));
 			pcp->detectPolygon();
@@ -372,7 +372,7 @@ namespace mapinect {
 
 		for(int i = 0; i < pcpolygons.size(); i ++)
 		{
-			saveCloudAsFile ("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
+			saveCloud("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
 		}
 		pcPolygonsMutex.unlock();
 
@@ -567,8 +567,8 @@ namespace mapinect {
 		//TODO: CHequear si es necesario, en TrackedCLoud ya se hace
 		PCPtr trimmedCloud = getHalo(this->getvMin(),this->getvMax(),0.05,nuCloud);
 		
-		saveCloudAsFile("nucloud.pcd",*nuCloud);
-		saveCloudAsFile("trimmed.pcd",*trimmedCloud);
+		saveCloud("nucloud.pcd",*nuCloud);
+		saveCloud("trimmed.pcd",*trimmedCloud);
 
 		//Detecto nuevas caras
 		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,0.003,2.6,false); 
@@ -586,9 +586,9 @@ namespace mapinect {
 		for(int i = 0; i < pcpolygons.size(); i ++)
 		{
 			*finalCloud += *pcpolygons.at(i)->getCloud();
-			saveCloudAsFile ("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
+			saveCloud("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
 		}
-		saveCloudAsFile ("finalCloud" + ofToString(getId()) + ".pcd", *finalCloud);
+		saveCloud("finalCloud" + ofToString(getId()) + ".pcd", *finalCloud);
 
 		cloud = finalCloud;
 		computeBoundingBox(cloud, vMin, vMax);

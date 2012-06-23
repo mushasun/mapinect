@@ -109,8 +109,8 @@ namespace mapinect {
 			vertexIdxs = v;
 			vertexIdxs->indices = indices;
 
-			saveCloudAsFile("vertex" + ofToString(this->getId()) + ".pcd", vertexs); 
-			saveCloudAsFile("vertexCloud" + ofToString(this->getId()) + ".pcd", *cloud); 
+			saveCloud("vertex" + ofToString(this->getId()) + ".pcd", vertexs); 
+			saveCloud("vertexCloud" + ofToString(this->getId()) + ".pcd", *cloud); 
 		}
 		//cout << "x: " << pVA.x << " y: " << pVA.y << " z: " << pVA.z << endl;
 		return true;

@@ -63,7 +63,7 @@ namespace mapinect {
 			ofVec3f w;
 			glBegin(GL_POINTS);
 			for (size_t i = 0; i < cloud->size(); i++) {
-				ofVec3f v = POINTXYZ_OFXVEC3F(cloud->at(i));
+				ofVec3f v = PCXYZ_OFVEC3F(cloud->at(i));
 				w = getScreenCoords(v);
 				glVertex3f(w.x, w.y, 5);
 			}

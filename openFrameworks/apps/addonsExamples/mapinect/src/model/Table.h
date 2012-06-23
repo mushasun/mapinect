@@ -6,21 +6,23 @@
 namespace mapinect {
 
 	class Table : public PCQuadrilateral {
-		public:
-			Table(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
-				: PCQuadrilateral(coefficients, cloud, TABLE_ID) { }
+	public:
+		static TablePtr Create(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud);
 
-			virtual IObjectPtr		getMathModelApproximation() const;
+		virtual IObjectPtr		getMathModelApproximation() const;
 
-			inline bool detect()
-			{
-				return detectPolygon();
-			}
+		inline bool detect()
+		{
+			return detectPolygon();
+		}
 
-			bool isOnTable(const PCPtr& cloud);
-			bool isOverTable(const PCPtr& cloud);
-			bool isParallelToTable(const mapinect::PCPolygonPtr& polygon);
+		bool isOnTable(const PCPtr& cloud);
+		bool isOverTable(const PCPtr& cloud);
+		bool isParallelToTable(const mapinect::PCPolygonPtr& polygon);
 
+	private:
+		Table(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
+			: PCQuadrilateral(coefficients, cloud, TABLE_ID) { }
 	};
 }
 

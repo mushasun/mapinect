@@ -59,7 +59,7 @@ namespace mapinect {
 		for(int i = 0; i < cloud_hull->size(); i++)
 		{
 			pcl::PointXYZ pto = cloud_hull->at(i);
-			fingerTips.push_back(POINTXYZ_OFXVEC3F(pto));
+			fingerTips.push_back(PCXYZ_OFVEC3F(pto));
 		}
 		  
 		unifyVertexs();

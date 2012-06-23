@@ -51,7 +51,7 @@ namespace mapinect {
 
 		if (IsFeatureMoveArmActive()) {
 			// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
-			setTransformMatrix(arduino.getWorldTransformation());	
+			setTransformationMatrix(arduino.getWorldTransformation());	
 			// Set transformation matrix in VM to apply to Modelview matrix
 			vm->setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
 		}
@@ -87,7 +87,7 @@ namespace mapinect {
 
 		if  (IsFeatureMoveArmActive()) {
 			// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
-			setTransformMatrix(arduino.getWorldTransformation());	// Method from pointUtils	
+			setTransformationMatrix(arduino.getWorldTransformation());	// Method from pointUtils	
 			// Set transformation matrix in VM to apply to Modelview matrix
 			vm->setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
 		}

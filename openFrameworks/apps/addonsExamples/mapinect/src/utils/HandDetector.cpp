@@ -86,7 +86,7 @@ namespace mapinect {
 		}
 
 		hand = filteredcloud;
-		saveCloudAsFile ("hand_Cliped.pcd", *filteredcloud);
+		saveCloud("hand_Cliped.pcd", *filteredcloud);
 	}
 
 	//Corta la mano desde la punta hasta X cm
@@ -115,7 +115,7 @@ namespace mapinect {
 			//pcl::io::savePCDFileASCII ("preunify.pcd", *handHull);
 
 			for (int i = 0; i < handHull->size(); i++) {
-				ofVec3f pto = POINTXYZ_OFXVEC3F(handHull->at(i));
+				ofVec3f pto = PCXYZ_OFVEC3F(handHull->at(i));
 				bool unified = false;
 				for(int j = 0; j < tmp.size(); j++)
 				{
@@ -231,7 +231,7 @@ namespace mapinect {
 
 		ofVec3f vCentroid = ofVec3f(handCentroid.x,handCentroid.y, handCentroid.z);
 		ofVec3f thumbTip = fingers.at(minDistIdx);
-		saveCloudAsFile("thumb.pcd", thumbTip);
+		saveCloud("thumb.pcd", thumbTip);
 
 		//cout << "thumb x " << thumbTip.x << endl ;
 		//Quito el pulgar del hull
@@ -279,7 +279,7 @@ namespace mapinect {
 				if(fingerIdx != -1)
 				{
 					currentFingerTip = fingers.at(fingerIdx);
-					saveCloudAsFile("finger" + ofToString(fingersFound) + ".pcd", fingers.at(fingerIdx));
+					saveCloud("finger" + ofToString(fingersFound) + ".pcd", fingers.at(fingerIdx));
 					ofVec3f newFinger = vCentroid - currentFingerTip;
 					double angle = (acos(currentFinger.dot(newFinger)/(currentFinger.length()*newFinger.length()))*180)/PI;
 					if(saveToFile)
