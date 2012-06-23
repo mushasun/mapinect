@@ -127,7 +127,7 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	PCPtr PCMThread::getObjectsOnTableTopCloud(PCPtr &occludersCloud){
 		PCPtr cloud = getCloud();
-		saveCloudAsFile("rawCloud.pcd", *cloud);
+		saveCloud("rawCloud.pcd", *cloud);
 		
 		if (cloud->size() == 0) {
 			return cloud;
@@ -153,9 +153,7 @@ namespace mapinect {
 
 			//savePC(*cloud_cluster, "cluster" + ofToString(count++) + ".pcd");
 
-			Eigen::Vector4f clusterCentroid;
-			compute3DCentroid(*cloud_cluster,clusterCentroid);
-			ofVec3f ptoCentroid = ofVec3f(clusterCentroid.x(),clusterCentroid.y(),clusterCentroid.z());
+			ofVec3f ptoCentroid = computeCentroid(cloud_cluster);
 			
 			if (tableClusterLastCentroid.x == MAX_FLOAT)
 			{
@@ -176,7 +174,7 @@ namespace mapinect {
 		}
 		tableClusterLastCentroid = newCentroid;
 			
-		saveCloudAsFile("tableCluster.pcd", *tableCluster);
+		saveCloud("tableCluster.pcd", *tableCluster);
 
 		//Quito el plano más grande
 		pcl::ModelCoefficients coefficients;
@@ -189,11 +187,9 @@ namespace mapinect {
 			if (gModel->getTable().get() == NULL)
 			{
 				PCPtr biggestPlaneCloud = extractBiggestPlane(tableCluster, coefficients, remainingCloud, 0.009);
-				saveCloudAsFile("table.pcd", *biggestPlaneCloud);
-				TablePtr table = TablePtr(new Table(coefficients, biggestPlaneCloud));
-				table->detect();
-				//table->setDrawPointCloud(false);
-				gModel->setTable(table);
+				saveCloud("table.pcd", *biggestPlaneCloud);
+				Table::Create(coefficients, biggestPlaneCloud);
+				//tableClusterLastCentroid = ofVec3f(0, 0, 0);
 			}
 			else
 			{
@@ -201,7 +197,7 @@ namespace mapinect {
 				coefficients = gModel->getTable()->getCoefficients();
 				for(int i = 0; i < tableCluster->size(); i++)
 				{
-					if(evaluatePoint(coefficients, POINTXYZ_OFXVEC3F(tableCluster->at(i))) > OCTREE_RES * 2)
+					if(evaluatePoint(coefficients, PCXYZ_OFVEC3F(tableCluster->at(i))) > OCTREE_RES * 2)
 						remainingCloud->push_back(tableCluster->at(i));
 				}
 			}
@@ -216,7 +212,7 @@ namespace mapinect {
 			*occludersCloud += *remainingCloud;
 			gModel->tableMutex.unlock();
 
-			saveCloudAsFile("occludersCluster.pcd", *occludersCloud);
+			saveCloud("occludersCluster.pcd", *occludersCloud);
 
 		}
 		// TODO: OJO A LA CONCURRENCIA SOBRE gModel!!
@@ -311,7 +307,7 @@ namespace mapinect {
 			for (int i = 0; i < clusterIndices.size(); ++i)
 			{
 				PCPtr cluster = getCloudFromIndices(differenceCloud, clusterIndices.at(i));
-				saveCloudAsFile("cluster" + ofToString(i) + ".pcd", *cluster);
+				saveCloud("cluster" + ofToString(i) + ".pcd", *cluster);
 
 				// filter the points that are close to the math model
 				vector<ofVec3f> vCluster(pointCloudToOfVecVector(cluster));

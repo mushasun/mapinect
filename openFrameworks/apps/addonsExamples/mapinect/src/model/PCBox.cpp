@@ -116,7 +116,7 @@ namespace mapinect {
 				if(p0 != NULL)
 					p0->getPolygonModelObject()->setVertexs(tempVertexs[i]);
 			}
-			saveCloudAsFile("UnifiedVertex.pcd", vertexs);
+			saveCloud("UnifiedVertex.pcd", vertexs);
 
 			/*for(int i = 0; i < pcpolygons.size(); i ++)
 			{
@@ -180,7 +180,7 @@ namespace mapinect {
 			if(belongsToBox)
 				polygonsInBox.push_back(toDiscard.at(i));
 			else
-				saveCloudAsFile("Discared.pcd",*toDiscard.at(i)->getCloud());
+				saveCloud("Discared.pcd",*toDiscard.at(i)->getCloud());
 		}
 
 		return polygonsInBox;
@@ -283,8 +283,8 @@ namespace mapinect {
 				ofVec3f min1 = vex.at(0);
 				ofVec3f min2 = vex.at(1);
 
-				saveCloudAsFile("min1_" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd",min1);
-				saveCloudAsFile("min2_"+ofToString(f1->getPolygonModelObject()->getName())+".pcd",min2);
+				saveCloud("min1_" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd",min1);
+				saveCloud("min2_"+ofToString(f1->getPolygonModelObject()->getName())+".pcd",min2);
 
 				float f1Width = abs((min1 - min2).length());
 				normal = polygon->getNormal();
@@ -293,21 +293,21 @@ namespace mapinect {
 				transformation = Eigen::Translation<float,3>(traslation.x, traslation.y, traslation.z);
 
 				pcl::transformPointCloud(*cloudToMove,*cloudMoved,transformation);
-				saveCloudAsFile ("with" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd", *f1->getCloud());
+				saveCloud("with" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd", *f1->getCloud());
 			}
 		}
 		//Corrección de coeficiente
 		//invierto la normal
 		normal *= -1;
-		Plane3D plane(POINTXYZ_OFXVEC3F(cloudMoved->at(0)), normal);
+		Plane3D plane(PCXYZ_OFVEC3F(cloudMoved->at(0)), normal);
 		coeff = plane.getCoefficients();
 
 		PCPolygonPtr estimatedPol (new PCQuadrilateral(coeff,cloudMoved,polygon->getId()*(-2),true));
 		estimatedPol->detectPolygon();
 		estimatedPol->getPolygonModelObject()->setName(polName);
 
-		saveCloudAsFile ("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
-		saveCloudAsFile ("from" + ofToString(polygon->getPolygonModelObject()->getName()) + ".pcd", *polygon->getCloud());
+		saveCloud("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
+		saveCloud("from" + ofToString(polygon->getPolygonModelObject()->getName()) + ".pcd", *polygon->getCloud());
 		
 
 		return estimatedPol;
@@ -391,7 +391,7 @@ namespace mapinect {
 		{
 			PCPolygonPtr estimatedPol = duplicatePol(newPolygons.at(i),newPolygons);
 			estimated.push_back(estimatedPol);
-			saveCloudAsFile ("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
+			saveCloud("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
 		}
 		
 		vector<PCPolygonPtr> partialEstimation = estimated;
@@ -476,7 +476,7 @@ namespace mapinect {
 				PCPtr faceCloud (new PC());
 				for(int i = 0; i < faceVertex.size(); i ++)
 				{
-					faceCloud->push_back(OFXVEC3F_POINTXYZ(faceVertex.at(i)));
+					faceCloud->push_back(OFVEC3F_PCXYZ(faceVertex.at(i)));
 				}
 
 				//top face correction
@@ -486,7 +486,7 @@ namespace mapinect {
 					TablePtr t = gModel->getTable();
 					gModel->tableMutex.unlock();
 
-					float calcHeight = t->getPolygonModelObject()->getMathModel().distance(POINTXYZ_OFXVEC3F(faceCloud->at(0)));
+					float calcHeight = t->getPolygonModelObject()->getMathModel().distance(PCXYZ_OFVEC3F(faceCloud->at(0)));
 					ofVec3f translationCorrection = normal * (height - calcHeight);
 					
 					PCPtr correctionCloud (new PC());
@@ -495,7 +495,7 @@ namespace mapinect {
 					pcl::transformPointCloud(*faceCloud,*correctionCloud,transformationCorrection);
 					
 					*faceCloud = *correctionCloud;
-					Plane3D orientedPlane(POINTXYZ_OFXVEC3F(faceCloud->at(0)),normal);
+					Plane3D orientedPlane(PCXYZ_OFVEC3F(faceCloud->at(0)),normal);
 					coef = orientedPlane.getCoefficients();
 				}
 
@@ -510,7 +510,7 @@ namespace mapinect {
 				PCPolygonPtr estimatedPol = duplicatePol(pcp,partialEstimation);
 				partialEstimation.push_back(estimatedPol);
 				estimated.push_back(estimatedPol);
-				saveCloudAsFile("fullEstimatedFace.pcd",*faceCloud);
+				saveCloud("fullEstimatedFace.pcd",*faceCloud);
 
 				i++;
 			}

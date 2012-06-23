@@ -233,7 +233,7 @@ namespace mapinect {
 			pass.setFilterLimits (0.001, 4.0);
 			pass.filter (*nuCloudFiltered);
 			
-			saveCloudAsFile("preFiltroMesa.pcd",*nuCloudFiltered);
+			saveCloud("preFiltroMesa.pcd",*nuCloudFiltered);
 
 			//Quito los puntos que pertenecen a la mesa
 			ModelCoefficients tableCoef;
@@ -251,7 +251,7 @@ namespace mapinect {
 			extract.setNegative (true);
 			extract.filter (*nuCloudFilteredNoTable);
 
-			saveCloudAsFile("postFiltroMesa.pcd",*nuCloudFilteredNoTable);
+			saveCloud("postFiltroMesa.pcd",*nuCloudFilteredNoTable);
 			///Commented for debug
 			/*
 			{

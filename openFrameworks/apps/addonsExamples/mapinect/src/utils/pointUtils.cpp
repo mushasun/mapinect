@@ -34,10 +34,12 @@
 #include "Feature.h"
 #include "Plane3D.h"
 
-static Eigen::Affine3f transformationMatrix = Eigen::Affine3f();
-static Eigen::Affine3f transformationMatrixInverse = Eigen::Affine3f();
+// -------------------------------------------------------------------------------------
+// pcl <--> ofVec3f and other conversion utils
+// -------------------------------------------------------------------------------------
 
-void setPointXYZ(pcl::PointXYZ& p, float x, float y, float z) {
+void setPointXYZ(PCXYZ& p, float x, float y, float z)
+{
 	p.x = x;
 	p.y = y;
 	p.z = z;
@@ -48,115 +50,30 @@ vector<ofVec3f> pointCloudToOfVecVector(const PCPtr& cloud)
 	vector<ofVec3f> result;
 	for (int k = 0; k < cloud->size(); k++)
 	{
-		result.push_back(POINTXYZ_OFXVEC3F(cloud->at(k)));
+		result.push_back(PCXYZ_OFVEC3F(cloud->at(k)));
 	}
 	return result;
 }
 
-PCPtr			ofVecVectorToPointCloud(const vector<ofVec3f>& v)
+PCPtr ofVecVectorToPointCloud(const vector<ofVec3f>& v)
 {
 	PCPtr result(new PC());
 	for (int k = 0; k < v.size(); k++)
 	{
-		result->push_back(OFXVEC3F_POINTXYZ(v.at(k)));
+		result->push_back(OFVEC3F_PCXYZ(v.at(k)));
 	}
 	return result;
 }
 
-void computeBoundingBox(const PCPtr& cloud, pcl::PointXYZ& min, pcl::PointXYZ& max)
+vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v)
 {
-	ofVec3f vMin, vMax;
-	computeBoundingBox(cloud, vMin, vMax);
-	min = OFXVEC3F_POINTXYZ(vMin);
-	max = OFXVEC3F_POINTXYZ(vMax);
-}
-
-void computeBoundingBox(const PCPtr& cloud, ofVec3f& vMin, ofVec3f& vMax)
-{
-	vMin = ofVec3f(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
-	vMax = ofVec3f(-MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT);
-
-	for (size_t k = 0; k < cloud->size(); k++) {
-		pcl::PointXYZ p = cloud->at(k);
-		vMin.x = min(p.x, vMin.x);
-		vMin.y = min(p.y, vMin.y);
-		vMin.z = min(p.z, vMin.z);
-		vMax.x = max(p.x, vMax.x);
-		vMax.y = max(p.y, vMax.y);
-		vMax.z = max(p.z, vMax.z);
-	}
-
-}
-
-float getNearestPoint(const PCPtr& cloud){
-	int size = cloud->size();
-	float closest = MAX_FLOAT;
-	for(register int i = 0; i < size; i++){
-		float current = cloud->at(i).z;
-		if(current < closest && current > 0)
-			closest = cloud->at(i).z;
-	}
-	return closest;
-}
-
-int getDifferencesCloud(const PCPtr& src, 
-						const PCPtr& tgt, 
-						PCPtr& diff,
-						float octreeRes)
-{
-	pcl::octree::OctreePointCloudChangeDetector<pcl::PointXYZ> octree (octreeRes);
-	std::vector<int> newPointIdxVector;
-
-	octree.setInputCloud(src);
-	octree.addPointsFromInputCloud();
-	octree.switchBuffers();
-	octree.setInputCloud(tgt);
-	octree.addPointsFromInputCloud();
-	octree.getPointIndicesFromNewVoxels (newPointIdxVector);
-	diff->points.reserve(newPointIdxVector.size());
-	for (std::vector<int>::iterator it = newPointIdxVector.begin(); it != newPointIdxVector.end(); it++)
-		diff->points.push_back(tgt->points[*it]);
-
-	return newPointIdxVector.size();
-}
-
-int getDifferencesCount(const PCPtr& src, 
-						const PCPtr& tgt, 
-						float distanceThreshold)
-{
-	PCPtr small, big;
-	if(src->size() < tgt->size())
+	vector<ofVec3f> vec;
+	for(int i = 0; i < v.size(); i++)
 	{
-		small = src;
-		big = tgt;
+		Eigen::Vector3f ev = v.at(i);
+		vec.push_back(ofVec3f(ev.x(),ev.y(),ev.z()));
 	}
-	else
-	{
-		small = tgt;
-		big = src;
-	}
-
-	//Seteo el kdtree con la segunda nube
-	pcl::ExtractIndices<pcl::PointXYZ> extract;
-	pcl::PointIndices::Ptr repeatedPoints (new pcl::PointIndices ());
-	pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr kdTree (new pcl::KdTreeFLANN<pcl::PointXYZ> (false));
-	std::vector<int> k_indices (1);
-	std::vector<float> k_distances (1);
-	std::vector<int> indicesToRemove;
-	int foundedPoints = 0;
-
-	kdTree->setInputCloud(big);
-
-	for (size_t i = 0; i < small->points.size (); ++i){
-		foundedPoints = kdTree->nearestKSearch(small->at(i),1,k_indices,k_distances);
-		if(foundedPoints > 0)
-		{
-			if(k_distances.at(0) < distanceThreshold)
-				indicesToRemove.push_back(k_indices.at(0));
-		}
-	}
-
-	return big->size() - indicesToRemove.size();
+	return vec;
 }
 
 PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi)
@@ -169,33 +86,263 @@ PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi)
 	return newCloud;
 }
 
-vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, float minClusterSize, float maxClusterSize)
-{
-	vector<pcl::PointIndices> result;
-	if (cloud->size() >= minClusterSize)
-	{
-		// Creating the KdTree object for the search method of the extraction
-		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
-		tree->setInputCloud(cloud);
+// -------------------------------------------------------------------------------------
+// transformation utils
+// -------------------------------------------------------------------------------------
 
-		pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-		ec.setClusterTolerance(tolerance); 
-		ec.setMinClusterSize(minClusterSize);
-		ec.setMaxClusterSize(maxClusterSize);
-		ec.setSearchMethod(tree);
-		ec.setInputCloud(cloud);
-		ec.extract(result);
+static Eigen::Affine3f transformationMatrix = Eigen::Affine3f::Identity();
+static Eigen::Affine3f transformationMatrixInverse = Eigen::Affine3f::Identity();
+
+// sets the transformation applied to the cloud obtained from the depth camera
+void setTransformationMatrix(const Eigen::Affine3f& transform)
+{
+	transformationMatrix = transform;
+	transformationMatrixInverse = transform.inverse();
+}
+
+PCXYZ transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform)
+{
+	return pcl::transformPoint(p, transform);
+}
+
+ofVec3f transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform)
+{
+	PCXYZ transformedPoint(transformPoint(OFVEC3F_PCXYZ(v), transform));
+	return PCXYZ_OFVEC3F(transformedPoint);
+}
+
+PCPtr transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform)
+{
+	PCPtr transformedCloud(new PC());
+	pcl::transformPointCloud(*cloud, *transformedCloud, transform);
+	return transformedCloud;
+}
+
+const vector<ofVec3f>& getScreenCoords(const vector<ofVec3f>& transformedWorldPoints)
+{
+	vector<ofVec3f> screenPoints;
+	for (vector<ofVec3f>::const_iterator v = transformedWorldPoints.begin(); v != transformedWorldPoints.end(); ++v)
+	{
+		screenPoints.push_back(getScreenCoords(*v));
+	}
+	return screenPoints;
+}
+
+ofVec3f getScreenCoords(const ofVec3f& transformedWorldPoint)
+{
+	if (mapinect::IsFeatureMoveArmActive())
+	{
+		// Apply to world point the inverse transformation
+		PCXYZ transf = pcl::transformPoint(OFVEC3F_PCXYZ(transformedWorldPoint), transformationMatrixInverse);
+		// Then, we call the depth device instance to transform to the depth image coordinates
+		return gKinect->getScreenCoordsFromWorldCoords(PCXYZ_OFVEC3F(transf));
+	}
+	else
+	{
+		return gKinect->getScreenCoordsFromWorldCoords(transformedWorldPoint);
+	}
+}
+
+// -------------------------------------------------------------------------------------
+// i/o utils
+// -------------------------------------------------------------------------------------
+
+bool saveCloud(const string& filename, const PC& cloud)
+{
+	if (!mapinect::IsFeatureSaveCloudActive())
+		return false;
+	if (cloud.empty())
+		return false;
+	
+	if(cloud.width * cloud.height != cloud.points.size())
+	{
+		PC printeableCloud (cloud);
+		printeableCloud.height = 1;
+		printeableCloud.width = cloud.points.size();
+		pcl::io::savePCDFileASCII (filename, printeableCloud);
+	}
+	else
+	{
+		pcl::io::savePCDFileASCII (filename, cloud);
+	}
+	return true;
+}
+
+void saveCloud(const string& filename, const ofVec3f& p)
+{
+	if (mapinect::IsFeatureSaveCloudActive())
+	{
+		PCPtr cloud (new PC());
+		cloud->push_back(OFVEC3F_PCXYZ(p));
+
+		saveCloud(filename, *cloud);
+	}
+}
+
+void saveCloud(const string& filename, const vector<ofVec3f>& v)
+{
+	if (mapinect::IsFeatureSaveCloudActive())
+	{
+		PCPtr cloud(ofVecVectorToPointCloud(v));
+		saveCloud(filename, *cloud);
+	}
+}
+
+PCPtr loadCloud(const string& filename)
+{
+	PCPtr cloud(new PC());
+	pcl::io::loadPCDFile<PCXYZ>(filename, *cloud);
+	return cloud;
+}
+
+PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
+{
+	if (min.x < 0 || min.y < 0
+		|| max.x > mapinect::KINECT_WIDTH || max.y > mapinect::KINECT_HEIGHT
+		|| min.x > max.x || min.y > max.y)
+	{
+		PCL_ERROR ("Wrong arguments to obtain the cloud\n");
+		return PCPtr(new PC());
+	}
+
+	// Allocate space for max points available
+	PCPtr partialCloud(new PC());
+	partialCloud->width    = ceil((max.x - min.x) / density);
+	partialCloud->height   = ceil((max.y - min.y) / density);
+	partialCloud->is_dense = false;
+	partialCloud->points.resize(partialCloud->width * partialCloud->height);
+	register float* depth_map = gKinect->getDistancePixels();
+	// Iterate over the image's rectangle with step = density
+	register int depth_idx = 0;
+	int cloud_idx = 0;
+	for(int v = min.y; v < max.y; v += density) {
+		for(register int u = min.x; u < max.x; u += density) {
+			depth_idx = v * KINECT_DEFAULT_WIDTH + u;
+
+			PCXYZ& pt = partialCloud->points[cloud_idx];
+			cloud_idx++;
+
+			// Check for invalid measures
+			if(depth_map[depth_idx] == 0)
+			{
+				pt.x = pt.y = pt.z = 0;
+			}
+			else
+			{
+				ofVec3f pto = gKinect->getWorldCoordinateFor(u,v);
+
+				if(pto.z > mapinect::MAX_Z)
+				{
+					pt.x = pt.y = pt.z = 0;
+				}
+				else
+				{
+					pt.x = pto.x;
+					pt.y = pto.y;
+					pt.z = pto.z;
+				}
+			}
+		}
+	}
+
+	PCPtr filteredCloud = PCPtr(new PC());
+	pcl::PassThrough<PCXYZ> pass;
+	pass.setInputCloud(partialCloud);
+	pass.setFilterFieldName("z");
+	pass.setFilterLimits(0.001, 4.0);
+	pass.filter(*filteredCloud);
+
+	if (mapinect::IsFeatureMoveArmActive())
+	{
+		return transformCloud(filteredCloud, transformationMatrix);
+	}
+	else
+	{
+		return filteredCloud;
+	}
+}
+
+PCPtr getCloud(int density)
+{
+	return getCloud(
+		ofPoint(mapinect::KINECT_WIDTH_OFFSET, mapinect::KINECT_HEIGHT_OFFSET),
+		ofPoint(mapinect::KINECT_WIDTH, mapinect::KINECT_HEIGHT),
+		density);
+}
+
+PCPtr getCloud()
+{
+	return getCloud(mapinect::CLOUD_RES);
+}
+
+// -------------------------------------------------------------------------------------
+// plane utils
+// -------------------------------------------------------------------------------------
+
+ofVec3f normalEstimation(const PCPtr& plane)
+{
+	//Random indices
+	int sampleSize = floor (plane->points.size() * mapinect::NORMAL_ESTIMATION_PERCENT);
+	int size = plane->points.size();
+	std::vector<int> indices (sampleSize);
+	for (size_t i = 0; i < sampleSize; i++)
+	{
+		int ix = rand() % size;
+		while (ix < 0)
+			ix += size;
+		indices[i] = ix;
+	}
+
+	pcl::PointIndices::Ptr indicesptr (new pcl::PointIndices ());
+	indicesptr->indices = indices;
+
+	return normalEstimation(plane, indicesptr);
+}
+
+ofVec3f normalEstimation(const PCPtr& plane, const pcl::PointIndices::Ptr& indicesptr)
+{
+	int sampleSize = indicesptr->indices.size();
+	// Create the normal estimation class, and pass the input dataset to it
+	pcl::NormalEstimation<PCXYZ, pcl::Normal> ne;
+	ne.setInputCloud (plane);
+	pcl::search::KdTree<PCXYZ>::Ptr tree (new pcl::search::KdTree<PCXYZ> ());
+	ne.setSearchMethod (tree);
+	
+	ne.setIndices(indicesptr);
+	// Output datasets
+	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+
+	// Use all neighbors in a sphere of radius 3cm
+	ne.setRadiusSearch (0.03);
+
+	// Compute the features
+	ne.compute (*cloud_normals);
+
+	ofVec3f result(0,0,0);
+	//Promedio las normales
+	float bad_point = std::numeric_limits<float>::quiet_NaN();
+	for(int i = 0; i < sampleSize ; i++){
+		pcl::Normal normal = cloud_normals->at(i);
+		if (normal.normal_z != bad_point && normal.normal_z == normal.normal_z)
+			result += PCLNORMAL_OFVEC3F(cloud_normals->at(i));
 	}
 	
+	result /= sampleSize;
+	result = result.normalize();
 	return result;
+}
+
+ofVec3f getNormal(const pcl::ModelCoefficients& coefficients)
+{
+	return ofVec3f(coefficients.values[0], coefficients.values[1], coefficients.values[2]);
 }
 
 PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& remainingCloud,
 							float distanceThreshold, int maxIterations)
 {
 	pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
-	pcl::SACSegmentation<pcl::PointXYZ> seg;
-	pcl::ExtractIndices<pcl::PointXYZ> extract;
+	pcl::SACSegmentation<PCXYZ> seg;
+	pcl::ExtractIndices<PCXYZ> extract;
 
 	// Optional
 	seg.setOptimizeCoefficients(true);
@@ -227,7 +374,7 @@ PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficien
 		extract.setNegative(false);
 		extract.filter(*result);
 
-		// Quito los puntos que no son del plano
+		// Remove plane's points
 		extract.setInputCloud(cloud);
 		extract.setIndices(inliers);
 		extract.setNegative(true);
@@ -242,175 +389,12 @@ PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficien
 	return result;
 }
 
-ofVec3f normalEstimation(const PCPtr& plane)
-{
-	//Calculo de normales
-		//Random indices
-	int sampleSize = floor (plane->points.size() * mapinect::NORMAL_ESTIMATION_PERCENT);
-	int size = plane->points.size();
-	std::vector<int> indices (sampleSize);
-	for (size_t i = 0; i < sampleSize; i++)
-	{
-		int ix = rand() % size;
-		while (ix < 0)
-			ix += size;
-		indices[i] = ix;
-	}
-
-	pcl::PointIndices::Ptr indicesptr (new pcl::PointIndices ());
-	indicesptr->indices = indices;
-
-
-	return normalEstimation(plane, indicesptr);
-}
-
-ofVec3f normalEstimation(const PCPtr& plane, const pcl::PointIndices::Ptr& indicesptr)
-{
-	//Calculo de normales
-	int sampleSize = indicesptr->indices.size();
-	// Create the normal estimation class, and pass the input dataset to it
-	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
-	ne.setInputCloud (plane);
-	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
-	ne.setSearchMethod (tree);
-	
-	ne.setIndices(indicesptr);
-	// Output datasets
-	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
-
-	// Use all neighbors in a sphere of radius 3cm
-	ne.setRadiusSearch (0.03);
-
-	// Compute the features
-	ne.compute (*cloud_normals);
-
-	ofVec3f result(0,0,0);
-	//Promedio las normales
-	float bad_point = std::numeric_limits<float>::quiet_NaN();
-	for(int i = 0; i < sampleSize ; i++){
-		pcl::Normal normal = cloud_normals->at(i);
-		if (normal.normal_z != bad_point && normal.normal_z == normal.normal_z)
-			result += PCLNORMAL_OFXVEC3F(cloud_normals->at(i));
-	}
-	
-	result /= sampleSize;
-	result = result.normalize();
-	return result;
-}
-
-PCPtr getPartialCloudRealCoords(const ofVec3f& min, const ofVec3f& max, int density)
-{
-	//Chequeo
-	if (min.x < 0 || min.y < 0
-		|| max.x > mapinect::KINECT_WIDTH || max.y > mapinect::KINECT_HEIGHT
-		|| min.x > max.x || min.y > max.y)
-	{
-		PCL_ERROR ("Error en parametros de entrada para obtener la nube \n");
-		return PCPtr(new PC());
-	}
-
-	//Calcular tamaño de la nube
-	PCPtr partialCloud(new PC());
-	partialCloud->width    = ceil((max.x - min.x)/density);
-	partialCloud->height   = ceil((max.y - min.y)/density);
-	partialCloud->is_dense = false;
-	partialCloud->points.resize (partialCloud->width * partialCloud->height);
-	register float* depth_map = gKinect->getDistancePixels();
-	//Recorrer el mapa de distancias obteniendo sólo los que estén dentro del rectángulo
-	register int depth_idx = 0;
-	int cloud_idx = 0;
-	for(int v = min.y; v < max.y; v += density) {
-		for(register int u = min.x; u < max.x; u += density) {
-			depth_idx = v * KINECT_DEFAULT_WIDTH + u;
-
-			pcl::PointXYZ& pt = partialCloud->points[cloud_idx];
-			cloud_idx++;
-
-			// Check for invalid measurements
-			if(depth_map[depth_idx] == 0){
-				pt.x = pt.y = pt.z = 0;
-			}
-			else
-			{
-				ofVec3f pto = gKinect->getWorldCoordinateFor(u,v);
-
-				if(pto.z > mapinect::MAX_Z)
-					pt.x = pt.y = pt.z = 0;
-				else
-				{
-					pt.x = pto.x;
-					pt.y = pto.y;
-					pt.z = pto.z;
-				}
-			}
-		}
-	}
-
-	PCPtr filteredCloud = PCPtr(new PC());
-	pcl::PassThrough<pcl::PointXYZ> pass;
-	pass.setInputCloud(partialCloud);
-	pass.setFilterFieldName("z");
-	pass.setFilterLimits(0.001, 4.0);
-	pass.filter (*filteredCloud);
-	PCPtr transformedFilteredCloud = PCPtr(new PC());
-
-	saveCloudAsFile("noTrasladada.pcd", *filteredCloud);
-
-	if (mapinect::IsFeatureMoveArmActive())
-	{
-		pcl::transformPointCloud(*filteredCloud, *transformedFilteredCloud, transformationMatrix);
-		return transformedFilteredCloud;
-	}
-	else
-	{
-		return filteredCloud;
-	}
-		
-}
-
-const vector<ofVec3f>& getScreenCoords(const vector<ofVec3f>& transformedWorldPoints)
-{
-	vector<ofVec3f> screenPoints;
-	for (vector<ofVec3f>::const_iterator v = transformedWorldPoints.begin(); v != transformedWorldPoints.end(); ++v)
-	{
-		screenPoints.push_back(getScreenCoords(*v));
-	}
-	return screenPoints;
-}
-
-ofVec3f getScreenCoords(const ofVec3f& transformedWorldPoint)
-{
-	if (mapinect::IsFeatureMoveArmActive()){
-		// Aplicar al punto del Sistema de Coordenadas de Mundo la transformación inversa
-		pcl::PointXYZ transf = pcl::transformPoint(OFXVEC3F_POINTXYZ(transformedWorldPoint), transformationMatrixInverse);
-		// Una vez que se tiene el punto en el Sistema de Coordenadas del Kinect, transformar a 2D, para dibujar en ventana debug
-		return gKinect->getScreenCoordsFromWorldCoords(POINTXYZ_OFXVEC3F(transf));
-	}
-	else
-	{
-		return gKinect->getScreenCoordsFromWorldCoords(transformedWorldPoint);
-	}
-}
-
-PCPtr getCloud(int density)
-{
-	return getPartialCloudRealCoords(
-		ofPoint(mapinect::KINECT_WIDTH_OFFSET, mapinect::KINECT_HEIGHT_OFFSET),
-		ofPoint(mapinect::KINECT_WIDTH, mapinect::KINECT_HEIGHT),
-		density);
-}
-
-PCPtr getCloud()
-{
-	return getCloud(mapinect::CLOUD_RES);
-}
-
 pcl::PointIndices::Ptr adjustPlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloudToAdjust)
 {
 	float PLANE_THRESHOLD = 0.009;
 	pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
 	for (int k = 0; k < cloudToAdjust->size(); k++) {
-		pcl::PointXYZ pto = cloudToAdjust->at(k);
+		PCXYZ pto = cloudToAdjust->at(k);
 		float val = coefficients.values[0] * pto.x + 
 					coefficients.values[1] * pto.y + 
 					coefficients.values[2] * pto.z + 
@@ -422,20 +406,53 @@ pcl::PointIndices::Ptr adjustPlane(const pcl::ModelCoefficients& coefficients, c
 	return inliers;
 }
 
-ofVec3f computeCentroid(const PCPtr& cloud)
+float evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& p)
 {
-	Eigen::Vector4f eigenCentroid;
-	pcl::compute3DCentroid(*cloud, eigenCentroid);
-		
-	return ofVec3f(eigenCentroid[0], eigenCentroid[1], eigenCentroid[2]);
+	return coefficients.values.at(0) * p.x +
+		   coefficients.values.at(1) * p.y +
+		   coefficients.values.at(2) * p.z +
+		   coefficients.values.at(3);
 }
 
-float evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& pto)
+PCPtr projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& plane)
 {
-	return coefficients.values.at(0) * pto.x +
-		   coefficients.values.at(1) * pto.y +
-		   coefficients.values.at(2) * pto.z +
-		   coefficients.values.at(3);
+	mapinect::Plane3D plane3d(plane);
+	vector<ofVec3f>	ptos = pointCloudToOfVecVector(points);
+	PCPtr result (new PC());
+	for(int i = 0; i < ptos.size(); i ++)
+	{
+		result->push_back(OFVEC3F_PCXYZ(plane3d.project(ptos.at(i))));
+	}
+	return result;
+}
+
+vector<ofVec3f> projectPointsInPlane(const vector<Eigen::Vector3f>& points, const pcl::ModelCoefficients& plane)
+{
+	vector<ofVec3f> result;
+	vector<ofVec3f> ptos = eigenVectorToOfVecVector(points);
+
+	mapinect::Plane3D plane3d(plane);
+	for(int i = 0; i < ptos.size(); i ++)
+	{
+		result.push_back(plane3d.project(ptos.at(i)));
+	}
+	return result;
+}
+
+// -------------------------------------------------------------------------------------
+// objects recognition utils
+// -------------------------------------------------------------------------------------
+
+ObjectType getObjectType(const PCPtr& cloud)
+{
+	float box_prob = boxProbability(cloud);
+
+	ObjectType ret;
+	
+	if(box_prob > .50)
+		return ret = BOX;
+	else
+		return ret = UNRECOGNIZED;
 }
 
 float boxProbability(const PCPtr& cloud)
@@ -450,8 +467,8 @@ float boxProbability(const PCPtr& cloud)
 		float totalPoints = cloud->size();
 		float pointsInPlanes = 0;
 		pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
-		pcl::SACSegmentation<pcl::PointXYZ> seg;
-		pcl::ExtractIndices<pcl::PointXYZ> extract;
+		pcl::SACSegmentation<PCXYZ> seg;
+		pcl::ExtractIndices<PCXYZ> extract;
 		PCPtr cloud_p (new PC());
 		PCPtr cloudTemp (new PC(*cloud));
 	
@@ -540,158 +557,6 @@ float boxProbability(const PCPtr& cloud)
 		return 0;
 }
 
-int tmpFingerCount = 0;
-bool isFingerTip(pcl::octree::OctreePointCloud<pcl::PointXYZ>::Ptr ot, ofVec3f potential_finger_tip)
-{
-	pcl::PointXYZ pto_left(potential_finger_tip.x - 0.02, potential_finger_tip.y,0);
-	pcl::PointXYZ pto_right(potential_finger_tip.x + 0.02, potential_finger_tip.y,0);
-	
-	bool neighbour_left = ot->isVoxelOccupiedAtPoint(pto_left);
-	bool neighbour_right = ot->isVoxelOccupiedAtPoint(pto_right);
-
-	if(!neighbour_left && !neighbour_right)
-	{
-		PCPtr cloud_tmp2_max (new PC());
-		pcl::PointXYZ pt = OFXVEC3F_POINTXYZ(potential_finger_tip);
-		cloud_tmp2_max->points.push_back(pt);
-		//pcl::io::savePCDFileASCII ("fingertip" + ofToString(++tmpFingerCount) + ".pcd", *cloud_tmp2_max);
-		
-		return true;
-	}
-	else
-		return false;
-}
-
-bool isInFingers(const vector<mapinect::Line2D>& fingers, const ofVec3f& pto)
-{
-	for(int i = 0; i < fingers.size(); i++)
-	{
-		if(fingers.at(i).distance(ofVec2f(pto.x,pto.y)) < 0.02)
-			return true;
-	}
-	
-	return false;
-}
-
-ObjectType getObjectType(const PCPtr& cloud)
-{
-	float box_prob = boxProbability(cloud);
-
-	ObjectType ret;
-	
-	if(box_prob > .50)
-		return ret = BOX;
-	else
-		return ret = UNRECOGNIZED;
-}
-
-//Debería tener en cuenta el Z para saber si está en el borde
-bool isInBorder(const PCPtr& cloud)
-{
-	PCPtr cliped_cloud (new PC());
-	pcl::PassThrough<pcl::PointXYZ> pass;
-	pass.setInputCloud (cloud);
-	pass.setFilterFieldName ("x");
-	pass.setFilterLimits (-1, -0.35);
-	pass.filter (*cliped_cloud);
-
-	if(!cliped_cloud->empty())
-		return true;
-	else
-	{
-		pass.setFilterFieldName ("x");
-		pass.setFilterLimits (0.35, 1);
-		pass.filter (*cliped_cloud);
-		if(!cliped_cloud->empty())
-			return true;
-		else
-		{
-			pass.setFilterFieldName ("y");
-			pass.setFilterLimits (-1, -0.25);
-			pass.filter (*cliped_cloud);
-
-			if(!cliped_cloud->empty())
-				return true;
-		}
-	}
-
-	return false;
-}
-
-bool saveCloudAsFile(const string& filename, const PC& cloud)
-{
-	if (!mapinect::IsFeatureSaveCloudActive())
-		return false;
-	//cout << "saving cloud: " << filename << endl;
-	if (cloud.empty ())
-		return false;
-	
-	if(cloud.width * cloud.height != cloud.points.size())
-	{
-		PC printeableCloud (cloud);
-		printeableCloud.height = 1;
-		printeableCloud.width = cloud.points.size();
-		pcl::io::savePCDFileASCII (filename, printeableCloud);
-	}
-	else
-	{
-		pcl::io::savePCDFileASCII (filename, cloud);
-	}
-	return true;
-}
-
-void saveCloudAsFile(const string& filename, const ofVec3f& pto)
-{
-	if (mapinect::IsFeatureSaveCloudActive())
-	{
-		PCPtr cloud (new PC());
-		cloud->push_back(OFXVEC3F_POINTXYZ(pto));
-
-		saveCloudAsFile(filename, *cloud);
-	}
-}
-
-void saveCloudAsFile(const string& filename, const vector<ofVec3f>& ptos)
-{
-	if (mapinect::IsFeatureSaveCloudActive())
-	{
-		PCPtr cloud(ofVecVectorToPointCloud(ptos));
-		saveCloudAsFile(filename, *cloud);
-	}
-}
-
-PCPtr loadCloud(const string& filename)
-{
-	PCPtr cloud(new PC());
-	pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *cloud);
-	return cloud;
-}
-
-PCPtr projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& plane)
-{
-	mapinect::Plane3D plane3d(plane);
-	vector<ofVec3f>	ptos = pointCloudToOfVecVector(points);
-	PCPtr result (new PC());
-	for(int i = 0; i < ptos.size(); i ++)
-	{
-		result->push_back(OFXVEC3F_POINTXYZ(plane3d.project(ptos.at(i))));
-	}
-	return result;
-}
-
-vector<ofVec3f> projectPointsInPlane(const vector<Eigen::Vector3f>& points, const pcl::ModelCoefficients& plane)
-{
-	vector<ofVec3f> result;
-	vector<ofVec3f> ptos = eigenVectorToOfVecVector(points);
-
-	mapinect::Plane3D plane3d(plane);
-	for(int i = 0; i < ptos.size(); i ++)
-	{
-		result.push_back(plane3d.project(ptos.at(i)));
-	}
-	return result;
-}
-
 vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& coefficients) 
 { 
 	vector<Eigen::Vector3f> corners; 
@@ -703,7 +568,7 @@ vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& 
 
 	//saveCloudAsFile("projected.pcd",projected_cloud);
 
-	pcl::PointXYZ pto = cloud->at(1);
+	PCXYZ pto = cloud->at(1);
 	float val = coefficients.values[0] * pto.x + 
 				coefficients.values[1] * pto.y + 
 				coefficients.values[2] * pto.z + 
@@ -771,15 +636,32 @@ vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& 
 	return vecCorners; 
 } 
 
-vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v)
+// -------------------------------------------------------------------------------------
+// misc utils
+// -------------------------------------------------------------------------------------
+
+void computeBoundingBox(const PCPtr& cloud, PCXYZ& min, PCXYZ& max)
 {
-	vector<ofVec3f> vec;
-	for(int i = 0; i < v.size(); i++)
-	{
-		Eigen::Vector3f ev = v.at(i);
-		vec.push_back(ofVec3f(ev.x(),ev.y(),ev.z()));
+	ofVec3f vMin, vMax;
+	computeBoundingBox(cloud, vMin, vMax);
+	min = OFVEC3F_PCXYZ(vMin);
+	max = OFVEC3F_PCXYZ(vMax);
+}
+
+void computeBoundingBox(const PCPtr& cloud, ofVec3f& vMin, ofVec3f& vMax)
+{
+	vMin = ofVec3f(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
+	vMax = ofVec3f(-MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT);
+
+	for (size_t k = 0; k < cloud->size(); k++) {
+		PCXYZ p = cloud->at(k);
+		vMin.x = min(p.x, vMin.x);
+		vMin.y = min(p.y, vMin.y);
+		vMin.z = min(p.z, vMin.z);
+		vMax.x = max(p.x, vMax.x);
+		vMax.y = max(p.y, vMax.y);
+		vMax.z = max(p.z, vMax.z);
 	}
-	return vec;
 }
 
 PCPtr getHalo(const ofVec3f& min, const ofVec3f& max, const float& haloSize, const PCPtr& cloudSrc)
@@ -799,12 +681,93 @@ PCPtr getHalo(const ofVec3f& min, const ofVec3f& max, const float& haloSize, con
 	return trimmedCloud;
 }
 
-void setTransformMatrix(const Eigen::Affine3f& t)
+ofVec3f computeCentroid(const PCPtr& cloud)
 {
-	transformationMatrix = t;
-	transformationMatrixInverse = t.inverse();
+	Eigen::Vector4f eigenCentroid;
+	pcl::compute3DCentroid(*cloud, eigenCentroid);
+		
+	return ofVec3f(eigenCentroid[0], eigenCentroid[1], eigenCentroid[2]);
 }
 
+int getDifferencesCloud(const PCPtr& src, 
+						const PCPtr& tgt, 
+						PCPtr& diff,
+						float octreeRes)
+{
+	pcl::octree::OctreePointCloudChangeDetector<PCXYZ> octree (octreeRes);
+	std::vector<int> newPointIdxVector;
 
+	octree.setInputCloud(src);
+	octree.addPointsFromInputCloud();
+	octree.switchBuffers();
+	octree.setInputCloud(tgt);
+	octree.addPointsFromInputCloud();
+	octree.getPointIndicesFromNewVoxels (newPointIdxVector);
+	diff->points.reserve(newPointIdxVector.size());
+	for (std::vector<int>::iterator it = newPointIdxVector.begin(); it != newPointIdxVector.end(); it++)
+		diff->points.push_back(tgt->points[*it]);
 
-//--------------------------------------------------------------
+	return newPointIdxVector.size();
+}
+
+int getDifferencesCount(const PCPtr& src, 
+						const PCPtr& tgt, 
+						float distanceThreshold)
+{
+	PCPtr small, big;
+	if(src->size() < tgt->size())
+	{
+		small = src;
+		big = tgt;
+	}
+	else
+	{
+		small = tgt;
+		big = src;
+	}
+
+	//Seteo el kdtree con la segunda nube
+	pcl::ExtractIndices<PCXYZ> extract;
+	pcl::PointIndices::Ptr repeatedPoints (new pcl::PointIndices ());
+	pcl::KdTreeFLANN<PCXYZ>::Ptr kdTree (new pcl::KdTreeFLANN<PCXYZ> (false));
+	std::vector<int> k_indices (1);
+	std::vector<float> k_distances (1);
+	std::vector<int> indicesToRemove;
+	int foundedPoints = 0;
+
+	kdTree->setInputCloud(big);
+
+	for (size_t i = 0; i < small->points.size (); ++i){
+		foundedPoints = kdTree->nearestKSearch(small->at(i),1,k_indices,k_distances);
+		if(foundedPoints > 0)
+		{
+			if(k_distances.at(0) < distanceThreshold)
+				indicesToRemove.push_back(k_indices.at(0));
+		}
+	}
+
+	return big->size() - indicesToRemove.size();
+}
+
+vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, float minClusterSize, float maxClusterSize)
+{
+	vector<pcl::PointIndices> result;
+	if (cloud->size() >= minClusterSize)
+	{
+		// Creating the KdTree object for the search method of the extraction
+		pcl::search::KdTree<PCXYZ>::Ptr tree(new pcl::search::KdTree<PCXYZ>);
+		tree->setInputCloud(cloud);
+
+		pcl::EuclideanClusterExtraction<PCXYZ> ec;
+		ec.setClusterTolerance(tolerance); 
+		ec.setMinClusterSize(minClusterSize);
+		ec.setMaxClusterSize(maxClusterSize);
+		ec.setSearchMethod(tree);
+		ec.setInputCloud(cloud);
+		ec.extract(result);
+	}
+	
+	return result;
+}
+
+// -------------------------------------------------------------------------------------

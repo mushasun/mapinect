@@ -103,7 +103,7 @@ namespace mapinect {
 
 		{
 				setObjectsThreadStatus("Detecting clusters...");
-				saveCloudAsFile("rawClusters.pcd", *cloud);
+				saveCloud("rawClusters.pcd", *cloud);
 				std::vector<pcl::PointIndices> cluster_indices =
 				findClusters(cloud, MAX_CLUSTER_TOLERANCE, MIN_CLUSTER_SIZE, MAX_CLUSTER_SIZE);
 
@@ -111,7 +111,7 @@ namespace mapinect {
 			{
 				PCPtr cloud_cluster = getCloudFromIndices(cloud, *it);
 
-				saveCloudAsFile("objectsCluster" + ofToString(debugCounter) + ".pcd", *cloud_cluster);
+				saveCloud("objectsCluster" + ofToString(debugCounter) + ".pcd", *cloud_cluster);
 
 				newClouds.push_back(TrackedCloudPtr(new TrackedCloud(cloud_cluster)));
 				debugCounter++;
@@ -185,7 +185,7 @@ namespace mapinect {
 		inRawCloud.reset();
 		inCloudMutex.unlock();
 
-		saveCloudAsFile("rawInternal.pcd",*cloud);
+		saveCloud("rawInternal.pcd",*cloud);
 		pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ> octree(0.01);
 		pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ>::AlignedPointTVector voxelList;
 
@@ -248,9 +248,9 @@ namespace mapinect {
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
 			if ((*iter)->hasMatching())
 			{
-				saveCloudAsFile("objPreMatched.pcd",*(*iter)->getTrackedCloud());
+				saveCloud("objPreMatched.pcd",*(*iter)->getTrackedCloud());
 				(*iter)->updateMatching();
-				saveCloudAsFile("objPostMatched.pcd",*(*iter)->getTrackedCloud());
+				saveCloud("objPostMatched.pcd",*(*iter)->getTrackedCloud());
 
 				if (!((*iter)->hasObject())) {
 					(*iter)->addCounter(2);

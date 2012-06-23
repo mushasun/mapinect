@@ -27,7 +27,7 @@ namespace mapinect {
 										this->coefficients.values[0], this->coefficients.values[1], this->coefficients.values[2]);
 			if(this->coefficients.values != coefficients.values)
 			{
-				Plane3D plane(POINTXYZ_OFXVEC3F(cloud->at(0)),
+				Plane3D plane(PCXYZ_OFVEC3F(cloud->at(0)),
 							  ofVec3f(this->coefficients.values[0], this->coefficients.values[1], this->coefficients.values[2]));
 				this->coefficients = plane.getCoefficients();
 			}
@@ -94,9 +94,9 @@ namespace mapinect {
 
 	void PCPolygon::applyTransformation(Eigen::Affine3f* transformation)
 	{
-		saveCloudAsFile("preTransform.pcd",*cloud);
+		saveCloud("preTransform.pcd",*cloud);
 		pcl::transformPointCloud(*cloud, *cloud, *transformation);
-		saveCloudAsFile("postTransform.pcd",*cloud);
+		saveCloud("postTransform.pcd",*cloud);
 
 		Eigen::Vector3f eVec(coefficients.values.at(0),coefficients.values.at(1),coefficients.values.at(2));
 		vector<ofVec3f> vertexs = getPolygonModelObject()->getMathModel().getVertexs();
@@ -165,8 +165,8 @@ namespace mapinect {
 					matchedEstimator = estimator;
 					matchedDistance = distEstimator;
 					
-					saveCloudAsFile("original" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
-					saveCloudAsFile("matched" + ofToString(this->getPolygonModelObject()->getName()) + "m.pcd", *polygon->getCloud());
+					saveCloud("original" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
+					saveCloud("matched" + ofToString(this->getPolygonModelObject()->getName()) + "m.pcd", *polygon->getCloud());
 
 					result = true;
 					////Establezco la transformacion
@@ -219,8 +219,8 @@ namespace mapinect {
 				coefficients.header = matched->coefficients.header;
 				coefficients.values = matched->coefficients.values;
 
-				saveCloudAsFile("pcpolygonOri" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
-				saveCloudAsFile("pcpolygonMatch" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *matched->getCloud());
+				saveCloud("pcpolygonOri" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
+				saveCloud("pcpolygonMatch" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *matched->getCloud());
 			
 				//Actualizo nube
 				this->cloud = matched->getCloud();
@@ -230,7 +230,7 @@ namespace mapinect {
 
 			//this->cloud = matched->getCloud();
 
-			saveCloudAsFile("pcpolygonResult" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
+			saveCloud("pcpolygonResult" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);
 
 
 			removeMatching();

@@ -14,7 +14,8 @@
 #include "ofVec3f.h"
 
 // pcl short types
-typedef pcl::PointCloud<pcl::PointXYZ>	PC;
+typedef pcl::PointXYZ					PCXYZ;
+typedef pcl::PointCloud<PCXYZ>			PC;
 typedef PC::Ptr							PCPtr;
 
 // mapinect forward declarations

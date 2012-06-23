@@ -1,10 +1,54 @@
 #include "Table.h"
 
 #include "DataObject.h"
+#include "Feature.h"
+#include "Globals.h"
+#include "mapinectTypes.h"
 #include "pointUtils.h"
 
 namespace mapinect
 {
+	TablePtr Table::Create(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
+	{
+		PCPtr transformedCloud(cloud);
+		pcl::ModelCoefficients transformedCoefficients(coefficients);
+		/*
+		if (!IsFeatureMoveArmActive())
+		{
+			// We want to set the table as the plane z = 0
+			// While we don't have the arm transformation, we will translate the origin to
+			// table's centroid directly from Kinect's origin
+			Eigen::Vector3f axisX(1, 0, 0);
+			Eigen::Affine3f rotationX;
+			ofVec3f newYaxis = -(::getNormal(coefficients).getNormalized());
+			float angle = newYaxis.angleRad(ofVec3f(0, 1, 0));
+			rotationX = Eigen::AngleAxis<float>(-angle, axisX);
+
+			Eigen::Affine3f translation;
+			ofVec3f centroid(computeCentroid(cloud));
+			translation = Eigen::Translation<float, 3>(-centroid.x, -centroid.y, -centroid.z);
+
+			Eigen::Affine3f composed_matrix = rotationX * translation;
+		
+			setTransformationMatrix(composed_matrix);
+
+			transformedCloud = PCPtr(transformCloud(cloud, composed_matrix));
+
+			transformedCoefficients.values[0] = 0;
+			transformedCoefficients.values[1] = -1;
+			transformedCoefficients.values[2] = 0;
+			transformedCoefficients.values[3] = 0;
+		}
+		*/
+
+		TablePtr table(new Table(transformedCoefficients, transformedCloud));
+		table->detect();
+		//table->setDrawPointCloud(false);
+		gModel->setTable(table);
+
+		return table;
+	}
+
 	IObjectPtr Table::getMathModelApproximation() const
 	{
 		vector<IPolygonPtr> polygons;
@@ -30,7 +74,7 @@ namespace mapinect
 
 		if (idx_max >= 0)
 		{
-			return abs(evaluatePoint(getCoefficients(),POINTXYZ_OFXVEC3F(cloud->points.at(idx_max)))) < 0.03;
+			return abs(evaluatePoint(getCoefficients(), PCXYZ_OFVEC3F(cloud->points.at(idx_max)))) < 0.03;
 		}
 		else
 		{
@@ -51,7 +95,7 @@ namespace mapinect
 
 		for(int i = 0; i < cloud->size(); i++)
 		{
-			if (pol.isInPolygon(pol.getPlane().project(POINTXYZ_OFXVEC3F(cloud->at(i)))))
+			if (pol.isInPolygon(pol.getPlane().project(PCXYZ_OFVEC3F(cloud->at(i)))))
 				return true;
 		}
 		return false;
