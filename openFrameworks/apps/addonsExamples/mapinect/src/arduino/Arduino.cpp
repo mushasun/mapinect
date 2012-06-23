@@ -103,7 +103,7 @@ namespace mapinect {
 
 		if (!serial.setup(COM_PORT, 9600)) {
 			cout << "Error en setup del Serial, puerto COM: " << COM_PORT << endl;
-			return false;
+			//return false;
 		}
 			
 		sendMotor(angleMotor1, ID_MOTOR_1);
@@ -181,20 +181,19 @@ namespace mapinect {
 		}
 		else if (key == 'z')
 		{
-			ofVec3f cualquiera = ofVec3f(ARM_LENGTH, 0, 0.15);
-			setArm3dCoordinates(cualquiera);
+			setArm3dCoordinates(ofVec3f(ARM_LENGTH, -0.10, 0.10));
+		}
+		else if (key == 'a')
+		{
+			setArm3dCoordinates(ofVec3f(ARM_LENGTH, 0, 0));
 		}
 		else if (key == 'x')
 		{
-			lookAt(ofVec3f(0.35, -0.15, 0.10));
+			lookAt(ofVec3f(0.35, -0.16, 0.15));
 		}
 		else if (key == 'c')
 		{
 			lookAt(ofVec3f(0.35, -0.13, 0.10));
-		}
-		else if (key == 'a')
-		{
-			setArm3dCoordinates(ofVec3f(0.35, -0.05, 0.0));
 		}
 		else if (key == 's')
 		{
@@ -317,11 +316,11 @@ namespace mapinect {
 		if (y != 0) {
 			if (y > 0)
 			{
-				angleMotor1 = (int)round(asin(-y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
+				angleMotor1 = (int)round(asin(y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
 			}
 			else
 			{
-				angleMotor1 = -(int)round(asin(y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
+				angleMotor1 = -(int)round(asin(-y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
 			}
 		}
 		sendMotor(angleMotor1, ID_MOTOR_1);
@@ -378,8 +377,9 @@ namespace mapinect {
 
 	ofVec3f	Arduino::lookAt(ofVec3f point)
 	{
-		ofVec3f miraHorizonte (ARM_LENGTH + 10.0, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
-		posicion = getKinect3dCoordinates();
+		ofVec3f miraHorizonte (ARM_LENGTH + 0.10, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
+		ofVec3f posInicialKinect (ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
+		//posicion = getKinect3dCoordinates();
 
 		//TODO: tener el cuenta la traslacion del grueso de los motores de la punta
 		//posicion = donde se encuentra ubicado
@@ -387,23 +387,23 @@ namespace mapinect {
 		Eigen::Vector3f axisY (0, 1, 0);
 		Eigen::Affine3f rotationY;
 		float angleMotor2Rad = ofDegToRad(angleMotor2); // Motor de abajo del brazo, con la varilla "vertical"
-		rotationY = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
+		rotationY = Eigen::AngleAxis<float>(angleMotor2Rad, axisY);				// Debe ser positivo
 
-		Eigen::Vector3f axisX (1, 0, 0);
-		Eigen::Affine3f rotationX;
+		Eigen::Vector3f axisZ (0, 0, 1);
+		Eigen::Affine3f rotationZ;
 		float angleMotor1Rad = ofDegToRad(angleMotor1);	// Motor que mueve la varilla "horizontal"
-		rotationX = Eigen::AngleAxis<float>(-angleMotor1Rad, axisX);
+		rotationZ = Eigen::AngleAxis<float>(-angleMotor1Rad, axisZ);			// Debe ser negativo
 
 		Eigen::Affine3f composed_matrix;
-		composed_matrix = rotationY * rotationX;
+		composed_matrix = rotationY * rotationZ;
 		
 		Eigen::Vector3f e_point = Eigen::Vector3f(point.x, point.y, point.z);
 		Eigen::Vector3f e_mira = Eigen::Vector3f(miraHorizonte.x, miraHorizonte.y, miraHorizonte.z);
-		Eigen::Vector3f e_posicion = Eigen::Vector3f(posicion.x, posicion.y, posicion.z);
+		Eigen::Vector3f e_posicion = Eigen::Vector3f(posInicialKinect.x, posInicialKinect.y, posInicialKinect.z);
 
 		Eigen::Vector3f et_point = composed_matrix * e_point;
-		Eigen::Vector3f et_mira = composed_matrix * e_mira;
-		Eigen::Vector3f et_posicion = composed_matrix * e_posicion;
+		Eigen::Vector3f et_mira = /*composed_matrix * */ e_mira;
+		Eigen::Vector3f et_posicion = /*composed_matrix * */ e_posicion;
 
 		ofVec3f t_point = ofVec3f(et_point.x(), et_point.y(), et_point.z());
 		ofVec3f t_mira = ofVec3f(et_mira.x(), et_mira.y(), et_mira.z());
@@ -496,7 +496,7 @@ namespace mapinect {
 	}
 	ofVec3f	Arduino::lookingAt()
 	{
-		Eigen::Vector3f kinectMira (0.0, 0.0, 1.0);		// Mira inicial, en Sist. de Coord Local del Kinect
+		Eigen::Vector3f kinectMira (0.0, 0.0, 0.10);		// Mira inicial, en Sist. de Coord Local del Kinect
 		kinectMira = getWorldTransformation() * kinectMira;
 		return ofVec3f(kinectMira.x(), kinectMira.y(), kinectMira.z());	
 		//return NULL;
