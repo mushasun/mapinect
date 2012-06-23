@@ -15,7 +15,7 @@ void setup() {
   Serial.print (" deteccion: ");
   Serial.println (num, DEC);
 
-  motor.id = detect; // asigna las ID detectadas a los motores definidos previamente
+  motor.id = 1; // asigna las ID detectadas a los motores definidos previamente
   motor.SRL = RETURN_ALL;
   
   Serial.print (" ID detectado: ");
