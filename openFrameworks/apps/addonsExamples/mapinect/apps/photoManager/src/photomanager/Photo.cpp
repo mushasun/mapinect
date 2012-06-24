@@ -11,7 +11,7 @@ namespace photo {
 		this->scale = ofVec3f(1,1,1);
 		this->rotation = 0;
 	}
-	void Photo::draw(const ITxManager* txManager)
+	void Photo::draw()
 	{
 		ofPushMatrix();
 
@@ -29,7 +29,6 @@ namespace photo {
 		ofRotate(-angle,1,0,0);
 
 		// Bind Texture
-		txManager->bindTexture(texture);
 
 		
 		ofVec3f v1, v2,v3,v4;
@@ -40,14 +39,8 @@ namespace photo {
 		v3.y += height;
 		v4 = ofVec3f();
 		v4.y += height;
-		
-		
 
-		txManager->enableTextures();
-		txManager->bindTexture(texture);
 		ofDrawQuadTextured(v1,v2,v3,v4);
-		txManager->disableTextures();
-
 		
 		ofPopMatrix();
 	}

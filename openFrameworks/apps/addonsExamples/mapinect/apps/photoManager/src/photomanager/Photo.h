@@ -4,7 +4,6 @@
 #include "ofVec3f.h"
 #include "PCPolygon.h"
 #include "PCPolyhedron.h"
-#include "ITxManager.h"
 
 using namespace mapinect;
 
@@ -24,9 +23,8 @@ namespace photo {
 			inline ofVec3f getScale (){ return scale;}
 			inline float getRotation (){ return rotation;}
 			
-			void draw(const ITxManager* txManager);
+			void draw();
 
-			GLuint	texture;
 			float width;
 			float height;
 		private:
