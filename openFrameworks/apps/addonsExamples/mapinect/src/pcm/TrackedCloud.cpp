@@ -6,7 +6,6 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/registration/transformation_estimation.h>
 
-#include "AlignmentDetector.h"
 #include "Constants.h"
 #include "EventManager.h"
 #include "Model.h"

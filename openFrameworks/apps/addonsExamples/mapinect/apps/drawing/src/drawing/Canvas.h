@@ -13,8 +13,6 @@
 using namespace mapinect;
 using namespace std;
 
-#include "ITxManager.h"
-
 namespace drawing
 {
 	class Canvas : public IMapper

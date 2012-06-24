@@ -46,12 +46,6 @@ namespace bouncing {
 	}
 
 	//--------------------------------------------------------------
-	void BouncingBall::debugDraw()
-	{
-
-	}
-
-	//--------------------------------------------------------------
 	void BouncingBall::draw()
 	{
 		if(tableSetted)
@@ -149,46 +143,6 @@ namespace bouncing {
 		}
 		clearUnvisitedObjects();
 		
-	}
-
-	//--------------------------------------------------------------
-	void BouncingBall::keyPressed(int key)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void BouncingBall::keyReleased(int key)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void BouncingBall::windowMoved(int x, int y)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void BouncingBall::mouseMoved(int x, int y)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void BouncingBall::mouseDragged(int x, int y, int button)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void BouncingBall::mousePressed(int x, int y, int button)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void BouncingBall::mouseReleased(int x, int y, int button)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void BouncingBall::dragEvent(ofDragInfo info)
-	{
 	}
 
 	//--------------------------------------------------------------

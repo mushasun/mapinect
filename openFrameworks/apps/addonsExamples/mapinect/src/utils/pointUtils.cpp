@@ -25,7 +25,6 @@
 #include "Constants.h"
 #include "Feature.h"
 #include "Globals.h"
-#include "HandDetector.h"
 #include "Line2D.h"
 #include "Model.h"
 #include <algorithm>

@@ -423,7 +423,6 @@ namespace mapinect {
 				}
 
 				if (updateVertexs.size() > 1) {
-					//Vertex vx;
 					ofVec3f avg(0, 0, 0);
 					for (int i = 0; i < updateVertexs.size(); i++) {
 						avg += updateVertexs.at(i).pcp->getPolygonModelObject()->getMathModel().getVertexs()[updateVertexs.at(i).vertex];

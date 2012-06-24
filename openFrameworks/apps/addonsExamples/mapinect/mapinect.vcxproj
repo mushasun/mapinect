@@ -70,7 +70,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>include;src;src\arduino;src\helpers;src\interfaces;src\math;src\model;src\open-cv;src\pcm;src\utils;src\vm;..\..\..\libs\openFrameworks;..\..\..\libs\openFrameworks\3d;..\..\..\libs\openFrameworks\app;..\..\..\libs\openFrameworks\communication;..\..\..\libs\openFrameworks\events;..\..\..\libs\openFrameworks\gl;..\..\..\libs\openFrameworks\graphics;..\..\..\libs\openFrameworks\math;..\..\..\libs\openFrameworks\sound;..\..\..\libs\openFrameworks\types;..\..\..\libs\openFrameworks\utils;..\..\..\libs\openFrameworks\video;..\..\..\libs\cairo\include\cairo;..\..\..\libs\fmodex\include;..\..\..\libs\freeImage\include;..\..\..\libs\freetype\include;..\..\..\libs\freetype\include\freetype2;..\..\..\libs\glew\include;..\..\..\libs\glu\include;..\..\..\libs\glut\include;..\..\..\libs\quicktime\include;..\..\..\libs\rtAudio\include;..\..\..\libs\poco\include;..\..\..\libs\tess2\include;..\..\..\libs\videoInput\include;..\..\..\addons;..\..\..\addons\ofx3DModelLoader\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxDirList\src;..\..\..\addons\ofxCairoTexture\src;..\..\..\addons\ofxFenster\libs\ghost\include;..\..\..\addons\ofxFenster\libs\string\include;..\..\..\addons\ofxFenster\src;..\..\..\addons\ofxKinect\src;..\..\..\addons\ofxMSAInteractiveObject\src;..\..\..\addons\ofxMutex\src;..\..\..\addons\ofxObjLoader\src;..\..\..\addons\ofxOpenCv\src;..\..\..\addons\ofxOpenCv\libs\opencv\include;..\..\..\addons\ofxOsc\src;..\..\..\addons\ofxOsc\libs\oscpack\include\ip;..\..\..\addons\ofxOsc\libs\oscpack\include\osc;..\..\..\addons\ofxSimpleGuiToo\src;..\..\..\addons\ofxSimpleGuiToo\src\Controls;..\..\..\addons\ofxVectorGraphics\src;..\..\..\addons\ofxVectorGraphics\libs;..\..\..\addons\ofxXMLSettings\libs;..\..\..\addons\ofxXMLSettings\src;..\..\..\..\PCL\Boost\include;..\..\..\..\PCL\Eigen\include;..\..\..\..\PCL\Flann\include;..\..\..\..\PCL\PCL\include\pcl-1.5;..\..\..\..\PCL\Qhull\include;..\..\..\..\PCL\VTK\include\vtk-5.8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;src;src\arduino;src\helpers;src\interfaces;src\math;src\model;src\open-cv;src\pcm;src\utils;src\vm;..\..\..\libs\openFrameworks;..\..\..\libs\openFrameworks\3d;..\..\..\libs\openFrameworks\app;..\..\..\libs\openFrameworks\communication;..\..\..\libs\openFrameworks\events;..\..\..\libs\openFrameworks\gl;..\..\..\libs\openFrameworks\graphics;..\..\..\libs\openFrameworks\math;..\..\..\libs\openFrameworks\sound;..\..\..\libs\openFrameworks\types;..\..\..\libs\openFrameworks\utils;..\..\..\libs\openFrameworks\video;..\..\..\libs\cairo\include\cairo;..\..\..\libs\fmodex\include;..\..\..\libs\freeImage\include;..\..\..\libs\freetype\include;..\..\..\libs\freetype\include\freetype2;..\..\..\libs\glew\include;..\..\..\libs\glu\include;..\..\..\libs\glut\include;..\..\..\libs\quicktime\include;..\..\..\libs\rtAudio\include;..\..\..\libs\poco\include;..\..\..\libs\tess2\include;..\..\..\libs\videoInput\include;..\..\..\addons;..\..\..\addons\ofxCairoTexture\src;..\..\..\addons\ofxFenster\libs\ghost\include;..\..\..\addons\ofxFenster\libs\string\include;..\..\..\addons\ofxFenster\src;..\..\..\addons\ofxKinect\src;..\..\..\addons\ofxMutex\src;..\..\..\addons\ofxOpenCv\src;..\..\..\addons\ofxOpenCv\libs\opencv\include;..\..\..\addons\ofxXMLSettings\libs;..\..\..\addons\ofxXMLSettings\src;..\..\..\..\PCL\Boost\include;..\..\..\..\PCL\Eigen\include;..\..\..\..\PCL\Flann\include;..\..\..\..\PCL\PCL\include\pcl-1.5;..\..\..\..\PCL\Qhull\include;..\..\..\..\PCL\VTK\include\vtk-5.8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;POCO_STATIC;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -103,7 +103,7 @@ if not exist "$(ProjectDir)bin\data" mkdir  "$(ProjectDir)bin\data"
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>include;src;src\arduino;src\helpers;src\interfaces;src\math;src\model;src\open-cv;src\pcm;src\utils;src\vm;..\..\..\libs\openFrameworks;..\..\..\libs\openFrameworks\3d;..\..\..\libs\openFrameworks\app;..\..\..\libs\openFrameworks\communication;..\..\..\libs\openFrameworks\events;..\..\..\libs\openFrameworks\gl;..\..\..\libs\openFrameworks\graphics;..\..\..\libs\openFrameworks\math;..\..\..\libs\openFrameworks\sound;..\..\..\libs\openFrameworks\types;..\..\..\libs\openFrameworks\utils;..\..\..\libs\openFrameworks\video;..\..\..\libs\cairo\include\cairo;..\..\..\libs\fmodex\include;..\..\..\libs\freeImage\include;..\..\..\libs\freetype\include;..\..\..\libs\freetype\include\freetype2;..\..\..\libs\glew\include;..\..\..\libs\glu\include;..\..\..\libs\glut\include;..\..\..\libs\quicktime\include;..\..\..\libs\rtAudio\include;..\..\..\libs\poco\include;..\..\..\libs\tess2\include;..\..\..\libs\videoInput\include;..\..\..\addons;..\..\..\addons\ofx3DModelLoader\src;..\..\..\addons\ofxNetwork\src;..\..\..\addons\ofxDirList\src;..\..\..\addons\ofxCairoTexture\src;..\..\..\addons\ofxFenster\libs\ghost\include;..\..\..\addons\ofxFenster\libs\string\include;..\..\..\addons\ofxFenster\src;..\..\..\addons\ofxKinect\src;..\..\..\addons\ofxMSAInteractiveObject\src;..\..\..\addons\ofxMutex\src;..\..\..\addons\ofxObjLoader\src;..\..\..\addons\ofxOpenCv\src;..\..\..\addons\ofxOpenCv\libs\opencv\include;..\..\..\addons\ofxOsc\src;..\..\..\addons\ofxOsc\libs\oscpack\include\ip;..\..\..\addons\ofxOsc\libs\oscpack\include\osc;..\..\..\addons\ofxSimpleGuiToo\src;..\..\..\addons\ofxSimpleGuiToo\src\Controls;..\..\..\addons\ofxVectorGraphics\src;..\..\..\addons\ofxVectorGraphics\libs;..\..\..\addons\ofxXMLSettings\libs;..\..\..\addons\ofxXMLSettings\src;..\..\..\..\PCL\Boost\include;..\..\..\..\PCL\Eigen\include;..\..\..\..\PCL\Flann\include;..\..\..\..\PCL\PCL\include\pcl-1.5;..\..\..\..\PCL\Qhull\include;..\..\..\..\PCL\VTK\include\vtk-5.8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;src;src\arduino;src\helpers;src\interfaces;src\math;src\model;src\open-cv;src\pcm;src\utils;src\vm;..\..\..\libs\openFrameworks;..\..\..\libs\openFrameworks\3d;..\..\..\libs\openFrameworks\app;..\..\..\libs\openFrameworks\communication;..\..\..\libs\openFrameworks\events;..\..\..\libs\openFrameworks\gl;..\..\..\libs\openFrameworks\graphics;..\..\..\libs\openFrameworks\math;..\..\..\libs\openFrameworks\sound;..\..\..\libs\openFrameworks\types;..\..\..\libs\openFrameworks\utils;..\..\..\libs\openFrameworks\video;..\..\..\libs\cairo\include\cairo;..\..\..\libs\fmodex\include;..\..\..\libs\freeImage\include;..\..\..\libs\freetype\include;..\..\..\libs\freetype\include\freetype2;..\..\..\libs\glew\include;..\..\..\libs\glu\include;..\..\..\libs\glut\include;..\..\..\libs\quicktime\include;..\..\..\libs\rtAudio\include;..\..\..\libs\poco\include;..\..\..\libs\tess2\include;..\..\..\libs\videoInput\include;..\..\..\addons;..\..\..\addons\ofxCairoTexture\src;..\..\..\addons\ofxFenster\libs\ghost\include;..\..\..\addons\ofxFenster\libs\string\include;..\..\..\addons\ofxFenster\src;..\..\..\addons\ofxKinect\src;..\..\..\addons\ofxMutex\src;..\..\..\addons\ofxOpenCv\src;..\..\..\addons\ofxOpenCv\libs\opencv\include;..\..\..\addons\ofxXMLSettings\libs;..\..\..\addons\ofxXMLSettings\src;..\..\..\..\PCL\Boost\include;..\..\..\..\PCL\Eigen\include;..\..\..\..\PCL\Flann\include;..\..\..\..\PCL\PCL\include\pcl-1.5;..\..\..\..\PCL\Qhull\include;..\..\..\..\PCL\VTK\include\vtk-5.8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;POCO_STATIC;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -180,23 +180,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="..\..\..\addons\ofxKinect\src\ofxKinectCalibration.cpp" />
     <ClCompile Include="..\..\..\addons\ofxKinect\src\ofxKinectPlayer.cpp" />
     <ClCompile Include="..\..\..\addons\ofxKinect\src\ofxKinectRecorder.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxMSAInteractiveObject\src\ofxMSAInteractiveObject.cpp" />
     <ClCompile Include="..\..\..\addons\ofxMutex\src\ofxMutex.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiButton.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiColorPicker.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiComboBox.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiContent.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiFPSCounter.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiMovieSlider.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiQuadWarp.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiSlider2d.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiTitle.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiToggle.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiConfig.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiControl.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiPage.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiToo.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiValueControl.cpp" />
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.cpp" />
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlerror.cpp" />
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp" />
@@ -213,15 +197,12 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\helpers\Feature.cpp" />
     <ClCompile Include="src\helpers\mapinect.cpp" />
     <ClCompile Include="src\helpers\mapinectApp.cpp" />
-    <ClCompile Include="src\helpers\TxManager.cpp" />
     <ClCompile Include="src\math\DiscardCoordinate.cpp" />
     <ClCompile Include="src\math\Line2D.cpp" />
     <ClCompile Include="src\math\Line3D.cpp" />
     <ClCompile Include="src\math\Plane3D.cpp" />
     <ClCompile Include="src\math\Polygon3D.cpp" />
     <ClCompile Include="src\math\TextureMapper2D.cpp" />
-    <ClCompile Include="src\model\Box.cpp" />
-    <ClCompile Include="src\model\Cylinder.cpp" />
     <ClCompile Include="src\model\DataObject.cpp" />
     <ClCompile Include="src\model\Model.cpp" />
     <ClCompile Include="src\model\ModelObject.cpp" />
@@ -232,41 +213,14 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\model\PCPolyhedron.cpp" />
     <ClCompile Include="src\model\PCQuadrilateral.cpp" />
     <ClCompile Include="src\model\Polygon.cpp" />
-    <ClCompile Include="src\model\Polyhedron.cpp" />
-    <ClCompile Include="src\model\Sphere.cpp" />
     <ClCompile Include="src\model\Table.cpp" />
-    <ClCompile Include="src\model\Vertex.cpp" />
     <ClCompile Include="src\open-cv\OpenCV.cpp" />
     <ClCompile Include="src\pcm\ObjectsThread.cpp" />
     <ClCompile Include="src\pcm\PCM.cpp" />
     <ClCompile Include="src\pcm\PCMThread.cpp" />
     <ClCompile Include="src\pcm\TrackedCloud.cpp" />
     <ClCompile Include="src\pcm\TrackedTouch.cpp" />
-    <ClCompile Include="src\utils\HandDetector.cpp" />
     <ClCompile Include="src\utils\log.cpp" />
-    <ClCompile Include="src\utils\objectTypesEnum.cpp">
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <MinimalRebuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</MinimalRebuild>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
-      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ProgramDatabase</DebugInformationFormat>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Async</ExceptionHandling>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</CompileAsManaged>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">true</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">
-      </PrecompiledHeader>
-      <MinimalRebuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</MinimalRebuild>
-      <MinimalRebuild Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">false</MinimalRebuild>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</BasicRuntimeChecks>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">Default</BasicRuntimeChecks>
-      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ProgramDatabase</DebugInformationFormat>
-      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">ProgramDatabase</DebugInformationFormat>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Async</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release with debug info|Win32'">Async</ExceptionHandling>
-    </ClCompile>
     <ClCompile Include="src\utils\ofGraphicsUtils.cpp" />
     <ClCompile Include="src\utils\ofVecUtils.cpp" />
     <ClCompile Include="src\utils\pointUtils.cpp" />
@@ -286,27 +240,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="..\..\..\addons\ofxKinect\src\ofxKinectCalibration.h" />
     <ClInclude Include="..\..\..\addons\ofxKinect\src\ofxKinectPlayer.h" />
     <ClInclude Include="..\..\..\addons\ofxKinect\src\ofxKinectRecorder.h" />
-    <ClInclude Include="..\..\..\addons\ofxMSAInteractiveObject\src\ofxMSAInteractiveObject.h" />
     <ClInclude Include="..\..\..\addons\ofxMutex\src\ofxMutex.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiButton.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiColorPicker.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiComboBox.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiContent.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiFPSCounter.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiMovieSlider.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiQuadWarp.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiSlider2d.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiSliderBase.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiSliderFloat.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiSliderInt.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiTitle.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\Controls\ofxSimpleGuiToggle.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiConfig.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiControl.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiIncludes.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiPage.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiToo.h" />
-    <ClInclude Include="..\..\..\addons\ofxSimpleGuiToo\src\ofxSimpleGuiValueControl.h" />
     <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h" />
     <ClInclude Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.h" />
     <ClInclude Include="include\libfreenect.h" />
@@ -328,7 +262,6 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\helpers\Globals.h" />
     <ClInclude Include="src\helpers\mapinectApp.h" />
     <ClInclude Include="src\helpers\mapinectTypes.h" />
-    <ClInclude Include="src\helpers\TxManager.h" />
     <ClInclude Include="src\interfaces\DataMovement.h" />
     <ClInclude Include="src\interfaces\DataTouch.h" />
     <ClInclude Include="src\interfaces\IApplication.h" />
@@ -336,7 +269,6 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\interfaces\IMapinect.h" />
     <ClInclude Include="src\interfaces\IObject.h" />
     <ClInclude Include="src\interfaces\IPolygon.h" />
-    <ClInclude Include="src\interfaces\ITxManager.h" />
     <ClInclude Include="src\math\DiscardCoordinate.h" />
     <ClInclude Include="src\math\Line2D.h" />
     <ClInclude Include="src\math\Line3D.h" />
@@ -345,9 +277,6 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\math\Polygon3D.h" />
     <ClInclude Include="src\math\SortPolar.h" />
     <ClInclude Include="src\math\TextureMapper2D.h" />
-    <ClInclude Include="src\model\AlignmentDetector.h" />
-    <ClInclude Include="src\model\Box.h" />
-    <ClInclude Include="src\model\Cylinder.h" />
     <ClInclude Include="src\model\DataObject.h" />
     <ClInclude Include="src\model\Model.h" />
     <ClInclude Include="src\model\ModelObject.h" />
@@ -358,17 +287,13 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\model\PCPolyhedron.h" />
     <ClInclude Include="src\model\PCQuadrilateral.h" />
     <ClInclude Include="src\model\Polygon.h" />
-    <ClInclude Include="src\model\Polyhedron.h" />
-    <ClInclude Include="src\model\Sphere.h" />
     <ClInclude Include="src\model\Table.h" />
-    <ClInclude Include="src\model\Vertex.h" />
     <ClInclude Include="src\open-cv\OpenCV.h" />
     <ClInclude Include="src\pcm\ObjectsThread.h" />
     <ClInclude Include="src\pcm\PCM.h" />
     <ClInclude Include="src\pcm\PCMThread.h" />
     <ClInclude Include="src\pcm\TrackedCloud.h" />
     <ClInclude Include="src\pcm\TrackedTouch.h" />
-    <ClInclude Include="src\utils\HandDetector.h" />
     <ClInclude Include="src\utils\log.h" />
     <ClInclude Include="src\utils\objectTypesEnum.h" />
     <ClInclude Include="src\utils\ofGraphicsUtils.h" />
@@ -376,7 +301,6 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\utils\pointUtils.h" />
     <ClInclude Include="src\utils\Timer.h" />
     <ClInclude Include="src\utils\utils.h" />
-    <ClInclude Include="src\utils\winUtils.h" />
     <ClInclude Include="src\vm\VM.h" />
   </ItemGroup>
   <ItemGroup>
