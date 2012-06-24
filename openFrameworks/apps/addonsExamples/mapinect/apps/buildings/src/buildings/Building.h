@@ -1,7 +1,6 @@
 #ifndef BUILDING_H__
 #define BUILDING_H__
 
-#include "ITxManager.h"
 #include "IObject.h"
 #include "Floor.h"
 
@@ -17,7 +16,7 @@ namespace buildings {
 		void updateModelObject(const IObjectPtr& ob) { object = ob; }
 
 		void update();
-		void draw(const ITxManager* txManager, const Floor& floor);
+		void draw(const Floor& floor);
 
 	private:
 		float			progress;

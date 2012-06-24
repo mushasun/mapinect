@@ -34,8 +34,6 @@ namespace buildings {
 
 	//--------------------------------------------------------------
 	void Buildings::exit() {
-		txManager->unloadTexture(videoTexture);
-		txManager->unloadTexture(videoTexture2);
 	}
 
 	//--------------------------------------------------------------
@@ -63,11 +61,11 @@ namespace buildings {
 	void Buildings::draw()
 	{
 		if (floor != NULL) {
-			floor->draw(txManager);
+			floor->draw();
 		}
 
 		for (map<int, Building*>::iterator iter = buildings.begin(); iter != buildings.end(); iter++) {
-			(iter->second)->draw(txManager, *floor);
+			(iter->second)->draw(*floor);
 		}
 
 /*		
