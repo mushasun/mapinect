@@ -3,7 +3,6 @@
 #include "Feature.h"
 #include "ofxXmlSettings.h"
 #include "ofVec3f.h"
-#include "winUtils.h"
 
 namespace mapinect {
 

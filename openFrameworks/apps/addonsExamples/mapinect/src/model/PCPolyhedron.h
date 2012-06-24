@@ -4,9 +4,7 @@
 #include "PCModelObject.h"
 #include "IObject.h"
 
-#include "Polyhedron.h"
 #include "PCPolygon.h"
-#include "Vertex.h"
 #include <list>
 
 #include "ofxMutex.h"

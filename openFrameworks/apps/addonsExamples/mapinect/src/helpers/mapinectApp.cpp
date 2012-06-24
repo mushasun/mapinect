@@ -9,7 +9,6 @@
 #include "log.h"
 #include "Model.h"
 #include "ofxKinect.h"
-#include "TxManager.h"
 #include "pointUtils.h"
 
 namespace mapinect {
@@ -46,7 +45,6 @@ namespace mapinect {
 		pcm.setup();
 		arduino.setup();
 
-		app->txManager = new TxManager();
 		app->armController = new ArmController(&arduino);
 
 		if (IsFeatureMoveArmActive()) {
@@ -227,7 +225,6 @@ namespace mapinect {
 		ofSetColor(255);
 		vm->setupView();
 		vm->draw();
-		app->txManager->updateVideoTextures();
 		app->draw();
 		vm->endView();
 	}
