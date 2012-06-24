@@ -126,7 +126,7 @@ namespace PcdLoader
             foreach (DataGridViewRow tt in dataGridView1.Rows)
             {
                 PcdFile pcd = (PcdFile)tt.DataBoundItem;
-                sb.Append(string.Format("{0} -ps {1} -fc {2},{3},{4} -opaque {5} ",
+                sb.Append(string.Format("\"{0}\" -ps {1} -fc {2},{3},{4} -opaque {5} ",
                                         pcd.fullName, 
                                         pcd.size,
                                         pcd.R,
