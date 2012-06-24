@@ -205,7 +205,7 @@ namespace armCalibration {
 			XML.setValue(STOREDCLOUD_CONFIG "R4", mrc->rotations[2]);
 			XML.setValue(STOREDCLOUD_CONFIG "R8", mrc->rotations[3]);
 			XML.saveFile(getRawFilename(i, kFileTypeXML));
-			saveCloudAsFile(getRawFilename(i, kFileTypePCD), *mrc->cloud);
+			saveCloud(getRawFilename(i, kFileTypePCD), *mrc->cloud);
 			i++;
 		}
 	}
@@ -238,7 +238,7 @@ namespace armCalibration {
 				arduino.getWorldTransformation(mrc->rotations[0], mrc->rotations[1], mrc->rotations[2], mrc->rotations[3]);
 			PC transformedCloud;
 			pcl::transformPointCloud(*mrc->cloud, transformedCloud, transformationMatrix);
-			saveCloudAsFile(getTransformedFilename(i), transformedCloud);
+			saveCloud(getTransformedFilename(i), transformedCloud);
 			i++;
 		}
 
