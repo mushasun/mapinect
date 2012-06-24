@@ -25,7 +25,7 @@ namespace buildings {
 
 	}
 
-	void Building::draw(const ITxManager* txManager, const Floor& floor)
+	void Building::draw(const Floor& floor)
 	{
 		if (progress < 1.0f) {
 			progress += 0.002f;

@@ -16,7 +16,7 @@ namespace buildings {
 	}
 
 	//--------------------------------------------------------------
-	void Floor::draw(const ITxManager* txManager)
+	void Floor::draw()
 	{
 		floorTexture->bind();
 

@@ -2,7 +2,6 @@
 #define FLOOR_H__
 
 #include "IPolygon.h"
-#include "ITxManager.h"
 #include "ofGraphics.h"
 #include "ofImage.h"
 
@@ -18,7 +17,7 @@ namespace buildings {
 		inline const IPolygonPtr& getModelObject() const		{ return modelObject; }
 		inline void updateModelObject(const IPolygonPtr& p)		{ modelObject = p; }
 
-		virtual void	draw(const ITxManager* txManager);
+		virtual void	draw();
 
 	private:
 		IPolygonPtr			modelObject;
