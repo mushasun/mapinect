@@ -156,7 +156,7 @@ namespace mapinect {
 				ofVec3f v2 (yourCentroid.x(),yourCentroid.y(),yourCentroid.z());
 
 				float distEstimator = abs((v1 - v2).length());
-				cout << "size: " << distEstimator << endl;
+				//cout << "size: " << distEstimator << endl;
 				if((distEstimator < 0.05 && distEstimator < matchedDistance))
 				{
 					wasRemoved = matched != NULL;
@@ -225,9 +225,9 @@ namespace mapinect {
 				//Actualizo nube
 				this->cloud = matched->getCloud();
 			}
-			else
+			/*else
 				cout << "mantengo la misma nube - " << ofToString(this->getPolygonModelObject()->getName()) << endl;
-
+*/
 			//this->cloud = matched->getCloud();
 
 			saveCloud("pcpolygonResult" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *cloud);

@@ -113,7 +113,7 @@ namespace mapinect {
 
 		aAgregar.clear();
 
-		cout << "pols: " << pcpolygons.size() << endl;
+		//cout << "pols: " << pcpolygons.size() << endl;
 
 		polygonsCache.clear();
 		for (vector<PCPolygonPtr>::iterator p = keep.begin(); p != keep.end(); ++p)
@@ -525,12 +525,12 @@ namespace mapinect {
 			PCPtr cloudPtr(toDiscard.at(i)->getCloud());
 			if(table->isOnTable(cloudPtr))
 			{
-				cout << "pol" << ofToString(i) << " On table!" <<endl;
+				//cout << "pol" << ofToString(i) << " On table!" <<endl;
 				polygonsInBox.push_back(toDiscard.at(i));
 			}
 			else if(table->isParallelToTable(toDiscard.at(i)))
 			{
-				cout << "pol" << ofToString(i) << " parallel table!" <<endl;
+				//cout << "pol" << ofToString(i) << " parallel table!" <<endl;
 				polygonsInBox.push_back(toDiscard.at(i));
 				//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
 			}
