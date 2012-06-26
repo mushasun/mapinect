@@ -188,53 +188,55 @@ namespace mapinect {
 		saveCloud("rawInternal.pcd",*cloud);
 		pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ> octree(0.01);
 		pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ>::AlignedPointTVector voxelList;
-
-		octree.setInputCloud(cloud);
-		octree.defineBoundingBox();
-		octree.addPointsFromInputCloud();
-
-		for(int i = 0; i < potentialOcclusions.size(); i++)
+		if(cloud->size() > 0)
 		{
-			bool occluded = false;
-			PCPolyhedron* polyhedron = dynamic_cast<PCPolyhedron*>(potentialOcclusions.at(i)->getTrackedObject().get());
+			octree.setInputCloud(cloud);
+			octree.defineBoundingBox();
+			octree.addPointsFromInputCloud();
 
-			vector<ofVec3f> vexs = polyhedron->getVertexs();
-			/*for(int o = 0; o < vexs.size() && !occluded; o++)
+			for(int i = 0; i < potentialOcclusions.size(); i++)
 			{
-				Line3D ray (vexs.at(o), ofVec3f(0,0,0));
-				for(int j = 0; j < occluders.size() && !occluded; j ++)
-				{
-					vector<IPolygonPtr> pols  = occluders.at(i)->getTrackedObject()->getMathModelApproximation()->getPolygons();
-					for(int k = 0; k < pols.size() && !occluded; k ++)
-						occluded = pols.at(j)->getMathModel().isInPolygon(ray);
-				}
-				if(occluded)
-					occlusions.push_back(potentialOcclusions.at(i));
-			}*/
-		
-			for(int o = 0; o < vexs.size() && !occluded; o++)
-			{
-				ofVec3f end = vexs.at(o);
-				Eigen::Vector3f endPoint(end.x,end.y,end.z);
-				Eigen::Vector3f originPoint(0,0,0);
-				voxelList.clear();
+				bool occluded = false;
+				PCPolyhedron* polyhedron = dynamic_cast<PCPolyhedron*>(potentialOcclusions.at(i)->getTrackedObject().get());
 
-				int voxs = octree.getApproxIntersectedVoxelCentersBySegment(originPoint,endPoint,voxelList,0.01);
-
-				for(int i = 0; i < voxelList.size(); i ++)
+				vector<ofVec3f> vexs = polyhedron->getVertexs();
+				/*for(int o = 0; o < vexs.size() && !occluded; o++)
 				{
-					if(octree.isVoxelOccupiedAtPoint(voxelList.at(i)))
+					Line3D ray (vexs.at(o), ofVec3f(0,0,0));
+					for(int j = 0; j < occluders.size() && !occluded; j ++)
 					{
-						ofVec3f intersect (voxelList.at(i).x,voxelList.at(i).y,voxelList.at(i).z);
-						if((intersect - origin).length() < (end - origin).length())
-							occluded = true;
+						vector<IPolygonPtr> pols  = occluders.at(i)->getTrackedObject()->getMathModelApproximation()->getPolygons();
+						for(int k = 0; k < pols.size() && !occluded; k ++)
+							occluded = pols.at(j)->getMathModel().isInPolygon(ray);
 					}
+					if(occluded)
+						occlusions.push_back(potentialOcclusions.at(i));
+				}*/
+		
+				for(int o = 0; o < vexs.size() && !occluded; o++)
+				{
+					ofVec3f end = vexs.at(o);
+					Eigen::Vector3f endPoint(end.x,end.y,end.z);
+					Eigen::Vector3f originPoint(0,0,0);
+					voxelList.clear();
+
+					int voxs = octree.getApproxIntersectedVoxelCentersBySegment(originPoint,endPoint,voxelList,0.01);
+
+					for(int i = 0; i < voxelList.size(); i ++)
+					{
+						if(octree.isVoxelOccupiedAtPoint(voxelList.at(i)))
+						{
+							ofVec3f intersect (voxelList.at(i).x,voxelList.at(i).y,voxelList.at(i).z);
+							if((intersect - origin).length() < (end - origin).length())
+								occluded = true;
+						}
+					}
+
+					if(occluded)
+						occlusions.push_back(potentialOcclusions.at(i));
 				}
 
-				if(occluded)
-					occlusions.push_back(potentialOcclusions.at(i));
 			}
-
 		}
 		return occlusions;
 	}

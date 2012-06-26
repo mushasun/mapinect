@@ -6,6 +6,7 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/filters/project_inliers.h>
+#include <pcl/filters/voxel_grid.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/octree/octree.h>
@@ -204,6 +205,13 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
 		return PCPtr(new PC());
 	}
 
+	float voxelSize = 0;
+	if(mapinect::IsFeatureUniformDensity())
+	{
+		voxelSize = density * 0.003;
+		density = 1;
+	}
+
 	// Allocate space for max points available
 	PCPtr partialCloud(new PC());
 	partialCloud->width    = ceil((max.x - min.x) / density);
@@ -250,6 +258,15 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
 	pass.setFilterFieldName("z");
 	pass.setFilterLimits(0.001, 4.0);
 	pass.filter(*filteredCloud);
+
+	if(mapinect::IsFeatureUniformDensity())
+	{
+		PCPtr preFilter(new PC(*filteredCloud));
+		pcl::VoxelGrid<pcl::PointXYZ> sor;
+		sor.setInputCloud (preFilter);
+		sor.setLeafSize (voxelSize, voxelSize, voxelSize);
+		sor.filter (*filteredCloud);
+	}
 
 	if (mapinect::IsFeatureMoveArmActive())
 	{

@@ -15,6 +15,7 @@ namespace mapinect
 		FEATURE_SHOW_RGB,
 		FEATURE_HAND_DETECTION,
 		FEATURE_MOVE_ARM,
+		FEATURE_UNIFORM_DENSITY,
 
 		FEATURE_COUNT
 	};
@@ -30,6 +31,7 @@ namespace mapinect
 	bool IsFeatureVMActive();
 	bool IsFeatureSaveCloudActive();
 	bool IsFeatureMoveArmActive();
+	bool IsFeatureUniformDensity();
 
 	#define CHECK_ACTIVE		if (!isActive()) return
 }

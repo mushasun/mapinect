@@ -27,6 +27,7 @@ namespace mapinect
 			gFeatures[FEATURE_SHOW_RGB] = XML.getValue(FEATURE_CONFIG "SHOW_RGB", false);
 			gFeatures[FEATURE_HAND_DETECTION] = XML.getValue(FEATURE_CONFIG "HAND_DETECTION", false);
 			gFeatures[FEATURE_MOVE_ARM] = XML.getValue(FEATURE_CONFIG "MOVE_ARM",false);
+			gFeatures[FEATURE_UNIFORM_DENSITY] = XML.getValue(FEATURE_CONFIG "UNIFORM_DENSITY",true);
 		}
 
 	}
@@ -69,6 +70,11 @@ namespace mapinect
 	bool IsFeatureMoveArmActive()
 	{
 		return IsFeatureActive(FEATURE_MOVE_ARM);
+	}
+
+	bool IsFeatureUniformDensity()
+	{
+		return IsFeatureActive(FEATURE_UNIFORM_DENSITY);
 	}
 
 }

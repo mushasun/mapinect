@@ -241,7 +241,7 @@ namespace mapinect {
 		//saveCloudAsFile("modelsCloud.pcd", *modelsCloud);
 
 		PCPtr filteredCloud(new PointCloud<PointXYZ>);
-		int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, 0.01);
+		int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, CLOUD_RES * 0.003);
 		//cout << "Differences count: " << ofToString(dif) << endl;
 
 		//saveCloudAsFile("dif.pcd", *filteredCloud);
@@ -297,8 +297,8 @@ namespace mapinect {
 
 			setPCMThreadStatus("Detecting touch points...");
 			log(kLogFilePCMThread, "Detecting touch points...");
-			const float clusterTolerance = MAX_CLUSTER_TOLERANCE / 4.0f;
-			const int clusterMinSize = 200;
+			const float clusterTolerance = CLOUD_RES * 0.003 * 1.73205f;
+			const int clusterMinSize = 50;
 			const int clusterMaxSize = 5000;
 			vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, clusterTolerance, clusterMinSize, clusterMaxSize);
 		
