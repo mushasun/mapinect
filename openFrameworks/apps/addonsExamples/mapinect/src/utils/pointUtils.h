@@ -30,13 +30,15 @@ PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi);
 // sets the transformation applied to the cloud obtained from the depth camera
 void setTransformationMatrix(const Eigen::Affine3f& transform);
 
-PCXYZ transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform);
-ofVec3f transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform);
-PCPtr transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform);
+PCXYZ	transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform);
+ofVec3f	transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform);
+PCPtr	transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform);
 
 // maps points in world coordinates back to depth image coordinates
-const vector<ofVec3f>& getScreenCoords(const vector<ofVec3f>& transformedWorldPoints);
-ofVec3f getScreenCoords(const ofVec3f& transformedWorldPoint);
+PCPtr			getScreenCoords(const PCPtr& transformedWorldCloud);
+vector<ofVec3f>	getScreenCoords(const vector<ofVec3f>& transformedWorldCloud);
+PCXYZ			getScreenCoords(const PCXYZ& transformedWorldPoint);
+ofVec3f			getScreenCoords(const ofVec3f& transformedWorldPoint);
 
 // -------------------------------------------------------------------------------------
 // i/o utils
