@@ -12,10 +12,9 @@
 namespace mapinect {
 
 	PCModelObject::PCModelObject(const PCPtr& cloud, int objId)
-		: cloud(new PC(*cloud))
 	{
 		drawPointCloud = true;
-		computeBoundingBox(cloud, vMin, vMax);
+		setCloud(cloud);
 		transformation.setIdentity();
 		if (objId == -1)	
 		{
@@ -24,8 +23,6 @@ namespace mapinect {
 		}
 		setId(objId);
 		lod = 1;
-
-		this->setCenter(computeCentroid(cloud));
 
 		this->setColor(ofColor(rand()%255,rand()%255,rand()%255).getHex());
 	}
@@ -60,28 +57,13 @@ namespace mapinect {
 		if (drawPointCloud) {
 			static ofColor colors[] = { kRGBBlue, kRGBGreen, kRGBMagenta, kRGBCyan, kRGBYellow, kRGBPurple };
 			ofSetColor(colors[getId() % 6]);
-			ofVec3f w;
 			glBegin(GL_POINTS);
-			for (size_t i = 0; i < cloud->size(); i++) {
-				ofVec3f v = PCXYZ_OFVEC3F(cloud->at(i));
-				w = getScreenCoords(v);
-				glVertex3f(w.x, w.y, 5);
+			for (PC::const_iterator p = cloudScreenCoords->begin(); p != cloudScreenCoords->end(); ++p) {
+				glVertex3f(p->x, p->y, 5);
 			}
 			glEnd();
 			
 		}
-	}
-
-	//void PCModelObject::updateCloud(const PCPtr& nuCloud) {
-	//	cloud = nuCloud;
-	//	lod++;
-	//	increaseLod();
-	//}
-
-	void PCModelObject::applyTransformation (){
-		PC transformed;
-		transformPointCloud(*cloud, transformed, transformation);
-		*cloud = transformed;
 	}
 
 	void PCModelObject::addToModel(const PCPtr& nuCloud){
@@ -91,25 +73,22 @@ namespace mapinect {
 
 		//pcl::io::savePCDFileASCII ("pre.pcd", cloud);
 		//pcl::io::savePCDFileASCII ("nu.pcd", *nuCloud);
-		//applyTransformation();
 		/*cloud += *nuCloud;*/
 		//pcl::io::savePCDFileASCII ("transformed.pcd", cloud);
 	}
 
-	void PCModelObject::setAndUpdateCloud(const PCPtr& cloud)
-	{
-		setCloud(cloud);
-		computeBoundingBox(cloud, vMin, vMax);
-		
-		this->setCenter(computeCentroid(cloud));
-
-		transformation.setIdentity();
-		lod = 1;
-	}
-
 	void PCModelObject::setDrawPointCloud(bool draw)		
 	{ 
-		drawPointCloud = draw; 
+		drawPointCloud = draw;
 	}
+
+	void PCModelObject::setCloud(const PCPtr& nuCloud)
+	{
+		cloud = nuCloud;
+		computeBoundingBox(cloud, vMin, vMax);
+		setCenter(computeCentroid(cloud));
+		cloudScreenCoords = getScreenCoords(cloud);
+	}
+
 }
 

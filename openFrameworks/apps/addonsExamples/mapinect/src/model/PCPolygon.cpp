@@ -14,27 +14,31 @@
 
 namespace mapinect {
 
-	PCPolygon::PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId, bool estimated)
-		: PCModelObject(cloud, objId)
+	PCPolygon::PCPolygon(PCModelObject* container, const pcl::ModelCoefficients& coefficients,
+		const PCPtr& cloud, int objId, bool estimated)
+			: PCModelObject(cloud, objId)
 	{
 		// Point the normal towards the viewpoint
+		this->container = container;
 		this->coefficients = coefficients;
 		this->estimated = estimated;
 		if(!estimated)
 		{
-			pcl::flipNormalTowardsViewpoint(cloud->at(0),
-										0,0,0,
-										this->coefficients.values[0], this->coefficients.values[1], this->coefficients.values[2]);
-			if(this->coefficients.values != coefficients.values)
+			ofVec3f coefficientsNormal(::getNormal(this->coefficients));
+			pcl::flipNormalTowardsViewpoint(OFVEC3F_PCXYZ(getCenter()),
+										container->getCenter().x, container->getCenter().y, container->getCenter().z,
+										coefficientsNormal.x, coefficientsNormal.y, coefficientsNormal.z);
+			coefficientsNormal *= -1;
+			
+			if(coefficientsNormal != ::getNormal(coefficients))
 			{
-				Plane3D plane(PCXYZ_OFVEC3F(cloud->at(0)),
-							  ofVec3f(this->coefficients.values[0], this->coefficients.values[1], this->coefficients.values[2]));
+				Plane3D plane(getCenter(), coefficientsNormal);
 				this->coefficients = plane.getCoefficients();
 			}
 		}
 		matchedDistance = numeric_limits<float>::max();
 		matchedEstimator= numeric_limits<float>::max();
-		modelObject = ModelObjectPtr(new Polygon(coefficients));
+		modelObject = ModelObjectPtr(new Polygon(this->coefficients));
 
 		modelObject->setId(getId());
 	}
@@ -60,7 +64,7 @@ namespace mapinect {
 	}
 
 	ofVec3f PCPolygon::getNormal() {
-		ofVec3f normal(coefficients.values[0], coefficients.values[1], coefficients.values[2]);
+		ofVec3f normal(::getNormal(coefficients));
 		normal.normalize();
 		return normal;
 	}
@@ -72,7 +76,9 @@ namespace mapinect {
 				ofSetColor(kRGBRed);
 				ofVec3f avg = computeCentroid(getPolygonModelObject()->getMathModel().getVertexs());
 				ofVec3f sAvg = getScreenCoords(avg);
-				ofDrawBitmapString(ofToString(getPolygonModelObject()->getName()), sAvg.x, sAvg.y);
+				ofDrawBitmapString(ofToString(getPolygonModelObject()->getName()), sAvg.x, sAvg.y, 5);
+				ofSetColor(kRGBYellow);
+				ofCircle(sAvg.x, sAvg.y, 4, 4);
 			}
 		}
 	}
@@ -91,43 +97,6 @@ namespace mapinect {
 	void PCPolygon::increaseLod(const PCPtr& nuCloud){
 		// No existing algorithm for a generic poligon detection.
 	}
-
-	void PCPolygon::applyTransformation(Eigen::Affine3f* transformation)
-	{
-		saveCloud("preTransform.pcd",*cloud);
-		pcl::transformPointCloud(*cloud, *cloud, *transformation);
-		saveCloud("postTransform.pcd",*cloud);
-
-		Eigen::Vector3f eVec(coefficients.values.at(0),coefficients.values.at(1),coefficients.values.at(2));
-		vector<ofVec3f> vertexs = getPolygonModelObject()->getMathModel().getVertexs();
-		
-		Eigen::Vector3f pointInPlane(0,0,-coefficients.values.at(3)/coefficients.values.at(2));//(0,0,-d/c)
-
-		eVec = (*transformation) * eVec;
-		pointInPlane = (*transformation) * pointInPlane;
-
-		coefficients.values.at(0) = eVec.x();
-		coefficients.values.at(1) = eVec.y();
-		coefficients.values.at(2) = eVec.z();
-		coefficients.values.at(3) = - coefficients.values.at(0)*pointInPlane.x() //d = -ax0 -by0 -cz0
-								    - coefficients.values.at(1)*pointInPlane.y()
-									- coefficients.values.at(2)*pointInPlane.z();
-
-		detectPolygon();
-		/*for(int i = 0; i < vertexs.size(); i++)
-		{
-			eVec.x() = vertexs.at(i).x;
-			eVec.y() = vertexs.at(i).y;
-			eVec.z() = vertexs.at(i).z;
-
-			eVec = (*transformation) * eVec;
-
-			vertexs.at(i).x = eVec.x();
-			vertexs.at(i).y = eVec.y();
-			vertexs.at(i).z = eVec.z();
-		}*/
-	}
-
 
 	bool PCPolygon::matches(const PCPolygonPtr& polygon, PCPolygonPtr& removed, bool& wasRemoved)
 	{
