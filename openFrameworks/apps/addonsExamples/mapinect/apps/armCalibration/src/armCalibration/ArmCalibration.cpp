@@ -102,17 +102,37 @@ namespace armCalibration {
 
 		if (mode == kReadingClouds)
 		{
+			float sin15 = 0.2588;
+			float sin30 = 0.5;
+			float sin45 = 0.7071;
+			float cos15 = 0.9659;
+			float cos30 = 0.866;
+			float cos45 = 0.7071;
 			switch (key)
 			{
+				case '0':
+					arduino.setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0)); 
+					arduino.lookAt(ofVec3f(Arduino::ARM_LENGTH, -Arduino::KINECT_HEIGHT - Arduino::MOTORS_HEIGHT, 0.10));
+					break;
 				case '1':
-					arduino.setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0.15));
-					arduino.lookAt(ofVec3f(0.35, -0.16, 0.10));
+					//AngleMotor1 = -15
+					arduino.setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos15, -Arduino::ARM_LENGTH*sin15, 0)); 
+					arduino.lookAt(ofVec3f(arduino.getKinect3dCoordinates().x, arduino.getKinect3dCoordinates().y, arduino.getKinect3dCoordinates().z + 0.10));
 					break;
 				case '2':
-
+					//AngleMotor2 = 15
+					arduino.setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos15, 0, Arduino::ARM_LENGTH*sin15)); 
+					arduino.lookAt(ofVec3f(arduino.getKinect3dCoordinates().x, arduino.getKinect3dCoordinates().y, arduino.getKinect3dCoordinates().z + 0.10));
 					break;
 				case '3':
-
+					//AngleMotor8 > 90
+					arduino.setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0));
+					arduino.lookAt(ofVec3f(arduino.getKinect3dCoordinates().x - 0.05, arduino.getKinect3dCoordinates().y, arduino.getKinect3dCoordinates().z + 0.10));
+					break;
+				case '4':
+					//AngleMotor4 < 0 
+					arduino.setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0));
+					arduino.lookAt(ofVec3f(arduino.getKinect3dCoordinates().x, arduino.getKinect3dCoordinates().y + 0.05, arduino.getKinect3dCoordinates().z + 0.15));
 					break;
 				case ' ':
 					storeCloud();

@@ -137,6 +137,45 @@ namespace mapinect {
 	void Arduino::keyPressed (int key) {
 		CHECK_ACTIVE;
 
+		ofVec3f centroidePrueba(0.3188, 0.2454, 1.0842);
+
+		float sin15 = 0.2588;
+		float sin30 = 0.5;
+		float sin45 = 0.7071;
+		float cos15 = 0.9659;
+		float cos30 = 0.866;
+		float cos45 = 0.7071;
+		switch (key)
+		{
+			case '0':
+				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0)); 
+				lookAt(ofVec3f(Arduino::ARM_LENGTH, -Arduino::KINECT_HEIGHT - Arduino::MOTORS_HEIGHT + 0.03, 0.10));
+				break;
+			case '1':
+				//AngleMotor1 = -15
+				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos15, -Arduino::ARM_LENGTH*sin15, 0)); 
+				//lookAt(ofVec3f(getKinect3dCoordinates().x, getKinect3dCoordinates().y, getKinect3dCoordinates().z + 0.10));
+				lookAt(centroidePrueba);
+				break;
+			case '2':
+				//AngleMotor2 = 15
+				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos15, 0, Arduino::ARM_LENGTH*sin15)); 
+				//lookAt(ofVec3f(getKinect3dCoordinates().x, getKinect3dCoordinates().y, getKinect3dCoordinates().z + 0.10));
+				lookAt(centroidePrueba);
+				break;
+			case '3':
+				//AngleMotor8 > 90
+				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0));
+				//lookAt(ofVec3f(getKinect3dCoordinates().x - 0.05, getKinect3dCoordinates().y, getKinect3dCoordinates().z + 0.10));
+				lookAt(centroidePrueba);
+				break;
+			case '4':
+				//AngleMotor4 < 0 
+				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0));
+				//lookAt(ofVec3f(getKinect3dCoordinates().x, getKinect3dCoordinates().y + 0.05, getKinect3dCoordinates().z + 0.15));
+				lookAt(centroidePrueba);
+				break;
+		}
 		if (key == KEY_MOVE_1R) {
 			angleMotor1 += ANGLE_STEP;
 			sendMotor((char) angleMotor1, ID_MOTOR_1);
@@ -198,11 +237,7 @@ namespace mapinect {
 		else if (key == 's')
 		{
 			lookAt(ofVec3f(0.33, -KINECT_HEIGHT-MOTORS_HEIGHT, 0.1));
-		}
-		else if (key == 'q')
-		{
-			//getCloud();
-		}
+		}		
 
 	}
 
@@ -447,9 +482,9 @@ namespace mapinect {
 		eje_z = eje_z.rotate(-angulo_h, eje_y);
 		Plane3D vertical = Plane3D(t_posicion, eje_z);
 
-		ofVec3f mira_trans = ofVec3f(t_mira.x - posicion.x, t_mira.y - posicion.y, t_mira.z - posicion.z); 
+		ofVec3f mira_trans = ofVec3f(t_mira.x - posInicialKinect.x, t_mira.y - posInicialKinect.y, t_mira.z - posInicialKinect.z); 
 		mira_trans = mira_trans.rotate(-angulo_h, eje_y);
-		t_mira = ofVec3f(mira_trans.x + posicion.x, mira_trans.y + posicion.y, mira_trans.z + posicion.z);
+		t_mira = ofVec3f(mira_trans.x + posInicialKinect.x, mira_trans.y + posInicialKinect.y, mira_trans.z + posInicialKinect.z);
 
 		ofVec3f pvt_point = vertical.project(t_point);
 		ofVec3f pvt_mira = vertical.project(t_mira);
