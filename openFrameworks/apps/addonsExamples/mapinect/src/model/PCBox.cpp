@@ -302,7 +302,7 @@ namespace mapinect {
 		Plane3D plane(PCXYZ_OFVEC3F(cloudMoved->at(0)), normal);
 		coeff = plane.getCoefficients();
 
-		PCPolygonPtr estimatedPol (new PCQuadrilateral(this, coeff,cloudMoved,polygon->getId()*(-2),true));
+		PCPolygonPtr estimatedPol (new PCQuadrilateral(coeff,cloudMoved,polygon->getId()*(-2),true));
 		estimatedPol->detectPolygon();
 		estimatedPol->getPolygonModelObject()->setName(polName);
 
@@ -499,7 +499,7 @@ namespace mapinect {
 					coef = orientedPlane.getCoefficients();
 				}
 
-				PCPolygonPtr pcp(new PCQuadrilateral(this, coef, faceCloud, 99, true));
+				PCPolygonPtr pcp(new PCQuadrilateral(coef, faceCloud, 99, true));
 				pcp->detectPolygon();
 				pcp->getPolygonModelObject()->setName(toEstimate);
 

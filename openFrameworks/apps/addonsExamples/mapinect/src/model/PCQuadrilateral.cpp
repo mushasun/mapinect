@@ -187,12 +187,10 @@ namespace mapinect {
 		
 		//writer.write<pcl::PointXYZ> ("oldCloud.pcd", cloud, false);
 		//merge de nubes
-		cloud->operator+=(*(nuPointsOfFace.get()));
-		// to ensure PCModelObject updates dependent properties
-		setCloud(cloud);
+		this->cloud->operator+=(*(nuPointsOfFace.get()));
 
 		//writer.write<pcl::PointXYZ> ("nucloudOfFace"+ ofToString(this->getId())+".pcd", cloud, false);
-		matched = PCPolygonPtr(new PCQuadrilateral(container, coefficients, cloud));
+		matched = PCPolygonPtr(new PCQuadrilateral(coefficients, cloud));
 		matched->detectPolygon();
 		updateMatching();
 	}

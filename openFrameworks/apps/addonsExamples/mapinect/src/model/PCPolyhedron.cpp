@@ -103,15 +103,15 @@ namespace mapinect {
 		//	keep.insert(keep.end(),adjust.begin(),adjust.end());
 		//}
 
-		vector<PCPolygonPtr> polygonsInBox(discardPolygonsOutOfBox(aAgregar, keep));
+		aAgregar = discardPolygonsOutOfBox(aAgregar,keep);
 
-		for (int i = 0; i < polygonsInBox.size(); i++) {
-			if (indexOf(pcpolygons, polygonsInBox[i]) < 0) {
-				keep.push_back(polygonsInBox[i]);
+		for (int i = 0; i < aAgregar.size(); i++) {
+			if (indexOf(pcpolygons, aAgregar[i]) < 0) {
+				keep.push_back(aAgregar[i]);
 			}
 		}
 
-		polygonsInBox.clear();
+		aAgregar.clear();
 
 		//cout << "pols: " << pcpolygons.size() << endl;
 
@@ -124,6 +124,115 @@ namespace mapinect {
 		return keep;
 	}
 	
+	//vector<PCPolygonPtr> PCPolyhedron::detectPolygons(const PCPtr& cloud, float planeTolerance, float pointsTolerance, bool limitFaces){
+	//	PCPtr cloudTemp(cloud);
+	//	
+	//	float maxFaces = limitFaces ? MAX_FACES : 100;
+	//	sensor_msgs::PointCloud2::Ptr cloud_blob (new sensor_msgs::PointCloud2());
+	//	sensor_msgs::PointCloud2::Ptr cloud_filtered_blob (new sensor_msgs::PointCloud2);
+	//	PCPtr cloud_p (new PC());
+	//	pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
+	//	
+	//	pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
+	//	pcl::SACSegmentation<pcl::PointXYZ> seg;
+	//	pcl::ExtractIndices<pcl::PointXYZ> extract;
+	//	std::vector<ofVec3f> vCloudHull;
+
+	//	// Optional
+	//	seg.setOptimizeCoefficients (true);
+	//	// Mandatory
+	//	seg.setModelType (pcl::SACMODEL_PLANE);
+	//	seg.setMethodType (pcl::SAC_RANSAC);
+	//	seg.setMaxIterations (50);
+	//	seg.setDistanceThreshold (planeTolerance); //original: 0.01
+	//	// Create the filtering object
+	//	int i = 0, nr_points = cloudTemp->points.size ();
+	//	// mientras 7% de la nube no se haya procesado
+
+	//	vector<PCPolygonPtr> nuevos;
+
+	//	int numFaces = 0;
+	//	
+	//	while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < maxFaces)
+	//	{
+	//		pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
+	//		// Segment the largest planar component from the remaining cloud
+	//		seg.setInputCloud (cloudTemp);
+	//		seg.segment (*inliers, *coefficients);
+	//		if (inliers->indices.size () == 0) {
+	//			std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+	//			break;
+	//		}
+
+	//		//FIX
+	//		PCPtr cloud_filtered_temp_inliers (new PC());
+	//		PCPtr cloud_filtered_temp_outliers (new PC());
+	//		if(inliers->indices.size() != cloudTemp->size())
+	//		{
+	//			// Extract the inliers
+	//			extract.setInputCloud (cloudTemp);
+	//			extract.setIndices (inliers);
+	//			extract.setNegative (false);
+	//			extract.filter (*cloud_filtered_temp_inliers);
+	//			cloud_p = cloud_filtered_temp_inliers;
+	//		}
+	//		else
+	//			cloud_p = cloudTemp;
+	//	
+	//		// Create the filtering object
+	//		extract.setInputCloud (cloudTemp);
+	//		extract.setIndices (inliers);
+	//		extract.setNegative (true);
+
+	//	
+	//		if(cloud_p->size() != cloudTemp->size())
+	//			extract.filter (*cloud_filtered_temp_outliers);
+
+	//		cloudTemp = cloud_filtered_temp_outliers;
+
+	//		saveCloudAsFile("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
+	//		
+	//		//Remove outliers by clustering
+	//		PCPtr cloud_p_filtered (new PC());
+	//		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+	//		tree->setInputCloud (cloud_p);
+
+	//		std::vector<pcl::PointIndices> cluster_indices;
+	//		pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+	//		ec.setClusterTolerance (0.02); 
+	//		ec.setMinClusterSize (5);
+	//		ec.setMaxClusterSize (10000);
+	//		ec.setSearchMethod (tree);
+	//		ec.setInputCloud(cloud_p);
+
+	//		ec.extract (cluster_indices);
+	//		int debuccount = 0;
+
+	//		if(cluster_indices.size() > 0)
+	//		{
+	//			for (std::vector<int>::const_iterator pit = cluster_indices.at(0).indices.begin (); pit != cluster_indices.at(0).indices.end (); pit++)
+	//				cloud_p_filtered->points.push_back (cloud_p->points[*pit]); //*
+	//		}
+
+	//		saveCloudAsFile("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
+	//		if (cloud_p_filtered->size() < 4)
+	//			break;
+
+	//		PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, cloud_p_filtered));
+	//		pcp->detectPolygon();
+	//		pcp->getPolygonModelObject()->setContainer(this);
+	//		
+	//		nuevos.push_back(pcp);
+	//		
+	//		i++;
+	//		numFaces++;
+	//	}
+	//	
+
+
+	//	return nuevos;
+	//}
+
 	vector<PCPolygonPtr> PCPolyhedron::detectPolygons(const PCPtr& cloud, float planeTolerance, float pointsTolerance, bool limitFaces)
 	{
 		PCPtr cloudTemp(cloud);
@@ -218,7 +327,7 @@ namespace mapinect {
 
 			saveCloud("postfilter_pol_proy" + ofToString(i) + ".pcd",*projected_cloud);
 
-			PCPolygonPtr pcp(new PCQuadrilateral(this, *coefficients, projected_cloud));
+			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projected_cloud));
 			pcp->detectPolygon();
 			
 			nuevos.push_back(pcp);
@@ -329,6 +438,24 @@ namespace mapinect {
 				}
 			}
 		}
+
+		/*///DEBUG
+		vector<ofVec3f> vecList;
+		for (vector<PCPolygonPtr>::iterator nextIter = pcpolygons.begin(); nextIter != pcpolygons.end(); nextIter++) {
+			Polygon* polygon = (*nextIter)->getPolygonModelObject();
+			for (int j = 0; j < polygon->getVertexCount(); j++){
+				ofVec3f v(polygon->getVertex(j));
+				vecList.push_back(v);
+			}
+		}
+		createCloud(vecList,"UnifiedVertex.pcd");*/
+
+		//for(int i = 0; i < vertexs.size(); i++)
+		//{
+		//	cout << "vertex " << ofToString(i) << ": " << vertexs.at(i).getPoint() << endl;
+		//	for(int j = 0; j < vertexs.at(i).Polygons.size(); j ++)
+		//		cout << "\t" << vertexs.at(i).Polygons.at(j)->getPolygonModelObject()->getName() << endl;
+		//}
 	}
 
 	bool PCPolyhedron::findBestFit(const PCPolygonPtr& polygon, PCPolygonPtr& removed, bool& wasRemoved)
@@ -377,15 +504,23 @@ namespace mapinect {
 	void PCPolyhedron::increaseLod(const PCPtr& nuCloud) {
 		PCModelObject::increaseLod(nuCloud);
 		addToModel(nuCloud);
+		/*for(vector<PCPolygonPtr>::iterator iter = pcpolygons.begin(); iter != pcpolygons.end(); iter++){
+			(*iter)->increaseLod(cloud);
+		}
+		unifyVertexs();*/
 	}
 
 	vector<PCPolygonPtr>	PCPolyhedron::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard)
 	{
 		vector<PCPolygonPtr> polygonsInBox;
 
+		//pcl::io::savePCDFile("table.pcd",table->getCloud());
+		
 		gModel->tableMutex.lock();
 		for(int i = 0; i < toDiscard.size(); i++)
 		{
+			//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
+
 			TablePtr table = gModel->getTable();
 			PCPtr cloudPtr(toDiscard.at(i)->getCloud());
 			if(table->isOnTable(cloudPtr))
@@ -397,6 +532,7 @@ namespace mapinect {
 			{
 				//cout << "pol" << ofToString(i) << " parallel table!" <<endl;
 				polygonsInBox.push_back(toDiscard.at(i));
+				//pcl::io::savePCDFile("pol" + ofToString(i) + ".pcd",toDiscard.at(i)->getCloud());
 			}
 
 		}
@@ -453,10 +589,21 @@ namespace mapinect {
 		}
 		saveCloud("finalCloud" + ofToString(getId()) + ".pcd", *finalCloud);
 
-		setCloud(finalCloud);
+		cloud = finalCloud;
+		computeBoundingBox(cloud, vMin, vMax);
+		
+		this->setCenter(computeCentroid(cloud));
+
+		
 
 		pcPolygonsMutex.unlock();
 
 	}
+
+	void PCPolyhedron::setAndUpdateCloud(const PCPtr& cloud)
+	{
+		setCloud(cloud);
+	}
+
 
 }

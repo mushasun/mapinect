@@ -118,39 +118,29 @@ PCPtr transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform)
 	return transformedCloud;
 }
 
-PCPtr getScreenCoords(const PCPtr& transformedWorldCloud)
-{
-	PCPtr screenCloud(new PC());
-	for (PC::const_iterator p = transformedWorldCloud->begin(); p != transformedWorldCloud->end(); ++p)
-	{
-		screenCloud->push_back(getScreenCoords(*p));
-	}
-	return screenCloud;
-}
-
-vector<ofVec3f> getScreenCoords(const vector<ofVec3f>& transformedWorldCloud)
+const vector<ofVec3f>& getScreenCoords(const vector<ofVec3f>& transformedWorldPoints)
 {
 	vector<ofVec3f> screenPoints;
-	for (vector<ofVec3f>::const_iterator v = transformedWorldCloud.begin(); v != transformedWorldCloud.end(); ++v)
+	for (vector<ofVec3f>::const_iterator v = transformedWorldPoints.begin(); v != transformedWorldPoints.end(); ++v)
 	{
 		screenPoints.push_back(getScreenCoords(*v));
 	}
 	return screenPoints;
 }
 
-PCXYZ getScreenCoords(const PCXYZ& transformedWorldPoint)
-{
-	// Apply to world point the inverse transformation
-	PCXYZ transf = pcl::transformPoint(transformedWorldPoint, transformationMatrixInverse);
-	// Then, we call the depth device instance to transform to the depth image coordinates
-	ofVec3f screenCoord = gKinect->getScreenCoordsFromWorldCoords(PCXYZ_OFVEC3F(transf));
-	return OFVEC3F_PCXYZ(screenCoord);
-}
-
 ofVec3f getScreenCoords(const ofVec3f& transformedWorldPoint)
 {
-	PCXYZ screenPoint(getScreenCoords(OFVEC3F_PCXYZ(transformedWorldPoint)));
-	return PCXYZ_OFVEC3F(screenPoint);
+	if (mapinect::IsFeatureMoveArmActive())
+	{
+		// Apply to world point the inverse transformation
+		PCXYZ transf = pcl::transformPoint(OFVEC3F_PCXYZ(transformedWorldPoint), transformationMatrixInverse);
+		// Then, we call the depth device instance to transform to the depth image coordinates
+		return gKinect->getScreenCoordsFromWorldCoords(PCXYZ_OFVEC3F(transf));
+	}
+	else
+	{
+		return gKinect->getScreenCoordsFromWorldCoords(transformedWorldPoint);
+	}
 }
 
 // -------------------------------------------------------------------------------------
@@ -277,7 +267,15 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
 		sor.setLeafSize (voxelSize, voxelSize, voxelSize);
 		sor.filter (*filteredCloud);
 	}
-	return transformCloud(filteredCloud, transformationMatrix);
+
+	if (mapinect::IsFeatureMoveArmActive())
+	{
+		return transformCloud(filteredCloud, transformationMatrix);
+	}
+	else
+	{
+		return filteredCloud;
+	}
 }
 
 PCPtr getCloud(int density)
@@ -477,15 +475,8 @@ float boxProbability(const PCPtr& cloud)
 {
 	gModel->tableMutex.lock();
 	mapinect::TablePtr table = gModel->getTable();
-	bool isCloudOnTable = false;
-	ofVec3f tableNormal;
-	if (table != NULL)
-	{
-		isCloudOnTable = table->isOnTable(cloud);
-		tableNormal = table->getNormal();
-	}
 	gModel->tableMutex.unlock();
-	if(isCloudOnTable)
+	if(table != NULL && table->isOnTable(cloud))
 	{
 		//pcl::io::savePCDFile("isBox.pcd",*cloud);
 		vector<ofVec3f> normals;
@@ -541,6 +532,8 @@ float boxProbability(const PCPtr& cloud)
 			//Chequeo que las normales sean perpendiculares entre si y paraleas o perpendiculares a la mesa.
 			if(table != NULL)
 			{
+				ofVec3f tableNormal = table->getNormal();
+
 				float dot = abs(tableNormal.dot(norm));
 				if( dot > 0.1 && dot < 0.9)
 					return 0;
@@ -571,11 +564,8 @@ float boxProbability(const PCPtr& cloud)
 			numFaces++;
 		}
 
-		float pointsPercent = pointsInPlanes/totalPoints;
-		if (inRange(numFaces, 2, 3))
-			return pointsPercent;
-		else if (numFaces == 1 && abs(tableNormal.dot(normals[0])) < 0.1)
-			return pointsPercent;
+		if(numFaces > 0 && numFaces < 4)
+			return pointsInPlanes/totalPoints;
 		else
 			return 0;
 	}

@@ -100,6 +100,9 @@
     <ClCompile Include="src\utils\ofGraphicsUtils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\model\PCHand.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\addons\ofxMutex\src\ofxMutex.cpp">
       <Filter>addons\ofxMutex\src</Filter>
     </ClCompile>
@@ -281,6 +284,9 @@
     </ClInclude>
     <ClInclude Include="src\vm\VM.h">
       <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\PCHand.h">
+      <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\objectTypesEnum.h">
       <Filter>utils</Filter>
