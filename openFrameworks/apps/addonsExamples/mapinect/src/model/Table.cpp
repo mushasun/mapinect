@@ -12,13 +12,10 @@ namespace mapinect
 	{
 		PCPtr transformedCloud(cloud);
 		pcl::ModelCoefficients transformedCoefficients(coefficients);
-		PCPtr containerCloud(new PC());
-		containerCloud->push_back(PCXYZ(0, 0, 0));
-		PCModelObject* container = new PCModelObject(containerCloud);
-		
+		/*
 		if (!IsFeatureMoveArmActive())
 		{
-			// We want to set the table as the plane y = 0
+			// We want to set the table as the plane z = 0
 			// While we don't have the arm transformation, we will translate the origin to
 			// table's centroid directly from Kinect's origin
 			Eigen::Vector3f axisX(1, 0, 0);
@@ -41,14 +38,10 @@ namespace mapinect
 			transformedCoefficients.values[1] = -1;
 			transformedCoefficients.values[2] = 0;
 			transformedCoefficients.values[3] = 0;
-
-			ofVec3f transformedViewpoint = -transformPoint(ofVec3f(0, 0, 0), composed_matrix);
-			containerCloud->at(0) = OFVEC3F_PCXYZ(transformedViewpoint);
-			delete container;
-			container = new PCModelObject(containerCloud);
 		}
-		
-		TablePtr table(new Table(container, transformedCoefficients, transformedCloud));
+		*/
+
+		TablePtr table(new Table(transformedCoefficients, transformedCloud));
 		table->detect();
 		//table->setDrawPointCloud(false);
 		gModel->setTable(table);

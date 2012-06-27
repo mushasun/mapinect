@@ -26,6 +26,7 @@ namespace mapinect {
 			virtual void			resetLod();
 			virtual void			increaseLod(const PCPtr& nuCloud);
 			virtual void			addToModel(const PCPtr& nuCloud);
+			virtual void			setAndUpdateCloud(const PCPtr& cloud);
 
 			inline const vector<IPolygon*>	getPolygons()					{ return polygonsCache; }
 			inline const vector<ofVec3f>	getVertexs()					{ return vertexs; }

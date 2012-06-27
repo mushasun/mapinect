@@ -189,10 +189,7 @@ namespace mapinect {
 				PCPtr biggestPlaneCloud = extractBiggestPlane(tableCluster, coefficients, remainingCloud, 0.009);
 				saveCloud("table.pcd", *biggestPlaneCloud);
 				Table::Create(coefficients, biggestPlaneCloud);
-				if (!IsFeatureMoveArmActive())
-				{
-					tableClusterLastCentroid = ofVec3f(0, 0, 0);
-				}
+				//tableClusterLastCentroid = ofVec3f(0, 0, 0);
 			}
 			else
 			{
@@ -272,12 +269,31 @@ namespace mapinect {
 			// split the new cloud from the existing one
 			setPCMThreadStatus("Obtaining difference cloud from model...");
 			log(kLogFilePCMThread, "Obtaining difference cloud from model...");
-			if (objectsOnTableTopCloud->size() > 200)
-			{
-				PCPtr differenceCloud = getDifferenceCloudFromModel(objectsOnTableTopCloud);
-				vector<IObjectPtr> mathModel(gModel->getMathModelApproximation());
+			PCPtr differenceCloud = getDifferenceCloudFromModel(objectsOnTableTopCloud);
+			vector<IObjectPtr> mathModel(gModel->getMathModelApproximation());
 
-				// touch detection and tracking
+			PC keep;
+			for (PC::iterator pic = differenceCloud->begin(); pic != differenceCloud->end(); ++pic)
+			{
+				bool found = false;
+				for (vector<IObjectPtr>::const_iterator ob = mathModel.begin(); !found && ob != mathModel.end(); ++ob)
+				{
+					for (vector<IPolygonPtr>::const_iterator p = (*ob)->getPolygons().begin(); !found && p != (*ob)->getPolygons().end(); ++p)
+					{
+						if ((*p)->getMathModel().distance(ofVec3f(pic->x, pic->y, pic->z)) >= TOUCH_DISTANCE / 4.0f)
+						{
+							found = true;
+						}
+					}
+				}
+				if (found)
+				{
+					keep.push_back(*pic);
+				}
+			}
+			*differenceCloud = keep;
+
+			// touch detection and tracking
 
 			setPCMThreadStatus("Detecting touch points...");
 			log(kLogFilePCMThread, "Detecting touch points...");
@@ -286,130 +302,129 @@ namespace mapinect {
 			const int clusterMaxSize = 5000;
 			vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, clusterTolerance, clusterMinSize, clusterMaxSize);
 		
-				map<IPolygonPtr, vector<ofVec3f> > pointsCloserToModel;
+			map<IPolygonPtr, vector<ofVec3f> > pointsCloserToModel;
 
-				for (int i = 0; i < clusterIndices.size(); ++i)
+			for (int i = 0; i < clusterIndices.size(); ++i)
+			{
+				PCPtr cluster = getCloudFromIndices(differenceCloud, clusterIndices.at(i));
+				saveCloud("cluster" + ofToString(i) + ".pcd", *cluster);
+
+				// filter the points that are close to the math model
+				vector<ofVec3f> vCluster(pointCloudToOfVecVector(cluster));
+				for (vector<ofVec3f>::iterator v = vCluster.begin(); v != vCluster.end(); ++v)
 				{
-					PCPtr cluster = getCloudFromIndices(differenceCloud, clusterIndices.at(i));
-					saveCloud("cluster" + ofToString(i) + ".pcd", *cluster);
-
-					// filter the points that are close to the math model
-					vector<ofVec3f> vCluster(pointCloudToOfVecVector(cluster));
-					for (vector<ofVec3f>::iterator v = vCluster.begin(); v != vCluster.end(); ++v)
+					bool found = false;
+					for (vector<IObjectPtr>::const_iterator ob = mathModel.begin(); !found && ob != mathModel.end(); ++ob)
 					{
-						bool found = false;
-						for (vector<IObjectPtr>::const_iterator ob = mathModel.begin(); !found && ob != mathModel.end(); ++ob)
+						float minDistance = MAX_FLOAT;
+						IPolygonPtr polygon;
+						for (vector<IPolygonPtr>::const_iterator p = (*ob)->getPolygons().begin(); p != (*ob)->getPolygons().end(); ++p)
 						{
-							float minDistance = MAX_FLOAT;
-							IPolygonPtr polygon;
-							for (vector<IPolygonPtr>::const_iterator p = (*ob)->getPolygons().begin(); p != (*ob)->getPolygons().end(); ++p)
+							ofVec3f planeProjected((*p)->getMathModel().getPlane().project(*v));
+							if ((*p)->getMathModel().isInPolygon(planeProjected))
 							{
-								ofVec3f planeProjected((*p)->getMathModel().getPlane().project(*v));
-								if ((*p)->getMathModel().isInPolygon(planeProjected))
+								float distance = (*p)->getMathModel().distance(*v);
+								if (inRange(distance, TOUCH_DISTANCE / 4.0f, TOUCH_DISTANCE) && distance < minDistance)
 								{
-									float distance = (*p)->getMathModel().distance(*v);
-									if (inRange(distance, TOUCH_DISTANCE / 4.0f, TOUCH_DISTANCE) && distance < minDistance)
-									{
-										minDistance = distance;
-										polygon = *p;
-									}
+									minDistance = distance;
+									polygon = *p;
 								}
 							}
-							if (polygon.get() != NULL)
+						}
+						if (polygon.get() != NULL)
+						{
+							found = true;
+							map<IPolygonPtr, vector<ofVec3f> >::iterator it = pointsCloserToModel.find(polygon);
+							if (it == pointsCloserToModel.end())
 							{
-								found = true;
-								map<IPolygonPtr, vector<ofVec3f> >::iterator it = pointsCloserToModel.find(polygon);
-								if (it == pointsCloserToModel.end())
-								{
-									vector<ofVec3f> points;
-									pointsCloserToModel.insert(make_pair(polygon, points));
-									it = pointsCloserToModel.find(polygon);
-								}
-								it->second.push_back((polygon)->getMathModel().getPlane().project(*v));
+								vector<ofVec3f> points;
+								pointsCloserToModel.insert(make_pair(polygon, points));
+								it = pointsCloserToModel.find(polygon);
 							}
+							it->second.push_back((polygon)->getMathModel().getPlane().project(*v));
 						}
 					}
 				}
+			}
 
-				list<TrackedTouchPtr> newTouchPoints;
-				for (map<IPolygonPtr, vector<ofVec3f> >::const_iterator i = pointsCloserToModel.begin(); i != pointsCloserToModel.end(); ++i)
+			list<TrackedTouchPtr> newTouchPoints;
+			for (map<IPolygonPtr, vector<ofVec3f> >::const_iterator i = pointsCloserToModel.begin(); i != pointsCloserToModel.end(); ++i)
+			{
+				PCPtr polygonTouchPointsCloud(ofVecVectorToPointCloud(i->second));
+				bool useClustering = true;
+				bool usePCL = false;
+				if (useClustering)
 				{
-					PCPtr polygonTouchPointsCloud(ofVecVectorToPointCloud(i->second));
-					bool useClustering = true;
-					bool usePCL = false;
-					if (useClustering)
+					const double tolerance = MAX_CLUSTER_TOLERANCE / 2;
+					const int minClusterSize = 1;
+					const int maxClusterSize = 5000;
+					const int maxTouchClusterSize = 8;
+					if (usePCL)
 					{
-						const double tolerance = MAX_CLUSTER_TOLERANCE / 2;
-						const int minClusterSize = 1;
-						const int maxClusterSize = 5000;
-						const int maxTouchClusterSize = 8;
-						if (usePCL)
-						{
-							std::vector<pcl::PointIndices> cluster_indices =
-								findClusters(polygonTouchPointsCloud, tolerance, minClusterSize, maxClusterSize);
+						std::vector<pcl::PointIndices> cluster_indices =
+							findClusters(polygonTouchPointsCloud, tolerance, minClusterSize, maxClusterSize);
 
-							for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
-							{
-								if (it->indices.size() <= maxTouchClusterSize)		// Avoid new big objects from being recognized as touch points
-								{
-									PCPtr cloud_cluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
-									ofVec3f touchPoint(computeCentroid(cloud_cluster));
-									newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
-								}
-							}
-						}
-						else
+						for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 						{
-							vector<vector<ofVec3f> > clusters = findClusters(pointCloudToOfVecVector(polygonTouchPointsCloud),
-								tolerance, minClusterSize, maxClusterSize);
-
-							for (vector<vector<ofVec3f> >::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
+							if (it->indices.size() <= maxTouchClusterSize)		// Avoid new big objects from being recognized as touch points
 							{
-								if (it->size() <= maxTouchClusterSize)
-								{
-									ofVec3f touchPoint(computeCentroid(*it));
-									newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
-								}
+								PCPtr cloud_cluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
+								ofVec3f touchPoint(computeCentroid(cloud_cluster));
+								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
 							}
 						}
 					}
 					else
 					{
-						for (vector<ofVec3f>::const_iterator v = i->second.begin(); v != i->second.end(); ++v)
+						vector<vector<ofVec3f> > clusters = findClusters(pointCloudToOfVecVector(polygonTouchPointsCloud),
+							tolerance, minClusterSize, maxClusterSize);
+
+						for (vector<vector<ofVec3f> >::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
 						{
-							newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, *v)));
+							if (it->size() <= maxTouchClusterSize)
+							{
+								ofVec3f touchPoint(computeCentroid(*it));
+								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
+							}
 						}
 					}
 				}
-
-				// Look into the new touch points for the best fit
-				list<TrackedTouchPtr> touchPointsToMatch;
-				list<TrackedTouchPtr> touchPointsToAdd;
-
-				int max_iter = 10;
-				setPCMThreadStatus("Matching touch points with existing ones...");
-				log(kLogFilePCMThread, "Matching touch points with existing ones...");
-				do
+				else
 				{
-					for (list<TrackedTouchPtr>::iterator iter = newTouchPoints.begin(); iter != newTouchPoints.end(); iter++)
+					for (vector<ofVec3f>::const_iterator v = i->second.begin(); v != i->second.end(); ++v)
 					{
-						TrackedTouchPtr removed;
-						bool wasRemoved = false;
-						bool fitted = findBestFit(*iter, removed, wasRemoved);
-
-						if (wasRemoved)
-							touchPointsToMatch.push_back(removed);	// Push back the old cloud to try again
-						if (!fitted)
-							touchPointsToAdd.push_back(*iter);			// No matching cloud, this will be a new object
+						newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, *v)));
 					}
-					newTouchPoints = touchPointsToMatch;
-					touchPointsToMatch.clear();
-					max_iter--;
 				}
-				while (newTouchPoints.size() > 0 && max_iter > 0);
-
-				trackedTouchPoints.insert(trackedTouchPoints.end(), touchPointsToAdd.begin(), touchPointsToAdd.end());
 			}
+
+			// Look into the new touch points for the best fit
+			list<TrackedTouchPtr> touchPointsToMatch;
+			list<TrackedTouchPtr> touchPointsToAdd;
+
+			int max_iter = 10;
+			setPCMThreadStatus("Matching touch points with existing ones...");
+			log(kLogFilePCMThread, "Matching touch points with existing ones...");
+			do
+			{
+				for (list<TrackedTouchPtr>::iterator iter = newTouchPoints.begin(); iter != newTouchPoints.end(); iter++)
+				{
+					TrackedTouchPtr removed;
+					bool wasRemoved = false;
+					bool fitted = findBestFit(*iter, removed, wasRemoved);
+
+					if (wasRemoved)
+						touchPointsToMatch.push_back(removed);	// Push back the old cloud to try again
+					if (!fitted)
+						touchPointsToAdd.push_back(*iter);			// No matching cloud, this will be a new object
+				}
+				newTouchPoints = touchPointsToMatch;
+				touchPointsToMatch.clear();
+				max_iter--;
+			}
+			while (newTouchPoints.size() > 0 && max_iter > 0);
+
+			trackedTouchPoints.insert(trackedTouchPoints.end(), touchPointsToAdd.begin(), touchPointsToAdd.end());
 
 			// Effectuate the update of the tracked touch points with the new ones
 			setPCMThreadStatus("Updating touch points and pushing events to the application...");
