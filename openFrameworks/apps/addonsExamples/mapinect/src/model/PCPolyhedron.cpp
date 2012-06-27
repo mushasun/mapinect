@@ -475,7 +475,7 @@ namespace mapinect {
 		for(int i = 0; i < vertexs.size(); i++)
 		{
 			ofSetColor(this->getColor());
-			ofVec3f w = gKinect->getScreenCoordsFromWorldCoords(vertexs.at(i));
+			ofVec3f w = getScreenCoords(vertexs.at(i));
 			ofCircle(w.x, w.y, 4);
 		}
 		pcPolygonsMutex.unlock();

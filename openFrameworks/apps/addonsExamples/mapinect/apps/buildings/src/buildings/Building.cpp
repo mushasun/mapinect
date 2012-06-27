@@ -27,6 +27,8 @@ namespace buildings {
 
 	void Building::draw(const Floor& floor)
 	{
+		progress = 1.0f;	// prueba Vero
+
 		if (progress < 1.0f) {
 			progress += 0.002f;
 		}
