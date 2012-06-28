@@ -13,7 +13,6 @@
 #include "objectTypesEnum.h"
 #include "PCPolyhedron.h"
 #include "PCBox.h"
-#include "PCHand.h"
 #include "pointUtils.h"
 #include "Table.h"
 #include "utils.h"
@@ -71,11 +70,14 @@ namespace mapinect {
 
 	}
 
-	void TrackedCloud::addCounter(int diff) {
+	void TrackedCloud::addCounter(int diff)
+	{
 		counter += diff;
 		//cout << "counter: " << counter;
-		if (counter <= 0) {
-			if (hasObject()) {
+		if (counter <= 0)
+		{
+			if (hasObject())
+			{
 				gModel->removeObject(objectInModel);
 				objectInModel.reset();
 			}
@@ -94,7 +96,7 @@ namespace mapinect {
 					cout << "BOX DETECTED" << endl;
 					break;
 				case UNRECOGNIZED:
-					cout << "UNRECOGNIZED!" << endl;
+					//cout << "UNRECOGNIZED!" << endl;
 					counter-= 2;
 					return;
 					break;
@@ -223,17 +225,6 @@ namespace mapinect {
 			PCPtr cloud = getCloud(density);
 			PCPtr nuCloud = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.005,cloud);
 
-			PCPtr nuCloudFiltered (new PC());
-			PCPtr nuCloudFilteredNoTable (new PC());
-
-			PassThrough<PointXYZ> pass;
-			pass.setInputCloud (nuCloud);
-			pass.setFilterFieldName ("z");
-			pass.setFilterLimits (0.001, 4.0);
-			pass.filter (*nuCloudFiltered);
-			
-			saveCloud("preFiltroMesa.pcd",*nuCloudFiltered);
-
 			//Quito los puntos que pertenecen a la mesa
 			ModelCoefficients tableCoef;
 			{
@@ -242,23 +233,16 @@ namespace mapinect {
 				gModel->tableMutex.unlock();
 
 			}
-			PointIndices::Ptr tableIdx = adjustPlane(tableCoef,nuCloud);
+			PointIndices::Ptr tableIdx = adjustPlane(tableCoef, nuCloud);
 
+			PCPtr nuCloudFilteredNoTable(new PC());
 			pcl::ExtractIndices<pcl::PointXYZ> extract;
-			extract.setInputCloud (nuCloudFiltered);
+			extract.setInputCloud (nuCloud);
 			extract.setIndices (tableIdx);
 			extract.setNegative (true);
 			extract.filter (*nuCloudFilteredNoTable);
-
 			saveCloud("postFiltroMesa.pcd",*nuCloudFilteredNoTable);
-			///Commented for debug
-			/*
-			{
-				ofxScopedMutex osm(gModel->objectsMutex);
-				objectInModel->updateCloud(nuCloudFilteredNoTable);
-			}
-			*/
-			
+
 			///Added for debug
 			{
 				gModel->objectsMutex.lock();

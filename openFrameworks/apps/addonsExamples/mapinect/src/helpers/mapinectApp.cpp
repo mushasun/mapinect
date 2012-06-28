@@ -47,13 +47,17 @@ namespace mapinect {
 
 		app->armController = new ArmController(&arduino);
 
-		if (IsFeatureMoveArmActive()) {
+		if (IsFeatureMoveArmActive())
+		{
 			// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
 			setTransformationMatrix(arduino.getWorldTransformation());	
 			// Set transformation matrix in VM to apply to Modelview matrix
 			vm->setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
 		}
-
+		else
+		{
+			vm->setInverseWorldTransformationMatrix(getTransformationMatrix());
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -83,11 +87,16 @@ namespace mapinect {
 		pcm.update(isKinectFrameNew);
 		arduino.update();
 
-		if  (IsFeatureMoveArmActive()) {
+		if  (IsFeatureMoveArmActive())
+		{
 			// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
 			setTransformationMatrix(arduino.getWorldTransformation());	// Method from pointUtils	
 			// Set transformation matrix in VM to apply to Modelview matrix
 			vm->setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
+		}
+		else
+		{
+			vm->setInverseWorldTransformationMatrix(getTransformationMatrix());
 		}
 
 	}
