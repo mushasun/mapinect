@@ -10,6 +10,11 @@ int posicion2 = 512;
 int posicion4 = 512;
 int posicion8 = 582; //el cero está corrido :@
 
+int posicion1verdadera = 512;
+int posicion2verdadera = 512;
+int posicion4verdadera = 512;
+int posicion8verdadera = 582; //el cero está corrido :@
+
 void setup() 
 {
   motor1 = AX12();
@@ -61,6 +66,7 @@ void imprimirInfoMotores()
   int pos = motor1.getPos(); 
   int load = motor1.getLoad();
   Serial.print("Posicion: ");
+  Serial.println(pos, BIN);
   Serial.println(pos, DEC);
   Serial.print("Carga: ");
   Serial.println(load, DEC);
@@ -69,6 +75,7 @@ void imprimirInfoMotores()
   pos = motor2.getPos(); 
   load = motor2.getLoad();
   Serial.print("Posicion: ");
+  Serial.println(pos, BIN);
   Serial.println(pos, DEC);
   Serial.print("Carga: ");
   Serial.println(load, DEC);
@@ -77,17 +84,38 @@ void imprimirInfoMotores()
   pos = motor4.getPos(); 
   load = motor4.getLoad();
   Serial.print("Posicion: ");
+  Serial.println(pos, BIN);
   Serial.println(pos, DEC);
   Serial.print("Carga: ");
   Serial.println(load, DEC);
   
-  /*Serial.println("Motor 8:");
+  Serial.println("Motor 8:");
   pos = motor8.getPos(); 
   load = motor8.getLoad();
   Serial.print("Posicion: ");
+  Serial.println(pos, BIN);
   Serial.println(pos, DEC);
   Serial.print("Carga: ");
-  Serial.println(load, DEC);*/
+  Serial.println(load, DEC);
+}
+
+void llegoAPosicionFinal(){
+  int p1va = motor1.getPos();
+  int p2va = motor2.getPos();
+  int p4va = motor4.getPos();
+  int p8va = motor8.getPos();
+  if (p1va != posicion1verdadera || p2va != posicion2verdadera || p4va != posicion4verdadera || p8va != posicion8verdadera){
+    posicion1verdadera = p1va;
+    posicion2verdadera = p2va;
+    posicion4verdadera = p4va;
+    posicion8verdadera = p8va;
+    boolean llegoMotor1 = ((posicion1verdadera - posicion1) * (posicion1verdadera - posicion1) <= 16);
+    boolean llegoMotor2 = ((posicion2verdadera - posicion2) * (posicion2verdadera - posicion2) <= 16);
+    boolean llegoMotor4 = ((posicion4verdadera - posicion4) * (posicion4verdadera - posicion4) <= 16);
+    boolean llegoMotor8 = ((posicion8verdadera - posicion8) * (posicion8verdadera - posicion8) <= 16);
+    Serial.println(llegoMotor1 && llegoMotor2 && llegoMotor4 && llegoMotor8);
+    imprimirInfoMotores();
+  }
 }
 
 void loop()
@@ -96,46 +124,33 @@ void loop()
   {
     byte id = Serial.read();
     byte angulo = Serial.read();
-    int angulo_pasado = pasarAngulo(angulo);
-    Serial.print("id: ");
-    Serial.println(id, DEC);
-    Serial.print("Angulo o: ");
-    Serial.println(angulo, DEC);
-    if (id==1){
-      posicion1 = angulo_pasado;
-      Serial.print("Angulo p: ");
-      Serial.println(posicion1, DEC);
+    if (id == 0){
+      llegoAPosicionFinal();
     }
-    else if (id==2){
-      posicion2 = angulo_pasado;
-      Serial.print("Angulo p: ");
-      Serial.println(posicion2, DEC);
-    }
-    else if (id==4)
-    {
-      posicion4 = angulo_pasado;
-      Serial.print("Angulo p: ");
-      Serial.println(posicion4, DEC);
-    }
-    else if (id==8)
-    {
-      posicion8 = angulo_pasado + 70;//el cero está corrido :@
-      Serial.print("Angulo p: ");
-      Serial.println(posicion8, DEC);
-    }
-    else
-    {
-      //imprimirInfoMotores();
+    else{
+      int angulo_pasado = pasarAngulo(angulo);
+      if (id==1){
+        posicion1 = angulo_pasado;
+      }
+      else if (id==2){
+        posicion2 = angulo_pasado;
+      }
+      else if (id==4)
+      {
+        posicion4 = angulo_pasado;
+      }
+      else if (id==8)
+      {
+        posicion8 = angulo_pasado + 70;//el cero está corrido :@
+      }
     }
   }
-  delay(50);
-  motor1.setPosVel (posicion1, 30);
-  delay(100);
+  delay(5);
+  motor1.setPosVel (posicion1, 15);
+  delay(5);
   motor2.setPosVel (posicion2, 30);
-  delay(100);
+  delay(5);
   motor4.setPosVel (posicion4, 30);
-  delay(100);
+  delay(5);
   motor8.setPosVel (posicion8, 20);
-  delay(50);
-
 }
