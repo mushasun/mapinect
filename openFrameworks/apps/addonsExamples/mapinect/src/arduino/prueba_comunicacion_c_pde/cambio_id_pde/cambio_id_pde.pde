@@ -15,7 +15,7 @@ void setup() {
   Serial.print (" deteccion: ");
   Serial.println (num, DEC);
 
-  motor.id = 1; // asigna las ID detectadas a los motores definidos previamente
+  motor.id = detect; // asigna las ID detectadas a los motores definidos previamente
   motor.SRL = RETURN_ALL;
   
   Serial.print (" ID detectado: ");
@@ -33,7 +33,7 @@ void loop() {
     int pos = motor.getPos(); 
     int vel = motor.getSpeed(); 
     int load = motor.getLoad();
-    motor.changeID(4);
+    motor.changeID(8);
     motor.setVel (30);
     motor.setPos (512);
   

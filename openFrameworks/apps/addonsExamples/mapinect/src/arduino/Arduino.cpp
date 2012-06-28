@@ -139,9 +139,11 @@ namespace mapinect {
 
 		ofVec3f centroidePrueba(0.3188, 0.2454, 1.0842);
 
+		float sin8 = 0.12533;
 		float sin15 = 0.2588;
 		float sin30 = 0.5;
 		float sin45 = 0.7071;
+		float cos8 = 0.9921;
 		float cos15 = 0.9659;
 		float cos30 = 0.866;
 		float cos45 = 0.7071;
@@ -175,6 +177,11 @@ namespace mapinect {
 				//lookAt(ofVec3f(getKinect3dCoordinates().x, getKinect3dCoordinates().y + 0.05, getKinect3dCoordinates().z + 0.15));
 				lookAt(centroidePrueba);
 				break;
+			case '5':
+				//AngleMotor1 = -8
+				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos8, -Arduino::ARM_LENGTH*sin8, 0)); 
+				//lookAt(ofVec3f(getKinect3dCoordinates().x, getKinect3dCoordinates().y, getKinect3dCoordinates().z + 0.10));
+				lookAt(centroidePrueba);
 		}
 		if (key == KEY_MOVE_1R) {
 			angleMotor1 += ANGLE_STEP;

@@ -47,8 +47,7 @@ namespace mapinect {
 		signed int			angleMotor8;
 		ofVec3f				posicion;
 		ofVec3f				mira;
-		ofVec3f				mira_actual;
-		
+				
 		float round(float input)
 		{
 			//VC++ no tiene un puto round que lo tengo que hacer a mano???
