@@ -53,7 +53,7 @@ namespace mapinect {
 			ofPopMatrix();
 		}
 		else {
-			gKinect->drawDepth(0, 0, KINECT_DEFAULT_WIDTH, KINECT_DEFAULT_HEIGHT);
+			gKinect->getDepthTextureReference().draw(0, 0, -0.001f, KINECT_DEFAULT_WIDTH, KINECT_DEFAULT_HEIGHT);
 
 			if(IsFeatureActive(FEATURE_SHOW_RGB))
 			{
