@@ -6,6 +6,7 @@
 #include "ofSerial.h"
 #include "ofVec3f.h"
 #include <Eigen/Geometry>
+#include "pointUtils.h"
 
 namespace mapinect {
 	class Arduino{
@@ -29,7 +30,7 @@ namespace mapinect {
 		ofVec3f				lookAt(ofVec3f point);
 		ofVec3f				lookingAt();
 		Eigen::Affine3f		getWorldTransformation();
-		Eigen::Affine3f		getWorldTransformation(float angle1, float angle2, float angle4, float angle8);
+		
 		char*				read();
 		
 		signed int*			motorAngles() const;
@@ -37,6 +38,7 @@ namespace mapinect {
 		static float		ARM_LENGTH;
 		static float		KINECT_HEIGHT;
 		static float		MOTORS_HEIGHT;
+
 	private:
 		bool				isActive();
 		void				sendMotor(int value, int id);
@@ -48,6 +50,12 @@ namespace mapinect {
 		ofVec3f				posicion;
 		ofVec3f				mira;
 				
+		ofVec3f				mira_actual;
+
+		bool				armStoppedMoving;
+		Eigen::Affine3f		worldTransformation;
+		PCPtr				cloudBeforeMoving;
+
 		float round(float input)
 		{
 			//VC++ no tiene un puto round que lo tengo que hacer a mano???
@@ -60,8 +68,8 @@ namespace mapinect {
 		ofVec3f				find_closest_point_to_sphere(ofVec3f point);
 		void				setArm3dCoordinates(float x, float y, float z);
 
-		void		getTransformationWorldTransformation();
-		
+		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);
+
 	};
 }
 
