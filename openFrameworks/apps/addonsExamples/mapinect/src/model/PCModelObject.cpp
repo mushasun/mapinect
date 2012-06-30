@@ -57,6 +57,7 @@ namespace mapinect {
 		if (drawPointCloud) {
 			static ofColor colors[] = { kRGBBlue, kRGBGreen, kRGBMagenta, kRGBCyan, kRGBYellow, kRGBPurple };
 			ofSetColor(colors[getId() % 6]);
+			//glPointSize(2.0);
 			glBegin(GL_POINTS);
 			for (PC::const_iterator p = cloudScreenCoords->begin(); p != cloudScreenCoords->end(); ++p) {
 				glVertex3f(p->x, p->y, 5);

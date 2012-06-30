@@ -218,7 +218,7 @@ namespace mapinect {
 
 			saveCloud("postfilter_pol_proy" + ofToString(i) + ".pcd",*projected_cloud);
 
-			PCPolygonPtr pcp(new PCQuadrilateral(this, *coefficients, projected_cloud));
+			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projected_cloud));
 			pcp->detectPolygon();
 			
 			nuevos.push_back(pcp);

@@ -203,16 +203,9 @@ namespace mapinect {
 				cloud = matchingCloud->getTrackedCloud();
 				if(objectInModel.get() != NULL)
 				{
-					/* Metodo viejo
-					objectInModel->resetLod();
-					objectInModel->setCloud(cloud);
-					objectInModel->detectPrimitives();
-					*/
-				
 					sendUpdate = true;
 					objectInModel->resetLod();
 					objectInModel->addToModel(cloud);
-					objectInModel->setCloud(cloud);
 				}
 				gModel->objectsMutex.unlock();
 			}

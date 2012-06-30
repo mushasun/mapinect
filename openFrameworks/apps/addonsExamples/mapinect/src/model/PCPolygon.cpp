@@ -14,21 +14,20 @@
 
 namespace mapinect {
 
-	PCPolygon::PCPolygon(PCModelObject* container, const pcl::ModelCoefficients& coefficients,
+	PCPolygon::PCPolygon(const pcl::ModelCoefficients& coefficients,
 		const PCPtr& cloud, int objId, bool estimated)
 			: PCModelObject(cloud, objId)
 	{
 		// Point the normal towards the viewpoint
-		this->container = container;
 		this->coefficients = coefficients;
 		this->estimated = estimated;
 		if(!estimated)
 		{
 			ofVec3f coefficientsNormal(::getNormal(this->coefficients));
+			PCXYZ eye(eyePos());
 			pcl::flipNormalTowardsViewpoint(OFVEC3F_PCXYZ(getCenter()),
-										container->getCenter().x, container->getCenter().y, container->getCenter().z,
+										eye.x, eye.y, eye.z,
 										coefficientsNormal.x, coefficientsNormal.y, coefficientsNormal.z);
-			coefficientsNormal *= -1;
 			
 			if(coefficientsNormal != ::getNormal(coefficients))
 			{
@@ -190,7 +189,7 @@ namespace mapinect {
 				saveCloud("pcpolygonMatch" + ofToString(this->getPolygonModelObject()->getName()) + ".pcd", *matched->getCloud());
 			
 				//Actualizo nube
-				this->cloud = matched->getCloud();
+				setCloud(matched->getCloud());
 			}
 			/*else
 				cout << "mantengo la misma nube - " << ofToString(this->getPolygonModelObject()->getName()) << endl;

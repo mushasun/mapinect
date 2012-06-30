@@ -192,7 +192,7 @@ namespace mapinect {
 		setCloud(cloud);
 
 		//writer.write<pcl::PointXYZ> ("nucloudOfFace"+ ofToString(this->getId())+".pcd", cloud, false);
-		matched = PCPolygonPtr(new PCQuadrilateral(container, coefficients, cloud));
+		matched = PCPolygonPtr(new PCQuadrilateral(coefficients, cloud));
 		matched->detectPolygon();
 		updateMatching();
 	}

@@ -105,6 +105,11 @@ const Eigen::Affine3f& getTransformationMatrix()
 	return transformationMatrix;
 }
 
+PCXYZ eyePos()
+{
+	return transformPoint(PCXYZ(0, 0, 0), transformationMatrix);
+}
+
 PCXYZ transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform)
 {
 	return pcl::transformPoint(p, transform);
@@ -427,6 +432,14 @@ pcl::PointIndices::Ptr adjustPlane(const pcl::ModelCoefficients& coefficients, c
 			inliers->indices.push_back(k);
 	}
 	return inliers;
+}
+
+float evaluatePoint(const pcl::ModelCoefficients& coefficients, const PCXYZ& p)
+{
+	return coefficients.values.at(0) * p.x +
+		   coefficients.values.at(1) * p.y +
+		   coefficients.values.at(2) * p.z +
+		   coefficients.values.at(3);
 }
 
 float evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& p)
