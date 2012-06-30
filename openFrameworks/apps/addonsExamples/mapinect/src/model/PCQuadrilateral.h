@@ -19,9 +19,9 @@ namespace mapinect {
 
 	class PCQuadrilateral : public PCPolygon {
 		public:
-			PCQuadrilateral(PCModelObject* container, const pcl::ModelCoefficients& coefficients,
+			PCQuadrilateral(const pcl::ModelCoefficients& coefficients,
 				const PCPtr& cloud, int objId = -1, bool estimated = false)
-				: PCPolygon(container, coefficients, cloud, objId, estimated) { }
+				: PCPolygon(coefficients, cloud, objId, estimated) { }
 
 			virtual bool							detectPolygon();
 

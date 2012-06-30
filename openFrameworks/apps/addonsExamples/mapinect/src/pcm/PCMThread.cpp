@@ -126,114 +126,77 @@ namespace mapinect {
 	
 	//--------------------------------------------------------------
 	PCPtr PCMThread::getObjectsOnTableTopCloud(PCPtr &occludersCloud){
+		PCPtr result(new PC());
+
 		PCPtr cloud = getCloud();
 		saveCloud("rawCloud.pcd", *cloud);
 		
-		if (cloud->size() == 0) {
-			return cloud;
-		}
-
-		//Separo en clusters
-		PCPtr tableCluster (new PC());
-
-		setPCMThreadStatus("Searching table cluster...");
-		log(kLogFilePCMThread, "Searching table cluster...");
-		std::vector<pcl::PointIndices> cluster_indices =
-			findClusters(cloud, MAX_TABLE_CLUSTER_TOLERANCE, MIN_TABLE_CLUSTER_SIZE, MAX_TABLE_CLUSTER_SIZE);
-
-		//Busco el cluster más cercano y guardo posibles occluders
-		int count = 1;
-		float min_dist2 = MAX_FLOAT;
-		ofVec3f newCentroid(tableClusterLastCentroid);
-		vector<PCPtr> potentialOccluders;
-		for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+		if (cloud->size() == 0)
 		{
-			PCPtr cloud_cluster = getCloudFromIndices(cloud, *it);
-			potentialOccluders.push_back(cloud_cluster);
-
-			//savePC(*cloud_cluster, "cluster" + ofToString(count++) + ".pcd");
-
-			ofVec3f ptoCentroid = computeCentroid(cloud_cluster);
-			
-			if (tableClusterLastCentroid.x == MAX_FLOAT)
-			{
-				if (ptoCentroid.squareLength() < newCentroid.squareLength())
-				{
-					newCentroid = ptoCentroid;
-					tableCluster = cloud_cluster;
-				}
-			}
-			else
-			{
-				if((ptoCentroid - tableClusterLastCentroid).squareLength() < min_dist2)
-				{
-					min_dist2 = (ptoCentroid - tableClusterLastCentroid).squareLength();
-					tableCluster = cloud_cluster;
-				}
-			}
+			return result;
 		}
-		tableClusterLastCentroid = newCentroid;
-			
-		saveCloud("tableCluster.pcd", *tableCluster);
 
-		//Quito el plano más grande
 		pcl::ModelCoefficients coefficients;
-		PCPtr remainingCloud = PCPtr(new PC());
-		setPCMThreadStatus("Creating objects over table cloud...");
-		log(kLogFilePCMThread, "Creating objects over table cloud...");
-
+		bool tableSetted = false;
 		{
 			gModel->tableMutex.lock();
-			if (gModel->getTable().get() == NULL)
+			if (gModel->getTable().get() != NULL)
 			{
-				PCPtr biggestPlaneCloud = extractBiggestPlane(tableCluster, coefficients, remainingCloud, 0.009);
-				saveCloud("table.pcd", *biggestPlaneCloud);
-				Table::Create(coefficients, biggestPlaneCloud);
-				if (!IsFeatureMoveArmActive())
-				{
-					tableClusterLastCentroid = ofVec3f(0, 0, 0);
-				}
-			}
-			else
-			{
-				//TODO: ACTUALIZAR LA NUBE DE LA MESA
+				tableSetted = true;
 				coefficients = gModel->getTable()->getCoefficients();
-				for(int i = 0; i < tableCluster->size(); i++)
+			}
+			gModel->tableMutex.unlock();
+		}
+
+		if (!tableSetted)
+		{
+			setPCMThreadStatus("Scanning table cluster...");
+			log(kLogFilePCMThread, "Scanning table cluster...");
+			std::vector<pcl::PointIndices> cluster_indices =
+				findClusters(cloud, MAX_TABLE_CLUSTER_TOLERANCE, MIN_TABLE_CLUSTER_SIZE, MAX_TABLE_CLUSTER_SIZE);
+
+			PCPtr tableCluster;
+			float minDistanceToCentroid = MAX_FLOAT;
+			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+			{
+				PCPtr cloud_cluster = getCloudFromIndices(cloud, *it);
+				ofVec3f ptoCentroid = computeCentroid(cloud_cluster);
+				if (ptoCentroid.squareLength() < minDistanceToCentroid)
 				{
-					if(evaluatePoint(coefficients, PCXYZ_OFVEC3F(tableCluster->at(i))) > OCTREE_RES * 2)
-						remainingCloud->push_back(tableCluster->at(i));
+					minDistanceToCentroid = ptoCentroid.squareLength();
+					tableCluster = cloud_cluster;
 				}
 			}
 
-			//Filtro occluders
-			for(int i = 0; i < potentialOccluders.size(); i++)
-			{
-				if(potentialOccluders.at(i) != tableCluster &&
-				   gModel->getTable()->isOverTable(potentialOccluders.at(i)))
-				   *occludersCloud += *potentialOccluders.at(i);
-			}
-			*occludersCloud += *remainingCloud;
-			gModel->tableMutex.unlock();
+			PCPtr biggestPlaneCloud = extractBiggestPlane(tableCluster, coefficients, result, 0.009);
 
-			saveCloud("occludersCluster.pcd", *occludersCloud);
-
+			Table::Create(coefficients, biggestPlaneCloud);
 		}
-		// TODO: OJO A LA CONCURRENCIA SOBRE gModel!!
-		/* Actualización de la mesa
-		else if((tableClusterLastCentroid - tableClusterNewCentroid).norm() > 0.02)
+		else
 		{
-			cout << "table updated! -- " << min_dist <<endl;
-			gModel->objectsMutex.lock();
-			table->setCloud(cloud_filtered_temp_inliers);
-			//table = new PCPolyhedron(cloud_filtered_temp_inliers, cloud_filtered_temp_inliers, -1);
-			table->detectPrimitives();
-			//table->setDrawPointCloud(false);
-			gModel->table = table;
-			tableClusterLastCentroid = tableClusterNewCentroid;
-		}
-		*/
+			setPCMThreadStatus("Removing table...");
+			log(kLogFilePCMThread, "Removing table...");
 
-		return remainingCloud;
+			Polygon3D tableModel;
+			{
+				gModel->tableMutex.lock();
+				tableModel = gModel->getTable()->getMathPolygonModelApproximation()->getMathModel();
+				gModel->tableMutex.unlock();
+			}
+
+			for (PC::const_iterator p = cloud->begin(); p != cloud->end(); ++p)
+			{
+				if (evaluatePoint(coefficients, *p) > OCTREE_RES * 2)
+				{
+					if (tableModel.isInPolygon(tableModel.getPlane().project(PCXYZ_OFVEC3F((*p)))))
+					{
+						result->push_back(*p);
+					}
+				}
+			}
+		}
+
+		return result;
 	}
 
 	PCPtr PCMThread::getDifferenceCloudFromModel(const PCPtr& cloud)

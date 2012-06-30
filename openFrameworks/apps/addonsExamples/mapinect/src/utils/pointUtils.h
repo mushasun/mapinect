@@ -31,6 +31,8 @@ PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi);
 void setTransformationMatrix(const Eigen::Affine3f& transform);
 const Eigen::Affine3f& getTransformationMatrix();
 
+PCXYZ	eyePos();
+
 PCXYZ	transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform);
 ofVec3f	transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform);
 PCPtr	transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform);
@@ -73,6 +75,7 @@ PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficien
 
 pcl::PointIndices::Ptr adjustPlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloudToAdjust);
 
+float evaluatePoint(const pcl::ModelCoefficients& coefficients, const PCXYZ& pto);
 float evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& pto);
 
 PCPtr projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& plane);

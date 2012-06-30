@@ -21,8 +21,8 @@ namespace mapinect {
 		bool isParallelToTable(const mapinect::PCPolygonPtr& polygon);
 
 	private:
-		Table(PCModelObject* container, const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
-			: PCQuadrilateral(container, coefficients, cloud, TABLE_ID) { }
+		Table(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
+			: PCQuadrilateral(coefficients, cloud, TABLE_ID) { }
 	};
 }
 

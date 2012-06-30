@@ -14,8 +14,7 @@ namespace mapinect {
 
 	class PCPolygon : public PCModelObject {
 		public:
-			PCPolygon(PCModelObject* container, const pcl::ModelCoefficients& coefficients,
-				const PCPtr& cloud, int objId = -1, bool estimated = false);
+			PCPolygon(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud, int objId = -1, bool estimated = false);
 			virtual ~PCPolygon();
 
 			IPolygonPtr			getMathPolygonModelApproximation() const;
@@ -40,7 +39,6 @@ namespace mapinect {
 			Eigen::Affine3f		getMatchingTransformation();
 		protected:
 			pcl::ModelCoefficients coefficients;
-			PCModelObject*		container;
 
 			PCPolygonPtr		matched;
 			float				matchedEstimator;
