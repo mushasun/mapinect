@@ -169,6 +169,15 @@
     <ClCompile Include="..\..\..\addons\ofxFenster\src\ofxFensterManager.cpp">
       <Filter>addons\ofxFenster\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\helpers\ButtonManager.cpp">
+      <Filter>helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\DraggableButton.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\SimpleButton.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -386,6 +395,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFenster\src\ofxFensterManager.h">
       <Filter>addons\ofxFenster\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\IButton.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\IButtonManager.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\ButtonManager.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\DraggableButton.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\SimpleButton.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
