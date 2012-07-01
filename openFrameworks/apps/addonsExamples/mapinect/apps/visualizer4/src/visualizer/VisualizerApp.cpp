@@ -2,6 +2,8 @@
 
 #include "Globals.h"
 #include "pointUtils.h"		// Esto vamos a tener que sacarlo
+#include "SimpleButton.h"
+#include "DraggableButton.h"
 
 namespace visualizer {
 	
@@ -32,7 +34,35 @@ namespace visualizer {
 		music.loadSound("sounds/miles.mp3");
 		music.setVolume(1.0f);
 		music.setLoop(true);
-		music.play();
+
+		/*ding.loadSound("sounds/ding.wav");
+		ding.setVolume(1.0f);
+		ding.setLoop(false);
+
+		dong.loadSound("sounds/dong.wav");
+		dong.setVolume(1.0f);
+		dong.setLoop(false);*/
+
+	//	sample1.loadSound("sounds/WAV/DrumMix_CK02_94bpm_03.wav");
+	//	sample1.setVolume(1.0f);
+	//	sample1.setLoop(true);
+	//	//sample1.play();
+
+	//	sample2.loadSound("sounds/WAV/Lead_CK02_94bpm_04.wav");
+	//	sample2.setVolume(1.0f);
+	//	sample2.setLoop(true);
+	//	//sample2.play();
+
+	//	sample3.loadSound("sounds/WAV/Strings_CK02_94bpm.wav");
+	//	sample3.setVolume(1.0f);
+	//	sample3.setLoop(true);
+	////	sample3.play();
+
+	//	sample4.loadSound("sounds/WAV/Timpani_CK02_94bpm.wav");
+	//	sample4.setVolume(1.0f);
+	//	sample4.setLoop(true);
+//		sample4.play();
+		//music.play();
 
 		   // Global openFrameworks settings
 		ofEnableAlphaBlending();
@@ -44,6 +74,7 @@ namespace visualizer {
 		for(int i = 0; i < 5; i ++)
 			colors.push_back(ofColor(rand()%255,rand()%255,rand()%255));
 		vis.setup(colors);
+
 	}
 
 	//--------------------------------------------------------------
@@ -77,9 +108,9 @@ namespace visualizer {
 	//--------------------------------------------------------------
 	void VisualizerApp::draw()
 	{
-		if (floor != NULL) {
-			floor->draw();
-		}
+		//if (floor != NULL) {
+		//	floor->draw();
+		//}
 
 		for (map<int, Box*>::iterator iter = boxes.begin(); iter != boxes.end(); iter++) {
 			(iter->second)->draw(*floor);
@@ -172,17 +203,95 @@ namespace visualizer {
 			if (floor == NULL)
 			{
 				floor = new Floor(object->getPolygons()[0]);
+
+				Polygon3D pol(object->getPolygons()[0]->getMathModel());
+
+				//Cuadrante 1
+				vector<ofVec3f> cuadrant1;
+				cuadrant1.push_back(pol.getVertexs()[0]);
+				cuadrant1.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
+				cuadrant1.push_back(object->getCenter());
+				cuadrant1.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[0] - pol.getVertexs()[3])/2));
+				Polygon3D btn1(cuadrant1);
+
+				SimpleButton sb1(btn1,
+								ofColor(190,0,0),
+								ofColor(255,0,0));
+
+				//Cuadrante 2
+				vector<ofVec3f> cuadrant2;
+				cuadrant2.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
+				cuadrant2.push_back(pol.getVertexs()[1]);
+				
+				cuadrant2.push_back(pol.getVertexs()[2] + ((pol.getVertexs()[1] - pol.getVertexs()[2])/2));
+				cuadrant2.push_back(object->getCenter());
+				Polygon3D btn2(cuadrant2);
+
+				SimpleButton sb2(btn2,
+								ofColor(0,190,0),
+								ofColor(0,255,0));
+
+				////Cuadrante 3
+				vector<ofVec3f> cuadrant3;
+				cuadrant3.push_back(object->getCenter());
+				cuadrant3.push_back(pol.getVertexs()[2] + ((pol.getVertexs()[1] - pol.getVertexs()[2])/2));
+				cuadrant3.push_back(pol.getVertexs()[2]);
+				cuadrant3.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[2] - pol.getVertexs()[3])/2));
+				Polygon3D btn3(cuadrant3);
+
+				SimpleButton sb3(btn3,
+								ofColor(0,0,190),
+								ofColor(0,0,255));
+
+				////Cuadrante 4
+				vector<ofVec3f> cuadrant4;
+				cuadrant4.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[0] - pol.getVertexs()[3])/2));
+				cuadrant4.push_back(object->getCenter());
+				cuadrant4.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[2] - pol.getVertexs()[3])/2));
+				cuadrant4.push_back(pol.getVertexs()[3]);
+				Polygon3D btn4(cuadrant4);
+
+				SimpleButton sb4(btn4,
+								ofColor(190,190,0),
+								ofColor(255,255,0));
+
+				/*this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb1)));
+				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb2)));
+				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb3)));
+				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb4)));
+*/
+
+				////DRAG BUTTON////////////////
+				//Draggable 1
+				vector<ofVec3f> draggable1;
+				draggable1.push_back(pol.getVertexs()[0]);
+				draggable1.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
+				draggable1.push_back(object->getCenter());
+				draggable1.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[0] - pol.getVertexs()[3])/2));
+				Polygon3D drag1(draggable1);
+
+				DraggableButton d1(drag1,
+								ofColor(128,0,0),
+								ofColor(255,0,0));
+
+				this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d1)));
 			}
 		}
 		else
 		{
+			
 			if (boxes.find(object->getId()) == boxes.end())
 			{
 				boxes[object->getId()] = new Box(object);
 			}
+			if(!music.getIsPlaying())
+			{
+				music.play();
+				//music.setVolume(object->getCenter().z);
+			}
 		}
 	}
-
+		
 	//--------------------------------------------------------------
 	void VisualizerApp::objectUpdated(const IObjectPtr& object)
 	{
@@ -199,6 +308,7 @@ namespace visualizer {
 			if (b != boxes.end())
 			{
 				b->second->updateModelObject(object);
+				//music.setVolume(object->getCenter().z);
 			}
 		}
 	}
@@ -249,12 +359,54 @@ namespace visualizer {
 		map<int, DataTouch>::iterator it = touchPoints.find(touchPoint.getId());
 		if (it == touchPoints.end())
 		{
-			assert(touchPoint.getType() == kTouchTypeStarted);
+			//assert(touchPoint.getType() == kTouchTypeStarted);
 			touchPoints.insert(make_pair(touchPoint.getId(), touchPoint));
 		}
 		else
 		{
 			it->second = touchPoint;
 		}
+	}
+
+	void VisualizerApp::buttonPressed(const IButtonPtr& btn)
+	{
+		music.setSpeed(btn->getId());
+		if(btn->getId() == 1 && !music.getIsPlaying())
+			music.play();
+		if(btn->getId() == 4)
+			music.stop();
+
+		/*int id = btn->getId();
+		switch(id)
+		{
+			case 0: 
+				if(sample1.getIsPlaying())
+					sample1.stop();
+				else
+					sample1.play();
+				break;
+			case 1: 
+				if(sample2.getIsPlaying())
+					sample2.stop();
+				else
+					sample2.play();
+				break;
+			case 2: 
+				if(sample3.getIsPlaying())
+					sample3.stop();
+				else
+					sample3.play();
+				break;
+			case 3: 
+				if(sample4.getIsPlaying())
+					sample4.stop();
+				else
+					sample4.play();
+				break;*/
+		//}
+	}
+	void VisualizerApp::buttonReleased(const IButtonPtr& btn)
+	{
+		//dong.play();
 	}
 }

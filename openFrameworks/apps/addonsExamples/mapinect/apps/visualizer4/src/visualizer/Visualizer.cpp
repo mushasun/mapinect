@@ -231,6 +231,8 @@ void Visualizer::draw(ofVec3f v1, ofVec3f v2, ofVec3f v3, ofVec3f v4, bool bgOnl
 			glTexCoord2f(0, HEIGHT);		glVertex3f(v4.x, v4.y, v4.z);   
 		glEnd();
 		scene.getTextureReference().unbind();
+
+		glPointSize(1.0f);
 	}
 }
 
