@@ -46,6 +46,8 @@ namespace mapinect {
 	float			Arduino::KINECT_HEIGHT;
 	float			Arduino::MOTORS_HEIGHT;
 
+	Eigen::Affine3f Arduino::worldTransformation  = Eigen::Affine3f();
+
 	Arduino::Arduino()
 	{
 		angleMotor1 = 0;

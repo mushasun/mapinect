@@ -53,7 +53,7 @@ namespace mapinect {
 		ofVec3f				mira_actual;
 
 		bool				armStoppedMoving;
-		Eigen::Affine3f		worldTransformation;
+		static Eigen::Affine3f		worldTransformation;
 		PCPtr				cloudBeforeMoving;
 
 		float round(float input)
