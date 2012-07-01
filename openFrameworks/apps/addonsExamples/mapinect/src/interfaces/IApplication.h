@@ -7,9 +7,11 @@
 #include "DataTouch.h"
 #include "IArmController.h"
 #include "IObject.h"
+#include "IButtonManager.h"
 
 namespace mapinect {
 	
+	class IButtonManager;
 	/// <summary>
 	/// IApplication.h
 	/// 
@@ -43,8 +45,12 @@ namespace mapinect {
 		virtual void objectLost(const IObjectPtr&)							{ }
 		virtual void objectMoved(const IObjectPtr&, const DataMovement&)	{ }
 		virtual void objectTouched(const IObjectPtr&, const DataTouch&)		{ }
+		virtual void buttonPressed(const IButtonPtr&)						{ }
+		virtual void buttonReleased(const IButtonPtr&)						{ }
+
 
 		IArmController*	armController;
+		IButtonManager*	btnManager;
 	};
 }
 

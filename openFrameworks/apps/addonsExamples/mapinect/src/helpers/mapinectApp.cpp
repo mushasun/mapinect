@@ -10,6 +10,7 @@
 #include "Model.h"
 #include "ofxKinect.h"
 #include "pointUtils.h"
+#include "ButtonManager.h"
 
 namespace mapinect {
 
@@ -46,6 +47,7 @@ namespace mapinect {
 		arduino.setup();
 
 		app->armController = new ArmController(&arduino);
+		app->btnManager = new ButtonManager();
 
 		if (IsFeatureMoveArmActive())
 		{
@@ -224,6 +226,7 @@ namespace mapinect {
 		}
 
 		app->setup();
+		app->btnManager->setListener(app);
 	}
 
 
@@ -235,6 +238,7 @@ namespace mapinect {
 		vm->setupView();
 		vm->draw();
 		app->draw();
+		app->btnManager->draw();
 		vm->endView();
 	}
 

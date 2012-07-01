@@ -45,12 +45,14 @@ namespace mapinect {
 					listener->objectMoved(e->object, e->movement);
 					break;
 				case kMapinectEventTypeObjectTouched:
+					listener->btnManager->fireButtonEvent(e->touchPoint);
 					listener->objectTouched(e->object, e->touchPoint);
 					pcm->objectTouched(e->object, e->touchPoint);
 					break;
 				}
 			}
 			instance->eventsToFire.clear();
+			
 		}
 
 		EventManager::mutexInstance.unlock();

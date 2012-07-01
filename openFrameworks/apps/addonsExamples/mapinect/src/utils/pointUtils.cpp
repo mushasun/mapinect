@@ -128,6 +128,21 @@ PCPtr transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform)
 	return transformedCloud;
 }
 
+mapinect::Polygon3D transformPolygon3D(const mapinect::Polygon3D& polygon, const Eigen::Affine3f& transform)
+{
+	mapinect::Polygon3D pol(polygon);
+	vector<ofVec3f> vertexs = pol.getVertexs();
+	vector<ofVec3f> transVertexs;
+
+	for(int i = 0; i < vertexs.size(); i++)
+	{
+		transVertexs.push_back(transformPoint(vertexs.at(i),transform));
+	}
+
+	pol.setVertexs(transVertexs);
+	return pol;
+}
+
 PCPtr getScreenCoords(const PCPtr& transformedWorldCloud)
 {
 	PCPtr screenCloud(new PC());

@@ -6,6 +6,7 @@
 #include "mapinectTypes.h"
 #include "ofPoint.h"
 #include "objectTypesEnum.h"
+#include "Polygon3D.h"
 
 // -------------------------------------------------------------------------------------
 // pcl <--> ofVec3f and other conversion utils
@@ -32,6 +33,7 @@ void setTransformationMatrix(const Eigen::Affine3f& transform);
 const Eigen::Affine3f& getTransformationMatrix();
 
 PCXYZ	eyePos();
+mapinect::Polygon3D transformPolygon3D(const mapinect::Polygon3D& polygon, const Eigen::Affine3f& transform);
 
 PCXYZ	transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform);
 ofVec3f	transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform);
