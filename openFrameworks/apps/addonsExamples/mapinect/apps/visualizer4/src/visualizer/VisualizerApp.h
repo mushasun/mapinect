@@ -37,12 +37,21 @@ namespace visualizer {
 		virtual void objectLost(const IObjectPtr&);
 		virtual void objectMoved(const IObjectPtr&, const DataMovement&);
 		virtual void objectTouched(const IObjectPtr&, const DataTouch&);
+		virtual void buttonPressed(const IButtonPtr&);
+		virtual void buttonReleased(const IButtonPtr&);
 
 	private:
 		std::map<int, Box*>	boxes;
 		std::map<int, DataTouch>	touchPoints;
 		Floor*						floor;
 		ofSoundPlayer				music;
+		ofSoundPlayer				ding;
+		ofSoundPlayer				dong;
+		ofSoundPlayer				sample1;
+		ofSoundPlayer				sample2;
+		ofSoundPlayer				sample3;
+		ofSoundPlayer				sample4;
+
 		float*						fftSmoothed;
 		int							nBandsToGet;
 
