@@ -64,12 +64,6 @@ PCPtr getCloud();
 // plane utils
 // -------------------------------------------------------------------------------------
 
-// Estimates plane's normal using NORMAL_ESTIMATION_PERCENT of plane points
-ofVec3f normalEstimation(const PCPtr& plane);
-
-// Estimates plane's normal using point indices argument
-ofVec3f normalEstimation(const PCPtr& plane, const pcl::PointIndices::Ptr& indices);
-
 ofVec3f getNormal(const pcl::ModelCoefficients&);
 
 PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& remainingCloud,

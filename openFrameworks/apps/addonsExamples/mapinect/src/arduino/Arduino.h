@@ -30,6 +30,7 @@ namespace mapinect {
 		ofVec3f				lookAt(ofVec3f point);
 		ofVec3f				lookingAt();
 		Eigen::Affine3f		getWorldTransformation();
+		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);
 		
 		char*				read();
 		
@@ -67,8 +68,6 @@ namespace mapinect {
 		ofVec3f				convert_3D_spher_to_cart(ofVec3f point);
 		ofVec3f				find_closest_point_to_sphere(ofVec3f point);
 		void				setArm3dCoordinates(float x, float y, float z);
-
-		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);
 
 	};
 }

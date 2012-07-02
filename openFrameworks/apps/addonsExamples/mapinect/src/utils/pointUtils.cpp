@@ -233,7 +233,7 @@ PCPtr loadCloud(const string& filename)
 PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
 {
 	if (min.x < 0 || min.y < 0
-		|| max.x > mapinect::KINECT_WIDTH || max.y > mapinect::KINECT_HEIGHT
+		|| max.x > KINECT_DEFAULT_WIDTH || max.y > KINECT_DEFAULT_HEIGHT
 		|| min.x > max.x || min.y > max.y)
 	{
 		PCL_ERROR ("Wrong arguments to obtain the cloud\n");
@@ -243,7 +243,7 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
 	float voxelSize = 0;
 	if(mapinect::IsFeatureUniformDensity())
 	{
-		voxelSize = density * 0.003;
+		voxelSize = density * mapinect::CLOUD_RES_TO_VOXEL_FACTOR;
 		density = 1;
 	}
 
@@ -308,8 +308,8 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
 PCPtr getCloud(int density)
 {
 	return getCloud(
-		ofPoint(mapinect::KINECT_WIDTH_OFFSET, mapinect::KINECT_HEIGHT_OFFSET),
-		ofPoint(mapinect::KINECT_WIDTH, mapinect::KINECT_HEIGHT),
+		ofPoint(0, 0),
+		ofPoint(KINECT_DEFAULT_WIDTH, KINECT_DEFAULT_HEIGHT),
 		density);
 }
 
@@ -321,59 +321,6 @@ PCPtr getCloud()
 // -------------------------------------------------------------------------------------
 // plane utils
 // -------------------------------------------------------------------------------------
-
-ofVec3f normalEstimation(const PCPtr& plane)
-{
-	//Random indices
-	int sampleSize = floor (plane->points.size() * mapinect::NORMAL_ESTIMATION_PERCENT);
-	int size = plane->points.size();
-	std::vector<int> indices (sampleSize);
-	for (size_t i = 0; i < sampleSize; i++)
-	{
-		int ix = rand() % size;
-		while (ix < 0)
-			ix += size;
-		indices[i] = ix;
-	}
-
-	pcl::PointIndices::Ptr indicesptr (new pcl::PointIndices ());
-	indicesptr->indices = indices;
-
-	return normalEstimation(plane, indicesptr);
-}
-
-ofVec3f normalEstimation(const PCPtr& plane, const pcl::PointIndices::Ptr& indicesptr)
-{
-	int sampleSize = indicesptr->indices.size();
-	// Create the normal estimation class, and pass the input dataset to it
-	pcl::NormalEstimation<PCXYZ, pcl::Normal> ne;
-	ne.setInputCloud (plane);
-	pcl::search::KdTree<PCXYZ>::Ptr tree (new pcl::search::KdTree<PCXYZ> ());
-	ne.setSearchMethod (tree);
-	
-	ne.setIndices(indicesptr);
-	// Output datasets
-	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
-
-	// Use all neighbors in a sphere of radius 3cm
-	ne.setRadiusSearch (0.03);
-
-	// Compute the features
-	ne.compute (*cloud_normals);
-
-	ofVec3f result(0,0,0);
-	//Promedio las normales
-	float bad_point = std::numeric_limits<float>::quiet_NaN();
-	for(int i = 0; i < sampleSize ; i++){
-		pcl::Normal normal = cloud_normals->at(i);
-		if (normal.normal_z != bad_point && normal.normal_z == normal.normal_z)
-			result += PCLNORMAL_OFVEC3F(cloud_normals->at(i));
-	}
-	
-	result /= sampleSize;
-	result = result.normalize();
-	return result;
-}
 
 ofVec3f getNormal(const pcl::ModelCoefficients& coefficients)
 {
@@ -569,7 +516,6 @@ float boxProbability(const PCPtr& cloud)
 			else
 				cloud_p = cloudTemp;
 		
-			//ofVec3f norm = normalEstimation(cloud_p);
 			ofVec3f norm (coefficients->values[0],coefficients->values[1],coefficients->values[2]);
 			//Chequeo que las normales sean perpendiculares entre si y paraleas o perpendiculares a la mesa.
 			if(table != NULL)

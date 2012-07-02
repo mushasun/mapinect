@@ -12,8 +12,9 @@ namespace drawing {
 		assert(vertexCount >= 3);
 		int origin = polygon->getBestOriginVertexIndex();
 
-		dimensions.x = floor(polygon->getMathModel().getEdges()[origin].segmentLength() * 1000);
-		dimensions.y = floor(polygon->getMathModel().getEdges()[(origin + vertexCount - 1) % vertexCount].segmentLength() * 1000);
+		const double pxScale = 1200;
+		dimensions.x = floor(polygon->getMathModel().getEdges()[origin].segmentLength() * pxScale);
+		dimensions.y = floor(polygon->getMathModel().getEdges()[(origin + vertexCount - 1) % vertexCount].segmentLength() * pxScale);
 
 		texture.setup((int)dimensions.x, (int)dimensions.y);
 		texture.background(backColor);
