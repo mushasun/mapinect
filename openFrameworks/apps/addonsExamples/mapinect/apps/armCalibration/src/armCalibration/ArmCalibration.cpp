@@ -22,8 +22,6 @@ namespace armCalibration {
 		gKinect = new ofxKinect();
 		if (IsFeatureKinectActive())
 		{
-			KINECT_WIDTH = KINECT_DEFAULT_WIDTH;
-			KINECT_HEIGHT = KINECT_DEFAULT_HEIGHT;
 			MAX_Z = 4.0f;
 
 			double fx_d, fy_d, fx_rgb, fy_rgb; 
@@ -255,7 +253,7 @@ namespace armCalibration {
 		for (vector<MotorRotationsCloud>::const_iterator mrc = storedClouds.begin(); mrc != storedClouds.end(); ++mrc)
 		{
 			Eigen::Affine3f transformationMatrix =
-				arduino.getWorldTransformation(mrc->rotations[0], mrc->rotations[1], mrc->rotations[2], mrc->rotations[3]);
+				arduino.calculateWorldTransformation(mrc->rotations[0], mrc->rotations[1], mrc->rotations[2], mrc->rotations[3]);
 			PC transformedCloud;
 			pcl::transformPointCloud(*mrc->cloud, transformedCloud, transformationMatrix);
 			saveCloud(getTransformedFilename(i), transformedCloud);

@@ -14,7 +14,7 @@ namespace bouncing {
 			ofVec3f pto = lst.at(i);
 			for(int j = 0; j < retList.size(); j++)
 			{
-				if(pto.distance(retList.at(j)) < mapinect::MAX_UNIFYING_DISTANCE_PROJECTION)
+				if(pto.distance(retList.at(j)) < 0.03)
 					unified = true;
 			}
 			if(!unified)
