@@ -255,11 +255,11 @@ namespace visualizer {
 								ofColor(190,190,0),
 								ofColor(255,255,0));
 
-				/*this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb1)));
+				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb1)));
 				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb2)));
 				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb3)));
 				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb4)));
-*/
+
 
 				////DRAG BUTTON////////////////
 				//Draggable 1
@@ -274,7 +274,7 @@ namespace visualizer {
 								ofColor(128,0,0),
 								ofColor(255,0,0));
 
-				this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d1)));
+				//this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d1)));
 			}
 		}
 		else
@@ -376,7 +376,7 @@ namespace visualizer {
 		if(btn->getId() == 4)
 			music.stop();
 
-		/*int id = btn->getId();
+		int id = btn->getId();
 		switch(id)
 		{
 			case 0: 
@@ -402,8 +402,8 @@ namespace visualizer {
 					sample4.stop();
 				else
 					sample4.play();
-				break;*/
-		//}
+				break;
+		}
 	}
 	void VisualizerApp::buttonReleased(const IButtonPtr& btn)
 	{
