@@ -2,6 +2,7 @@
 #define I_ARM_CONTROLLER_H__
 
 #include "ofVec3f.h"
+#include "IPolygon.h"
 
 /// <summary>
 /// Interface for arm controller. Entry point to handle the robotic arm
@@ -35,6 +36,11 @@ namespace mapinect {
 		virtual bool			rotateJoint(int jointId, int amount, int& bestFit) = 0;
 
 		virtual int				getJointRotation(int jointId) = 0;
+
+		/// <summary>
+		/// The arm will try to always lookAt the object
+		/// </summary>
+		virtual void			lookAtObject(const IObjectPtr& ) = 0;
 
 	};
 }

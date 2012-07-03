@@ -4,9 +4,10 @@
 #include "PCMThread.h"
 #include "ofGraphicsUtils.h"
 #include "ofMain.h"
+#include "INotification.h"
 
 namespace mapinect {
-	class PCM {
+	class PCM: public INotification{
 	public:
 
 		virtual void		setup();

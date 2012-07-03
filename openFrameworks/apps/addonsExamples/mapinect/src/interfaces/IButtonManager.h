@@ -3,13 +3,9 @@
 
 #include "IButton.h"
 #include "DataTouch.h"
-#include "IApplication.h"
 
 namespace mapinect
 {
-	/*typedef enum
-	{
-	}*/
 	class IApplication;
 
 	class IButtonManager{
@@ -19,8 +15,6 @@ namespace mapinect
 		virtual int addButton(const IButtonPtr& btn) = 0;
 		virtual void removeButton(int id) = 0;
 		virtual void fireButtonEvent(DataTouch touch) = 0;
-		virtual void setListener(IApplication* listener) = 0;
-	
 	};
 }
 

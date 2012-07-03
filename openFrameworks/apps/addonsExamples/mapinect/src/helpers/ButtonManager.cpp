@@ -1,10 +1,10 @@
 #include "ButtonManager.h"
+#include "EventManager.h"
 
 namespace mapinect {
 
 	ButtonManager::ButtonManager()
 	{
-		;
 	}
 
 	void ButtonManager::draw()
@@ -40,14 +40,17 @@ namespace mapinect {
 			switch(evnt)
 			{
 				case PRESSED: 
-					listener->buttonPressed(iter->second);
+					EventManager::addEvent(MapinectEvent(kMapinectEventTypeButtonPressed, iter->second));
+					//listener->buttonPressed(iter->second);
 					break;
 				case RELEASED:
-					listener->buttonReleased(iter->second);
+					EventManager::addEvent(MapinectEvent(kMapinectEventTypeButtonReleased, iter->second));
+					//listener->buttonReleased(iter->second);
 					break;
 				default:
 					break;
 			}
+			//EventManager::fireEvents();
 		}
 	}
 }
