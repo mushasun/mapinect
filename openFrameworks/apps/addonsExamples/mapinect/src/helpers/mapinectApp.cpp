@@ -226,7 +226,7 @@ namespace mapinect {
 		}
 
 		app->setup();
-		app->btnManager->setListener(app);
+		EventManager::suscribeToNotifications((INotification*) app);
 	}
 
 
@@ -245,7 +245,7 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void userApp::update()
 	{
-		EventManager::fireEvents(app, mapinectAppPtr->getPCM());
+		EventManager::fireEvents();
 
 		vm->update();
 		app->update();

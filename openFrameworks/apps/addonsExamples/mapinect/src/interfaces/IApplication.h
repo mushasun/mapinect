@@ -3,6 +3,7 @@
 
 #include "ofEvents.h"
 
+#include "INotification.h"
 #include "DataMovement.h"
 #include "DataTouch.h"
 #include "IArmController.h"
@@ -12,13 +13,14 @@
 namespace mapinect {
 	
 	class IButtonManager;
+
 	/// <summary>
 	/// IApplication.h
 	/// 
 	/// Provides an interface for each application that uses mapinect.
 	/// </summary>
-	class IApplication {
-	public:
+	class IApplication: public INotification{
+	public: 
 
 		/// <summary>
 		/// Override any of this methods to listen the event from user application
@@ -40,17 +42,7 @@ namespace mapinect {
 		virtual void mouseReleased(int x, int y, int button)				{ }
 		virtual void dragEvent(ofDragInfo info)								{ }
 
-		virtual void objectDetected(const IObjectPtr&)						{ }
-		virtual void objectUpdated(const IObjectPtr&)						{ }
-		virtual void objectLost(const IObjectPtr&)							{ }
-		virtual void objectMoved(const IObjectPtr&, const DataMovement&)	{ }
-		virtual void objectTouched(const IObjectPtr&, const DataTouch&)		{ }
-		virtual void buttonPressed(const IButtonPtr&)						{ }
-		virtual void buttonReleased(const IButtonPtr&)						{ }
-
-
 		IArmController*	armController;
-		IButtonManager*	btnManager;
 	};
 }
 

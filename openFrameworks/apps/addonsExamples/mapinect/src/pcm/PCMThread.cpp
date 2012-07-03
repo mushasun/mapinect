@@ -13,6 +13,7 @@
 #include "log.h"
 #include "pointUtils.h"
 #include "Feature.h"
+#include "ButtonManager.h"
 
 using namespace std;
 
@@ -392,6 +393,11 @@ namespace mapinect {
 					MapinectEvent(kMapinectEventTypeObjectTouched,
 						(*iter)->getObject(),
 						(*iter)->getDataTouch()));
+				//TODO: refinar cuando se envian estas senales
+				
+				/*EventManager::addEvent(
+					MapinectEvent(kMapinectEventTypeButtonPressed,
+					(*iter)->getDataTouch()));*/
 			}
 		}
 		// Clear released touch points

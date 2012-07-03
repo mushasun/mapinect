@@ -6,6 +6,8 @@
 #include "IApplication.h"
 #include "ofxMutex.h"
 #include "PCM.h"
+#include "INotification.h"
+#include "IButton.h"
 
 namespace mapinect {
 
@@ -15,7 +17,9 @@ namespace mapinect {
 		kMapinectEventTypeObjectUpdated,
 		kMapinectEventTypeObjectLost,
 		kMapinectEventTypeObjectMoved,
-		kMapinectEventTypeObjectTouched
+		kMapinectEventTypeObjectTouched,
+		kMapinectEventTypeButtonPressed,
+		kMapinectEventTypeButtonReleased
 	} MapinectEventType;
 
 	struct MapinectEvent
@@ -27,9 +31,14 @@ namespace mapinect {
 			: type(type), object(object), movement(movement) { }
 		MapinectEvent(const MapinectEventType& type, const IObjectPtr& object, const DataTouch& touchPoint)
 			: type(type), object(object), movement(ofVec3f(), ofVec3f()), touchPoint(touchPoint) { }
+		MapinectEvent(const MapinectEventType& type, const IButtonPtr& button)
+			: type(type), button(button), movement(ofVec3f(), ofVec3f()) { }
+		MapinectEvent(const MapinectEventType& type, const DataTouch& touchPoint)
+			: type(type), movement(ofVec3f(), ofVec3f()), touchPoint(touchPoint) { }
 
 		MapinectEventType		type;
 		IObjectPtr				object;
+		IButtonPtr				button;
 		DataMovement			movement;
 		DataTouch				touchPoint;
 	};
@@ -39,7 +48,9 @@ namespace mapinect {
 	public:
 		static void addEvent(const MapinectEvent& mapinectEvent);
 
-		static void fireEvents(IApplication* listener, PCM* pcm);
+		static void fireEvents();
+
+		static void suscribeToNotifications(INotification * listener);
 
 	private:
 		EventManager();
@@ -47,7 +58,8 @@ namespace mapinect {
 		static EventManager*			instance;
 		static ofxMutex					mutexInstance;
 
-		vector<MapinectEvent>			eventsToFire;
+		list<MapinectEvent>				eventsToFire;
+		vector<INotification*>			object_listeners;
 
 	};
 }
