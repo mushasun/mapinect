@@ -8,6 +8,7 @@
 #include <map>
 #include "ofMain.h"
 #include "Visualizer.h"
+#include "ButtonManager.h"
 
 namespace visualizer {
 
