@@ -272,6 +272,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\interfaces\IButton.h" />
     <ClInclude Include="src\interfaces\IButtonManager.h" />
     <ClInclude Include="src\interfaces\IMapinect.h" />
+    <ClInclude Include="src\interfaces\INotification.h" />
     <ClInclude Include="src\interfaces\IObject.h" />
     <ClInclude Include="src\interfaces\IPolygon.h" />
     <ClInclude Include="src\math\DiscardCoordinate.h" />

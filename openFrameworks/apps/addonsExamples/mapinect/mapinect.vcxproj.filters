@@ -399,9 +399,6 @@
     <ClInclude Include="src\interfaces\IButton.h">
       <Filter>interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="src\interfaces\IButtonManager.h">
-      <Filter>interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="src\helpers\ButtonManager.h">
       <Filter>helpers</Filter>
     </ClInclude>
@@ -410,6 +407,12 @@
     </ClInclude>
     <ClInclude Include="src\utils\SimpleButton.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\INotification.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\IButtonManager.h">
+      <Filter>interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -449,9 +452,6 @@
     <Filter Include="math">
       <UniqueIdentifier>{0bf778b9-4834-4812-b354-0785ba61bc9b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pcm">
-      <UniqueIdentifier>{67b6a74c-f901-4bd8-9a5b-b31c145357ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="model">
       <UniqueIdentifier>{122a32e6-cf85-4619-8880-c6122cba6b2f}</UniqueIdentifier>
     </Filter>
@@ -481,6 +481,9 @@
     </Filter>
     <Filter Include="addons\ofxCairoTexture\src">
       <UniqueIdentifier>{f74c5479-e0d9-417c-84ec-67328a5b8e03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pcm">
+      <UniqueIdentifier>{67b6a74c-f901-4bd8-9a5b-b31c145357ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
