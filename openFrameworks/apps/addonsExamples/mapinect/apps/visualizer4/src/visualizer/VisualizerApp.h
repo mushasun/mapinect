@@ -45,18 +45,22 @@ namespace visualizer {
 		std::map<int, Box*>	boxes;
 		std::map<int, DataTouch>	touchPoints;
 		Floor*						floor;
-		ofSoundPlayer				music;
-		ofSoundPlayer				ding;
-		ofSoundPlayer				dong;
-		ofSoundPlayer				sample1;
-		ofSoundPlayer				sample2;
-		ofSoundPlayer				sample3;
-		ofSoundPlayer				sample4;
-
+		vector<ofSoundPlayer>		tracks;
+		int							currentTrack;
+		
 		float*						fftSmoothed;
 		int							nBandsToGet;
 
 		Visualizer					vis;
+		ofImage*					btnLyric;
+
+		ofImage*					btnPlay;
+		ofImage*					btnPlayOn;
+		ofImage*					btnNext;
+		ofImage*					btnNextOn;
+		ofImage*					btnPrev;
+		ofImage*					btnPrevOn;
+
 	};
 }
 
