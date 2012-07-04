@@ -1,5 +1,6 @@
 #include "SimpleButton.h"
 #include "pointutils.h"
+#include "ofGraphicsUtils.h"
 
 namespace mapinect {
 	//
@@ -13,62 +14,132 @@ namespace mapinect {
 	//	isPressed = false;
 	//	isTouching = false;
 	//}
+	void SimpleButton::init()
+	{
+		id = btnIds;
+		btnIds++;
+		leaderTouch = -1;
+		leaderChanged = false;
+	}
 
 	SimpleButton::SimpleButton(Polygon3D polygon, ofColor idle, ofColor pressed):
 	idleColor(idle), currentColor(idle), pressedColor(pressed), polygon(polygon)
 	{
-		id = btnIds;
-		btnIds++;
-		//contacts = 0;
+		init();
+		mode = kColor;
 	}
+
+	SimpleButton::SimpleButton(Polygon3D polygon, ofImage* idle, ofImage* pressed):
+	texPressed(pressed), texIdle(idle), polygon(polygon)
+	{
+		init();
+		mode = kBgImg;
+	}
+
 		
 	ButtonEvent SimpleButton::updateTouchPoints(DataTouch touch)
 	{
+		int newLeader = leaderTouch;
+		ButtonEvent evnt = NO_CHANGE;
 		if(polygon.isInPolygon(touch.getTouchPoint()))
 		{
 			if(touch.getType() == kTouchTypeReleased &&
 				contacts.size() > 0)
+			{
 				contacts.erase(touch.getId());
+				if(leaderTouch == touch.getId())
+				{
+					if(contacts.size() == 0)
+						newLeader = -1;
+					else
+						newLeader = contacts.begin()->second.getId();
+
+					//cout << "erease: " << touch.getId() << " - " << newLeader << endl;
+				}
+			}
 			else
+			{
 				contacts[touch.getId()] = touch;
+				if(leaderTouch == -1)
+					newLeader = touch.getId();
+
+				//cout << "added: " << touch.getId() << " - " << newLeader << endl;
+
+			}
 				//contacts.insert(pair<int,DataTouch>(touch.getId(),touch));
 
 			if(contacts.size() == 0)
-				return RELEASED;
+				evnt = RELEASED;
 			else if(contacts.size() == 1 &&
 					touch.getType() == kTouchTypeStarted)
-				return PRESSED;
+				evnt = PRESSED;
 			else
-				return NO_CHANGE;
+				evnt = NO_CHANGE;
 		}
 		else
 		{
 			map<int,DataTouch>::iterator contact = contacts.find(touch.getId());
 			if(contact != contacts.end())
 			{
-				contacts.erase(contact->first);
+				contacts.erase(touch.getId());
+				if(leaderTouch == touch.getId())
+				{
+					if(contacts.size() == 0)
+						newLeader = -1;
+					else
+						newLeader = contacts.begin()->second.getId();
+				}
+
+				//cout << "erease: " << touch.getId() << " - " << newLeader << endl;
+
 				if(contacts.size() == 0)
-					return RELEASED;
+					evnt = RELEASED;
 			}
 		}
 
-		return NO_CHANGE;
+		if(newLeader != leaderTouch)
+		{
+			leaderTouch = newLeader;
+			leaderChanged = true;
+			cout << "Leader changed : " << leaderChanged << "- " << leaderTouch << endl;
+		}
+		else
+			leaderChanged = false;
+
+		
+		cout << "Leader: " << leaderTouch << endl;
+		return evnt;
 	}
 
 	void SimpleButton::draw()
 	{
 		vector<ofVec3f> vertexs = polygon.getVertexs();
-		if(isPressed())
-			ofSetColor(pressedColor);
-		else
-			ofSetColor(idleColor);
 
-		glBegin(GL_QUADS);      
-			glVertex3f(vertexs.at(0).x, vertexs.at(0).y, vertexs.at(0).z); 
-			glVertex3f(vertexs.at(1).x, vertexs.at(1).y, vertexs.at(1).z);
-			glVertex3f(vertexs.at(2).x, vertexs.at(2).y, vertexs.at(2).z);
-			glVertex3f(vertexs.at(3).x, vertexs.at(3).y, vertexs.at(3).z);
-		glEnd();
+		switch(mode)
+		{
+			case kColor:
+				if(isPressed())
+					ofSetColor(pressedColor);
+				else
+					ofSetColor(idleColor);
+
+				glBegin(GL_QUADS);      
+					glVertex3f(vertexs.at(0).x, vertexs.at(0).y, vertexs.at(0).z); 
+					glVertex3f(vertexs.at(1).x, vertexs.at(1).y, vertexs.at(1).z);
+					glVertex3f(vertexs.at(2).x, vertexs.at(2).y, vertexs.at(2).z);
+					glVertex3f(vertexs.at(3).x, vertexs.at(3).y, vertexs.at(3).z);
+				glEnd();
+				break;
+			case kBgImg:
+				ofSetColor(255,255,255);
+				ofImage* tex = isPressed() ? texPressed : texIdle;
+				tex->bind();
+				vector<ofVec2f> texCoords(ofTexCoordsFor(*tex));
+				ofDrawQuadTextured(vertexs, texCoords);
+				tex->unbind();
+				break;
+		}
+		
 	}
 
 	//void SimpleButton::setPosition(ofVec3f pos)

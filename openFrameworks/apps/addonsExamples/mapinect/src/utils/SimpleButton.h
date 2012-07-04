@@ -5,12 +5,18 @@
 #include <set>
 
 namespace mapinect {
+	enum SButtonMode{
+		kColor,
+		kBgImg
+	};
+
 	class SimpleButton;
 	typedef boost::shared_ptr<SimpleButton> SimpleButtonPtr;
 
 	class SimpleButton : public IButton{
 	public:
 		SimpleButton(Polygon3D polygon, ofColor idle, ofColor pressed);
+		SimpleButton(Polygon3D polygon, ofImage* idle, ofImage* pressed);
 		virtual ButtonEvent updateTouchPoints(DataTouch touch);
 		virtual void draw();							
 		inline int getId() const { return id; }											
@@ -21,12 +27,20 @@ namespace mapinect {
 	protected:
 		inline map<int,DataTouch> getContacts() { return contacts; }
 		Polygon3D polygon;
+		int leaderTouch;
+		bool leaderChanged;
 	private:
+		void init();
+		
+		SButtonMode mode;
 		map<int,DataTouch> contacts;
 		ofColor pressedColor;
 		ofColor idleColor;
 		ofColor currentColor;
 		int id;
+
+		ofImage* texPressed;
+		ofImage* texIdle;
 	};
 }
 
