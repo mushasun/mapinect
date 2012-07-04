@@ -4,6 +4,7 @@
 #include "pointUtils.h"		// Esto vamos a tener que sacarlo
 #include "SimpleButton.h"
 #include "DraggableButton.h"
+#include "ObjectButton.h"
 
 namespace visualizer {
 	
@@ -31,40 +32,19 @@ namespace visualizer {
 		}	
 		nBandsToGet = 128;
 
-		music.loadSound("sounds/miles.mp3");
-		music.setVolume(1.0f);
-		music.setLoop(true);
+		//Tracks
+		currentTrack = 0;
+		for(int i = 0; i < 3; i++)
+		{
+			ofSoundPlayer track;
+			track.loadSound("sounds/track" + ofToString(i) + ".mp3");
+			track.setVolume(1.0f);
+			track.setLoop(true);
+			tracks.push_back(track);
+		}
 
-		/*ding.loadSound("sounds/ding.wav");
-		ding.setVolume(1.0f);
-		ding.setLoop(false);
-
-		dong.loadSound("sounds/dong.wav");
-		dong.setVolume(1.0f);
-		dong.setLoop(false);*/
-
-	//	sample1.loadSound("sounds/WAV/DrumMix_CK02_94bpm_03.wav");
-	//	sample1.setVolume(1.0f);
-	//	sample1.setLoop(true);
-	//	//sample1.play();
-
-	//	sample2.loadSound("sounds/WAV/Lead_CK02_94bpm_04.wav");
-	//	sample2.setVolume(1.0f);
-	//	sample2.setLoop(true);
-	//	//sample2.play();
-
-	//	sample3.loadSound("sounds/WAV/Strings_CK02_94bpm.wav");
-	//	sample3.setVolume(1.0f);
-	//	sample3.setLoop(true);
-	////	sample3.play();
-
-	//	sample4.loadSound("sounds/WAV/Timpani_CK02_94bpm.wav");
-	//	sample4.setVolume(1.0f);
-	//	sample4.setLoop(true);
-//		sample4.play();
-		//music.play();
-
-		   // Global openFrameworks settings
+		
+		// Global openFrameworks settings
 		ofEnableAlphaBlending();
 		ofEnableSmoothing();
 		ofLogLevel(OF_LOG_NOTICE);    
@@ -75,6 +55,14 @@ namespace visualizer {
 			colors.push_back(ofColor(rand()%255,rand()%255,rand()%255));
 		vis.setup(colors);
 
+		// Texturas
+		btnLyric = new ofImage("data/texturas/lyric.jpg");
+		btnPlay = new ofImage("data/texturas/buttons/play-button.jpg");
+		btnPlayOn = new ofImage("data/texturas/buttons/play-on.jpg");
+		btnNext = new ofImage("data/texturas/buttons/rewind.jpg");
+		btnNextOn = new ofImage("data/texturas/buttons/rewind-on.jpg");
+		btnPrev = new ofImage("data/texturas/buttons/forward.jpg");
+		btnPrevOn = new ofImage("data/texturas/buttons/forward-on.jpg");
 	}
 
 	//--------------------------------------------------------------
@@ -114,6 +102,19 @@ namespace visualizer {
 
 		for (map<int, Box*>::iterator iter = boxes.begin(); iter != boxes.end(); iter++) {
 			(iter->second)->draw(*floor);
+		}
+
+		for (map<int, DataTouch>::const_iterator it = touchPoints.begin(); it != touchPoints.end(); ++it)
+		{
+			if (it->second.getType() == kTouchTypeStarted)
+				ofSetHexColor(0xFF0000);
+			else if (it->second.getType() == kTouchTypeHolding)
+				ofSetHexColor(0x00FF00);
+			else
+				ofSetHexColor(0x0000FF);
+			ofVec3f s = it->second.getTouchPoint();
+			ofCircle(s.x, s.y, s.z, 0.01);
+			
 		}
 	}
 
@@ -206,89 +207,122 @@ namespace visualizer {
 
 				Polygon3D pol(object->getPolygons()[0]->getMathModel());
 
-				//Cuadrante 1
-				vector<ofVec3f> cuadrant1;
-				cuadrant1.push_back(pol.getVertexs()[0]);
-				cuadrant1.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
-				cuadrant1.push_back(object->getCenter());
-				cuadrant1.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[0] - pol.getVertexs()[3])/2));
-				Polygon3D btn1(cuadrant1);
+				////Cuadrante 1
+				//vector<ofVec3f> cuadrant1;
+				//cuadrant1.push_back(pol.getVertexs()[0]);
+				//cuadrant1.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
+				//cuadrant1.push_back(object->getCenter());
+				//cuadrant1.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[0] - pol.getVertexs()[3])/2));
+				//Polygon3D btn1(cuadrant1);
 
-				SimpleButton sb1(btn1,
-								ofColor(190,0,0),
-								ofColor(255,0,0));
+				//SimpleButton sb1(btn1,
+				//				ofColor(190,0,0),
+				//				ofColor(255,0,0));
 
-				//Cuadrante 2
-				vector<ofVec3f> cuadrant2;
-				cuadrant2.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
-				cuadrant2.push_back(pol.getVertexs()[1]);
-				
-				cuadrant2.push_back(pol.getVertexs()[2] + ((pol.getVertexs()[1] - pol.getVertexs()[2])/2));
-				cuadrant2.push_back(object->getCenter());
-				Polygon3D btn2(cuadrant2);
+				////Cuadrante 2
+				//vector<ofVec3f> cuadrant2;
+				//cuadrant2.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
+				//cuadrant2.push_back(pol.getVertexs()[1]);
+				//
+				//cuadrant2.push_back(pol.getVertexs()[2] + ((pol.getVertexs()[1] - pol.getVertexs()[2])/2));
+				//cuadrant2.push_back(object->getCenter());
+				//Polygon3D btn2(cuadrant2);
 
-				SimpleButton sb2(btn2,
-								ofColor(0,190,0),
-								ofColor(0,255,0));
+				//SimpleButton sb2(btn2,
+				//				ofColor(0,190,0),
+				//				ofColor(0,255,0));
 
-				////Cuadrante 3
-				vector<ofVec3f> cuadrant3;
-				cuadrant3.push_back(object->getCenter());
-				cuadrant3.push_back(pol.getVertexs()[2] + ((pol.getVertexs()[1] - pol.getVertexs()[2])/2));
-				cuadrant3.push_back(pol.getVertexs()[2]);
-				cuadrant3.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[2] - pol.getVertexs()[3])/2));
-				Polygon3D btn3(cuadrant3);
+				//////Cuadrante 3
+				//vector<ofVec3f> cuadrant3;
+				//cuadrant3.push_back(object->getCenter());
+				//cuadrant3.push_back(pol.getVertexs()[2] + ((pol.getVertexs()[1] - pol.getVertexs()[2])/2));
+				//cuadrant3.push_back(pol.getVertexs()[2]);
+				//cuadrant3.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[2] - pol.getVertexs()[3])/2));
+				//Polygon3D btn3(cuadrant3);
 
-				SimpleButton sb3(btn3,
-								ofColor(0,0,190),
-								ofColor(0,0,255));
+				//SimpleButton sb3(btn3,
+				//				ofColor(0,0,190),
+				//				ofColor(0,0,255));
 
-				////Cuadrante 4
-				vector<ofVec3f> cuadrant4;
-				cuadrant4.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[0] - pol.getVertexs()[3])/2));
-				cuadrant4.push_back(object->getCenter());
-				cuadrant4.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[2] - pol.getVertexs()[3])/2));
-				cuadrant4.push_back(pol.getVertexs()[3]);
-				Polygon3D btn4(cuadrant4);
+				//////Cuadrante 4
+				//vector<ofVec3f> cuadrant4;
+				//cuadrant4.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[0] - pol.getVertexs()[3])/2));
+				//cuadrant4.push_back(object->getCenter());
+				//cuadrant4.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[2] - pol.getVertexs()[3])/2));
+				//cuadrant4.push_back(pol.getVertexs()[3]);
+				//Polygon3D btn4(cuadrant4);
 
-				SimpleButton sb4(btn4,
-								ofColor(190,190,0),
-								ofColor(255,255,0));
+				//SimpleButton sb4(btn4,
+				//				ofColor(190,190,0),
+				//				ofColor(255,255,0));
 
-				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb1)));
-				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb2)));
-				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb3)));
-				this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb4)));
+				//this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb1)));
+				//this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb2)));
+				//this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb3)));
+				//this->btnManager->addButton(SimpleButtonPtr(new SimpleButton(sb4)));
 
 
 				////DRAG BUTTON////////////////
+				////Draggable 1
+				//vector<ofVec3f> draggable1;
+				//	draggable1.push_back(object->getCenter());
+				//draggable1.push_back(pol.getVertexs()[2] + ((pol.getVertexs()[1] - pol.getVertexs()[2])/2));
+				//draggable1.push_back(pol.getVertexs()[2]);
+				//draggable1.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[2] - pol.getVertexs()[3])/2));
+				//Polygon3D drag1(draggable1);
+
+				//DraggableButton d1(drag1,
+				//				ofColor(150,150,0),
+				//				ofColor(255,255,0));
+
 				//Draggable 1
-				vector<ofVec3f> draggable1;
-				draggable1.push_back(pol.getVertexs()[0]);
-				draggable1.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
-				draggable1.push_back(object->getCenter());
-				draggable1.push_back(pol.getVertexs()[3] + ((pol.getVertexs()[0] - pol.getVertexs()[3])/2));
-				Polygon3D drag1(draggable1);
+				vector<ofVec3f> draggable2;
+				draggable2.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
+				draggable2.push_back(pol.getVertexs()[1]);
+				
+				draggable2.push_back(pol.getVertexs()[2] + ((pol.getVertexs()[1] - pol.getVertexs()[2])/2));
+				draggable2.push_back(object->getCenter());
+				Polygon3D drag2(draggable2);
 
-				DraggableButton d1(drag1,
-								ofColor(128,0,0),
-								ofColor(255,0,0));
+				DraggableButton d2(drag2,
+								btnLyric,
+								btnLyric);
 
-				//this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d1)));
+				this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d2)));
 			}
 		}
 		else
 		{
 			
+			/* Visualizer Box*/
 			if (boxes.find(object->getId()) == boxes.end())
 			{
 				boxes[object->getId()] = new Box(object);
+				if(boxes.size() == 1)
+				{
+					//Load buttons
+					/*Button in floor of box*/
+					ObjectButton oButton1(object, kPolygonNameSideA, true, btnNext, btnNextOn,
+											0.05,0.05,- 0.05 ,0.04);
+					this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton1)));
+
+					ObjectButton oButton2(object, kPolygonNameSideA, true, btnPlay, btnPlayOn,
+											0.05,0.05,0.10,0.04);
+					this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton2)));
+
+					ObjectButton oButton3(object, kPolygonNameSideA, true, btnPrev, btnPrevOn,
+											0.05,0.05,0.25,0.04);
+					this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton3)));
+
+				}
 			}
-			if(!music.getIsPlaying())
+
+			/*Button box
+			if (boxes.find(object->getId()) == boxes.end())
 			{
-				music.play();
-				//music.setVolume(object->getCenter().z);
-			}
+				ObjectButton oButton1(object,ofColor(0,120,155), ofColor(0,255,255));
+				this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton1)));
+			}*/
 		}
 	}
 		
@@ -306,10 +340,7 @@ namespace visualizer {
 		{
 			map<int, Box*>::iterator b = boxes.find(object->getId());
 			if (b != boxes.end())
-			{
 				b->second->updateModelObject(object);
-				//music.setVolume(object->getCenter().z);
-			}
 		}
 	}
 
@@ -370,7 +401,7 @@ namespace visualizer {
 
 	void VisualizerApp::buttonPressed(const IButtonPtr& btn)
 	{
-		music.setSpeed(btn->getId());
+		/*music.setSpeed(btn->getId());
 		if(btn->getId() == 1 && !music.getIsPlaying())
 			music.play();
 		if(btn->getId() == 4)
@@ -403,10 +434,31 @@ namespace visualizer {
 				else
 					sample4.play();
 				break;
-		}
+		}*/
 	}
 	void VisualizerApp::buttonReleased(const IButtonPtr& btn)
 	{
-		//dong.play();
+		cout << "release: " << btn->getId() << endl;
+		switch(btn->getId())
+		{
+			case 2:
+				if(tracks[currentTrack].getIsPlaying())
+					tracks[currentTrack].stop();
+				else
+					tracks[currentTrack].play();
+				break;
+			case 3:
+				tracks[currentTrack].stop();
+				currentTrack++;
+				currentTrack %= tracks.size(); 
+				tracks[currentTrack].play();
+				break;
+			case 1:
+				tracks[currentTrack].stop();
+				currentTrack--;
+				currentTrack %= tracks.size(); 
+				tracks[currentTrack].play();
+				break;
+		}
 	}
 }
