@@ -178,6 +178,12 @@
     <ClCompile Include="src\utils\SimpleButton.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\BaseButton.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\ObjectButton.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -413,6 +419,12 @@
     </ClInclude>
     <ClInclude Include="src\interfaces\IButtonManager.h">
       <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ObjectButton.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\BaseButton.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

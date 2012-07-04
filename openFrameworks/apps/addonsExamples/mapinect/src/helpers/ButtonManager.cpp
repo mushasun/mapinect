@@ -1,5 +1,6 @@
 #include "ButtonManager.h"
 #include "EventManager.h"
+#include "ObjectButton.h"
 
 namespace mapinect {
 
@@ -7,12 +8,15 @@ namespace mapinect {
 	{
 	}
 
+	//// IButtonManager Implementation
+	//--------------------------------------------------------------
 	void ButtonManager::draw()
 	{
 		for (map<int, IButtonPtr>::const_iterator it = buttons.begin(); it != buttons.end(); ++it)
 			it->second->draw();
 	}
 
+	//--------------------------------------------------------------
 	int ButtonManager::addButton(const IButtonPtr& btn)
 	{
 		if (buttons.find(btn->getId()) == buttons.end())
@@ -24,6 +28,7 @@ namespace mapinect {
 			return -1;
 	}
 
+	//--------------------------------------------------------------
 	void ButtonManager::removeButton(int id)
 	{
 		if (buttons.find(id) != buttons.end())
@@ -32,6 +37,7 @@ namespace mapinect {
 		}
 	}
 
+	//--------------------------------------------------------------
 	void ButtonManager::fireButtonEvent(DataTouch touch)
 	{
 		for (map<int, IButtonPtr>::iterator iter = buttons.begin(); iter != buttons.end(); iter++) {
@@ -41,16 +47,78 @@ namespace mapinect {
 			{
 				case PRESSED: 
 					EventManager::addEvent(MapinectEvent(kMapinectEventTypeButtonPressed, iter->second));
-					//listener->buttonPressed(iter->second);
 					break;
 				case RELEASED:
 					EventManager::addEvent(MapinectEvent(kMapinectEventTypeButtonReleased, iter->second));
-					//listener->buttonReleased(iter->second);
 					break;
 				default:
 					break;
 			}
-			//EventManager::fireEvents();
 		}
+	}
+
+	//// INotification Implementation
+	void ButtonManager::objectDetected(const IObjectPtr& object)
+	{
+		
+	}
+
+	//--------------------------------------------------------------
+	void ButtonManager::objectUpdated(const IObjectPtr& object)
+	{
+		for (map<int, IButtonPtr>::const_iterator it = buttons.begin(); it != buttons.end(); ++it)
+		{
+			ObjectButton* oButton = dynamic_cast<ObjectButton*>(it->second.get());
+			if(oButton != NULL)
+				if(oButton->getObjectId() == object->getId())
+					oButton->updateObject(object);
+
+		}
+	}
+
+	//--------------------------------------------------------------
+	void ButtonManager::objectLost(const IObjectPtr& object)
+	{
+		vector<int> toRemove;
+		for (map<int, IButtonPtr>::const_iterator it = buttons.begin(); it != buttons.end(); ++it)
+		{
+			ObjectButton* oButton = dynamic_cast<ObjectButton*>(it->second.get());
+			if(oButton != NULL)
+				if(oButton->getObjectId() == object->getId())
+					toRemove.push_back(oButton->getId());
+		}
+		for(int i = 0; i < toRemove.size(); i++)
+			buttons.erase(toRemove.at(i));
+	}
+
+	//--------------------------------------------------------------
+	void ButtonManager::objectMoved(const IObjectPtr& object, const DataMovement& movement)
+	{
+		for (map<int, IButtonPtr>::const_iterator it = buttons.begin(); it != buttons.end(); ++it)
+		{
+			ObjectButton* oButton = dynamic_cast<ObjectButton*>(it->second.get());
+			if(oButton != NULL)
+				if(oButton->getObjectId() == object->getId())
+					oButton->updateObject(object);
+
+		}
+	}
+	
+	//--------------------------------------------------------------
+	void ButtonManager::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
+	{
+		fireButtonEvent(touchPoint);
+	}
+
+	//--------------------------------------------------------------
+	void ButtonManager::buttonPressed(const IButtonPtr&)
+	{
+		
+	}
+
+	//--------------------------------------------------------------
+	void ButtonManager::buttonReleased(const IButtonPtr&)
+	{
+
 	}
 }

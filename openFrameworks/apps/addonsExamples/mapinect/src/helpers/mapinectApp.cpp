@@ -227,6 +227,7 @@ namespace mapinect {
 
 		app->setup();
 		EventManager::suscribeToNotifications((INotification*) app);
+		EventManager::suscribeToNotifications((INotification*) app->btnManager);
 	}
 
 

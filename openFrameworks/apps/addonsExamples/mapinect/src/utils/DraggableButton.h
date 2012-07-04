@@ -14,7 +14,7 @@ namespace mapinect {
 			DraggableButton(Polygon3D polygon, ofImage* idle, ofImage* pressed);
 			~DraggableButton(void);
 
-			virtual ButtonEvent updateTouchPoints(DataTouch touch);	
+			virtual ButtonEvent updateTouchPoints(const DataTouch& touch);	
 		private:
 			float lastScale;
 	};

@@ -43,6 +43,7 @@ namespace mapinect {
 		virtual void dragEvent(ofDragInfo info)								{ }
 
 		IArmController*	armController;
+		IButtonManager*	btnManager;
 	};
 }
 
