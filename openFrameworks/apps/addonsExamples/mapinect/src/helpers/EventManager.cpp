@@ -50,9 +50,11 @@ namespace mapinect {
 						break;
 					case kMapinectEventTypeObjectTouched:
 						listener->objectTouched(e->object, e->touchPoint);
+						/*
+						El INotification no tiene mas el btnManager
 						if (listener->btnManager!=NULL){
 							listener->btnManager->fireButtonEvent(e->touchPoint);
-						}
+						}*/
 						//estas lineas de abajo hay que sacarlas
 						break;
 					case kMapinectEventTypeButtonPressed:

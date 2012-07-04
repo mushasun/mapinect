@@ -220,8 +220,10 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\pcm\PCMThread.cpp" />
     <ClCompile Include="src\pcm\TrackedCloud.cpp" />
     <ClCompile Include="src\pcm\TrackedTouch.cpp" />
+    <ClCompile Include="src\utils\BaseButton.cpp" />
     <ClCompile Include="src\utils\DraggableButton.cpp" />
     <ClCompile Include="src\utils\log.cpp" />
+    <ClCompile Include="src\utils\ObjectButton.cpp" />
     <ClCompile Include="src\utils\ofGraphicsUtils.cpp" />
     <ClCompile Include="src\utils\ofVecUtils.cpp" />
     <ClCompile Include="src\utils\pointUtils.cpp" />
@@ -299,8 +301,10 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\pcm\PCMThread.h" />
     <ClInclude Include="src\pcm\TrackedCloud.h" />
     <ClInclude Include="src\pcm\TrackedTouch.h" />
+    <ClInclude Include="src\utils\BaseButton.h" />
     <ClInclude Include="src\utils\DraggableButton.h" />
     <ClInclude Include="src\utils\log.h" />
+    <ClInclude Include="src\utils\ObjectButton.h" />
     <ClInclude Include="src\utils\objectTypesEnum.h" />
     <ClInclude Include="src\utils\ofGraphicsUtils.h" />
     <ClInclude Include="src\utils\ofVecUtils.h" />

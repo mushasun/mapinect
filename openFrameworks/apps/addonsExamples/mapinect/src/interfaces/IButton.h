@@ -23,7 +23,7 @@ namespace mapinect {
 
 	class IButton{
 	public:
-		virtual ButtonEvent updateTouchPoints(DataTouch touch)				= 0;
+		virtual ButtonEvent updateTouchPoints(const DataTouch& touch)		= 0;
 		virtual void draw()													= 0;
 		virtual int getId()  const											= 0;
 

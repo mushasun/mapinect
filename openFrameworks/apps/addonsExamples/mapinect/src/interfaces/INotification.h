@@ -6,7 +6,6 @@
 #include "DataMovement.h"
 #include "DataTouch.h"
 #include "IButton.h"
-#include "IButtonManager.h"
 
 namespace mapinect {
 	
@@ -24,7 +23,7 @@ namespace mapinect {
 		virtual void objectTouched(const IObjectPtr&, const DataTouch&)		{ }
 		virtual void buttonPressed(const IButtonPtr&)						{ }
 		virtual void buttonReleased(const IButtonPtr&)						{ }
-		IButtonManager*	btnManager;
+		/*IButtonManager*	btnManager;*/
 	};
 }
 

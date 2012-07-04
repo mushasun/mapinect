@@ -2,13 +2,12 @@
 #define I_BUTTON_MANAGER_H__
 
 #include "IButton.h"
+#include "INotification.h"
 #include "DataTouch.h"
 
 namespace mapinect
 {
-	class IApplication;
-
-	class IButtonManager{
+	class IButtonManager: public INotification{
 	public:
 		//virtual void setup() = 0;
 		virtual void draw() = 0;

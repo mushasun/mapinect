@@ -17,11 +17,13 @@ namespace mapinect {
 	{
 	}
 
-	ButtonEvent DraggableButton::updateTouchPoints(DataTouch touch)
+	ButtonEvent DraggableButton::updateTouchPoints(const DataTouch& touch)
 	{
 		map<int,DataTouch> prevContacts = this->getContacts();
 		ButtonEvent evnt = SimpleButton::updateTouchPoints(touch);
 		map<int,DataTouch> postContacts = this->getContacts();
+
+		//cout << "t: " << touch.getId() << " l: " << leaderTouch << endl;
 
 		if(prevContacts.size() >= 1 &&
 			postContacts.size() >= 1 &&
