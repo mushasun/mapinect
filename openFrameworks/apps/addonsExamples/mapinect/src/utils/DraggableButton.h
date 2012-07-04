@@ -11,9 +11,12 @@ namespace mapinect {
 	{
 		public:
 			DraggableButton(Polygon3D polygon, ofColor idle, ofColor pressed);
+			DraggableButton(Polygon3D polygon, ofImage* idle, ofImage* pressed);
 			~DraggableButton(void);
 
-			virtual ButtonEvent updateTouchPoints(DataTouch touch);					
+			virtual ButtonEvent updateTouchPoints(DataTouch touch);	
+		private:
+			float lastScale;
 	};
 }
 #endif

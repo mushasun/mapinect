@@ -34,6 +34,7 @@ const Eigen::Affine3f& getTransformationMatrix();
 
 PCXYZ	eyePos();
 mapinect::Polygon3D transformPolygon3D(const mapinect::Polygon3D& polygon, const Eigen::Affine3f& transform);
+mapinect::Polygon3D scalePolygon3D(const mapinect::Polygon3D& polygon, const float& scale);
 
 PCXYZ	transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform);
 ofVec3f	transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform);

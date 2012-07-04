@@ -128,6 +128,22 @@ PCPtr transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform)
 	return transformedCloud;
 }
 
+mapinect::Polygon3D scalePolygon3D(const mapinect::Polygon3D& polygon, const float& scale)
+{
+	vector<ofVec3f> vertexs = polygon.getVertexs();
+	vector<ofVec3f> newVertexs;
+	ofVec3f center = computeCentroid(vertexs);
+	for(int i = 0; i < vertexs.size(); i++)
+	{
+		ofVec3f vec = vertexs.at(i);
+		ofVec3f scaleV = center - vec;
+		scaleV += scaleV * scale;
+		newVertexs.push_back(center + scaleV);
+	}
+	return mapinect::Polygon3D(newVertexs);
+}
+
+
 mapinect::Polygon3D transformPolygon3D(const mapinect::Polygon3D& polygon, const Eigen::Affine3f& transform)
 {
 	mapinect::Polygon3D pol(polygon);
