@@ -6,6 +6,7 @@ namespace mapinect {
 
 	ButtonManager::ButtonManager()
 	{
+		EventManager::suscribe(this);
 	}
 
 	//// IButtonManager Implementation

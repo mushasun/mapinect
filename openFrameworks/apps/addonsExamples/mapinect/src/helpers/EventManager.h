@@ -3,11 +3,9 @@
 
 #include <vector>
 
-#include "IApplication.h"
-#include "ofxMutex.h"
-#include "PCM.h"
-#include "INotification.h"
 #include "IButton.h"
+#include "INotification.h"
+#include "ofxMutex.h"
 
 namespace mapinect {
 
@@ -50,7 +48,7 @@ namespace mapinect {
 
 		static void fireEvents();
 
-		static void suscribeToNotifications(INotification * listener);
+		static void suscribe(INotification* listener);
 
 	private:
 		EventManager();

@@ -2,17 +2,20 @@
 #define ARDUINO_H__
 
 #include <math.h>
-#include <map> 
+#include <map>
+#include <Eigen/Geometry>
+
+#include "INotification.h"
 #include "ofSerial.h"
 #include "ofVec3f.h"
-#include <Eigen/Geometry>
 #include "pointUtils.h"
 
-namespace mapinect {
-	class Arduino{
+namespace mapinect
+{
+	class Arduino : public INotification
+	{
 	
 	public:
-		static Arduino* getInstance();
 		virtual ~Arduino();
 		Arduino();
 
@@ -26,8 +29,8 @@ namespace mapinect {
 		void				reset();
 
 		ofVec3f				getKinect3dCoordinates();
-		ofVec3f				setArm3dCoordinates(ofVec3f position);
-		ofVec3f				lookAt(ofVec3f point);
+		ofVec3f				setArm3dCoordinates(const ofVec3f& position);
+		ofVec3f				lookAt(const ofVec3f& point);
 		ofVec3f				lookingAt();
 		Eigen::Affine3f		getWorldTransformation();
 		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);
@@ -45,6 +48,9 @@ namespace mapinect {
 	private:
 		bool				isActive();
 		void				sendMotor(int value, int id);
+		ofVec3f				bestFitForArmSphere(const ofVec3f& point);
+		void				setArm3dCoordinates(float x, float y, float z);
+
 		ofSerial			serial;
 		signed int			angleMotor1;
 		signed int			angleMotor2;
@@ -52,26 +58,12 @@ namespace mapinect {
 		signed int			angleMotor8;
 		ofVec3f				posicion;
 		ofVec3f				mira;
-				
-		ofVec3f				mira_actual;
-
+		ofVec3f				miraActual;
 		bool				armStoppedMoving;
 		bool				armMoving;
-		static Eigen::Affine3f		worldTransformation;
+		Eigen::Affine3f		worldTransformation;
 		PCPtr				cloudBeforeMoving;
 		PCPtr				cloudAfterMoving;
-
-		float round(float input)
-		{
-			//VC++ no tiene un puto round que lo tengo que hacer a mano???
-			return floor(input < 0 ? input - 0.5 : input + 0.5);
-		}
-
-
-		ofVec3f				convert_3D_cart_to_spher(ofVec3f point);
-		ofVec3f				convert_3D_spher_to_cart(ofVec3f point);
-		ofVec3f				find_closest_point_to_sphere(ofVec3f point);
-		void				setArm3dCoordinates(float x, float y, float z);
 
 	};
 }
