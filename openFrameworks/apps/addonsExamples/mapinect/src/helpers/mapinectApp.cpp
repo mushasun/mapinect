@@ -86,20 +86,25 @@ namespace mapinect {
 		}
 
 		cv.update(isKinectFrameNew);
-		pcm.update(isKinectFrameNew);
-		arduino.update();
 
 		if  (IsFeatureMoveArmActive())
 		{
-			// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
-			setTransformationMatrix(arduino.getWorldTransformation());	// Method from pointUtils	
-			// Set transformation matrix in VM to apply to Modelview matrix
-			vm->setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
+			if (!(arduino.isArmMoving())) {
+				// Set transformation matrix to apply to point cloud, in pointUtils::getPartialCloudRealCoords
+				setTransformationMatrix(arduino.getWorldTransformation());	// Method from pointUtils	
+				// Set transformation matrix in VM to apply to Modelview matrix
+				vm->setInverseWorldTransformationMatrix(arduino.getWorldTransformation());
+				
+				pcm.update(isKinectFrameNew);
+			}
 		}
 		else
 		{
 			vm->setInverseWorldTransformationMatrix(getTransformationMatrix());
 		}
+
+
+		arduino.update();
 
 	}
 
