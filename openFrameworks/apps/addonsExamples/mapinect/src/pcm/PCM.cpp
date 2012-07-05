@@ -1,5 +1,6 @@
 #include "PCM.h"
 
+#include "EventManager.h"
 #include "Feature.h"
 #include "Globals.h"
 #include "log.h"
@@ -15,7 +16,9 @@ namespace mapinect {
 
 		pcmThread.setup();
 		drawPC = false;
-		calibratedTex.allocate(gKinect->width, gKinect->height,GL_RGB); 
+		calibratedTex.allocate(gKinect->width, gKinect->height,GL_RGB);
+
+		EventManager::suscribe(this);
 	}
 
 	//--------------------------------------------------------------

@@ -426,6 +426,9 @@
     <ClInclude Include="src\utils\BaseButton.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\math\ofSpherical.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">

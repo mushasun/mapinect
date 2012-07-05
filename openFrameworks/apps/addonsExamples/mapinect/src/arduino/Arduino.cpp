@@ -7,8 +7,6 @@
 #include "utils.h"
 #include <pcl/registration/icp.h>
 
-#define M_PI_2     1.57079632679489661923
-
 namespace mapinect {
 
 #define		ARDUINO_CONFIG		"ArduinoConfig:"
@@ -46,14 +44,14 @@ namespace mapinect {
 	float			Arduino::KINECT_HEIGHT;
 	float			Arduino::MOTORS_HEIGHT;
 
-	Eigen::Affine3f Arduino::worldTransformation  = Eigen::Affine3f();
-
 	Arduino::Arduino()
 	{
 		angleMotor1 = 0;
 		angleMotor2 = 0;
 		angleMotor4 = 0;
-		angleMotor8 = 0;  
+		angleMotor8 = 0;
+		armStoppedMoving = true;
+		worldTransformation = Eigen::Affine3f::Identity();
 	}
 
 	Arduino::~Arduino()
@@ -405,15 +403,15 @@ namespace mapinect {
 
 		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
 		//		en coordenadas de mundo
-		angleMotor2 = round(atan(z/x) * 180 / M_PI);			//el de la base, x no deberia ser 0 nunca
+		angleMotor2 = round(atan(z/x) * 180.0f / M_PI);			//el de la base, x no deberia ser 0 nunca
 		if (y != 0) {
 			if (y > 0)
 			{
-				angleMotor1 = (int)round(asin(y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
+				angleMotor1 = (int)round(asin(y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
 			}
 			else
 			{
-				angleMotor1 = -(int)round(asin(-y/ARM_LENGTH) * 180 / M_PI); // estaba mal, era el asin
+				angleMotor1 = -(int)round(asin(-y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
 			}
 		}
 		sendMotor(angleMotor1, ID_MOTOR_1);
@@ -424,54 +422,26 @@ namespace mapinect {
 		posicion = getKinect3dCoordinates(); //ofVec3f(x, y, z);
 	}
 
-	ofVec3f Arduino::setArm3dCoordinates(ofVec3f position)
+	ofVec3f Arduino::setArm3dCoordinates(const ofVec3f& position)
 	{
 		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
 		//		en coordenadas de mundo
 		//wrapper para posicionar desde un ofVec3f
-		ofVec3f closest_position = find_closest_point_to_sphere(position);
-		setArm3dCoordinates(closest_position.x, closest_position.y, closest_position.z);
+		ofVec3f bestFit = bestFitForArmSphere(position);
+		setArm3dCoordinates(bestFit.x, bestFit.y, bestFit.z);
 		//lookAt(mira_actual);
-		return closest_position;
+		return bestFit;
 	}
 
-	ofVec3f Arduino::convert_3D_cart_to_spher(ofVec3f cart_point)
-	{
-		//devuelve un ofVec3f que por simplicidad:
-		//x = r, y = phi, z = theta
-		//http://www.thecubiclewarrior.com/post/5954842175/spherical-to-cartesian
-		float r = sqrt(pow(cart_point.x, 2) + pow(cart_point.y, 2) + pow(cart_point.z, 2) );
-		float phi = acos(cart_point.y/r); //z es mi y! es el angulo en el plano x, z
-		float theta = atan2(cart_point.x, cart_point.z);//z es mi y!
-		ofVec3f spher_point(r, phi, theta);
-		return spher_point;
-	}
-
-	ofVec3f Arduino::convert_3D_spher_to_cart(ofVec3f spher_point)
-	{
-		//http://www.thecubiclewarrior.com/post/5954842175/spherical-to-cartesian
-		float r = spher_point.x;
-		float phi = spher_point.y;
-		float theta = spher_point.z;
-
-		float z = r*sin(phi)*cos(theta);
-		float x = r*sin(phi)*sin(theta);
-		float y = r*cos(phi);
-
-		ofVec3f cart_point(x, y, z);
-		return cart_point;
-	}
-
-	ofVec3f Arduino::find_closest_point_to_sphere(ofVec3f point)
+	ofVec3f Arduino::bestFitForArmSphere(const ofVec3f& p)
 	{
 		//la lógica es pasar el punto que viene a un punto en coordenadas esféricas
 		//reducir el r y pasarlo nuevamente a coordenadas cartesianas.
-		ofVec3f spher_orig_point = convert_3D_cart_to_spher(point);
-		spher_orig_point.x = ARM_LENGTH;
-		return convert_3D_spher_to_cart(spher_orig_point);
+		Line3D armLine(ofVec3f(0, 0, 0), p);
+		return armLine.calculateValue(Arduino::ARM_LENGTH / armLine.segmentLength());
 	}
 
-	ofVec3f	Arduino::lookAt(ofVec3f point)
+	ofVec3f	Arduino::lookAt(const ofVec3f& point)
 	{
 		armMoving = true;
 
@@ -597,6 +567,7 @@ namespace mapinect {
 	{
 		return IsFeatureArduinoActive();
 	}
+
 	ofVec3f	Arduino::lookingAt()
 	{
 		Eigen::Vector3f kinectMira (0.0, 0.0, 0.10);		// Mira inicial, en Sist. de Coord Local del Kinect

@@ -187,13 +187,7 @@ namespace mapinect {
 	{
 	}
 
-	//--------------------------------------------------------------
-	PCM* mapinectApp::getPCM()
-	{
-		return &pcm;
-	}
 
-	
 
 	//--------------------------------------------------------------
 	userApp::userApp(ofxFenster* window, IApplication* app)
@@ -231,8 +225,7 @@ namespace mapinect {
 		}
 
 		app->setup();
-		EventManager::suscribeToNotifications((INotification*) app);
-		EventManager::suscribeToNotifications((INotification*) app->btnManager);
+		EventManager::suscribe(app);
 	}
 
 

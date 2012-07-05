@@ -50,12 +50,6 @@ namespace mapinect {
 						break;
 					case kMapinectEventTypeObjectTouched:
 						listener->objectTouched(e->object, e->touchPoint);
-						/*
-						El INotification no tiene mas el btnManager
-						if (listener->btnManager!=NULL){
-							listener->btnManager->fireButtonEvent(e->touchPoint);
-						}*/
-						//estas lineas de abajo hay que sacarlas
 						break;
 					case kMapinectEventTypeButtonPressed:
 						listener->buttonPressed(e->button);
@@ -72,7 +66,7 @@ namespace mapinect {
 		EventManager::mutexInstance.unlock();
 	}
 
-	void EventManager::suscribeToNotifications(INotification * listener)
+	void EventManager::suscribe(INotification* listener)
 	{
 		EventManager::mutexInstance.lock();
 
