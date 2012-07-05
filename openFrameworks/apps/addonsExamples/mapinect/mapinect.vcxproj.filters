@@ -172,17 +172,17 @@
     <ClCompile Include="src\helpers\ButtonManager.cpp">
       <Filter>helpers</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\DraggableButton.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="src\buttons\BaseButton.cpp">
+      <Filter>buttons</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\SimpleButton.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="src\buttons\DraggableButton.cpp">
+      <Filter>buttons</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\BaseButton.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="src\buttons\ObjectButton.cpp">
+      <Filter>buttons</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\ObjectButton.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="src\buttons\SimpleButton.cpp">
+      <Filter>buttons</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -408,26 +408,26 @@
     <ClInclude Include="src\helpers\ButtonManager.h">
       <Filter>helpers</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\DraggableButton.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\SimpleButton.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\interfaces\INotification.h">
       <Filter>interfaces</Filter>
     </ClInclude>
     <ClInclude Include="src\interfaces\IButtonManager.h">
       <Filter>interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\ObjectButton.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\BaseButton.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\math\ofSpherical.h">
       <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buttons\BaseButton.h">
+      <Filter>buttons</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buttons\DraggableButton.h">
+      <Filter>buttons</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buttons\ObjectButton.h">
+      <Filter>buttons</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buttons\SimpleButton.h">
+      <Filter>buttons</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -499,6 +499,9 @@
     </Filter>
     <Filter Include="pcm">
       <UniqueIdentifier>{67b6a74c-f901-4bd8-9a5b-b31c145357ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="buttons">
+      <UniqueIdentifier>{75a49d75-ba0b-4a2f-9984-25203da72df4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
