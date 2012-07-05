@@ -1,6 +1,5 @@
 #include "VisualizerApp.h"
 
-#include "Globals.h"
 #include "pointUtils.h"		// Esto vamos a tener que sacarlo
 #include "SimpleButton.h"
 #include "DraggableButton.h"
@@ -63,10 +62,6 @@ namespace visualizer {
 		btnNextOn = new ofImage("data/texturas/buttons/rewind-on.jpg");
 		btnPrev = new ofImage("data/texturas/buttons/forward.jpg");
 		btnPrevOn = new ofImage("data/texturas/buttons/forward-on.jpg");
-	}
-
-	//--------------------------------------------------------------
-	void VisualizerApp::exit() {
 	}
 
 	//--------------------------------------------------------------
@@ -153,41 +148,6 @@ namespace visualizer {
 
 	//--------------------------------------------------------------
 	void VisualizerApp::keyPressed(int key)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void VisualizerApp::keyReleased(int key)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void VisualizerApp::windowMoved(int x, int y)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void VisualizerApp::mouseMoved(int x, int y)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void VisualizerApp::mouseDragged(int x, int y, int button)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void VisualizerApp::mousePressed(int x, int y, int button)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void VisualizerApp::mouseReleased(int x, int y, int button)
-	{
-	}
-
-	//--------------------------------------------------------------
-	void VisualizerApp::dragEvent(ofDragInfo info)
 	{
 	}
 

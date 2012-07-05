@@ -3,12 +3,10 @@
 
 #include "IApplication.h"
 
+#include <map>
 #include "Floor.h"
 #include "Box.h"
-#include <map>
-#include "ofMain.h"
 #include "Visualizer.h"
-#include "ButtonManager.h"
 
 namespace visualizer {
 
@@ -20,16 +18,8 @@ namespace visualizer {
 		virtual void setup();
 		virtual void update();
 		virtual void draw();
-		virtual void exit();
 
 		virtual void keyPressed(int key);
-		virtual void keyReleased(int key);
-		virtual void windowMoved(int x, int y);
-		virtual void mouseMoved(int x, int y);
-		virtual void mouseDragged(int x, int y, int button);
-		virtual void mousePressed(int x, int y, int button);
-		virtual void mouseReleased(int x, int y, int button);
-		virtual void dragEvent(ofDragInfo info);
 
 		virtual void debugDraw();
 
