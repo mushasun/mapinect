@@ -32,6 +32,8 @@ namespace mapinect {
 		Eigen::Affine3f		getWorldTransformation();
 		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);
 		
+		inline bool			isArmMoving() {	return armMoving;	}
+
 		char*				read();
 		
 		signed int*			motorAngles() const;
@@ -54,8 +56,10 @@ namespace mapinect {
 		ofVec3f				mira_actual;
 
 		bool				armStoppedMoving;
+		bool				armMoving;
 		static Eigen::Affine3f		worldTransformation;
 		PCPtr				cloudBeforeMoving;
+		PCPtr				cloudAfterMoving;
 
 		float round(float input)
 		{

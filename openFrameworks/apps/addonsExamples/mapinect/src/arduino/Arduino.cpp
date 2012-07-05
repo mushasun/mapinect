@@ -108,7 +108,9 @@ namespace mapinect {
 			cout << "Error en setup del Serial, puerto COM: " << COM_PORT << endl;
 			//return false;
 		}
-			
+
+		armMoving = true;
+
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
 		sendMotor(angleMotor4, ID_MOTOR_4);
@@ -139,26 +141,32 @@ namespace mapinect {
 		if (armStoppedMoving)
 		{
 			armStoppedMoving = false;
-			PCPtr cloudAfterMoving = getCloud();
 
-			// Apply ICP
-			pcl::PointCloud<PCXYZ>::Ptr beforeMoving (cloudBeforeMoving.get());
-			pcl::PointCloud<PCXYZ>::Ptr afterMoving  (cloudAfterMoving.get());
-
-			pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
-			icp.setInputCloud(beforeMoving);
-			icp.setInputTarget(afterMoving);
-			//TODO: Transformar un Eigen::Affine3f a un TransformationEstimationPtr para ICP
-			//icp.setTransformationEstimation(transformationEstimation);
-			pcl::PointCloud<pcl::PointXYZ> Final;
-			icp.align(Final);
-			if (icp.hasConverged())
+			if (!(cloudBeforeMoving.get() == NULL)) 
 			{
-				cout << "ICP has converged with fitness score: " << icp.getFitnessScore() << endl;
-				Eigen::Affine3f newTransf (icp.getFinalTransformation());
 
-				//Combine new transformation with estimated transf
-				worldTransformation = newTransf * worldTransformation;
+				cloudAfterMoving = getCloud();
+
+				// Apply ICP
+				pcl::PointCloud<PCXYZ>::Ptr beforeMoving (new pcl::PointCloud<PCXYZ>(*cloudBeforeMoving.get()));
+				pcl::PointCloud<PCXYZ>::Ptr afterMoving  (new pcl::PointCloud<PCXYZ>(*cloudAfterMoving.get()));
+
+				pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+				icp.setInputCloud(beforeMoving);
+				icp.setInputTarget(afterMoving);
+				//TODO: Transformar un Eigen::Affine3f a un TransformationEstimationPtr para ICP
+				//icp.setTransformationEstimation(transformationEstimation);
+				pcl::PointCloud<pcl::PointXYZ> Final;
+				icp.align(Final);
+				if (icp.hasConverged())
+				{
+					cout << "ICP has converged with fitness score: " << icp.getFitnessScore() << endl;
+					Eigen::Affine3f newTransf (icp.getFinalTransformation());
+
+					//Combine new transformation with estimated transf
+					worldTransformation = newTransf.inverse() * worldTransformation  ;
+				}
+
 			}
 		}
 
@@ -212,6 +220,7 @@ namespace mapinect {
 			case '.':
 				// For testing - Vero
 				armStoppedMoving = true;
+				armMoving = false;
 				break;
 		}
 		if (key == KEY_MOVE_1R) {
@@ -283,6 +292,9 @@ namespace mapinect {
 	void Arduino::reset()
 	{
 		CHECK_ACTIVE;
+
+		armMoving = true;
+
 		if (RESET_ANGLE1 != ANGLE_UNDEFINED) {
 			angleMotor1 = RESET_ANGLE1;
 			sendMotor((char) angleMotor1, ID_MOTOR_1);
@@ -386,6 +398,8 @@ namespace mapinect {
 
 	void Arduino::setArm3dCoordinates(float x, float y, float z)
 	{
+		armMoving = true;
+
 		// Get cloud before moving arm
 		cloudBeforeMoving = getCloud();
 
@@ -459,6 +473,8 @@ namespace mapinect {
 
 	ofVec3f	Arduino::lookAt(ofVec3f point)
 	{
+		armMoving = true;
+
 		// Get cloud before moving arm
 		cloudBeforeMoving = getCloud();
 
