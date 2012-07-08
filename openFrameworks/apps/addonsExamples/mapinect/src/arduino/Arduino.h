@@ -61,7 +61,7 @@ namespace mapinect
 		ofVec3f				miraActual;
 		bool				armStoppedMoving;
 		bool				armMoving;
-		Eigen::Affine3f		worldTransformation;
+		static Eigen::Affine3f		worldTransformation;
 		PCPtr				cloudBeforeMoving;
 		PCPtr				cloudAfterMoving;
 

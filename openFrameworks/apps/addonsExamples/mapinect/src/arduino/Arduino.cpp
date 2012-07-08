@@ -44,6 +44,8 @@ namespace mapinect {
 	float			Arduino::KINECT_HEIGHT;
 	float			Arduino::MOTORS_HEIGHT;
 
+	Eigen::Affine3f Arduino::worldTransformation  = Eigen::Affine3f();
+
 	Arduino::Arduino()
 	{
 		angleMotor1 = 0;
@@ -51,7 +53,6 @@ namespace mapinect {
 		angleMotor4 = 0;
 		angleMotor8 = 0;
 		armStoppedMoving = true;
-		worldTransformation = Eigen::Affine3f::Identity();
 	}
 
 	Arduino::~Arduino()
@@ -146,14 +147,23 @@ namespace mapinect {
 				cloudAfterMoving = getCloud();
 
 				// Apply ICP
+
 				pcl::PointCloud<PCXYZ>::Ptr beforeMoving (new pcl::PointCloud<PCXYZ>(*cloudBeforeMoving.get()));
 				pcl::PointCloud<PCXYZ>::Ptr afterMoving  (new pcl::PointCloud<PCXYZ>(*cloudAfterMoving.get()));
 
 				pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
 				icp.setInputCloud(beforeMoving);
 				icp.setInputTarget(afterMoving);
-				//TODO: Transformar un Eigen::Affine3f a un TransformationEstimationPtr para ICP
-				//icp.setTransformationEstimation(transformationEstimation);
+
+				// Set the max correspondence distance to 5cm (e.g., correspondences with higher distances will be ignored)
+				//icp.setMaxCorrespondenceDistance (0.05);
+				// Set the maximum number of iterations (criterion 1)
+				//icp.setMaximumIterations (5);
+				// Set the transformation epsilon (criterion 2)
+				//icp.setTransformationEpsilon (1e-8);
+				// Set the euclidean distance difference epsilon (criterion 3)
+				//icp.setEuclideanFitnessEpsilon (1);
+
 				pcl::PointCloud<pcl::PointXYZ> Final;
 				icp.align(Final);
 				if (icp.hasConverged())
