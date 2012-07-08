@@ -100,6 +100,7 @@ namespace mapinect {
 		}
 		else
 		{
+			pcm.update(isKinectFrameNew);
 			vm->setInverseWorldTransformationMatrix(getTransformationMatrix());
 		}
 
