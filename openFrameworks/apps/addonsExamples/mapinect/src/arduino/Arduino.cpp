@@ -22,6 +22,8 @@ namespace mapinect {
 
 #define		MOTOR_ANGLE_OFFSET_DEFAULT	128
 
+#define		ICP_CLOUD_DENSITY	8
+
 	static string	COM_PORT;
 	static char		KEY_MOVE_1R;
 	static char		KEY_MOVE_1L;
@@ -144,7 +146,7 @@ namespace mapinect {
 			if (!(cloudBeforeMoving.get() == NULL)) 
 			{
 
-				cloudAfterMoving = getCloud();
+				cloudAfterMoving = getCloud(ICP_CLOUD_DENSITY);
 
 				// Apply ICP
 
@@ -409,7 +411,7 @@ namespace mapinect {
 		armMoving = true;
 
 		// Get cloud before moving arm
-		cloudBeforeMoving = getCloud();
+		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
 
 		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
 		//		en coordenadas de mundo
@@ -456,7 +458,7 @@ namespace mapinect {
 		armMoving = true;
 
 		// Get cloud before moving arm
-		cloudBeforeMoving = getCloud();
+		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
 
 		ofVec3f miraHorizonte (ARM_LENGTH + 0.10, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
 		ofVec3f posInicialKinect (ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
