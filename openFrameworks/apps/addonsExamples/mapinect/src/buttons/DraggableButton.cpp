@@ -55,8 +55,8 @@ namespace mapinect {
 		{
 			map<int,DataTouch>::iterator leaderTouchIter = postContacts.find(leaderTouch);
 			map<int,DataTouch>::iterator postTouchIter = postContacts.find(touch.getId());
-			if (leaderTouchIter != prevContacts.end() &&
-				postTouchIter != postContacts.end())
+			if (postContacts.count(leaderTouch) > 0 &&
+				postContacts.count(touch.getId()) > 0)
 			{
 				ofVec3f leaderTouch = leaderTouchIter->second.getTouchPoint();
 				ofVec3f postTouch = postTouchIter->second.getTouchPoint();

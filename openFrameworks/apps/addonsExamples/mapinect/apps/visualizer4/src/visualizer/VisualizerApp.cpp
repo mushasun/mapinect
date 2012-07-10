@@ -91,9 +91,9 @@ namespace visualizer {
 	//--------------------------------------------------------------
 	void VisualizerApp::draw()
 	{
-		//if (floor != NULL) {
-		//	floor->draw();
-		//}
+		/*if (floor != NULL) {
+			floor->draw();
+		}*/
 
 		for (map<int, Box*>::iterator iter = boxes.begin(); iter != boxes.end(); iter++) {
 			(iter->second)->draw(*floor);
@@ -112,7 +112,6 @@ namespace visualizer {
 			
 		}
 	}
-
 
 	//--------------------------------------------------------------
 	void VisualizerApp::update() {
@@ -274,6 +273,10 @@ namespace visualizer {
 											0.05,0.05,0.25,0.04);
 					this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton3)));
 
+
+					/*ObjectButton oButton4(object, kPolygonNameSideA, false, btnPrev, btnPrevOn,
+											0.05,0.05,0.1,0.04);
+					this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton3)));*/
 				}
 			}
 
@@ -327,6 +330,7 @@ namespace visualizer {
 	//--------------------------------------------------------------
 	void VisualizerApp::objectMoved(const IObjectPtr& object, const DataMovement& movement)
 	{
+		//cout << "objMoved: " << movement.getTranslation().length() << endl;
 		if (object->getId() == TABLE_ID)
 		{
 			if (floor != NULL)
@@ -409,16 +413,22 @@ namespace visualizer {
 				break;
 			case 3:
 				tracks[currentTrack].stop();
-				currentTrack++;
-				currentTrack %= tracks.size(); 
+				currentTrack--;
+				currentTrack = currentTrack == -1 ? tracks.size() - 1 : currentTrack; 
+				cout << "track: " << currentTrack;
+
 				tracks[currentTrack].play();
 				break;
 			case 1:
 				tracks[currentTrack].stop();
-				currentTrack--;
+				currentTrack++;
 				currentTrack %= tracks.size(); 
+
+				cout << "track: " << currentTrack;
 				tracks[currentTrack].play();
 				break;
+
+				
 		}
 	}
 }

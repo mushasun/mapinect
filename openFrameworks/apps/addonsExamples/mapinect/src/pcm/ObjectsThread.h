@@ -18,7 +18,7 @@ namespace mapinect
 		void						exit();
 		virtual void				threadedFunction();
 
-		void						setClouds(const PCPtr& cloud,const PCPtr& rawCloud);
+		void						setClouds(const PCPtr& cloud);
 
 	private:
 		void						processCloud();

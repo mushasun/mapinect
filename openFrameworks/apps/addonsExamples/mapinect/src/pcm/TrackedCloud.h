@@ -70,6 +70,7 @@ namespace mapinect {
 		bool						needApplyTransformation;
 		bool						needRecalculateFaces;
 		bool						hand;
+		ofVec3f						translationV;
 
 		SurfaceNormalsPtr			normals;
 		LocalFeaturesPtr			features;

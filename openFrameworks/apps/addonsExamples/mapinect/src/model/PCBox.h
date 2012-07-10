@@ -23,6 +23,7 @@ namespace mapinect {
 			virtual void					unifyVertexs();
 			PCPolygonPtr					duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons);
 			virtual vector<PCPolygonPtr>	estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons);
+			virtual vector<PCPolygonPtr>	mergePolygons(vector<PCPolygonPtr>& toMerge);
 
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard, const vector<PCPolygonPtr>& inPolygon);

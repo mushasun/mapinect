@@ -34,11 +34,11 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	void ObjectsThread::setClouds(const PCPtr& cloud, const PCPtr& rawCloud)
+	void ObjectsThread::setClouds(const PCPtr& cloud)
 	{
 		inCloudMutex.lock();
 		inCloud = cloud;
-		inRawCloud = rawCloud;
+		inRawCloud = cloud;
 		inCloudMutex.unlock();
 	}
 

@@ -11,7 +11,7 @@ namespace visualizer {
 	{
 		if (floorTexture == NULL)
 		{
-			floorTexture = new ofImage("data/texturas/135367.jpg");
+			floorTexture = new ofImage("data/texturas/floor.jpg");
 		}
 	}
 
