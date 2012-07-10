@@ -70,6 +70,8 @@ namespace mapinect
 		PCPtr				cloudAfterMoving;
 		int					id_object_to_follow;
 		ofVec3f				center_of_following_object;
+		void				applyICPLoadedClouds(); 
+
 	};
 }
 

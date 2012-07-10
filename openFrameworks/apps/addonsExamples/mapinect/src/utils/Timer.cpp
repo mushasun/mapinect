@@ -21,11 +21,11 @@ namespace mapinect {
 	}
 
 	void Timer::print() {
-		cout << getElapsedMiliseconds() << " ms" << endl;
+		cout << getElapsedSeconds() << " sec" << endl;
 	}
 
-	float Timer::getElapsedMiliseconds() {
-		return (float)(endTime - startTime) / 1000.0f;
+	float Timer::getElapsedSeconds() {
+		return (float)(endTime - startTime);
 	}
 
 }

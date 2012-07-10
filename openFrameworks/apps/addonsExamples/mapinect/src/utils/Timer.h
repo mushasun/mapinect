@@ -12,7 +12,7 @@ namespace mapinect {
 		void start();
 		void end();
 		void print();
-		float getElapsedMiliseconds();
+		float getElapsedSeconds();
 
 	private:
 		time_t	startTime, endTime;
