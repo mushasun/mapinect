@@ -248,6 +248,7 @@ namespace buildings {
 				buildings[object->getId()] = new Building(object);
 			}
 		}
+		armController->lookAtObject(object);
 	}
 
 	//--------------------------------------------------------------

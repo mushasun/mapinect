@@ -6,9 +6,11 @@
 #include <Eigen/Geometry>
 
 #include "INotification.h"
+#include "IObject.h"
 #include "ofSerial.h"
 #include "ofVec3f.h"
 #include "pointUtils.h"
+#include "EventManager.h"
 
 namespace mapinect
 {
@@ -34,6 +36,8 @@ namespace mapinect
 		ofVec3f				lookingAt();
 		Eigen::Affine3f		getWorldTransformation();
 		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);
+		void				objectUpdated(const IObjectPtr&);
+		void				followObject(const IObjectPtr&);
 		
 		inline bool			isArmMoving() {	return armMoving;	}
 
@@ -64,7 +68,8 @@ namespace mapinect
 		static Eigen::Affine3f		worldTransformation;
 		PCPtr				cloudBeforeMoving;
 		PCPtr				cloudAfterMoving;
-
+		int					id_object_to_follow;
+		ofVec3f				center_of_following_object;
 	};
 }
 
