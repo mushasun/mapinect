@@ -105,7 +105,7 @@ namespace mapinect {
 				setObjectsThreadStatus("Detecting clusters...");
 				saveCloud("rawClusters.pcd", *cloud);
 				std::vector<pcl::PointIndices> cluster_indices =
-				findClusters(cloud, MAX_CLUSTER_TOLERANCE, MIN_CLUSTER_SIZE, MAX_CLUSTER_SIZE);
+				findClusters(cloud, Constants::OBJECT_CLUSTER_TOLERANCE(), Constants::OBJECT_CLUSTER_MIN_SIZE());
 
 			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 			{
