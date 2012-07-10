@@ -35,24 +35,37 @@ namespace mapinect {
 	{
 	}
 
-	
-
-	PCPolygonPtr PCBox::getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons)
+	//// Overrides
+	// ------------------------------------------------------------------------------
+	vector<PCPolygonPtr> PCBox::mergePolygons(vector<PCPolygonPtr>& toMerge)
 	{
-		for(int i = 0; i < newPolygons.size(); i++)
-			if(newPolygons.at(i)->getPolygonModelObject()->getName() == name)
-				return newPolygons.at(i);
-
-		return PCPolygonPtr();
+		vector<PCPolygonPtr> merged = PCPolyhedron::mergePolygons(toMerge);
+		
+		// Elimina caras opuestas. No se pueden estar viendo caras que son opuestas en una misma escena
+		vector<IPolygonName> toDelete;
+		vector<PCPolygonPtr> cleanedMerged;
+		for(vector<PCPolygonPtr>::iterator iter = merged.begin(); iter != merged.end(); ++iter)
+		{
+			IPolygonName name = (*iter)->getPolygonModelObject()->getName();
+			if(find(toDelete.begin(), toDelete.end(), name) == toDelete.end()) 
+			{
+				cleanedMerged.push_back(*iter);
+				if(getOppositePolygon(name,merged).get() != NULL)
+					toDelete.push_back(name);
+			}
+		}
+		
+		return cleanedMerged;
 	}
-
+	
+	// ------------------------------------------------------------------------------
 	void PCBox::unifyVertexs() {
-		//PCPolyhedron::unifyVertexs();
-		//return;
 
 		if(getMissing(pcpolygons).size() > 0)
 		{
-			PCPolyhedron::unifyVertexs();
+			cout << "FAILED ESTIMATION - OBJ: " << getId() << endl;//PCPolyhedron::unifyVertexs();
+			for(int i = 0; i < pcpolygons.size(); i++)
+				cout << "	" << pcpolygons.at(i)->getPolygonModelObject()->getName() << endl;
 		}
 		else
 		{
@@ -85,11 +98,10 @@ namespace mapinect {
 				PCPolygonPtr p1 = getPCPolygon(vertexNames[i][1], pcpolygons);
 				PCPolygonPtr p2 = getPCPolygon(vertexNames[i][2], pcpolygons);
 
-				if( p0 != NULL &&
-					p1 != NULL &&
-					p2 != NULL)
+				if( p0.get() != NULL &&
+					p1.get() != NULL &&
+					p2.get() != NULL)
 				{
-					// TODO: Actualizar el MathModel de los poligonos cuando se hace el matching!!!
 					Plane3D plane0(p0->getPolygonModelObject()->getMathModel().getPlane());
 					Plane3D plane1(p1->getPolygonModelObject()->getMathModel().getPlane());
 					Plane3D plane2(p2->getPolygonModelObject()->getMathModel().getPlane());
@@ -113,7 +125,7 @@ namespace mapinect {
 			{
 				IPolygonName name = (IPolygonName)i;
 				PCPolygonPtr p0 = getPCPolygon(name, pcpolygons);
-				if(p0 != NULL)
+				if(p0.get() != NULL)
 					p0->getPolygonModelObject()->setVertexs(tempVertexs[i]);
 			}
 			saveCloud("UnifiedVertex.pcd", vertexs);
@@ -131,7 +143,287 @@ namespace mapinect {
 			//}
 		}
 	}
+
+	// ------------------------------------------------------------------------------
+	vector<PCPolygonPtr> PCBox::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons)
+	{
+		vector<PCPolygonPtr> estimated;
+		if(newPolygons.size() <= 0)
+			return estimated;
+
+		for(int i = 0; i < newPolygons.size(); i ++)
+		{
+			PCPolygonPtr estimatedPol = duplicatePol(newPolygons.at(i),newPolygons);
+			estimated.push_back(estimatedPol);
+			saveCloud("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
+		}
+		
+		vector<PCPolygonPtr> partialEstimation = estimated;
+		partialEstimation.insert(partialEstimation.begin(), newPolygons.begin(), newPolygons.end());
 	
+		int maxIter = 3;
+		int i = 0;
+			
+		list<IPolygonName> missing = getMissing(partialEstimation);
+
+		while(partialEstimation.size() < 6 && 
+				maxIter > 0 &&
+				partialEstimation.size() > 1 &&
+				missing.size() > 0)
+		{
+			maxIter--;
+			IPolygonName toEstimate = *missing.begin();
+			PCPolygonPtr next, prev;
+			vector<ofVec3f> nextVec, prevVec;
+
+			if(toEstimate == kPolygonNameTop || toEstimate == kPolygonNameBottom)
+			{
+				int j = 0;
+				do
+				{
+					next = partialEstimation.at(j);
+					prev = getOppositePolygon(next->getPolygonModelObject()->getName(),partialEstimation);//Estimate TOP
+					j++;
+				}
+				while(prev.get() == NULL && j < partialEstimation.size());
+
+				if(prev.get() == NULL)
+				{
+					missing.remove(toEstimate);
+					continue; // no se puede estimar el poligono
+				}
+
+				nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
+				prevVec = prev->getPolygonModelObject()->getMathModel().getVertexs();
+
+				if(toEstimate == kPolygonNameBottom)
+				{
+					sort(nextVec.begin(),nextVec.end(), sortOnYDesc<ofVec3f>);
+					sort(prevVec.begin(),prevVec.end(), sortOnYDesc<ofVec3f>);
+				}
+				else
+				{
+					sort(nextVec.begin(),nextVec.end(), sortOnYAsc<ofVec3f>);
+					sort(prevVec.begin(),prevVec.end(), sortOnYAsc<ofVec3f>);
+				}
+			}	
+			else
+			{
+				next = getNextPolygon(toEstimate,partialEstimation);
+				prev = getPrevPolygon(toEstimate,partialEstimation);
+
+				if(next.get() == NULL)
+					next = getPCPolygon(kPolygonNameTop,partialEstimation);
+				if(prev.get() == NULL)
+					prev = getPCPolygon(kPolygonNameBottom,partialEstimation);
+
+				if(next.get() == NULL || prev.get() == NULL)
+				{
+					missing.remove(toEstimate);
+					continue; // no se puede estimar el poligono
+				}
+
+				nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
+				prevVec = prev->getPolygonModelObject()->getMathModel().getVertexs();
+
+				bool ascending = toEstimate > 3;
+				if(ascending)
+				{
+					sort(nextVec.begin(),nextVec.end(), sortOnXAsc<ofVec3f>);
+					sort(prevVec.begin(),prevVec.end(), sortOnXAsc<ofVec3f>);
+				}
+				else
+				{
+					sort(nextVec.begin(),nextVec.end(), sortOnXDesc<ofVec3f>);
+					sort(prevVec.begin(),prevVec.end(), sortOnXDesc<ofVec3f>);
+				}
+			}
+
+			vector<ofVec3f> faceVertex;
+
+			faceVertex.insert(faceVertex.end(),nextVec.begin(), nextVec.begin() + 2);
+			faceVertex.insert(faceVertex.end(),prevVec.begin(), prevVec.begin() + 2);
+
+			Plane3D plane(faceVertex.at(0), faceVertex.at(1), faceVertex.at(2));
+			pcl::ModelCoefficients coef = plane.getCoefficients();
+				
+			//fix normal
+			ofVec3f internalPoint = nextVec.at(3);
+			ofVec3f normal = ofVec3f(coef.values.at(0),coef.values.at(1),coef.values.at(2));
+			float dist = normal.dot(internalPoint - faceVertex.at(0));
+			if(dist > 0)
+			{
+				normal *= -1;
+				Plane3D orientedPlane(faceVertex.at(0),normal);
+				coef = orientedPlane.getCoefficients();
+			}
+
+			PCPtr faceCloud (new PC());
+			for(int i = 0; i < faceVertex.size(); i ++)
+			{
+				faceCloud->push_back(OFVEC3F_PCXYZ(faceVertex.at(i)));
+			}
+
+			//top face correction
+			if(fullEstimation && toEstimate == kPolygonNameTop)
+			{
+				gModel->tableMutex.lock();
+				TablePtr t = gModel->getTable();
+				gModel->tableMutex.unlock();
+
+				float calcHeight = t->getPolygonModelObject()->getMathModel().distance(PCXYZ_OFVEC3F(faceCloud->at(0)));
+				ofVec3f translationCorrection = normal * (height - calcHeight);
+					
+				PCPtr correctionCloud (new PC());
+				Eigen::Transform<float,3,Eigen::Affine> transformationCorrection;
+				transformationCorrection = Eigen::Translation<float,3>(translationCorrection.x, translationCorrection.y, translationCorrection.z);
+				pcl::transformPointCloud(*faceCloud,*correctionCloud,transformationCorrection);
+					
+				*faceCloud = *correctionCloud;
+				Plane3D orientedPlane(PCXYZ_OFVEC3F(faceCloud->at(0)),normal);
+				coef = orientedPlane.getCoefficients();
+			}
+
+			PCPolygonPtr pcp(new PCQuadrilateral(coef, faceCloud, 99, true));
+			pcp->detectPolygon();
+			pcp->getPolygonModelObject()->setName(toEstimate);
+
+					
+			partialEstimation.push_back(pcp);
+			estimated.push_back(pcp);
+
+			PCPolygonPtr estimatedPol = duplicatePol(pcp,partialEstimation);
+			partialEstimation.push_back(estimatedPol);
+			estimated.push_back(estimatedPol);
+			saveCloud("fullEstimatedFace.pcd",*faceCloud);
+
+			i++;
+		}
+		return estimated;
+	}
+
+	// ------------------------------------------------------------------------------
+	void PCBox::detectPrimitives() {
+		PCPolyhedron::detectPrimitives();
+		pcPolygonsMutex.lock();
+		if(pcpolygons.size() == 6)
+		{
+			fullEstimation = true;
+			for(int i = 0; i < pcpolygons.size(); i ++)
+			{
+				IPolygonName name = pcpolygons.at(i)->getPolygonModelObject()->getName();
+				switch(name)
+				{
+					case kPolygonNameTop:
+						top = pcpolygons.at(i);
+						break;
+					case kPolygonNameSideA:
+						sideA = pcpolygons.at(i);
+						break;
+					case kPolygonNameSideB:
+						sideB = pcpolygons.at(i);
+						break;
+					case kPolygonNameSideC:
+						sideC = pcpolygons.at(i);
+						break;
+					case kPolygonNameSideD:
+						sideD = pcpolygons.at(i);
+						break;
+					case kPolygonNameBottom:
+						bottom = pcpolygons.at(i);
+						break;
+				}
+			}
+			messureBox();
+		}
+		pcPolygonsMutex.unlock();
+	}
+
+
+	//// Get Polygons
+	// ------------------------------------------------------------------------------
+	PCPolygonPtr PCBox::getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons)
+	{
+		for(int i = 0; i < newPolygons.size(); i++)
+			if(newPolygons.at(i)->getPolygonModelObject()->getName() == name)
+				return newPolygons.at(i);
+
+		return PCPolygonPtr();
+	}
+
+	// ------------------------------------------------------------------------------
+	list<IPolygonName> PCBox::getMissing(const vector<PCPolygonPtr>& estimated)
+	{
+		list<IPolygonName> missing;
+		missing.push_back(kPolygonNameTop);
+		missing.push_back(kPolygonNameSideA);
+		missing.push_back(kPolygonNameSideB);
+		missing.push_back(kPolygonNameSideC);
+		missing.push_back(kPolygonNameSideD);
+		missing.push_back(kPolygonNameBottom);
+
+		for(int i = 0; i < estimated.size(); i ++)
+		{
+			IPolygonName searched = estimated.at(i)->getPolygonModelObject()->getName();
+			missing.remove(searched);
+		}
+
+		return missing;
+	}
+	
+	// ------------------------------------------------------------------------------
+	PCPolygonPtr PCBox::getNextPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
+	{
+		int next = (toEstimate + 1) % 6;
+		if(next == 5)
+			next = 1;
+
+		IPolygonName searchedPolygon = (IPolygonName) next;
+
+		for(int i = 0; i < newPolygons.size(); i++)
+			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
+				return newPolygons.at(i);
+		
+		return PCPolygonPtr();
+	}
+
+	// ------------------------------------------------------------------------------
+	PCPolygonPtr PCBox::getPrevPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
+	{
+		int prev = (toEstimate - 1) % 6;
+		if(prev == 0)
+			prev = 4;
+
+		IPolygonName searchedPolygon = (IPolygonName) prev;
+
+		for(int i = 0; i < newPolygons.size(); i++)
+			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
+				return newPolygons.at(i);
+		
+		return PCPolygonPtr();
+	}
+
+	// ------------------------------------------------------------------------------
+	PCPolygonPtr PCBox::getOppositePolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
+	{
+		int next = (toEstimate + 2) % 6;
+		if(next == 5)
+			next = 0;
+		if(next == 0)
+			next = 5;
+
+		IPolygonName searchedPolygon = (IPolygonName) next;
+
+		for(int i = 0; i < newPolygons.size(); i++)
+			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
+				return newPolygons.at(i);
+		
+		return PCPolygonPtr();
+	}
+
+
+	//// Estimation
+	// ------------------------------------------------------------------------------
 	vector<PCPolygonPtr> PCBox::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard)
 	{
 		vector<PCPolygonPtr> polygonsInBox;
@@ -161,6 +453,7 @@ namespace mapinect {
 		return polygonsInBox;
 	}
 	
+	// ------------------------------------------------------------------------------
 	vector<PCPolygonPtr> PCBox::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard, const vector<PCPolygonPtr>& inPolygon)
 	{
 		vector<PCPolygonPtr> polygonsInBox;
@@ -186,6 +479,7 @@ namespace mapinect {
 		return polygonsInBox;
 	}
 
+	// ------------------------------------------------------------------------------
 	PCPolygonPtr PCBox::duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons)
 	{
 		pcl::ModelCoefficients coeff = polygon->getCoefficients();
@@ -201,10 +495,14 @@ namespace mapinect {
 			polName = kPolygonNameBottom;
 		else if(polFatherName == kPolygonNameBottom)
 			polName = kPolygonNameTop;
-		else if(polFatherName <= 2)
-			polName = (IPolygonName)(polFatherName + 2);
-		else
-			polName = (IPolygonName)(polFatherName - 2);
+		else if(polFatherName == kPolygonNameSideA)
+			polName = kPolygonNameSideC;
+		else if(polFatherName == kPolygonNameSideB)
+			polName = kPolygonNameSideD;
+		else if(polFatherName == kPolygonNameSideC)
+			polName = kPolygonNameSideA;
+		else if(polFatherName == kPolygonNameSideD)
+			polName = kPolygonNameSideB;
 
 		if(fullEstimation)
 		{
@@ -313,248 +611,7 @@ namespace mapinect {
 		return estimatedPol;
 	}
 
-	list<IPolygonName> PCBox::getMissing(const vector<PCPolygonPtr>& estimated)
-	{
-		list<IPolygonName> missing;
-		missing.push_back(kPolygonNameTop);
-		missing.push_back(kPolygonNameSideA);
-		missing.push_back(kPolygonNameSideB);
-		missing.push_back(kPolygonNameSideC);
-		missing.push_back(kPolygonNameSideD);
-		missing.push_back(kPolygonNameBottom);
-
-		for(int i = 0; i < estimated.size(); i ++)
-		{
-			IPolygonName searched = estimated.at(i)->getPolygonModelObject()->getName();
-			missing.remove(searched);
-		}
-
-		return missing;
-	}
-
-	PCPolygonPtr PCBox::getNextPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
-	{
-		int next = (toEstimate + 1) % 6;
-		if(next == 5)
-			next = 1;
-
-		IPolygonName searchedPolygon = (IPolygonName) next;
-
-		for(int i = 0; i < newPolygons.size(); i++)
-			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
-				return newPolygons.at(i);
-		
-		throw::exception("No Polygon");
-	}
-
-	PCPolygonPtr PCBox::getPrevPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
-	{
-		int prev = (toEstimate - 1) % 6;
-		if(prev == 0)
-			prev = 4;
-
-		IPolygonName searchedPolygon = (IPolygonName) prev;
-
-		for(int i = 0; i < newPolygons.size(); i++)
-			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
-				return newPolygons.at(i);
-		
-		throw::exception("No Polygon");
-	}
-
-	PCPolygonPtr PCBox::getOppositePolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
-	{
-		int next = (toEstimate + 2) % 6;
-		if(next == 5)
-			next = 1;
-		if(next == 0)
-			next = 2;
-
-		IPolygonName searchedPolygon = (IPolygonName) next;
-
-		for(int i = 0; i < newPolygons.size(); i++)
-			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
-				return newPolygons.at(i);
-		
-		throw::exception("No Polygon");
-		;
-	}
-	
-
-	vector<PCPolygonPtr> PCBox::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons)
-	{
-		vector<PCPolygonPtr> estimated;
-		if(newPolygons.size() <= 1)
-			return estimated;
-
-		for(int i = 0; i < newPolygons.size(); i ++)
-		{
-			PCPolygonPtr estimatedPol = duplicatePol(newPolygons.at(i),newPolygons);
-			estimated.push_back(estimatedPol);
-			saveCloud("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
-		}
-		
-		vector<PCPolygonPtr> partialEstimation = estimated;
-		partialEstimation.insert(partialEstimation.begin(), newPolygons.begin(), newPolygons.end());
-
-		if(partialEstimation.size() < 6)
-		{
-			
-			int maxIter = 1;
-			int i = 0;
-			
-
-			while(partialEstimation.size() < 6 && 
-				  maxIter > 0 &&
-				  partialEstimation.size() > 1)
-			{
-				list<IPolygonName> missing = getMissing(partialEstimation);
-				maxIter--;
-				IPolygonName toEstimate = *missing.begin();
-				PCPolygonPtr next, prev;
-				vector<ofVec3f> nextVec, prevVec;
-
-				if(toEstimate == kPolygonNameTop || toEstimate == kPolygonNameBottom)
-				{
-					next = partialEstimation.at(0);
-					prev = getOppositePolygon(next->getPolygonModelObject()->getName(),partialEstimation);//Estimate TOP
-
-					nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
-					prevVec = prev->getPolygonModelObject()->getMathModel().getVertexs();
-
-					if(toEstimate == kPolygonNameBottom)
-					{
-						sort(nextVec.begin(),nextVec.end(), sortOnYDesc<ofVec3f>);
-						sort(prevVec.begin(),prevVec.end(), sortOnYDesc<ofVec3f>);
-					}
-					else
-					{
-						sort(nextVec.begin(),nextVec.end(), sortOnYAsc<ofVec3f>);
-						sort(prevVec.begin(),prevVec.end(), sortOnYAsc<ofVec3f>);
-					}
-				}	
-				else
-				{
-					next = getNextPolygon(toEstimate,partialEstimation);
-					prev = getPrevPolygon(toEstimate,partialEstimation);
-
-					nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
-					prevVec = prev->getPolygonModelObject()->getMathModel().getVertexs();
-
-					bool ascending = toEstimate < 3;
-					if(ascending)
-					{
-						sort(nextVec.begin(),nextVec.end(), sortOnXAsc<ofVec3f>);
-						sort(prevVec.begin(),prevVec.end(), sortOnXAsc<ofVec3f>);
-					}
-					else
-					{
-						sort(nextVec.begin(),nextVec.end(), sortOnXDesc<ofVec3f>);
-						sort(prevVec.begin(),prevVec.end(), sortOnXDesc<ofVec3f>);
-					}
-				}
-
-				vector<ofVec3f> faceVertex;
-
-				faceVertex.insert(faceVertex.end(),nextVec.begin(), nextVec.begin() + 2);
-				faceVertex.insert(faceVertex.end(),prevVec.begin(), prevVec.begin() + 2);
-
-				Plane3D plane(faceVertex.at(0), faceVertex.at(1), faceVertex.at(2));
-				pcl::ModelCoefficients coef = plane.getCoefficients();
-				
-				//fix normal
-				ofVec3f internalPoint = nextVec.at(3);
-				ofVec3f normal = ofVec3f(coef.values.at(0),coef.values.at(1),coef.values.at(2));
-				float dist = normal.dot(internalPoint - faceVertex.at(0));
-				if(dist > 0)
-				{
-					normal *= -1;
-					Plane3D orientedPlane(faceVertex.at(0),normal);
-					coef = orientedPlane.getCoefficients();
-				}
-
-				PCPtr faceCloud (new PC());
-				for(int i = 0; i < faceVertex.size(); i ++)
-				{
-					faceCloud->push_back(OFVEC3F_PCXYZ(faceVertex.at(i)));
-				}
-
-				//top face correction
-				if(fullEstimation && toEstimate == kPolygonNameTop)
-				{
-					gModel->tableMutex.lock();
-					TablePtr t = gModel->getTable();
-					gModel->tableMutex.unlock();
-
-					float calcHeight = t->getPolygonModelObject()->getMathModel().distance(PCXYZ_OFVEC3F(faceCloud->at(0)));
-					ofVec3f translationCorrection = normal * (height - calcHeight);
-					
-					PCPtr correctionCloud (new PC());
-					Eigen::Transform<float,3,Eigen::Affine> transformationCorrection;
-					transformationCorrection = Eigen::Translation<float,3>(translationCorrection.x, translationCorrection.y, translationCorrection.z);
-					pcl::transformPointCloud(*faceCloud,*correctionCloud,transformationCorrection);
-					
-					*faceCloud = *correctionCloud;
-					Plane3D orientedPlane(PCXYZ_OFVEC3F(faceCloud->at(0)),normal);
-					coef = orientedPlane.getCoefficients();
-				}
-
-				PCPolygonPtr pcp(new PCQuadrilateral(coef, faceCloud, 99, true));
-				pcp->detectPolygon();
-				pcp->getPolygonModelObject()->setName(toEstimate);
-
-					
-				partialEstimation.push_back(pcp);
-				estimated.push_back(pcp);
-
-				PCPolygonPtr estimatedPol = duplicatePol(pcp,partialEstimation);
-				partialEstimation.push_back(estimatedPol);
-				estimated.push_back(estimatedPol);
-				saveCloud("fullEstimatedFace.pcd",*faceCloud);
-
-				i++;
-			}
-		}
-		return estimated;
-	}
-
-	void PCBox::detectPrimitives() {
-		PCPolyhedron::detectPrimitives();
-		pcPolygonsMutex.lock();
-		if(pcpolygons.size() == 6)
-		{
-			fullEstimation = true;
-			for(int i = 0; i < pcpolygons.size(); i ++)
-			{
-				IPolygonName name = pcpolygons.at(i)->getPolygonModelObject()->getName();
-				switch(name)
-				{
-					case kPolygonNameTop:
-						top = pcpolygons.at(i);
-						break;
-					case kPolygonNameSideA:
-						sideA = pcpolygons.at(i);
-						break;
-					case kPolygonNameSideB:
-						sideB = pcpolygons.at(i);
-						break;
-					case kPolygonNameSideC:
-						sideC = pcpolygons.at(i);
-						break;
-					case kPolygonNameSideD:
-						sideD = pcpolygons.at(i);
-						break;
-					case kPolygonNameBottom:
-						bottom = pcpolygons.at(i);
-						break;
-				}
-			}
-			messureBox();
-		}
-		pcPolygonsMutex.unlock();
-	}
-
-
+	// ------------------------------------------------------------------------------
 	void PCBox::messureBox()
 	{
 		cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 

@@ -218,7 +218,7 @@ namespace mapinect {
 		PCPtr occluders (new PC());
 		PCPtr objectsOnTableTopCloud = getObjectsOnTableTopCloud(occluders);
 
-		objectsThread.setClouds(objectsOnTableTopCloud,occluders);
+		objectsThread.setClouds(objectsOnTableTopCloud);
 
 		if(IsFeatureActive(FEATURE_HAND_DETECTION))
 		{

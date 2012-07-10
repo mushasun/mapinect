@@ -43,8 +43,13 @@ namespace mapinect {
 		IPolygonPtr pol = obj->getPolygon(face);
 		ofVec3f v1 = pol->getMathModel().getVertexs().at(1);
 		ofVec3f v2 = pol->getMathModel().getVertexs().at(2);
-		ofVec3f norm = pol->getMathModel().getPlane().getNormal();
-		float height = fabs(((v2 - v1)*0.5f).length());
+		ofVec3f norm = (pol->getMathModel().getVertexs().at(0) - v1).normalized();
+		ofVec3f normV1V2 = (v2 - v1).normalized();
+
+		v1 = v1 + normV1V2 * paddingH;
+		v1 = v1 + norm * paddingV;
+
+		v2 = v1 + normV1V2 * width;
 
 		vertexs.push_back(v1);
 		vertexs.push_back(v2);

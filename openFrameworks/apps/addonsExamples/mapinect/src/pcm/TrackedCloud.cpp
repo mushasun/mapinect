@@ -178,9 +178,15 @@ namespace mapinect {
 				needRecalculateFaces = false;
 			////////////////////////////////////////////////////////
 			if(nearest > TRANSLATION_DISTANCE_TOLERANCE)
+			{
+				translationV = ofVec3f(translationVector.x(),translationVector.y(),translationVector.z());
 				needApplyTransformation = true;
+			}
 			else
+			{
 				needApplyTransformation = false;
+				translationV = ofVec3f(0,0,0);
+			}
 		}
 		
 		return removed;
@@ -206,6 +212,14 @@ namespace mapinect {
 					sendUpdate = true;
 					objectInModel->resetLod();
 					objectInModel->addToModel(cloud);
+					if(needApplyTransformation && objectInModel.get() != NULL)
+					{
+						DataMovement dm(translationV, ofVec3f());
+						EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectMoved, 
+						objectInModel->getMathModelApproximation(), dm));
+						translationV = ofVec3f();
+					}
+
 				}
 				gModel->objectsMutex.unlock();
 			}

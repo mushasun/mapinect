@@ -87,39 +87,22 @@ namespace mapinect {
 				adjust.push_back(*iter);
 		}
 		
-		//pcpolygons = keep;
-
-		updatePolygons();
-
-
-		////Ajusto los poligonos que no se ven segun las transformaciones de alguno de los poligonos (?)
-		//if(keep.size() > 0)
-		//{
-		//	Eigen::Transform<float,3,Eigen::Affine> transformation = keep.at(0)->getMatchingTransformation();
-		//	for(int i = 0; i < adjust.size(); i++)
-		//	{
-		//		adjust.at(i)->applyTransformation(&transformation);
-		//	}
-		//	keep.insert(keep.end(),adjust.begin(),adjust.end());
-		//}
+		vector<PCPolygonPtr> missing = updatePolygons();
 
 		vector<PCPolygonPtr> polygonsInBox(discardPolygonsOutOfBox(aAgregar, keep));
 
+		// Setea el nombre de los poligonos nuevos, con el poligono más cercano
 		for (int i = 0; i < polygonsInBox.size(); i++) {
 			if (indexOf(pcpolygons, polygonsInBox[i]) < 0) {
+				PCPolygonPtr closer = findCloserPolygon(polygonsInBox[i],missing);
+				polygonsInBox[i]->getPolygonModelObject()->setName(closer->getPolygonModelObject()->getName());
 				keep.push_back(polygonsInBox[i]);
 			}
 		}
 
 		polygonsInBox.clear();
 
-		//cout << "pols: " << pcpolygons.size() << endl;
-
-		polygonsCache.clear();
-		for (vector<PCPolygonPtr>::iterator p = keep.begin(); p != keep.end(); ++p)
-		{
-			polygonsCache.push_back((*p)->getPolygonModelObject());
-		}
+		
 
 		return keep;
 	}
@@ -150,7 +133,7 @@ namespace mapinect {
 		seg.setDistanceThreshold (planeTolerance); //original: 0.01
 		// Create the filtering object
 		int i = 0, nr_points = cloudTemp->points.size ();
-		// mientras 7% de la nube no se haya procesado
+		// mientras 7% de la nube no se haya procesad+o
 
 		int numFaces = 0;
 		
@@ -269,10 +252,15 @@ namespace mapinect {
 
 	}
 
-	void PCPolyhedron::updatePolygons() {
+	vector<PCPolygonPtr> PCPolyhedron::updatePolygons() {
+		vector<PCPolygonPtr> missing;
 		for (int i = 0; i < pcpolygons.size(); i++) {
-			pcpolygons[i]->updateMatching();
+			if(pcpolygons[i]->hasMatching())
+				pcpolygons[i]->updateMatching();
+			else
+				missing.push_back(pcpolygons[i]);
 		}
+		return missing;
 	}
 
 	void PCPolyhedron::unifyVertexs() {
@@ -339,6 +327,22 @@ namespace mapinect {
 			}
 		}
 		return false;
+	}
+
+	PCPolygonPtr PCPolyhedron::findCloserPolygon(PCPolygonPtr pol, vector<PCPolygonPtr> polygons)
+	{
+		PCPolygonPtr closer = pol;
+		float dist = numeric_limits<float>::max();
+		for(int i = 0; i < polygons.size(); i++)
+		{
+			float d = polygons.at(i)->getCenter().squareDistance(pol->getCenter());
+			if(d < dist)
+			{
+				closer = polygons.at(i);
+				dist = d;
+			}
+		}
+		return closer;
 	}
 
 	void PCPolyhedron::draw() {
@@ -416,6 +420,30 @@ namespace mapinect {
 		return vector<PCPolygonPtr>();
 	}
 
+	void checkForUnknown(vector<PCPolygonPtr> pols, int seq)
+	{
+		/*cout << "seq: " << seq << endl;
+		for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
+		{
+			cout << "--" << (*p)->getPolygonModelObject()->getName() << endl;
+			if((*p)->getPolygonModelObject()->getName() == kPolygonNameUnknown)
+				cout << "-----unknown in " << seq << endl;
+		}*/
+	}
+
+	void checkForRepeat(vector<PCPolygonPtr> pols, int seq)
+	{
+		/*map<int,int> map;
+
+		for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
+		{
+			if(map.count((*p)->getPolygonModelObject()->getName()) > 0)
+				cout << "repeated " <<  (*p)->getPolygonModelObject()->getName() << " in: " << seq << endl;
+			else
+				map[(*p)->getPolygonModelObject()->getName()] = (*p)->getPolygonModelObject()->getName();
+		}*/
+	}
+
 	void PCPolyhedron::addToModel(const PCPtr& nuCloud)
 	{
 		pcPolygonsMutex.lock();
@@ -436,13 +464,36 @@ namespace mapinect {
 		//Detecto nuevas caras
 		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,0.003,2.6,false); 
 		
-		namePolygons(nuevos);
+		//namePolygons(nuevos);
+		//checkForRepeat(nuevos, 1);
+
 		nuevos = mergePolygons(nuevos);
+
+		checkForUnknown(nuevos, 2);
+		checkForRepeat(nuevos, 2);
+
 		vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos);
-		estimated = mergePolygons(estimated);
+
+		checkForUnknown(estimated, 3);
+		checkForRepeat(estimated, 3);
+
+		//int prevEst = estimated.size();
+		//estimated = mergePolygons(estimated);
+		//if(estimated.size() != prevEst)
+		//	cout << "puto merge " << prevEst << " - " << estimated.size() <<endl; 
+
 		nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());
 		
 		pcpolygons = nuevos;
+		polygonsCache.clear();
+		for (vector<PCPolygonPtr>::iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
+		{
+			polygonsCache.push_back((*p)->getPolygonModelObject());
+		}
+
+		checkForRepeat(pcpolygons, 4);
+		checkForUnknown(pcpolygons, 4);
+
 		unifyVertexs();
 		
 		PCPtr finalCloud (new PC());

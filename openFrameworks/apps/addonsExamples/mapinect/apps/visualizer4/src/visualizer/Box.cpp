@@ -33,6 +33,36 @@ namespace visualizer {
 	{
 		for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 		{
+			/* DEBUG
+			switch((*p)->getName())
+			{
+			case kPolygonNameSideA:
+				ofSetColor(255,0,0);
+				break;
+			case kPolygonNameSideB:
+				ofSetColor(0,255,0);
+				break;
+			case kPolygonNameSideC:
+				ofSetColor(0,0,255);
+				break;
+			case kPolygonNameSideD:
+				ofSetColor(255,0,255);
+				break;
+			case kPolygonNameTop:
+				ofSetColor(255,255,255);
+				break;
+			case kPolygonNameBottom:
+				ofSetColor(0,255,255);
+				break;
+			case kPolygonNameUnknown:
+				ofSetColor(255,255,0);
+				break;
+
+
+			}
+			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(*barTexture));
+*/
+
 			static ofVec3f vA,vB,vC,vD;
 
 			ofVec3f v3 = (*p)->getMathModel().getVertexs()[0];
