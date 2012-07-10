@@ -56,7 +56,7 @@ namespace mapinect {
 		if(isHand)
 		{
 			//Fuerzo crear el objeto
-			counter = mapinect::TIMES_TO_CREATE_OBJ;
+			counter = Constants::OBJECT_FRAMES_TO_ACCEPT;
 			if(forceCreate)
 				addCounter(0);
 		}
@@ -82,9 +82,9 @@ namespace mapinect {
 				objectInModel.reset();
 			}
 		}
-		else if(counter >= mapinect::TIMES_TO_CREATE_OBJ && !hasObject())
+		else if(counter >= Constants::OBJECT_FRAMES_TO_ACCEPT && !hasObject())
 		{
-			counter = mapinect::TIMES_TO_CREATE_OBJ + 2;
+			counter = Constants::OBJECT_FRAMES_TO_ACCEPT + 2;
 			
 			//////////////Para identificar si es un objeto o una mano/////////////////
 			ObjectType objType = getObjectType(cloud);
@@ -169,15 +169,15 @@ namespace mapinect {
 			///Elimino la comparación de diferencia de nubes, solo tomo la mas cercana.
 			///Pero usa un limite de diferencia entre nubes para saber si recalcular las caras
 			///////////////////////
-			int difCount = getDifferencesCount(obj_cloud, cluster, RES_IN_OBJ2);;
-			int maxDif = obj_cloud->points.size() * MIN_DIF_PERCENT;
+			int difCount = getDifferencesCount(obj_cloud, cluster, Constants::OBJECT_RECALCULATE_TOLERANCE());
+			int maxDif = obj_cloud->points.size() * Constants::OBJECT_CLOUD_DIFF_PERCENT;
 
 			if(difCount > maxDif)
 				needRecalculateFaces = true;
 			else
 				needRecalculateFaces = false;
 			////////////////////////////////////////////////////////
-			if(nearest > TRANSLATION_DISTANCE_TOLERANCE)
+			if(nearest > Constants::OBJECT_TRANSLATION_TOLERANCE())
 			{
 				translationV = ofVec3f(translationVector.x(),translationVector.y(),translationVector.z());
 				needApplyTransformation = true;
@@ -225,11 +225,12 @@ namespace mapinect {
 			}
 			
 		}
-		else if(objectInModel.get() != NULL && objectInModel->getLod() < MAX_OBJ_LOD)								//Si no llegue al nivel maximo de detalle, aumento el detalle
+		else if(objectInModel.get() != NULL && objectInModel->getLod() < Constants::OBJECT_LOD_MAX)
+		//Si no llegue al nivel maximo de detalle, aumento
 		{
 			sendUpdate = true;
-			int density = CLOUD_RES - objectInModel->getLod();
-			PCPtr cloud = getCloud(density);
+			int stride = Constants::CLOUD_STRIDE() - objectInModel->getLod();
+			PCPtr cloud = getCloud(stride);
 			PCPtr nuCloud = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.005,cloud);
 
 			//Quito los puntos que pertenecen a la mesa

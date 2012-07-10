@@ -21,7 +21,7 @@ void computeBoundingBox(const std::vector<ofVec3f>& v, ofVec3f& vMin, ofVec3f& v
 
 }
 
-vector<vector<ofVec3f> > findClusters(const vector<ofVec3f>& vecs, float tolerance, float minClusterSize, float maxClusterSize)
+vector<vector<ofVec3f> > findClusters(const vector<ofVec3f>& vecs, float tolerance, float minClusterSize)
 {
 	vector<ofVec3f> r(vecs);
 

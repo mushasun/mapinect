@@ -294,7 +294,7 @@ namespace mapinect {
 					for (int k = 0; k < polygon2->getMathModel().getVertexs().size(); k++) {
 						ofVec3f v2(polygon2->getMathModel().getVertexs()[k]);
 						if (!(v == v2)
-							&& polygon->getMathModel().getVertexs()[j].distance(polygon2->getMathModel().getVertexs()[k]) <= MAX_UNIFYING_DISTANCE) {
+							&& polygon->getMathModel().getVertexs()[j].distance(polygon2->getMathModel().getVertexs()[k]) <= Constants::OBJECT_VERTEX_UNIFYING_DISTANCE()) {
 							VertexInPCPolygon vpp2(iter2->get(), k);
 							updateVertexs.push_back(vpp2);
 						}

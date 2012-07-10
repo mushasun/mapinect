@@ -5,8 +5,6 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/segmentation/extract_clusters.h>
 
-#include "ofxXmlSettings.h"
-
 #include "Constants.h"
 #include "EventManager.h"
 #include "Globals.h"
@@ -18,7 +16,6 @@
 using namespace std;
 
 #define WAIT_TIME_MS		20
-#define PCM_CONFIG			"PCMConfig:"
 
 namespace mapinect {
 	PCMThread::PCMThread()
@@ -30,33 +27,7 @@ namespace mapinect {
 
 	void PCMThread::reset()
 	{
-		ofxXmlSettings XML;
-		if(XML.loadFile("PCM_Config.xml")){
-
-			OCTREE_RES = XML.getValue(PCM_CONFIG "OCTREE_RES", 0.005);
-			CLOUD_RES = XML.getValue(PCM_CONFIG "CLOUD_RES", 5);
-			CLOUD_RES_TO_VOXEL_FACTOR = 0.003;
-			MAX_Z = XML.getValue(PCM_CONFIG "MAX_Z", 4.0);
-
-			TIMES_TO_CREATE_OBJ = XML.getValue(PCM_CONFIG "TIMES_TO_CREATE_OBJ", 4);
-			RES_IN_OBJ = XML.getValue(PCM_CONFIG "RES_IN_OBJ", 0.09);
-			RES_IN_OBJ2 = XML.getValue(PCM_CONFIG "RES_IN_OBJ2", 0.01);
-			MIN_DIF_PERCENT = XML.getValue(PCM_CONFIG "MIN_DIF_PERCENT", 0.05);
-			MAX_OBJ_LOD = XML.getValue(PCM_CONFIG "MAX_OBJ_LOD", 2);
-
-			MIN_CLUSTER_SIZE = XML.getValue(PCM_CONFIG "MIN_CLUSTER_SIZE", 50);
-			MAX_CLUSTER_SIZE = XML.getValue(PCM_CONFIG "MAX_CLUSTER_SIZE", 5000);
-			MAX_CLUSTER_TOLERANCE = XML.getValue(PCM_CONFIG "MAX_CLUSTER_TOLERANCE", 0.05);
-
-			MIN_TABLE_CLUSTER_SIZE = XML.getValue(PCM_CONFIG "MIN_TABLE_CLUSTER_SIZE", 500);
-			MAX_TABLE_CLUSTER_SIZE = XML.getValue(PCM_CONFIG "MAX_TABLE_CLUSTER_SIZE", 20000);
-			MAX_TABLE_CLUSTER_TOLERANCE = XML.getValue(PCM_CONFIG "MAX_TABLE_CLUSTER_TOLERANCE", 0.05);
-
-			TRANSLATION_DISTANCE_TOLERANCE = XML.getValue(PCM_CONFIG "TRANSLATION_DISTANCE_TOLERANCE", 0.02);
-			MAX_UNIFYING_DISTANCE = XML.getValue(PCM_CONFIG "MAX_UNIFYING_DISTANCE", 0.03);
-
-			TOUCH_DISTANCE = XML.getValue(PCM_CONFIG "TOUCH_DISTANCE", 0.02);
-		}
+		Constants::LoadConstants();
 	}
 
 	void PCMThread::setup() {
@@ -118,6 +89,8 @@ namespace mapinect {
 	PCPtr PCMThread::getObjectsOnTableTopCloud(PCPtr &occludersCloud){
 		PCPtr result(new PC());
 
+		setPCMThreadStatus("Obtaining cloud...");
+		log(kLogFilePCMThread, "Obtaining cloud...");
 		PCPtr cloud = getCloud();
 		saveCloud("rawCloud.pcd", *cloud);
 		
@@ -143,7 +116,7 @@ namespace mapinect {
 			setPCMThreadStatus("Scanning table cluster...");
 			log(kLogFilePCMThread, "Scanning table cluster...");
 			std::vector<pcl::PointIndices> cluster_indices =
-				findClusters(cloud, MAX_TABLE_CLUSTER_TOLERANCE, MIN_TABLE_CLUSTER_SIZE, MAX_TABLE_CLUSTER_SIZE);
+				findClusters(cloud, Constants::TABLE_CLUSTER_TOLERANCE(), Constants::TABLE_CLUSTER_MIN_SIZE());
 
 			PCPtr tableCluster;
 			float minDistanceToCentroid = MAX_FLOAT;
@@ -176,7 +149,7 @@ namespace mapinect {
 
 			for (PC::const_iterator p = cloud->begin(); p != cloud->end(); ++p)
 			{
-				if (evaluatePoint(coefficients, *p) > OCTREE_RES * 2)
+				if (evaluatePoint(coefficients, *p) > Constants::TABLE_HEIGHT_TOLERANCE())
 				{
 					if (tableModel.isInPolygon(tableModel.getPlane().project(PCXYZ_OFVEC3F((*p)))))
 					{
@@ -197,7 +170,7 @@ namespace mapinect {
 		//saveCloudAsFile("modelsCloud.pcd", *modelsCloud);
 
 		PCPtr filteredCloud(new PointCloud<PointXYZ>);
-		int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, CLOUD_RES * CLOUD_RES_TO_VOXEL_FACTOR);
+		int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, Constants::CLOUD_VOXEL_SIZE);
 		//cout << "Differences count: " << ofToString(dif) << endl;
 
 		//saveCloudAsFile("dif.pcd", *filteredCloud);
@@ -234,10 +207,10 @@ namespace mapinect {
 
 			setPCMThreadStatus("Detecting touch points...");
 			log(kLogFilePCMThread, "Detecting touch points...");
-			const float clusterTolerance = CLOUD_RES * CLOUD_RES_TO_VOXEL_FACTOR * 1.73205f; // sqrt(3)
-			const int clusterMinSize = 50;
-			const int clusterMaxSize = 5000;
-			vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, clusterTolerance, clusterMinSize, clusterMaxSize);
+			const float touchDistance = Constants::TOUCH_DISTANCE();
+			const float clusterTolerance = Constants::OBJECT_CLUSTER_TOLERANCE();
+			const int clusterMinSize = Constants::TOUCH_CLUSTER_MIN_SIZE();
+			vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, clusterTolerance, clusterMinSize);
 		
 				map<IPolygonPtr, vector<ofVec3f> > pointsCloserToModel;
 
@@ -261,7 +234,7 @@ namespace mapinect {
 								if ((*p)->getMathModel().isInPolygon(planeProjected))
 								{
 									float distance = (*p)->getMathModel().distance(*v);
-									if (inRange(distance, TOUCH_DISTANCE / 4.0f, TOUCH_DISTANCE) && distance < minDistance)
+									if (inRange(distance, touchDistance / 4.0f, touchDistance) && distance < minDistance)
 									{
 										minDistance = distance;
 										polygon = *p;
@@ -292,14 +265,13 @@ namespace mapinect {
 					bool usePCL = false;
 					if (useClustering)
 					{
-						const double tolerance = MAX_CLUSTER_TOLERANCE / 2;
+						const double tolerance = touchDistance / 2.0f;
 						const int minClusterSize = 1;
-						const int maxClusterSize = 5000;
-						const int maxTouchClusterSize = 8;
+						const int maxTouchClusterSize = Constants::TOUCH_MAX_PER_FACE;
 						if (usePCL)
 						{
 							std::vector<pcl::PointIndices> cluster_indices =
-								findClusters(polygonTouchPointsCloud, tolerance, minClusterSize, maxClusterSize);
+								findClusters(polygonTouchPointsCloud, tolerance, minClusterSize);
 
 							for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 							{
@@ -313,8 +285,8 @@ namespace mapinect {
 						}
 						else
 						{
-							vector<vector<ofVec3f> > clusters = findClusters(pointCloudToOfVecVector(polygonTouchPointsCloud),
-								tolerance, minClusterSize, maxClusterSize);
+							vector<vector<ofVec3f> > clusters =
+									findClusters(pointCloudToOfVecVector(polygonTouchPointsCloud), tolerance, minClusterSize);
 
 							for (vector<vector<ofVec3f> >::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
 							{

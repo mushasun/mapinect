@@ -184,6 +184,9 @@
     <ClCompile Include="src\buttons\SimpleButton.cpp">
       <Filter>buttons</Filter>
     </ClCompile>
+    <ClCompile Include="src\helpers\Constants.cpp">
+      <Filter>helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">

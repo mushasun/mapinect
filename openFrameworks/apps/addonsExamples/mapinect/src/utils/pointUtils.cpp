@@ -246,7 +246,7 @@ PCPtr loadCloud(const string& filename)
 	return cloud;
 }
 
-PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
+PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int stride)
 {
 	if (min.x < 0 || min.y < 0
 		|| max.x > KINECT_DEFAULT_WIDTH || max.y > KINECT_DEFAULT_HEIGHT
@@ -256,25 +256,28 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
 		return PCPtr(new PC());
 	}
 
-	float voxelSize = 0;
+	float voxelSize = mapinect::Constants::CLOUD_VOXEL_SIZE;
 	if(mapinect::IsFeatureUniformDensity())
 	{
-		voxelSize = density * mapinect::CLOUD_RES_TO_VOXEL_FACTOR;
-		density = 1;
+		voxelSize = mapinect::Constants::CLOUD_VOXEL_SIZE_FOR_STRIDE(stride);
+		stride = 1;
 	}
+	const int minStride = ::min(mapinect::Constants::CLOUD_STRIDE_H, mapinect::Constants::CLOUD_STRIDE_V);
+	const int hStride = stride + mapinect::Constants::CLOUD_STRIDE_H - minStride;
+	const int vStride = stride + mapinect::Constants::CLOUD_STRIDE_V - minStride;
 
 	// Allocate space for max points available
 	PCPtr partialCloud(new PC());
-	partialCloud->width    = ceil((max.x - min.x) / density);
-	partialCloud->height   = ceil((max.y - min.y) / density);
+	partialCloud->width    = ceil((max.x - min.x) / hStride);
+	partialCloud->height   = ceil((max.y - min.y) / vStride);
 	partialCloud->is_dense = false;
 	partialCloud->points.resize(partialCloud->width * partialCloud->height);
 	register float* depth_map = gKinect->getDistancePixels();
-	// Iterate over the image's rectangle with step = density
+	// Iterate over the image's rectangle with step = stride
 	register int depth_idx = 0;
 	int cloud_idx = 0;
-	for(int v = min.y; v < max.y; v += density) {
-		for(register int u = min.x; u < max.x; u += density) {
+	for(int v = min.y; v < max.y; v += vStride) {
+		for(register int u = min.x; u < max.x; u += hStride) {
 			depth_idx = v * KINECT_DEFAULT_WIDTH + u;
 
 			PCXYZ& pt = partialCloud->points[cloud_idx];
@@ -289,7 +292,7 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
 			{
 				ofVec3f pto = gKinect->getWorldCoordinateFor(u,v);
 
-				if(pto.z > mapinect::MAX_Z)
+				if(pto.z > mapinect::Constants::CLOUD_Z_MAX)
 				{
 					pt.x = pt.y = pt.z = 0;
 				}
@@ -303,35 +306,28 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int density)
 		}
 	}
 
-	PCPtr filteredCloud = PCPtr(new PC());
-	pcl::PassThrough<PCXYZ> pass;
-	pass.setInputCloud(partialCloud);
-	pass.setFilterFieldName("z");
-	pass.setFilterLimits(0.001, 4.0);
-	pass.filter(*filteredCloud);
-
 	if(mapinect::IsFeatureUniformDensity())
 	{
-		PCPtr preFilter(new PC(*filteredCloud));
+		PCPtr preFilter(new PC(*partialCloud));
 		pcl::VoxelGrid<pcl::PointXYZ> sor;
 		sor.setInputCloud (preFilter);
 		sor.setLeafSize (voxelSize, voxelSize, voxelSize);
-		sor.filter (*filteredCloud);
+		sor.filter(*partialCloud);
 	}
-	return transformCloud(filteredCloud, transformationMatrix);
+	return transformCloud(partialCloud, transformationMatrix);
 }
 
-PCPtr getCloud(int density)
+PCPtr getCloud(int stride)
 {
 	return getCloud(
 		ofPoint(0, 0),
 		ofPoint(KINECT_DEFAULT_WIDTH, KINECT_DEFAULT_HEIGHT),
-		density);
+		stride);
 }
 
 PCPtr getCloud()
 {
-	return getCloud(mapinect::CLOUD_RES);
+	return getCloud(mapinect::Constants::CLOUD_STRIDE());
 }
 
 // -------------------------------------------------------------------------------------
@@ -770,7 +766,12 @@ int getDifferencesCount(const PCPtr& src,
 	return big->size() - indicesToRemove.size();
 }
 
-vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, float minClusterSize, float maxClusterSize)
+vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int minClusterSize)
+{
+	return findClusters(cloud, tolerance, minClusterSize, cloud->size());
+}
+
+vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int minClusterSize, int maxClusterSize)
 {
 	vector<pcl::PointIndices> result;
 	if (cloud->size() >= minClusterSize)

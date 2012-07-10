@@ -57,8 +57,8 @@ void saveCloud(const string& filename, const vector<ofVec3f>& v);
 PCPtr loadCloud(const string& filename);
 
 // retrieves the depth from the device and creates a transformed point cloud
-PCPtr getCloud(const ofPoint& min, const ofPoint& max, int density);
-PCPtr getCloud(int density);
+PCPtr getCloud(const ofPoint& min, const ofPoint& max, int stride);
+PCPtr getCloud(int stride);
 PCPtr getCloud();
 
 // -------------------------------------------------------------------------------------
@@ -103,7 +103,8 @@ int getDifferencesCloud(const PCPtr& cloud1, const PCPtr& cloud2, PCPtr &diff, f
 
 int getDifferencesCount(const PCPtr& src, const PCPtr& tgt, float distanceThreshold);
 
-vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, float minClusterSize, float maxClusterSize);
+vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int minClusterSize);
+vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int minClusterSize, int maxClusterSize);
 
 // -------------------------------------------------------------------------------------
 

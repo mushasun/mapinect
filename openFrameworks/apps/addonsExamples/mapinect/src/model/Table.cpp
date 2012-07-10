@@ -1,5 +1,6 @@
 #include "Table.h"
 
+#include "Constants.h"
 #include "DataObject.h"
 #include "Feature.h"
 #include "Globals.h"
@@ -73,7 +74,8 @@ namespace mapinect
 
 		if (idx_max >= 0)
 		{
-			return abs(evaluatePoint(getCoefficients(), PCXYZ_OFVEC3F(cloud->points.at(idx_max)))) < 0.03;
+			return abs(evaluatePoint(getCoefficients(), PCXYZ_OFVEC3F(cloud->points.at(idx_max))))
+				< Constants::TABLE_HEIGHT_TOLERANCE() * 2.0f;
 		}
 		else
 		{

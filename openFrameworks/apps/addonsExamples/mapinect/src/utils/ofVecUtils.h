@@ -37,7 +37,7 @@ T computeCentroid(const vector<T>& v)
 	return result;
 }
 
-vector<vector<ofVec3f> > findClusters(const vector<ofVec3f>& v, float tolerance, float minClusterSize, float maxClusterSize);
+vector<vector<ofVec3f> > findClusters(const vector<ofVec3f>& v, float tolerance, float minClusterSize);
 
 inline ofVec3f scaleFromMtsToMms(const ofVec3f& p) { return p * 1000; }
 
