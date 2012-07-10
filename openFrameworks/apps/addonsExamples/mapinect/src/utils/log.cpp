@@ -17,7 +17,7 @@ void log(const LogFile& file, const std::string& str)
 	ofxScopedMutex osm(logsMutex);
 	logsTimer[file].end();
 	ostringstream oss;
-	oss << logsTimer[file].getElapsedMiliseconds() << "\t" << str << endl;
+	oss << logsTimer[file].getElapsedSeconds() << "\t" << str << endl;
 	logs[file] += oss.str();
 	logsTimer[file].start();
 }
