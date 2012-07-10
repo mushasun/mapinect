@@ -41,6 +41,14 @@ namespace mapinect {
 	static char		RESET_ANGLE8;
 	static float	MOTOR_ANGLE_OFFSET;
 	static int		ANGLE_STEP;
+	static int		MAX_ANGLE_1;
+	static int		MIN_ANGLE_1;
+	static int		MAX_ANGLE_2;
+	static int		MIN_ANGLE_2;
+	static int		MAX_ANGLE_4;
+	static int		MIN_ANGLE_4;
+	static int		MAX_ANGLE_8;
+	static int		MIN_ANGLE_8;
 
 	float			Arduino::ARM_LENGTH;
 	float			Arduino::KINECT_HEIGHT;
@@ -98,6 +106,15 @@ namespace mapinect {
 			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.0);
 			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.0);
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.0);
+
+			MAX_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_1", 0);
+			MIN_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_1", 0);
+			MAX_ANGLE_2 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_2", 0);
+			MIN_ANGLE_2 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_2", 0);
+			MAX_ANGLE_4 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_4", 0);
+			MIN_ANGLE_4 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_4", 0);
+			MAX_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_8", 0);
+			MIN_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_8", 0);
 		}
 
 		angleMotor1 = RESET_ANGLE1;
@@ -111,6 +128,8 @@ namespace mapinect {
 		}
 
 		armMoving = true;
+
+		EventManager::suscribe(this);
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -426,6 +445,16 @@ namespace mapinect {
 				angleMotor1 = -(int)round(asin(-y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
 			}
 		}
+		if (!inRange(angleMotor4, MIN_ANGLE_1, MAX_ANGLE_1))
+		{
+			return;
+		}
+
+		if (!inRange(angleMotor2, MIN_ANGLE_2, MAX_ANGLE_2))
+		{
+			return;
+		}
+
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
 
@@ -437,11 +466,10 @@ namespace mapinect {
 	ofVec3f Arduino::setArm3dCoordinates(const ofVec3f& position)
 	{
 		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
-		//		en coordenadas de mundo
-		//wrapper para posicionar desde un ofVec3f
+		// en coordenadas de mundo
+		// wrapper para posicionar desde un ofVec3f
 		ofVec3f bestFit = bestFitForArmSphere(position);
 		setArm3dCoordinates(bestFit.x, bestFit.y, bestFit.z);
-		//lookAt(mira_actual);
 		return bestFit;
 	}
 
@@ -567,6 +595,14 @@ namespace mapinect {
 		//mira_actual = point;
 		mira = point;
 
+		/*if (!inRange(angleMotor4, MIN_ANGLE_4, MAX_ANGLE_4))
+		{
+			return NULL;
+		}
+		if (!inRange(angleMotor8, MIN_ANGLE_8, MAX_ANGLE_8))
+		{
+			return NULL;
+		}*/
 		sendMotor(angleMotor4, ID_MOTOR_4);
 		sendMotor(angleMotor8, ID_MOTOR_8);
 
@@ -591,7 +627,7 @@ namespace mapinect {
 
 	Eigen::Affine3f Arduino::getWorldTransformation()
 	{
-		return worldTransformation;
+		return Arduino::worldTransformation;
 	}
 
 	Eigen::Affine3f Arduino::calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8)
@@ -706,6 +742,25 @@ namespace mapinect {
 
 		return composed_matrix;
 
+	}
+
+	void Arduino::objectUpdated(const IObjectPtr& object)
+	{
+		if (object->getId() == id_object_to_follow)
+		{
+			if (center_of_following_object.distance(object->getCenter()) > 0.05)
+			{
+				lookAt(object->getCenter());
+			}
+		}
+	}
+
+	
+	void Arduino::followObject(const IObjectPtr& object)
+	{
+		id_object_to_follow = object->getId();
+		center_of_following_object = object->getCenter();
+		//lookAt(object->getCenter());
 	}
 
 }

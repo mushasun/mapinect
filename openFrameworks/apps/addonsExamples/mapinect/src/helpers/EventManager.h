@@ -3,9 +3,8 @@
 
 #include <vector>
 
-#include "IButton.h"
-#include "INotification.h"
 #include "ofxMutex.h"
+#include "INotification.h"
 
 namespace mapinect {
 

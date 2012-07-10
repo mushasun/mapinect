@@ -30,6 +30,7 @@ namespace mapinect {
 
 	void ArmController::lookAtObject(const IObjectPtr& object)
 	{
+		arduino->followObject(object);
 	}
 
 	void ArmController::objectDetected(const IObjectPtr& object)
