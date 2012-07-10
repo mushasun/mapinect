@@ -6,6 +6,7 @@
 #include "Plane3D.h"
 #include "utils.h"
 #include <pcl/registration/icp.h>
+#include "Timer.h"
 
 namespace mapinect {
 
@@ -55,6 +56,8 @@ namespace mapinect {
 	float			Arduino::MOTORS_HEIGHT;
 
 	Eigen::Affine3f Arduino::worldTransformation  = Eigen::Affine3f();
+
+	static	Timer t;
 
 	Arduino::Arduino()
 	{
@@ -128,6 +131,7 @@ namespace mapinect {
 		}
 
 		armMoving = true;
+		t.start();
 
 		EventManager::suscribe(this);
 
@@ -158,6 +162,16 @@ namespace mapinect {
 	void Arduino::update() {
 		CHECK_ACTIVE;
 
+		if (armMoving)
+		{
+			t.end();
+			if (t.getElapsedSeconds() >= 5)		// Cantidad de segundos para considerar que el brazo se terminó de mover
+			{
+				armMoving = false;
+				armStoppedMoving = true;
+			}
+		}
+
 		if (armStoppedMoving)
 		{
 			armStoppedMoving = false;
@@ -166,6 +180,7 @@ namespace mapinect {
 			{
 
 				cloudAfterMoving = getCloud(ICP_CLOUD_DENSITY);
+				saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
 
 				// Apply ICP
 
@@ -251,6 +266,9 @@ namespace mapinect {
 				armStoppedMoving = true;
 				armMoving = false;
 				break;
+			case '=':
+				applyICPLoadedClouds();
+				break;
 		}
 		if (key == KEY_MOVE_1R) {
 			angleMotor1 += ANGLE_STEP;
@@ -323,6 +341,7 @@ namespace mapinect {
 		CHECK_ACTIVE;
 
 		armMoving = true;
+		t.start();
 
 		if (RESET_ANGLE1 != ANGLE_UNDEFINED) {
 			angleMotor1 = RESET_ANGLE1;
@@ -428,9 +447,11 @@ namespace mapinect {
 	void Arduino::setArm3dCoordinates(float x, float y, float z)
 	{
 		armMoving = true;
+		t.start();
 
 		// Get cloud before moving arm
 		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
+		saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
 
 		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
 		//		en coordenadas de mundo
@@ -484,6 +505,7 @@ namespace mapinect {
 	ofVec3f	Arduino::lookAt(const ofVec3f& point)
 	{
 		armMoving = true;
+		t.start();
 
 		// Get cloud before moving arm
 		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
@@ -762,5 +784,49 @@ namespace mapinect {
 		center_of_following_object = object->getCenter();
 		//lookAt(object->getCenter());
 	}
+
+	void Arduino::applyICPLoadedClouds() 
+	{
+		PCPtr cloudBefore = loadCloud("cloudBeforeMoving2.pcd");
+		PCPtr cloudAfter = loadCloud("cloudAfterMoving2.pcd");
+
+		// Apply ICP
+		pcl::PointCloud<PCXYZ>::Ptr beforeMoving (new pcl::PointCloud<PCXYZ>(*cloudBefore.get()));
+		pcl::PointCloud<PCXYZ>::Ptr afterMoving  (new pcl::PointCloud<PCXYZ>(*cloudAfter.get()));
+
+		pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+		icp.setInputCloud(beforeMoving);
+		icp.setInputTarget(afterMoving);
+
+		// Set the max correspondence distance to 5cm (e.g., correspondences with higher distances will be ignored)
+		//icp.setMaxCorrespondenceDistance (0.05);
+		// Set the maximum number of iterations (criterion 1)
+		//icp.setMaximumIterations (5);
+		// Set the transformation epsilon (criterion 2)
+		//icp.setTransformationEpsilon (1e-8);
+		// Set the euclidean distance difference epsilon (criterion 3)
+		//icp.setEuclideanFitnessEpsilon (1);
+
+		pcl::PointCloud<pcl::PointXYZ> Final;
+
+		unsigned long start = GetTickCount();
+
+		icp.align(Final);
+
+		unsigned long delta = GetTickCount() - start;
+		cout << "ICP time: " << delta << endl;
+
+		if (icp.hasConverged())
+		{
+			cout << "ICP has converged with fitness score: " << icp.getFitnessScore() << endl;
+			Eigen::Affine3f newTransf (icp.getFinalTransformation());
+
+			//Combine new transformation with estimated transf
+			//worldTransformation = newTransf.inverse() * worldTransformation  ;
+		}
+
+	}
+
+
 
 }
