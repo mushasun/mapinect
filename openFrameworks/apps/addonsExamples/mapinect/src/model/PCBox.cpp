@@ -41,17 +41,22 @@ namespace mapinect {
 	{
 		vector<PCPolygonPtr> merged = PCPolyhedron::mergePolygons(toMerge);
 		
-		// Elimina caras opuestas. No se pueden estar viendo caras que son opuestas en una misma escena
-		vector<IPolygonName> toDelete;
+		// Elimina caras opuestas y controla que no se agregue 2 veces la misma cara. 
+		// No se pueden estar viendo caras que son opuestas en una misma escena
+		vector<IPolygonName> hidden;
+		vector<IPolygonName> added;
 		vector<PCPolygonPtr> cleanedMerged;
 		for(vector<PCPolygonPtr>::iterator iter = merged.begin(); iter != merged.end(); ++iter)
 		{
 			IPolygonName name = (*iter)->getPolygonModelObject()->getName();
-			if(find(toDelete.begin(), toDelete.end(), name) == toDelete.end()) 
+			if(find(hidden.begin(), hidden.end(), name) == hidden.end())		// ya se agrego el opuesto?
 			{
-				cleanedMerged.push_back(*iter);
-				if(getOppositePolygon(name,merged).get() != NULL)
-					toDelete.push_back(name);
+				if(find(added.begin(), added.end(), name) == added.end())		// ya se agrego esta cara?
+				{
+					cleanedMerged.push_back(*iter);
+					added.push_back(name);
+					hidden.push_back(getOppositePolygonName(name));				// no permitir agregar el opuesto
+				}
 			}
 		}
 		
@@ -226,7 +231,7 @@ namespace mapinect {
 				nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
 				prevVec = prev->getPolygonModelObject()->getMathModel().getVertexs();
 
-				bool ascending = toEstimate > 3;
+				bool ascending = next->getCenter().z < prev->getCenter().z;
 				if(ascending)
 				{
 					sort(nextVec.begin(),nextVec.end(), sortOnXAsc<ofVec3f>);
@@ -295,6 +300,7 @@ namespace mapinect {
 			PCPolygonPtr estimatedPol = duplicatePol(pcp,partialEstimation);
 			partialEstimation.push_back(estimatedPol);
 			estimated.push_back(estimatedPol);
+			missing = getMissing(partialEstimation);
 			saveCloud("fullEstimatedFace.pcd",*faceCloud);
 
 			i++;
@@ -374,11 +380,7 @@ namespace mapinect {
 	// ------------------------------------------------------------------------------
 	PCPolygonPtr PCBox::getNextPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
 	{
-		int next = (toEstimate + 1) % 6;
-		if(next == 5)
-			next = 1;
-
-		IPolygonName searchedPolygon = (IPolygonName) next;
+		IPolygonName searchedPolygon = getNextPolygonName(toEstimate);
 
 		for(int i = 0; i < newPolygons.size(); i++)
 			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
@@ -390,11 +392,7 @@ namespace mapinect {
 	// ------------------------------------------------------------------------------
 	PCPolygonPtr PCBox::getPrevPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
 	{
-		int prev = (toEstimate - 1) % 6;
-		if(prev == 0)
-			prev = 4;
-
-		IPolygonName searchedPolygon = (IPolygonName) prev;
+		IPolygonName searchedPolygon = getPrevPolygonName(toEstimate);
 
 		for(int i = 0; i < newPolygons.size(); i++)
 			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
@@ -406,13 +404,7 @@ namespace mapinect {
 	// ------------------------------------------------------------------------------
 	PCPolygonPtr PCBox::getOppositePolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
 	{
-		int next = (toEstimate + 2) % 6;
-		if(next == 5)
-			next = 0;
-		if(next == 0)
-			next = 5;
-
-		IPolygonName searchedPolygon = (IPolygonName) next;
+		IPolygonName searchedPolygon = getOppositePolygonName(toEstimate);
 
 		for(int i = 0; i < newPolygons.size(); i++)
 			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
@@ -421,6 +413,71 @@ namespace mapinect {
 		return PCPolygonPtr();
 	}
 
+	// ------------------------------------------------------------------------------
+	IPolygonName PCBox::getOppositePolygonName(IPolygonName toEstimate)
+	{
+		switch(toEstimate)
+		{
+			case kPolygonNameBottom:
+				return kPolygonNameTop;
+			case kPolygonNameSideA:
+				return kPolygonNameSideC;
+			case kPolygonNameSideB:
+				return kPolygonNameSideD;
+			case kPolygonNameSideC:
+				return kPolygonNameSideA;
+			case kPolygonNameSideD:
+				return kPolygonNameSideB;
+			case kPolygonNameTop:
+				return kPolygonNameBottom;
+			case kPolygonNameUnknown:
+				return kPolygonNameUnknown;
+		}
+	}
+
+	// ------------------------------------------------------------------------------
+	IPolygonName PCBox::getPrevPolygonName(IPolygonName toEstimate)
+	{
+		switch(toEstimate)
+		{
+			case kPolygonNameBottom:
+				return kPolygonNameSideB;
+			case kPolygonNameSideA:
+				return kPolygonNameSideD;
+			case kPolygonNameSideB:
+				return kPolygonNameSideA;
+			case kPolygonNameSideC:
+				return kPolygonNameSideB;
+			case kPolygonNameSideD:
+				return kPolygonNameSideC;
+			case kPolygonNameTop:
+				return kPolygonNameSideB;
+			case kPolygonNameUnknown:
+				return kPolygonNameUnknown;
+		}
+	}
+
+	// ------------------------------------------------------------------------------
+	IPolygonName PCBox::getNextPolygonName(IPolygonName toEstimate)
+	{
+		switch(toEstimate)
+		{
+			case kPolygonNameBottom:
+				return kPolygonNameSideA;
+			case kPolygonNameSideA:
+				return kPolygonNameSideB;
+			case kPolygonNameSideB:
+				return kPolygonNameSideC;
+			case kPolygonNameSideC:
+				return kPolygonNameSideD;
+			case kPolygonNameSideD:
+				return kPolygonNameSideA;
+			case kPolygonNameTop:
+				return kPolygonNameSideA;
+			case kPolygonNameUnknown:
+				return kPolygonNameUnknown;
+		}
+	}
 
 	//// Estimation
 	// ------------------------------------------------------------------------------
