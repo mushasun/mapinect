@@ -32,6 +32,10 @@ namespace mapinect {
 			PCPolygonPtr					getPrevPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);
 			PCPolygonPtr					getOppositePolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons);
 			PCPolygonPtr					getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons);
+			IPolygonName					getOppositePolygonName(IPolygonName toEstimate);
+			IPolygonName					getPrevPolygonName(IPolygonName toEstimate);
+			IPolygonName					getNextPolygonName(IPolygonName toEstimate);
+
 
 			PCPolygonPtr					top;
 			PCPolygonPtr					sideA;

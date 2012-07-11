@@ -1,9 +1,9 @@
 <VMConfig>
-	<NEAR_PLANE>0.01</NEAR_PLANE>
-	<FAR_PLANE>400.0</FAR_PLANE>
+	<NEAR_PLANE>0.001</NEAR_PLANE>
+	<FAR_PLANE>4.0</FAR_PLANE>
 	
-	<PROJ_CALIB><![CDATA[data/calib/projector-calib-27May.yml]]></PROJ_CALIB>
-	<KINECT_CALIB><![CDATA[data/calib/kinect-calib-27May.yml]]></KINECT_CALIB>
+	<PROJ_CALIB><![CDATA[data/calib/calibration-projector-05-12.yml]]></PROJ_CALIB>
+	<KINECT_CALIB><![CDATA[data/calib/calibration-guille.yml]]></KINECT_CALIB>
 	
 	<PROJ_WIDTH>1280</PROJ_WIDTH>
 	<PROJ_HEIGHT>768</PROJ_HEIGHT>
