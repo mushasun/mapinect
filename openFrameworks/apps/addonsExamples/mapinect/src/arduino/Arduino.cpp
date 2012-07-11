@@ -6,7 +6,6 @@
 #include "Plane3D.h"
 #include "utils.h"
 #include <pcl/registration/icp.h>
-#include "Timer.h"
 
 namespace mapinect {
 
@@ -24,6 +23,7 @@ namespace mapinect {
 #define		MOTOR_ANGLE_OFFSET_DEFAULT	128
 
 #define		ICP_CLOUD_DENSITY	8
+#define		ELAPSED_TIME_ARM_STOPPED_MOVING	7000
 
 	static string	COM_PORT;
 	static char		KEY_MOVE_1R;
@@ -55,9 +55,9 @@ namespace mapinect {
 	float			Arduino::KINECT_HEIGHT;
 	float			Arduino::MOTORS_HEIGHT;
 
-	Eigen::Affine3f Arduino::worldTransformation  = Eigen::Affine3f();
+	static unsigned long startTime; 
 
-	static	Timer t;
+	Eigen::Affine3f Arduino::worldTransformation  = Eigen::Affine3f();
 
 	Arduino::Arduino()
 	{
@@ -130,10 +130,10 @@ namespace mapinect {
 			//return false;
 		}
 
-		armMoving = true;
-		t.start();
-
 		EventManager::suscribe(this);
+
+		armMoving = true;
+		startTime = ofGetSystemTime();
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -164,8 +164,8 @@ namespace mapinect {
 
 		if (armMoving)
 		{
-			t.end();
-			if (t.getElapsedSeconds() >= 5)		// Cantidad de segundos para considerar que el brazo se terminó de mover
+			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
+			if (elapsedTime >= ELAPSED_TIME_ARM_STOPPED_MOVING)		// Cantidad de milisegundos para considerar que el brazo se terminó de mover
 			{
 				armMoving = false;
 				armStoppedMoving = true;
@@ -201,7 +201,14 @@ namespace mapinect {
 				//icp.setEuclideanFitnessEpsilon (1);
 
 				pcl::PointCloud<pcl::PointXYZ> Final;
+
+				startTime = ofGetSystemTime();
+
 				icp.align(Final);
+
+				unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
+				cout << "ICP time: " << elapsedTime << endl;
+
 				if (icp.hasConverged())
 				{
 					cout << "ICP has converged with fitness score: " << icp.getFitnessScore() << endl;
@@ -341,7 +348,7 @@ namespace mapinect {
 		CHECK_ACTIVE;
 
 		armMoving = true;
-		t.start();
+		startTime = ofGetSystemTime();
 
 		if (RESET_ANGLE1 != ANGLE_UNDEFINED) {
 			angleMotor1 = RESET_ANGLE1;
@@ -447,7 +454,6 @@ namespace mapinect {
 	void Arduino::setArm3dCoordinates(float x, float y, float z)
 	{
 		armMoving = true;
-		t.start();
 
 		// Get cloud before moving arm
 		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
@@ -465,6 +471,8 @@ namespace mapinect {
 			{
 				angleMotor1 = -(int)round(asin(-y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
 			}
+		} else {
+			angleMotor1 = 0;
 		}
 		if (!inRange(angleMotor4, MIN_ANGLE_1, MAX_ANGLE_1))
 		{
@@ -475,6 +483,8 @@ namespace mapinect {
 		{
 			return;
 		}
+
+		startTime = ofGetSystemTime();
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -505,7 +515,6 @@ namespace mapinect {
 	ofVec3f	Arduino::lookAt(const ofVec3f& point)
 	{
 		armMoving = true;
-		t.start();
 
 		// Get cloud before moving arm
 		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
@@ -625,6 +634,9 @@ namespace mapinect {
 		{
 			return NULL;
 		}*/
+
+		startTime = ofGetSystemTime();
+
 		sendMotor(angleMotor4, ID_MOTOR_4);
 		sendMotor(angleMotor8, ID_MOTOR_8);
 
@@ -799,9 +811,9 @@ namespace mapinect {
 		icp.setInputTarget(afterMoving);
 
 		// Set the max correspondence distance to 5cm (e.g., correspondences with higher distances will be ignored)
-		//icp.setMaxCorrespondenceDistance (0.05);
+		icp.setMaxCorrespondenceDistance (0.05);
 		// Set the maximum number of iterations (criterion 1)
-		//icp.setMaximumIterations (5);
+		icp.setMaximumIterations (3);
 		// Set the transformation epsilon (criterion 2)
 		//icp.setTransformationEpsilon (1e-8);
 		// Set the euclidean distance difference epsilon (criterion 3)
@@ -809,12 +821,12 @@ namespace mapinect {
 
 		pcl::PointCloud<pcl::PointXYZ> Final;
 
-		unsigned long start = GetTickCount();
+		startTime = ofGetSystemTime();
 
 		icp.align(Final);
 
-		unsigned long delta = GetTickCount() - start;
-		cout << "ICP time: " << delta << endl;
+		unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
+		cout << "ICP time: " << elapsedTime << endl;
 
 		if (icp.hasConverged())
 		{
