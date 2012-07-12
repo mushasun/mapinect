@@ -1,5 +1,5 @@
 #include "SimpleButton.h"
-#include "pointutils.h"
+
 #include "ofGraphicsUtils.h"
 
 namespace mapinect {
@@ -9,15 +9,14 @@ namespace mapinect {
 
 	}
 
-	SimpleButton::SimpleButton(Polygon3D polygon, ofColor idle, ofColor pressed):
-	BaseButton(idle,pressed), polygon(polygon)
+	SimpleButton::SimpleButton(const Polygon3D& polygon, const ofColor& idle, const ofColor& pressed)
+		: BaseButton(idle, pressed), polygon(polygon)
 	{
 		init();
-		
 	}
 
-	SimpleButton::SimpleButton(Polygon3D polygon, ofImage* idle, ofImage* pressed):
-	BaseButton(idle,pressed), polygon(polygon)
+	SimpleButton::SimpleButton(const Polygon3D& polygon, ofImage* idle, ofImage* pressed)
+		: BaseButton(idle, pressed), polygon(polygon)
 	{
 		init();
 	}
@@ -38,7 +37,7 @@ namespace mapinect {
 
 		switch(mode)
 		{
-			case kColor:
+			case kButtonDrawModePlain:
 				if(isPressed())
 					ofSetColor(pressedColor);
 				else
@@ -51,9 +50,9 @@ namespace mapinect {
 					glVertex3f(vertexs.at(3).x, vertexs.at(3).y, vertexs.at(3).z);
 				glEnd();
 				break;
-			case kBgImg:
-				ofSetColor(255,255,255);
-				ofImage* tex = isPressed() ? texPressed : texIdle;
+			case kButtonDrawModeTextured:
+				ofSetColor(kRGBWhite);
+				ofImage* tex = isPressed() ? pressedTexture: idleTexture;
 				tex->bind();
 				vector<ofVec2f> texCoords(ofTexCoordsFor(*tex));
 				ofDrawQuadTextured(vertexs, texCoords);

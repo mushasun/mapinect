@@ -2,36 +2,41 @@
 #define OBJECT_BUTTON_H__
 
 #include "BaseButton.h"
+
 #include "IObject.h"
-#include <set>
 
 namespace mapinect {
-	enum OButtonMode{
-		kInFace,
-		kInFloor,
-		kFullObject
+	enum ObjectButtonType
+	{
+		kObjectButtonTypeOnFace,
+		kObjectButtonTypeOnTable,
+		kObjectButtonTypeFullObject
 	};
 
 	class ObjectButton;
 	typedef boost::shared_ptr<ObjectButton> ObjectButtonPtr;
 
-	class ObjectButton : public BaseButton{
+	class ObjectButton : public BaseButton
+	{
 	public:
-		ObjectButton(const IObjectPtr& obj, ofColor idle, ofColor pressed);
+		ObjectButton(const IObjectPtr& obj, const ofColor& idle, const ofColor& pressed);
 		ObjectButton(const IObjectPtr& obj, ofImage* idle, ofImage* pressed);
-		ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofColor idle, ofColor pressed);
-		ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofColor idle, ofColor pressed,
+		ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, const ofColor& idle, const ofColor& pressed);
+		ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, const ofColor& idle, const ofColor& pressed,
 					 float height, float width, float paddingH, float paddingV);
 		ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofImage* idle, ofImage* pressed);
 		ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofImage* idle, ofImage* pressed,
 					 float height, float width, float paddingH, float paddingV);
-		virtual void draw();		
+		
+		virtual void draw();
 
 		inline int getObjectId() { return obj->getId(); }
 		void updateObject(const IObjectPtr& object);
+
 	protected:
 		virtual bool isInTouch(const DataTouch& touch);
 		Polygon3D polygon;
+
 	private:
 		void init();
 		void calculateFloorPolygon();
@@ -47,7 +52,7 @@ namespace mapinect {
 		void drawFace(const IPolygonPtr& pol);
 		void drawFace(const Polygon3D& pol);
 
-		OButtonMode oMode;
+		ObjectButtonType buttonType;
 		IObjectPtr obj;
 		IPolygonName face;
 

@@ -1,16 +1,73 @@
 #include "ObjectButton.h"
-#include "pointutils.h"
 #include "ofGraphicsUtils.h"
 
 namespace mapinect {
 
 	void ObjectButton::init()
 	{
-		if(oMode == kInFloor)
+		if(buttonType == kObjectButtonTypeOnTable)
 			calculateFloorPolygon();
-		else if(oMode == kInFace && calculatedPolygon)
+		else if(buttonType == kObjectButtonTypeOnFace && calculatedPolygon)
 			calculateFacePolygon();
 
+	}
+
+	//--------------------------------------------------------------
+	ObjectButton::ObjectButton(const IObjectPtr& obj, const ofColor& idle, const ofColor& pressed)
+		: BaseButton(idle, pressed), obj(obj)
+	{
+		calculatedPolygon = false;
+		buttonType = kObjectButtonTypeFullObject;
+		init();
+	}
+
+	//--------------------------------------------------------------
+	ObjectButton::ObjectButton(const IObjectPtr& obj, ofImage* idle, ofImage* pressed)
+		: BaseButton(idle, pressed), obj(obj)
+	{
+		calculatedPolygon = false;
+		buttonType = kObjectButtonTypeFullObject;
+		init();
+	}
+
+	//--------------------------------------------------------------
+	ObjectButton::ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor,
+		const ofColor& idle, const ofColor& pressed)
+		: BaseButton(idle, pressed), obj(obj), face(face)
+	{
+		calculatedPolygon = false;
+		buttonType = mapToFloor ? kObjectButtonTypeOnTable : kObjectButtonTypeOnFace;
+		init();
+	}
+
+	//--------------------------------------------------------------
+	ObjectButton::ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofImage* idle, ofImage* pressed):
+	BaseButton(idle, pressed), obj(obj), face(face)
+	{
+		calculatedPolygon = false;
+		buttonType = mapToFloor ? kObjectButtonTypeOnTable : kObjectButtonTypeOnFace;
+		init();
+	}
+
+	//--------------------------------------------------------------
+	ObjectButton::ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor,
+								const ofColor& idle, const ofColor& pressed,
+								float height, float width, float paddingH, float paddingV)
+		: BaseButton(idle,pressed), obj(obj), face(face), height(height), width(width), paddingH(paddingH), paddingV(paddingV)
+	{
+		calculatedPolygon = true;
+		buttonType = mapToFloor ? kObjectButtonTypeOnTable : kObjectButtonTypeOnFace;
+		init();
+	}
+
+	//--------------------------------------------------------------
+	ObjectButton::ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofImage* idle, ofImage* pressed,
+							   float height, float width, float paddingH, float paddingV)
+		: BaseButton(idle,pressed), obj(obj), face(face), height(height), width(width), paddingH(paddingH), paddingV(paddingV)
+	{
+		calculatedPolygon = true;
+		buttonType = mapToFloor ? kObjectButtonTypeOnTable : kObjectButtonTypeOnFace;
+		init();
 	}
 
 	//--------------------------------------------------------------
@@ -63,78 +120,22 @@ namespace mapinect {
 	void ObjectButton::updateObject(const IObjectPtr& object) 
 	{ 
 		obj = object; 
-		if(oMode == kInFloor)
+		if(buttonType == kObjectButtonTypeOnTable)
 			calculateFloorPolygon();
-		else if(oMode == kInFace && calculatedPolygon)
+		else if(buttonType == kObjectButtonTypeOnFace && calculatedPolygon)
 			calculateFacePolygon();
-	}
-
-	//--------------------------------------------------------------
-	ObjectButton::ObjectButton(const IObjectPtr& obj, ofColor idle, ofColor pressed):
-	BaseButton(idle,pressed), obj(obj)
-	{
-		calculatedPolygon = false;
-		oMode = kFullObject;
-		init();
-	}
-
-	//--------------------------------------------------------------
-	ObjectButton::ObjectButton(const IObjectPtr& obj, ofImage* idle, ofImage* pressed):
-	BaseButton(idle,pressed), obj(obj)
-	{
-		calculatedPolygon = false;
-		oMode = kFullObject;
-		init();
-	}
-
-	//--------------------------------------------------------------
-	ObjectButton::ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofColor idle, ofColor pressed):
-	BaseButton(idle,pressed), obj(obj), face(face)
-	{
-		calculatedPolygon = false;
-		oMode = mapToFloor ? kInFloor : kInFace;
-		init();
-	}
-
-	//--------------------------------------------------------------
-	ObjectButton::ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofImage* idle, ofImage* pressed):
-	BaseButton(idle,pressed), obj(obj), face(face)
-	{
-		calculatedPolygon = false;
-		oMode = mapToFloor ? kInFloor : kInFace;
-		init();
-	}
-
-	//--------------------------------------------------------------
-	ObjectButton::ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofColor idle, ofColor pressed,
-							   float height, float width, float paddingH, float paddingV):
-	BaseButton(idle,pressed), obj(obj), face(face), height(height), width(width), paddingH(paddingH), paddingV(paddingV)
-	{
-		calculatedPolygon = true;
-		oMode = mapToFloor ? kInFloor : kInFace;
-		init();
-	}
-
-	//--------------------------------------------------------------
-	ObjectButton::ObjectButton(const IObjectPtr& obj, IPolygonName face, bool mapToFloor, ofImage* idle, ofImage* pressed,
-							   float height, float width, float paddingH, float paddingV):
-	BaseButton(idle,pressed), obj(obj), face(face), height(height), width(width), paddingH(paddingH), paddingV(paddingV)
-	{
-		calculatedPolygon = true;
-		oMode = mapToFloor ? kInFloor : kInFace;
-		init();
 	}
 
 	//--------------------------------------------------------------
 	bool ObjectButton::isInTouch(const DataTouch& touch)
 	{
-		switch(oMode)
+		switch(buttonType)
 		{
-			case kFullObject:
+			case kObjectButtonTypeFullObject:
 				return checkInFullObject(touch);
-			case kInFace:
+			case kObjectButtonTypeOnFace:
 				return checkInFace(touch);
-			case kInFloor:
+			case kObjectButtonTypeOnTable:
 				return checkInFloor(touch);
 			default:
 				return checkInFullObject(touch);
@@ -144,13 +145,13 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void ObjectButton::draw()
 	{
-		switch(oMode)
+		switch(buttonType)
 		{
-			case kFullObject:
+			case kObjectButtonTypeFullObject:
 				return drawInFullObject();
-			case kInFace:
+			case kObjectButtonTypeOnFace:
 				return drawInFace();
-			case kInFloor:
+			case kObjectButtonTypeOnTable:
 				return drawInFloor();
 			default:
 				return drawInFullObject();
@@ -191,15 +192,15 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void ObjectButton::drawFace(const Polygon3D& pol)
 	{
-		if(mode == kBgImg)
+		if (mode == kButtonDrawModeTextured)
 		{
-			ofSetColor(255,255,255,255);
-			ofImage* tex = isPressed() ? texPressed : texIdle;
+			ofSetColor(kRGBWhite);
+			ofImage* tex = isPressed() ? pressedTexture : idleTexture;
 			tex->bind();
 			ofDrawQuadTextured(pol.getVertexs(), ofTexCoordsFor(*tex));
 			tex->unbind();
 		}
-		else if(mode == kColor)
+		else if (mode == kButtonDrawModePlain)
 		{
 			if(isPressed())
 				ofSetColor(pressedColor);

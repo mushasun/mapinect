@@ -1,37 +1,38 @@
 #ifndef I_BUTTON_H__
 #define I_BUTTON_H__
-#include "ofMain.h"
+
 #include "DataTouch.h"
+#include "ofBaseTypes.h"
 
-
-namespace mapinect {
-	enum ButtonMode
+namespace mapinect
+{
+	enum ButtonDrawMode
 	{
-		PLAIN_COLOR = 0,
-		TEXTURED
+		kButtonDrawModePlain = 0,
+		kButtonDrawModeTextured
 	};
 
 	enum ButtonEvent
 	{
-		PRESSED = 0,
-		RELEASED,
-		NO_CHANGE
+		kButtonEventPressed = 0,
+		kButtonEventReleased,
+		kButtonEventNoChange
 	};
-	static int btnIds = 0;
+
 	class IButton;
 	typedef boost::shared_ptr<IButton> IButtonPtr;
 
-	class IButton{
+	class IButton
+	{
 	public:
-		virtual ButtonEvent updateTouchPoints(const DataTouch& touch)		= 0;
-		virtual void draw()													= 0;
-		virtual int getId()  const											= 0;
+		virtual ButtonEvent updateTouchPoints(const DataTouch&)		= 0;
+		virtual int getId() const									= 0;
 
-		/*virtual void SetIdleTexture(ofImage img)							{ }
-		virtual void SetPressedTexture(ofImage img)							{ }
-		virtual void SetIdleColor(ofColor color)							{ }
-		virtual void SetPressedColor(ofColor color)							{ }
-		virtual void SetMode(ButtonMode mode)								{ }*/
+		virtual void setIdle(ofImage*)								= 0;
+		virtual void setIdle(const ofColor&)						= 0;
+		virtual void setPressed(ofImage*)							= 0;
+		virtual void setPressed(const ofColor&)						= 0;
+		virtual void setDrawMode(const ButtonDrawMode&)				= 0;
 
 	};
 }
