@@ -238,7 +238,7 @@ namespace mapinect {
 		vm->setupView();
 		vm->draw();
 		app->draw();
-		app->btnManager->draw();
+		((ButtonManager*)app->btnManager)->draw();
 		vm->endView();
 	}
 
