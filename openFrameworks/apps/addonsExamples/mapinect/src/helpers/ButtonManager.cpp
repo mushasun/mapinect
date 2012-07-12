@@ -11,13 +11,6 @@ namespace mapinect {
 
 	//// IButtonManager Implementation
 	//--------------------------------------------------------------
-	void ButtonManager::draw()
-	{
-		for (map<int, IButtonPtr>::const_iterator it = buttons.begin(); it != buttons.end(); ++it)
-			it->second->draw();
-	}
-
-	//--------------------------------------------------------------
 	int ButtonManager::addButton(const IButtonPtr& btn)
 	{
 		if (buttons.find(btn->getId()) == buttons.end())
@@ -36,6 +29,13 @@ namespace mapinect {
 		{
 			buttons.erase(id);
 		}
+	}
+
+	//--------------------------------------------------------------
+	void ButtonManager::draw()
+	{
+		for (map<int, IButtonPtr>::const_iterator it = buttons.begin(); it != buttons.end(); ++it)
+			it->second->draw();
 	}
 
 	//--------------------------------------------------------------
@@ -111,15 +111,4 @@ namespace mapinect {
 		fireButtonEvent(touchPoint);
 	}
 
-	//--------------------------------------------------------------
-	void ButtonManager::buttonPressed(const IButtonPtr&)
-	{
-		
-	}
-
-	//--------------------------------------------------------------
-	void ButtonManager::buttonReleased(const IButtonPtr&)
-	{
-
-	}
 }
