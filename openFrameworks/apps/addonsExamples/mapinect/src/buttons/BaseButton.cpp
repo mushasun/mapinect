@@ -1,7 +1,11 @@
 #include "BaseButton.h"
-#include "pointutils.h"
+
+#include "pointUtils.h"
 
 namespace mapinect {
+	
+	static int btnIds = 0;
+
 	void BaseButton::init()
 	{
 		id = btnIds;
@@ -10,24 +14,24 @@ namespace mapinect {
 		leaderChanged = false;
 	}
 
-	BaseButton::BaseButton(ofColor idle, ofColor pressed):
-	idleColor(idle), pressedColor(pressed)
+	BaseButton::BaseButton(const ofColor& idle, const ofColor& pressed)
+		: idleColor(idle), pressedColor(pressed)
 	{
 		init();
-		mode = kColor;
+		mode = kButtonDrawModePlain;
 	}
 
-	BaseButton::BaseButton(ofImage* idle, ofImage* pressed):
-	texIdle(idle), texPressed(pressed)
+	BaseButton::BaseButton(ofImage* idle, ofImage* pressed)
+		: idleTexture(idle), pressedTexture(pressed)
 	{
 		init();
-		mode = kBgImg;
+		mode = kButtonDrawModeTextured;
 	}
 		
 	ButtonEvent BaseButton::updateTouchPoints(const DataTouch& touch)
 	{
 		int newLeader = leaderTouch;
-		ButtonEvent evnt = NO_CHANGE;
+		ButtonEvent evnt = kButtonEventNoChange;
 		if(isInTouch(touch))
 		{
 			if(touch.getType() == kTouchTypeReleased &&
@@ -56,12 +60,12 @@ namespace mapinect {
 				//contacts.insert(pair<int,DataTouch>(touch.getId(),touch));
 
 			if(contacts.size() == 0)
-				evnt = RELEASED;
+				evnt = kButtonEventReleased;
 			else if(contacts.size() == 1 &&
 					touch.getType() == kTouchTypeStarted)
-				evnt = PRESSED;
+				evnt = kButtonEventPressed;
 			else
-				evnt = NO_CHANGE;
+				evnt = kButtonEventNoChange;
 		}
 		else
 		{
@@ -80,7 +84,7 @@ namespace mapinect {
 				//cout << "erease: " << touch.getId() << " - " << newLeader << endl;
 
 				if(contacts.size() == 0)
-					evnt = RELEASED;
+					evnt = kButtonEventReleased;
 			}
 		}
 

@@ -35,7 +35,10 @@ namespace mapinect {
 	void ButtonManager::draw()
 	{
 		for (map<int, IButtonPtr>::const_iterator it = buttons.begin(); it != buttons.end(); ++it)
-			it->second->draw();
+		{
+			BaseButton* button = dynamic_cast<BaseButton*>(it->second.get());
+			button->draw();
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -46,10 +49,10 @@ namespace mapinect {
 			ButtonEvent evnt = iter->second->updateTouchPoints(touch);
 			switch(evnt)
 			{
-				case PRESSED: 
+				case kButtonEventPressed: 
 					EventManager::addEvent(MapinectEvent(kMapinectEventTypeButtonPressed, iter->second));
 					break;
-				case RELEASED:
+				case kButtonEventReleased:
 					EventManager::addEvent(MapinectEvent(kMapinectEventTypeButtonReleased, iter->second));
 					break;
 				default:
