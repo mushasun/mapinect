@@ -22,13 +22,13 @@ namespace mapinect {
 
 	void TrackedCloud::init()
 	{
+		counter = 2;
 		objectInModel.reset();
 		matchingCloud.reset();
 		nearest = numeric_limits<int>::max();
 		minPointDif = numeric_limits<int>::max();
 		needApplyTransformation = false;
 		needRecalculateFaces = false;
-		hand = false;
 	}
 
 	TrackedCloud::TrackedCloud()
@@ -40,29 +40,6 @@ namespace mapinect {
 	{
 		init();
 		this->cloud = cloud;
-		counter = 2;
-
-		features_computed = false;
-		normal_radius = 0.02f;
-		feature_radius = 0.02f;
-	}
-
-	TrackedCloud::TrackedCloud(const PCPtr& cloud, bool isHand, bool forceCreate)
-	{
-		init();
-		this->cloud = cloud;
-		hand = isHand;
-
-		if(isHand)
-		{
-			//Fuerzo crear el objeto
-			counter = Constants::OBJECT_FRAMES_TO_ACCEPT;
-			if(forceCreate)
-				addCounter(0);
-		}
-		else
-			counter = 2;
-		
 	}
 
 	TrackedCloud::~TrackedCloud()
@@ -73,7 +50,6 @@ namespace mapinect {
 	void TrackedCloud::addCounter(int diff)
 	{
 		counter += diff;
-		//cout << "counter: " << counter;
 		if (counter <= 0)
 		{
 			if (hasObject())
@@ -93,27 +69,12 @@ namespace mapinect {
 			{
 				case BOX:
 					objectInModel = PCModelObjectPtr(new PCBox(cloud));
-					cout << "BOX DETECTED" << endl;
 					break;
 				case UNRECOGNIZED:
-					//cout << "UNRECOGNIZED!" << endl;
 					counter-= 2;
-					return;
 					break;
 			}
-				////////////////////////////////////////////////////////////
-				
-				////Si se descomenta lo anterior, comentar esto.
-			 //   if(hand)
-				//{
-				//	objectInModel = new PCHand(cloud, cloud, -99);
-				//	cout << "Hand detected!" << endl;
-				//}
-				//else
-				//{
-				//	objectInModel = new PCPolyhedron(cloud, cloud, objId);
-				//	cout << "New object!" << endl;
-				//}
+
 			if(objType != UNRECOGNIZED)
 			{
 				objectInModel->detectPrimitives();
@@ -122,9 +83,9 @@ namespace mapinect {
 		}
 	}
 
-	void TrackedCloud::updateCloud(const PCPtr& cloud_cluster)
+	void TrackedCloud::updateCloud(const PCPtr& cloud)
 	{
-		this->cloud = cloud_cluster;
+		this->cloud = cloud;
 	}
 
 	void TrackedCloud::removeMatching()
@@ -148,20 +109,18 @@ namespace mapinect {
 			cluster = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.05,trackedCloud->getTrackedCloud());
 		else
 			cluster = trackedCloud->getTrackedCloud();
-		PCPtr obj_cloud (new PC(*cloud));
+		PCPtr newObjectCloud(new PC(*cloud));
 
-		Eigen::Vector4f clusterCentroid;
-		Eigen::Vector4f objCentroid;
-		compute3DCentroid(*cluster,clusterCentroid);
-		compute3DCentroid(*obj_cloud,objCentroid);
+		ofVec3f clusterCentroid = computeCentroid(cluster);
+		ofVec3f objCentroid = computeCentroid(cluster);
+		ofVec3f translation = clusterCentroid - objCentroid;
 
-		Eigen::Vector4f translationVector = clusterCentroid - objCentroid;
-		nearest = translationVector.norm();
+		nearest = translation.length();
 
-		Eigen::Affine3f traslation;
-		traslation = Eigen::Translation<float,3>(translationVector.x(),translationVector.y(),translationVector.z());
+		Eigen::Affine3f translationMatrix;
+		translationMatrix = Eigen::Translation<float,3>(translation.x, translation.y, translation.z);
 
-		pcl::transformPointCloud(*obj_cloud,*obj_cloud,traslation);
+		pcl::transformPointCloud(*newObjectCloud, *newObjectCloud, translationMatrix);
 		matchingCloud = trackedCloud;
 
 		if(hasObject())
@@ -169,8 +128,8 @@ namespace mapinect {
 			///Elimino la comparación de diferencia de nubes, solo tomo la mas cercana.
 			///Pero usa un limite de diferencia entre nubes para saber si recalcular las caras
 			///////////////////////
-			int difCount = getDifferencesCount(obj_cloud, cluster, Constants::OBJECT_RECALCULATE_TOLERANCE());
-			int maxDif = obj_cloud->points.size() * Constants::OBJECT_CLOUD_DIFF_PERCENT;
+			int difCount = getDifferencesCount(newObjectCloud, cluster, Constants::OBJECT_RECALCULATE_TOLERANCE());
+			int maxDif = newObjectCloud->points.size() * Constants::OBJECT_CLOUD_DIFF_PERCENT;
 
 			if(difCount > maxDif)
 				needRecalculateFaces = true;
@@ -179,7 +138,7 @@ namespace mapinect {
 			////////////////////////////////////////////////////////
 			if(nearest > Constants::OBJECT_TRANSLATION_TOLERANCE())
 			{
-				translationV = ofVec3f(translationVector.x(),translationVector.y(),translationVector.z());
+				translationV = translation;
 				needApplyTransformation = true;
 			}
 			else
@@ -193,11 +152,6 @@ namespace mapinect {
 	}
 
 	
-	//float TrackedCloud::matches(const TrackedCloudPtr& trackedCloud)
-	//{
-	//	return matchingTrackedObjects(trackedCloud);
-	//}
-
 	void TrackedCloud::updateMatching()
 	{
 		bool sendUpdate = false;
@@ -271,74 +225,30 @@ namespace mapinect {
 
 	///Retorna la distancia de matcheo entre las dos nubes
 	///Retorna -1 en caso de no matchear
-	float TrackedCloud::matchingTrackedObjects(const TrackedCloudPtr& tracked_temp)
+	float TrackedCloud::matchingTrackedObjects(const TrackedCloudPtr& tracked)
 	{
 		PCPtr diff;
 		PCPtr cluster;
-		PCPtr obj_cloud(new PC(*cloud));
+		PCPtr newObjectCloud(new PC(*cloud));
 		if(hasObject())
-			cluster = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.03,tracked_temp->getTrackedCloud());
+			cluster = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.03,tracked->getTrackedCloud());
 		else
-			cluster = tracked_temp->getTrackedCloud();
+			cluster = tracked->getTrackedCloud();
 
 		if(cluster->size() < cloud->size() * 0.2)
 			return -1;
+
 		//Hallo la traslación 
+		ofVec3f clusterCentroid = computeCentroid(cluster);
+		ofVec3f objCentroid = computeCentroid(newObjectCloud);
 
-		Eigen::Vector4f clusterCentroid;
-		Eigen::Vector4f objCentroid;
-		compute3DCentroid(*cluster,clusterCentroid);
-		compute3DCentroid(*obj_cloud,objCentroid);
+		ofVec3f translation = clusterCentroid - objCentroid;
 
-		Eigen::Vector4f translationVector = clusterCentroid - objCentroid;
-
-		if(translationVector.norm() > nearest)
+		float length = translation.length();
+		if(length > nearest)
 			return -1;
 		else
-			return translationVector.norm();
-			
-		
+			return length;
 	}
 
-	pcl::PointCloud<pcl::FPFHSignature33>::Ptr TrackedCloud::getLocalFeatures ()
-	{
-		if(!features_computed)
-		{
-			processInput ();
-		}
-		return features;
-	}
-
-	void TrackedCloud::processInput()
-	{
-		computeSurfaceNormals();
-		computeLocalFeatures();
-    }
-
-	 // Compute the surface normals
-    void TrackedCloud::computeSurfaceNormals ()
-    {
-      normals = SurfaceNormalsPtr (new SurfaceNormals());
-
-      pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> norm_est;
-      norm_est.setInputCloud (cloud);
-	  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>());
-      norm_est.setSearchMethod(tree);
-      norm_est.setRadiusSearch(normal_radius);
-      norm_est.compute(*normals);
-    }
-
-    // Compute the local feature descriptors
-    void TrackedCloud::computeLocalFeatures ()
-    {
-		features = LocalFeaturesPtr(new LocalFeatures());
-
-		pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::FPFHSignature33> fpfh_est;
-		fpfh_est.setInputCloud (cloud);
-		fpfh_est.setInputNormals (normals);
-		SearchMethodPtr tree (new SearchMethod());
-		fpfh_est.setSearchMethod (tree);
-		fpfh_est.setRadiusSearch (feature_radius);
-		fpfh_est.compute (*features);
-    }
 }
