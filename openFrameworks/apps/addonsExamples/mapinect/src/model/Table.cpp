@@ -29,11 +29,11 @@ namespace mapinect
 			ofVec3f centroid(computeCentroid(cloud));
 			translation = Eigen::Translation<float, 3>(-centroid.x, -centroid.y, -centroid.z);
 
-			Eigen::Affine3f composed_matrix = rotationX * translation;
+			Eigen::Affine3f composedMatrix = rotationX * translation;
 		
-			setTransformationMatrix(composed_matrix);
+			gTransformationMatrix->setWorldTransformation(composedMatrix);
 
-			transformedCloud = PCPtr(transformCloud(cloud, composed_matrix));
+			transformedCloud = PCPtr(transformCloud(cloud, composedMatrix));
 
 			transformedCoefficients.values[0] = 0;
 			transformedCoefficients.values[1] = -1;

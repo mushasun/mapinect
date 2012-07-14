@@ -192,6 +192,8 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvImage.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.cpp" />
     <ClCompile Include="src\arduino\Arduino.cpp" />
+    <ClCompile Include="src\arduino\ICPThread.cpp" />
+    <ClCompile Include="src\arduino\Transformation.cpp" />
     <ClCompile Include="src\buttons\BaseButton.cpp" />
     <ClCompile Include="src\buttons\DraggableButton.cpp" />
     <ClCompile Include="src\buttons\ObjectButton.cpp" />
@@ -260,6 +262,8 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvShortImage.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxOpenCv.h" />
     <ClInclude Include="src\arduino\Arduino.h" />
+    <ClInclude Include="src\arduino\ICPThread.h" />
+    <ClInclude Include="src\arduino\Transformation.h" />
     <ClInclude Include="src\buttons\BaseButton.h" />
     <ClInclude Include="src\buttons\DraggableButton.h" />
     <ClInclude Include="src\buttons\ObjectButton.h" />
@@ -328,6 +332,9 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

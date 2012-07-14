@@ -12,6 +12,8 @@
 #include "pointUtils.h"
 #include "EventManager.h"
 
+#include "ICPThread.h"
+
 namespace mapinect
 {
 	class Arduino : public INotification
@@ -34,7 +36,6 @@ namespace mapinect
 		ofVec3f				setArm3dCoordinates(const ofVec3f& position);
 		ofVec3f				lookAt(const ofVec3f& point);
 		ofVec3f				lookingAt();
-		Eigen::Affine3f		getWorldTransformation();
 		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);
 		void				objectUpdated(const IObjectPtr&);
 		void				followObject(const IObjectPtr&);
@@ -63,14 +64,18 @@ namespace mapinect
 		ofVec3f				posicion;
 		ofVec3f				mira;
 		ofVec3f				miraActual;
-		bool				armStoppedMoving;
+		bool				stoppedMoving;
 		bool				armMoving;
-		static Eigen::Affine3f		worldTransformation;
 		PCPtr				cloudBeforeMoving;
 		PCPtr				cloudAfterMoving;
-		int					id_object_to_follow;
-		ofVec3f				center_of_following_object;
+		int					idObjectToFollow;
+		ofVec3f				centerOfFollowingObject;
 		void				applyICPLoadedClouds(); 
+
+		void				armStartedMoving();
+		void				armStoppedMoving();
+
+		ICPThread			icpThread;
 
 	};
 }

@@ -29,8 +29,6 @@ namespace mapinect {
 /*		virtual void setCameraPosition(ofVec3f position);
 		virtual void setCameraLookat(ofVec3f lookAt);
 */
-		virtual void setInverseWorldTransformationMatrix(const Eigen::Affine3f& t);
-
 		virtual std::string getKinectCalibFile();
 
 	private:

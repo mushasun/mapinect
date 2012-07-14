@@ -28,10 +28,6 @@ PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi);
 // transformation utils
 // -------------------------------------------------------------------------------------
 
-// sets the transformation applied to the cloud obtained from the depth camera
-void setTransformationMatrix(const Eigen::Affine3f& transform);
-const Eigen::Affine3f& getTransformationMatrix();
-
 PCXYZ	eyePos();
 mapinect::Polygon3D transformPolygon3D(const mapinect::Polygon3D& polygon, const Eigen::Affine3f& transform);
 mapinect::Polygon3D scalePolygon3D(const mapinect::Polygon3D& polygon, const float& scale);

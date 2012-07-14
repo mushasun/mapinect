@@ -90,24 +90,10 @@ PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi)
 // transformation utils
 // -------------------------------------------------------------------------------------
 
-static Eigen::Affine3f transformationMatrix = Eigen::Affine3f::Identity();
-static Eigen::Affine3f transformationMatrixInverse = Eigen::Affine3f::Identity();
-
-// sets the transformation applied to the cloud obtained from the depth camera
-void setTransformationMatrix(const Eigen::Affine3f& transform)
-{
-	transformationMatrix = transform;
-	transformationMatrixInverse = transform.inverse();
-}
-
-const Eigen::Affine3f& getTransformationMatrix()
-{
-	return transformationMatrix;
-}
 
 PCXYZ eyePos()
 {
-	return transformPoint(PCXYZ(0, 0, 0), transformationMatrix);
+	return transformPoint(PCXYZ(0, 0, 0),  gTransformationMatrix->getWorldTransformation());
 }
 
 PCXYZ transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform)
@@ -182,7 +168,7 @@ vector<ofVec3f> getScreenCoords(const vector<ofVec3f>& transformedWorldCloud)
 PCXYZ getScreenCoords(const PCXYZ& transformedWorldPoint)
 {
 	// Apply to world point the inverse transformation
-	PCXYZ transf = pcl::transformPoint(transformedWorldPoint, transformationMatrixInverse);
+	PCXYZ transf = pcl::transformPoint(transformedWorldPoint, gTransformationMatrix->getWorldTransformation().inverse());
 	// Then, we call the depth device instance to transform to the depth image coordinates
 	ofVec3f screenCoord = gKinect->getScreenCoordsFromWorldCoords(PCXYZ_OFVEC3F(transf));
 	return OFVEC3F_PCXYZ(screenCoord);
@@ -248,6 +234,8 @@ PCPtr loadCloud(const string& filename)
 
 PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int stride)
 {
+	gTransformationMatrix->cloudMutex.lock();
+
 	if (min.x < 0 || min.y < 0
 		|| max.x > KINECT_DEFAULT_WIDTH || max.y > KINECT_DEFAULT_HEIGHT
 		|| min.x > max.x || min.y > max.y)
@@ -314,7 +302,12 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int stride)
 		sor.setLeafSize (voxelSize, voxelSize, voxelSize);
 		sor.filter(*partialCloud);
 	}
-	return transformCloud(partialCloud, transformationMatrix);
+
+	PCPtr t = transformCloud(partialCloud, gTransformationMatrix->getWorldTransformation());
+
+	gTransformationMatrix->cloudMutex.unlock();
+
+	return t;
 }
 
 PCPtr getCloud(int stride)
