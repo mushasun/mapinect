@@ -77,19 +77,7 @@ namespace mapinect {
 		}
 
 		cv.update(isKinectFrameNew);
-
-		if  (IsFeatureMoveArmActive())
-		{
-			if (!(arduino.isArmMoving())) {				
-				pcm.update(isKinectFrameNew);
-			}
-		}
-		else
-		{
-			pcm.update(isKinectFrameNew);
-		}
-
-
+		pcm.update(isKinectFrameNew);
 		arduino.update();
 
 	}
