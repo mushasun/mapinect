@@ -31,7 +31,7 @@ namespace mapinect
 
 			Eigen::Affine3f composedMatrix = rotationX * translation;
 		
-			gTransformationMatrix->setWorldTransformation(composedMatrix);
+			gTransformation->setWorldTransformation(composedMatrix);
 
 			transformedCloud = PCPtr(transformCloud(cloud, composedMatrix));
 
