@@ -170,7 +170,6 @@ namespace mapinect {
 			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
 			if (elapsedTime >= ELAPSED_TIME_ARM_STOPPED_MOVING)		// Cantidad de milisegundos para considerar que el brazo se terminó de mover
 			{
-				armMoving = false;
 				stoppedMoving = true;
 			}
 		}
@@ -182,12 +181,13 @@ namespace mapinect {
 
 			if (!(cloudBeforeMoving.get() == NULL)) 
 			{
-				cloudAfterMoving = getCloud(ICP_CLOUD_DENSITY);
+				cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
 				saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
 
 				icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving);
 
-				armStoppedMoving();
+				armMoving = false;
+				//armStoppedMoving();
 			}
 		}
 
@@ -422,7 +422,7 @@ namespace mapinect {
 		} else {
 			angleMotor1 = 0;
 		}
-		if (!inRange(angleMotor4, MIN_ANGLE_1, MAX_ANGLE_1))
+		if (!inRange(angleMotor1, MIN_ANGLE_1, MAX_ANGLE_1))
 		{
 			return;
 		}

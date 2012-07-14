@@ -57,6 +57,10 @@ PCPtr getCloud(const ofPoint& min, const ofPoint& max, int stride);
 PCPtr getCloud(int stride);
 PCPtr getCloud();
 
+PCPtr getCloudWithoutMutex(const ofPoint& min, const ofPoint& max, int stride);
+PCPtr getCloudWithoutMutex(int stride);
+PCPtr getCloudWithoutMutex();
+
 // -------------------------------------------------------------------------------------
 // plane utils
 // -------------------------------------------------------------------------------------

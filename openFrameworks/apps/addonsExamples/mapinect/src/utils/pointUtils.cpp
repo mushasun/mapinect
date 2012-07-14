@@ -235,7 +235,13 @@ PCPtr loadCloud(const string& filename)
 PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int stride)
 {
 	gTransformation->cloudMutex.lock();
+	PCPtr t = getCloudWithoutMutex(min,max,stride);
+	gTransformation->cloudMutex.unlock();
+	return t;
+}
 
+PCPtr getCloudWithoutMutex(const ofVec3f& min, const ofVec3f& max, int stride)
+{
 	if (min.x < 0 || min.y < 0
 		|| max.x > KINECT_DEFAULT_WIDTH || max.y > KINECT_DEFAULT_HEIGHT
 		|| min.x > max.x || min.y > max.y)
@@ -303,24 +309,37 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int stride)
 		sor.filter(*partialCloud);
 	}
 
-	PCPtr t = transformCloud(partialCloud, gTransformation->getWorldTransformation());
-
-	gTransformation->cloudMutex.unlock();
-
-	return t;
+	return transformCloud(partialCloud, gTransformation->getWorldTransformation());
 }
 
-PCPtr getCloud(int stride)
+PCPtr getCloudWithoutMutex(int stride)
 {
-	return getCloud(
+	return getCloudWithoutMutex(
 		ofPoint(0, 0),
 		ofPoint(KINECT_DEFAULT_WIDTH, KINECT_DEFAULT_HEIGHT),
 		stride);
 }
 
-PCPtr getCloud()
+PCPtr getCloud(int stride)
+{
+	gTransformation->cloudMutex.lock();
+	PCPtr t = getCloudWithoutMutex(stride);
+	gTransformation->cloudMutex.unlock();
+	return t;
+}
+
+
+PCPtr getCloudWithoutMutex()
 {
 	return getCloud(mapinect::Constants::CLOUD_STRIDE());
+}
+
+PCPtr getCloud()
+{
+	gTransformation->cloudMutex.lock();
+	PCPtr t = getCloudWithoutMutex(mapinect::Constants::CLOUD_STRIDE());
+	gTransformation->cloudMutex.unlock();
+	return t;
 }
 
 // -------------------------------------------------------------------------------------

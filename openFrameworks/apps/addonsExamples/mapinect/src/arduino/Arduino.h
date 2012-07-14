@@ -40,8 +40,6 @@ namespace mapinect
 		void				objectUpdated(const IObjectPtr&);
 		void				followObject(const IObjectPtr&);
 		
-		inline bool			isArmMoving() {	return armMoving;	}
-
 		char*				read();
 		
 		signed int*			motorAngles() const;
