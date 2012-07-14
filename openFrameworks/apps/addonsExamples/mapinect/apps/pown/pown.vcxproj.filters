@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\pown\Floor.cpp">
+      <Filter>pownApp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pown\VisualizerApp.cpp">
+      <Filter>pownApp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pown\Box.cpp">
+      <Filter>pownApp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pown\Looper.cpp">
+      <Filter>pownApp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pown\Visualizer.cpp">
+      <Filter>pownApp</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="pownApp">
+      <UniqueIdentifier>{5244f333-5b86-450f-8984-56087961afad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\pown\Floor.h">
+      <Filter>pownApp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pown\VisualizerApp.h">
+      <Filter>pownApp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pown\Box.h">
+      <Filter>pownApp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pown\Looper.h">
+      <Filter>pownApp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pown\Visualizer.h">
+      <Filter>pownApp</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
