@@ -28,7 +28,7 @@ namespace mapinect {
 
 	//--------------------------------------------------------------
 	void mapinectApp::setup() {
-		gTransformationMatrix = new mapinect::Transformation();
+		gTransformation = new mapinect::Transformation();
 
 		gKinect = new ofxKinect();
 		if (IsFeatureKinectActive())

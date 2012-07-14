@@ -93,7 +93,7 @@ PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi)
 
 PCXYZ eyePos()
 {
-	return transformPoint(PCXYZ(0, 0, 0),  gTransformationMatrix->getWorldTransformation());
+	return transformPoint(PCXYZ(0, 0, 0),  gTransformation->getWorldTransformation());
 }
 
 PCXYZ transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform)
@@ -168,7 +168,7 @@ vector<ofVec3f> getScreenCoords(const vector<ofVec3f>& transformedWorldCloud)
 PCXYZ getScreenCoords(const PCXYZ& transformedWorldPoint)
 {
 	// Apply to world point the inverse transformation
-	PCXYZ transf = pcl::transformPoint(transformedWorldPoint, gTransformationMatrix->getWorldTransformation().inverse());
+	PCXYZ transf = pcl::transformPoint(transformedWorldPoint, gTransformation->getWorldTransformation().inverse());
 	// Then, we call the depth device instance to transform to the depth image coordinates
 	ofVec3f screenCoord = gKinect->getScreenCoordsFromWorldCoords(PCXYZ_OFVEC3F(transf));
 	return OFVEC3F_PCXYZ(screenCoord);
@@ -234,7 +234,7 @@ PCPtr loadCloud(const string& filename)
 
 PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int stride)
 {
-	gTransformationMatrix->cloudMutex.lock();
+	gTransformation->cloudMutex.lock();
 
 	if (min.x < 0 || min.y < 0
 		|| max.x > KINECT_DEFAULT_WIDTH || max.y > KINECT_DEFAULT_HEIGHT
@@ -303,9 +303,9 @@ PCPtr getCloud(const ofVec3f& min, const ofVec3f& max, int stride)
 		sor.filter(*partialCloud);
 	}
 
-	PCPtr t = transformCloud(partialCloud, gTransformationMatrix->getWorldTransformation());
+	PCPtr t = transformCloud(partialCloud, gTransformation->getWorldTransformation());
 
-	gTransformationMatrix->cloudMutex.unlock();
+	gTransformation->cloudMutex.unlock();
 
 	return t;
 }

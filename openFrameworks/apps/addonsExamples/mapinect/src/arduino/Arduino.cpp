@@ -401,7 +401,7 @@ namespace mapinect {
 	ofVec3f Arduino::getKinect3dCoordinates()
 	{
 		Eigen::Vector3f kinectPos (0.0, 0.0, 0.0);		// Posicion inicial, en Sist. de Coord Local del Kinect
-		kinectPos = gTransformationMatrix->getWorldTransformation() * kinectPos;
+		kinectPos = gTransformation->getWorldTransformation() * kinectPos;
 		return ofVec3f(kinectPos.x(), kinectPos.y(), kinectPos.z());		
 	}
 
@@ -580,7 +580,7 @@ namespace mapinect {
 	ofVec3f	Arduino::lookingAt()
 	{
 		Eigen::Vector3f kinectMira (0.0, 0.0, 0.10);		// Mira inicial, en Sist. de Coord Local del Kinect
-		kinectMira = gTransformationMatrix->getWorldTransformation() * kinectMira;
+		kinectMira = gTransformation->getWorldTransformation() * kinectMira;
 		return ofVec3f(kinectMira.x(), kinectMira.y(), kinectMira.z());	
 	}
 
@@ -625,7 +625,7 @@ namespace mapinect {
 		Eigen::Affine3f composedMatrix;
 		composedMatrix = rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (rotationX * translationY2)))));
 
-		gTransformationMatrix->setWorldTransformation(composedMatrix);
+		gTransformation->setWorldTransformation(composedMatrix);
 
 		return composedMatrix;
 
@@ -667,7 +667,7 @@ namespace mapinect {
 		saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
 
 		// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
-		gTransformationMatrix->cloudMutex.lock();
+		gTransformation->cloudMutex.lock();
 
 		// Start measuring time that arm was moving 
 		startTime = ofGetSystemTime();

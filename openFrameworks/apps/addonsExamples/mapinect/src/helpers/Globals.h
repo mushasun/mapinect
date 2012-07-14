@@ -7,6 +7,6 @@
 
 extern ofxKinect			*gKinect;
 extern mapinect::Model		*gModel;
-extern mapinect::Transformation *gTransformationMatrix;
+extern mapinect::Transformation *gTransformation;
 
 #endif	// MAPINECT_GLOBALS_H__
