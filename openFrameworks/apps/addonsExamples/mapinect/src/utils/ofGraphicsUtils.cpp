@@ -17,6 +17,12 @@ void ofDrawQuadTextured(const ofPoint& vA, const ofPoint& vB, const ofPoint& vC,
 	glEnd();
 }
 
+void ofDrawQuad(const vector<ofVec3f>& vertexs)
+{
+	assert(vertexs.size() == 4);
+	ofDrawQuadTextured(vertexs[0], vertexs[1], vertexs[2], vertexs[3]);
+}
+
 void ofDrawQuadTextured(const vector<ofVec3f>& vertexs, const vector<ofVec2f>& texCoords)
 {
 	assert(vertexs.size() == 4 && texCoords.size() == 4);
