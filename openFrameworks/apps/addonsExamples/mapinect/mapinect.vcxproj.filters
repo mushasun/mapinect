@@ -187,6 +187,12 @@
     <ClCompile Include="src\helpers\Constants.cpp">
       <Filter>helpers</Filter>
     </ClCompile>
+    <ClCompile Include="src\arduino\ICPThread.cpp">
+      <Filter>arduino</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arduino\Transformation.cpp">
+      <Filter>arduino</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -432,6 +438,12 @@
     <ClInclude Include="src\buttons\SimpleButton.h">
       <Filter>buttons</Filter>
     </ClInclude>
+    <ClInclude Include="src\arduino\ICPThread.h">
+      <Filter>arduino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arduino\Transformation.h">
+      <Filter>arduino</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -466,9 +478,6 @@
     </Filter>
     <Filter Include="open-cv">
       <UniqueIdentifier>{50efb8e2-dd99-485b-82e5-b7971af593f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="math">
-      <UniqueIdentifier>{0bf778b9-4834-4812-b354-0785ba61bc9b}</UniqueIdentifier>
     </Filter>
     <Filter Include="model">
       <UniqueIdentifier>{122a32e6-cf85-4619-8880-c6122cba6b2f}</UniqueIdentifier>
@@ -506,5 +515,11 @@
     <Filter Include="buttons">
       <UniqueIdentifier>{75a49d75-ba0b-4a2f-9984-25203da72df4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{0bf778b9-4834-4812-b354-0785ba61bc9b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@
 #include <direct.h> // for getcwd
 #include "Plane3D.h"
 #include "utils.h"
-#include <pcl/registration/icp.h>
+#include "Globals.h"
 
 namespace mapinect {
 
@@ -57,15 +57,13 @@ namespace mapinect {
 
 	static unsigned long startTime; 
 
-	Eigen::Affine3f Arduino::worldTransformation  = Eigen::Affine3f();
-
 	Arduino::Arduino()
 	{
 		angleMotor1 = 0;
 		angleMotor2 = 0;
 		angleMotor4 = 0;
 		angleMotor8 = 0;
-		armStoppedMoving = true;
+		stoppedMoving = true;
 	}
 
 	Arduino::~Arduino()
@@ -78,6 +76,9 @@ namespace mapinect {
 	bool Arduino::setup()
 	{
 		CHECK_ACTIVE false;
+
+		icpThread.setup();
+
 		ofxXmlSettings XML;
 		if(XML.loadFile("Arduino_Config.xml")) {
 
@@ -132,8 +133,7 @@ namespace mapinect {
 
 		EventManager::suscribe(this);
 
-		armMoving = true;
-		startTime = ofGetSystemTime();
+		armStartedMoving();
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -147,7 +147,7 @@ namespace mapinect {
 
 		serial.enumerateDevices();
 		
-		armStoppedMoving = false;
+		stoppedMoving = false;
 
 		return true;
 	}
@@ -157,67 +157,37 @@ namespace mapinect {
 		if (serial.available()){
 			serial.close();
 		}
+
+		icpThread.exit();
 	}
 
 	void Arduino::update() {
 		CHECK_ACTIVE;
 
+		// "Simulo" que el brazo se dejó de mover una vez que pasó una cierta cantidad de tiempo
 		if (armMoving)
 		{
 			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
 			if (elapsedTime >= ELAPSED_TIME_ARM_STOPPED_MOVING)		// Cantidad de milisegundos para considerar que el brazo se terminó de mover
 			{
 				armMoving = false;
-				armStoppedMoving = true;
+				stoppedMoving = true;
 			}
 		}
 
-		if (armStoppedMoving)
+
+		if (stoppedMoving)
 		{
-			armStoppedMoving = false;
+			stoppedMoving = false;
 
 			if (!(cloudBeforeMoving.get() == NULL)) 
 			{
-
 				cloudAfterMoving = getCloud(ICP_CLOUD_DENSITY);
 				saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
 
-				// Apply ICP
+				icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving);
 
-				pcl::PointCloud<PCXYZ>::Ptr beforeMoving (new pcl::PointCloud<PCXYZ>(*cloudBeforeMoving.get()));
-				pcl::PointCloud<PCXYZ>::Ptr afterMoving  (new pcl::PointCloud<PCXYZ>(*cloudAfterMoving.get()));
-
-				pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
-				icp.setInputCloud(beforeMoving);
-				icp.setInputTarget(afterMoving);
-
-				// Set the max correspondence distance to 5cm (e.g., correspondences with higher distances will be ignored)
-				//icp.setMaxCorrespondenceDistance (0.05);
-				// Set the maximum number of iterations (criterion 1)
-				//icp.setMaximumIterations (5);
-				// Set the transformation epsilon (criterion 2)
-				//icp.setTransformationEpsilon (1e-8);
-				// Set the euclidean distance difference epsilon (criterion 3)
-				//icp.setEuclideanFitnessEpsilon (1);
-
-				pcl::PointCloud<pcl::PointXYZ> Final;
-
-				startTime = ofGetSystemTime();
-
-				icp.align(Final);
-
-				unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
-				cout << "ICP time: " << elapsedTime << endl;
-
-				if (icp.hasConverged())
-				{
-					cout << "ICP has converged with fitness score: " << icp.getFitnessScore() << endl;
-					Eigen::Affine3f newTransf (icp.getFinalTransformation());
-
-					//Combine new transformation with estimated transf
-					worldTransformation = newTransf.inverse() * worldTransformation  ;
-				}
-
+				armStoppedMoving();
 			}
 		}
 
@@ -270,7 +240,7 @@ namespace mapinect {
 				break;
 			case '.':
 				// For testing - Vero
-				armStoppedMoving = true;
+				stoppedMoving = true;
 				armMoving = false;
 				break;
 			case '=':
@@ -347,8 +317,7 @@ namespace mapinect {
 	{
 		CHECK_ACTIVE;
 
-		armMoving = true;
-		startTime = ofGetSystemTime();
+		armStartedMoving();
 
 		if (RESET_ANGLE1 != ANGLE_UNDEFINED) {
 			angleMotor1 = RESET_ANGLE1;
@@ -432,33 +401,12 @@ namespace mapinect {
 	ofVec3f Arduino::getKinect3dCoordinates()
 	{
 		Eigen::Vector3f kinectPos (0.0, 0.0, 0.0);		// Posicion inicial, en Sist. de Coord Local del Kinect
-		kinectPos = getWorldTransformation() * kinectPos;
+		kinectPos = gTransformationMatrix->getWorldTransformation() * kinectPos;
 		return ofVec3f(kinectPos.x(), kinectPos.y(), kinectPos.z());		
-		//return posicion;	
-
-/*		//angleMotor1 = motor de la base
-		//angleMotor2 = motor del medio
-		//angleMotor4 = motor de la punta
-		//angleMotor8 = motor de mas de la punta
-		//vamos a hallar las coordenadas x, y, z desde la base del brazo que está apoyada
-		//en el la mesa.
-		//hallemos z
-		//sen(alpha) * el largo del brazo (la mitad desde el centro)
-		double y = sin((float)angleMotor2) * ARM_LENGTH;
-		double z = cos((float)angleMotor2) * ARM_LENGTH;
-		double x = sin((float)angleMotor1) * y;
-		ofVec3f position = ofVec3f(float(x), float (y), float (z));
-		return position;
-*/	}
+	}
 
 	void Arduino::setArm3dCoordinates(float x, float y, float z)
 	{
-		armMoving = true;
-
-		// Get cloud before moving arm
-		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
-		saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
-
 		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
 		//		en coordenadas de mundo
 		angleMotor2 = round(atan(z/x) * 180.0f / M_PI);			//el de la base, x no deberia ser 0 nunca
@@ -484,7 +432,7 @@ namespace mapinect {
 			return;
 		}
 
-		startTime = ofGetSystemTime();
+		armStartedMoving();
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -514,11 +462,6 @@ namespace mapinect {
 
 	ofVec3f	Arduino::lookAt(const ofVec3f& point)
 	{
-		armMoving = true;
-
-		// Get cloud before moving arm
-		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
-
 		ofVec3f miraHorizonte (ARM_LENGTH + 0.10, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
 		ofVec3f posInicialKinect (ARM_LENGTH, - KINECT_HEIGHT - MOTORS_HEIGHT, 0.0);
 		//posicion = getKinect3dCoordinates();
@@ -536,16 +479,16 @@ namespace mapinect {
 		float angleMotor1Rad = ofDegToRad(angleMotor1);	// Motor que mueve la varilla "horizontal"
 		rotationZ = Eigen::AngleAxis<float>(-angleMotor1Rad, axisZ);			// Debe ser negativo
 
-		Eigen::Affine3f composed_matrix;
-		composed_matrix = rotationY * rotationZ;
+		Eigen::Affine3f composedMatrix;
+		composedMatrix = rotationY * rotationZ;
 		
 		Eigen::Vector3f e_point = Eigen::Vector3f(point.x, point.y, point.z);
 		Eigen::Vector3f e_mira = Eigen::Vector3f(miraHorizonte.x, miraHorizonte.y, miraHorizonte.z);
 		Eigen::Vector3f e_posicion = Eigen::Vector3f(posInicialKinect.x, posInicialKinect.y, posInicialKinect.z);
 
-		Eigen::Vector3f et_point = composed_matrix * e_point;
-		Eigen::Vector3f et_mira = /*composed_matrix * */ e_mira;
-		Eigen::Vector3f et_posicion = /*composed_matrix * */ e_posicion;
+		Eigen::Vector3f et_point = composedMatrix * e_point;
+		Eigen::Vector3f et_mira = /*composedMatrix * */ e_mira;
+		Eigen::Vector3f et_posicion = /*composedMatrix * */ e_posicion;
 
 		ofVec3f t_point = ofVec3f(et_point.x(), et_point.y(), et_point.z());
 		ofVec3f t_mira = ofVec3f(et_mira.x(), et_mira.y(), et_mira.z());
@@ -563,17 +506,8 @@ namespace mapinect {
 		ofVec3f hv_point = pht_point - pht_posicion;
 
 		float angulo_h = 0;
-		
-		// Para monitorear los valores
 
 		ofVec3f h_normal = horizontal.getNormal();
-/*		*****FOR DEBUG*****		*/
-/*		float hv_mira_len = hv_mira.length();
-		float hv_point_len = hv_point.length();
-		float hv_mira_dot = hv_mira.dot(h_normal);
-		float h_normal_len = h_normal.length();
-		float hv_point_dot = hv_point.dot(h_normal);
-*/		//
 		if (!(abs(hv_mira.length()) <= MATH_EPSILON || abs(hv_point.length()) <= MATH_EPSILON	
 				|| (abs(hv_mira.dot(h_normal) - hv_mira.length()*h_normal.length()) <= MATH_EPSILON)
 				|| (abs(hv_point.dot(h_normal) - hv_point.length()*h_normal.length()) <= MATH_EPSILON) )) {
@@ -602,13 +536,6 @@ namespace mapinect {
 
 		float angulo_v = 0;
 		ofVec3f v_normal = vertical.getNormal();
-/*		*****FOR DEBUG*****		*/
-/*		float vv_mira_len = vv_mira.length();
-		float vv_point_len = vv_point.length();
-		float vv_mira_dot = vv_mira.dot(v_normal);
-		float v_normal_len = v_normal.length();
-		float vv_point_dot = vv_point.dot(v_normal);
-*/		//
 		if (!(abs(vv_mira.length()) <= MATH_EPSILON || abs(vv_point.length()) <= MATH_EPSILON	
 				|| (abs(vv_mira.dot(v_normal) - vv_mira.length()*v_normal.length()) <= MATH_EPSILON)
 				|| (abs(vv_point.dot(v_normal) - vv_point.length()*v_normal.length()) <= MATH_EPSILON) )) {
@@ -626,16 +553,16 @@ namespace mapinect {
 		//mira_actual = point;
 		mira = point;
 
-		/*if (!inRange(angleMotor4, MIN_ANGLE_4, MAX_ANGLE_4))
+		if (!inRange(angleMotor4, MIN_ANGLE_4, MAX_ANGLE_4))
 		{
 			return NULL;
 		}
 		if (!inRange(angleMotor8, MIN_ANGLE_8, MAX_ANGLE_8))
 		{
 			return NULL;
-		}*/
+		}
 
-		startTime = ofGetSystemTime();
+		armStartedMoving();
 
 		sendMotor(angleMotor4, ID_MOTOR_4);
 		sendMotor(angleMotor8, ID_MOTOR_8);
@@ -653,15 +580,8 @@ namespace mapinect {
 	ofVec3f	Arduino::lookingAt()
 	{
 		Eigen::Vector3f kinectMira (0.0, 0.0, 0.10);		// Mira inicial, en Sist. de Coord Local del Kinect
-		kinectMira = getWorldTransformation() * kinectMira;
+		kinectMira = gTransformationMatrix->getWorldTransformation() * kinectMira;
 		return ofVec3f(kinectMira.x(), kinectMira.y(), kinectMira.z());	
-		//return NULL;
-		//return mira;
-	}
-
-	Eigen::Affine3f Arduino::getWorldTransformation()
-	{
-		return Arduino::worldTransformation;
 	}
 
 	Eigen::Affine3f Arduino::calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8)
@@ -672,13 +592,6 @@ namespace mapinect {
 		float angleMotor8Rad = ofDegToRad(angle8 - 90);	// Motor de los de la punta, el de más abajo. La posición inicial de referencia será 90 grados.
 
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
-		//CvMat* mat = cvCreateMat(4,4,CV_32FC1);
-		//primero giramos según el eje vertical (Y)
-		//el angulo es el del motor inferior y la matriz de transformación es:
-		//[cos -sin  0  0]
-		//[sen  cos  0  0]
-		//[ 0    0   1  0]
-		//[ 0    0   0  1]		// Coment Vero: Ojo que esta matriz es una rotación según el eje Z, no el Y
 
 		Eigen::Vector3f axisX (1, 0, 0);
 		Eigen::Vector3f axisY (0, 1, 0);
@@ -709,80 +622,20 @@ namespace mapinect {
 		//preciso hallar la traslacion de altura donde esta la camara
 		//y luego la traslacion a lo largo del brazo
 		
-		Eigen::Affine3f composed_matrix;
-		composed_matrix = rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (rotationX * translationY2)))));
-		//composed_matrix = translationY2 * rotationX * translationY * rotationY2 * translationX * rotationZ * rotationY;
+		Eigen::Affine3f composedMatrix;
+		composedMatrix = rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (rotationX * translationY2)))));
 
-		/*
-			Pruebas para verificar que se estén calculando bien las transformaciones
-		*/
+		gTransformationMatrix->setWorldTransformation(composedMatrix);
 
-		/* Las siguientes pruebas utilizan los valores de ángulos:
-				angleMotor1 = -45;
-				angleMotor2 = 0;
-				angleMotor4 = 0;
-				angleMotor8 = 90;		*/
-
-		//Eigen::Vector3f ejemplo (0.0, 0.0, 0.0); //En Sist de Coordenadas Local, del Kinect
-		// Debería dar como resultado: X = 0.14, Y = -0.35, Z = 0	=> Dio OK
-
-		// Eigen::Vector3f ejemplo (0.0, MOTORS_HEIGHT + KINECT_HEIGHT, 0.0); //En Sist de Coordenadas Local, del Kinect
-		// Debería dar como resultado: X = 0.25, Y = -0.25, Z = 0	=> Dio OK
-
-		/* Las siguientes pruebas utilizan los valores de ángulos:
-				angleMotor1 = -45;
-				angleMotor2 = 0;
-				angleMotor4 = -45;
-				angleMotor8 = 90;		*/
-
-		//Eigen::Vector3f ejemplo (0.0, 0.0, 0.0); //En Sist de Coordenadas Local, del Kinect
-		// Dio como resultado: X = 0.14, Y = -0.33, Z = 0.07	=> Parece OK
-
-		//Eigen::Vector3f ejemplo (0.1, 0.1, 0.1); //En Sist de Coordenadas Local, del Kinect
-		// Dio como resultado: X = 0.32, Y = -0.30, Z = 0.07	=> Parece razonable...
-
-		/* Las siguientes pruebas utilizan los valores de ángulos:
-				angleMotor1 = 0;
-				angleMotor2 = 0;
-				angleMotor4 = -45;
-				angleMotor8 = 45;		*/
-
-		//Eigen::Vector3f ejemplo (0.0, 0.0, 0.0); //En Sist de Coordenadas Local, del Kinect
-		// Dio como resultado: X = 0.40, Y = -0.13, Z = 0.05	=> Parece OK
-
-		/* Las siguientes pruebas utilizan los valores de ángulos:
-				angleMotor1 = 0;
-				angleMotor2 = 45;
-				angleMotor4 = 0;
-				angleMotor8 = 90;		*/
-
-		//Eigen::Vector3f ejemplo (0.0, 0.0, 0.0); //En Sist de Coordenadas Local, del Kinect
-		// Dio como resultado: X = 0.24, Y = -0.16, Z = 0.24	=> Parece OK
-
-		/*
-		ejemplo = translationY2 * ejemplo;
-		ejemplo = rotationX * ejemplo;
-		ejemplo = translationY * ejemplo;
-		ejemplo = rotationY2 * ejemplo;
-		ejemplo = translationX * ejemplo;
-		ejemplo = rotationZ * ejemplo;
-		ejemplo = rotationY * ejemplo; 
-
-		Eigen::Vector3f ej (0.0, 0.0, 0.0);
-		ej = composed_matrix * ej;
-		*/
-
-		worldTransformation = composed_matrix;
-
-		return composed_matrix;
+		return composedMatrix;
 
 	}
 
 	void Arduino::objectUpdated(const IObjectPtr& object)
 	{
-		if (object->getId() == id_object_to_follow)
+		if (object->getId() == idObjectToFollow)
 		{
-			if (center_of_following_object.distance(object->getCenter()) > 0.05)
+			if (centerOfFollowingObject.distance(object->getCenter()) > 0.05)
 			{
 				lookAt(object->getCenter());
 			}
@@ -792,8 +645,8 @@ namespace mapinect {
 	
 	void Arduino::followObject(const IObjectPtr& object)
 	{
-		id_object_to_follow = object->getId();
-		center_of_following_object = object->getCenter();
+		idObjectToFollow = object->getId();
+		centerOfFollowingObject = object->getCenter();
 		//lookAt(object->getCenter());
 	}
 
@@ -802,43 +655,32 @@ namespace mapinect {
 		PCPtr cloudBefore = loadCloud("cloudBeforeMoving2.pcd");
 		PCPtr cloudAfter = loadCloud("cloudAfterMoving2.pcd");
 
-		// Apply ICP
-		pcl::PointCloud<PCXYZ>::Ptr beforeMoving (new pcl::PointCloud<PCXYZ>(*cloudBefore.get()));
-		pcl::PointCloud<PCXYZ>::Ptr afterMoving  (new pcl::PointCloud<PCXYZ>(*cloudAfter.get()));
-
-		pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
-		icp.setInputCloud(beforeMoving);
-		icp.setInputTarget(afterMoving);
-
-		// Set the max correspondence distance to 5cm (e.g., correspondences with higher distances will be ignored)
-		icp.setMaxCorrespondenceDistance (0.05);
-		// Set the maximum number of iterations (criterion 1)
-		icp.setMaximumIterations (3);
-		// Set the transformation epsilon (criterion 2)
-		//icp.setTransformationEpsilon (1e-8);
-		// Set the euclidean distance difference epsilon (criterion 3)
-		//icp.setEuclideanFitnessEpsilon (1);
-
-		pcl::PointCloud<pcl::PointXYZ> Final;
-
-		startTime = ofGetSystemTime();
-
-		icp.align(Final);
-
-		unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
-		cout << "ICP time: " << elapsedTime << endl;
-
-		if (icp.hasConverged())
-		{
-			cout << "ICP has converged with fitness score: " << icp.getFitnessScore() << endl;
-			Eigen::Affine3f newTransf (icp.getFinalTransformation());
-
-			//Combine new transformation with estimated transf
-			//worldTransformation = newTransf.inverse() * worldTransformation  ;
-		}
-
+		icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving);
 	}
 
+	void Arduino::armStartedMoving()
+	{		
+		armMoving = true;
 
+		// Get cloud before moving arm
+		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
+		saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
+
+		// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
+		gTransformationMatrix->cloudMutex.lock();
+
+		// Start measuring time that arm was moving 
+		startTime = ofGetSystemTime();
+	}
+
+	void Arduino::armStoppedMoving()
+	{
+		unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
+		cout << "Arms stopped moving after " << elapsedTime << "ms" << endl ;	
+
+		armMoving = false;
+		stoppedMoving = true;
+
+	}
 
 }

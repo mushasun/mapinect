@@ -7,6 +7,7 @@
 
 ofxKinect*				gKinect = NULL;
 mapinect::Model*		gModel = NULL;
+mapinect::Transformation*	gTransformationMatrix = NULL;
 
 
 //Parsea array de floats separado por ',' sin espacios

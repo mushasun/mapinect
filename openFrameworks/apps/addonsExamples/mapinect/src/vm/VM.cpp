@@ -3,12 +3,11 @@
 #include "Feature.h"
 #include "ofxXmlSettings.h"
 #include "ofVec3f.h"
+#include "Globals.h"
 
 namespace mapinect {
 
 #define		VM_CONFIG			"VMConfig:"
-
-	static Eigen::Affine3f inverseWorldTransformationMatrix = Eigen::Affine3f();
 
 	static float transX =   -0.112;  //-0.112;  //-0.065; //-0.088;	//0.019;
 	static float transY =    0.020;  //0.008; // 0.004;	//-0.003;
@@ -199,7 +198,8 @@ namespace mapinect {
 			//		glRotatef(rotYAxis,0,1,0);
 			glScalef(1,-1,-1);											//3 - Pasar del sist. de coord. de nuestro modelo al de OpenGL (X,-Y,-Z)
 			glMultMatrixf(inv_proj_RT_premult);							//2 - Pasar de rgb-camera space al sistema de coord. del proyector
-			glMultMatrixf(kinect_matrix_RT);							//1 - Pasar de depth-camera space a rgb-camera space			
+			glMultMatrixf(kinect_matrix_RT);							//1 - Pasar de depth-camera space a rgb-camera space	
+			Eigen::Affine3f inverseWorldTransformationMatrix = gTransformationMatrix->getWorldTransformation();
 			glMultMatrixf(inverseWorldTransformationMatrix.data()); //0 - Aplicar transformación de mundo real
 
 			// Check current translation after multiplying matrices
@@ -417,11 +417,6 @@ namespace mapinect {
 		cameraLookAt = lookAt;
 	}
 */
-	void VM::setInverseWorldTransformationMatrix(const Eigen::Affine3f& t)
-	{
-		 inverseWorldTransformationMatrix = t.inverse();
-	}
-
 	std::string VM::getKinectCalibFile()
 	{
 		return kinectCalibFile;
