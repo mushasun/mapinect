@@ -1,43 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\pown\Floor.cpp">
-      <Filter>pownApp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pown\VisualizerApp.cpp">
-      <Filter>pownApp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pown\Box.cpp">
-      <Filter>pownApp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pown\Looper.cpp">
-      <Filter>pownApp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pown\Visualizer.cpp">
-      <Filter>pownApp</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="pownApp">
-      <UniqueIdentifier>{5244f333-5b86-450f-8984-56087961afad}</UniqueIdentifier>
+    <Filter Include="pown">
+      <UniqueIdentifier>{942253a8-e66a-4ff9-a232-106040664b70}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\pown\Floor.h">
-      <Filter>pownApp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pown\VisualizerApp.h">
-      <Filter>pownApp</Filter>
-    </ClInclude>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\pown\Box.cpp">
+      <Filter>pown</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pown\Pown.cpp">
+      <Filter>pown</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pown\Spot.cpp">
+      <Filter>pown</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pown\Bolt.cpp">
+      <Filter>pown</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="src\pown\Box.h">
-      <Filter>pownApp</Filter>
+      <Filter>pown</Filter>
     </ClInclude>
-    <ClInclude Include="src\pown\Looper.h">
-      <Filter>pownApp</Filter>
+    <ClInclude Include="src\pown\Pown.h">
+      <Filter>pown</Filter>
     </ClInclude>
-    <ClInclude Include="src\pown\Visualizer.h">
-      <Filter>pownApp</Filter>
+    <ClInclude Include="src\pown\Spot.h">
+      <Filter>pown</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pown\Bolt.h">
+      <Filter>pown</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

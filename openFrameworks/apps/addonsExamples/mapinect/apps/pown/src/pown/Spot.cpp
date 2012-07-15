@@ -1,153 +1,66 @@
-#include "Box.h"
+#include "Spot.h"
 
 #include "ofGraphicsUtils.h"
-#include "ofVecUtils.h"
 
-namespace pown {
+#define SPOT_RADIUS			0.05f
+#define PERIOD_TIME			3.0f
 
-	ofImage* Box::barTexture = NULL;
-	ofImage* Box::roofTexture = NULL;
+namespace pown
+{
+	ofImage* Spot::texture = NULL;
 
-	Box::Box(const IObjectPtr& object)
-		: object(object), progress(0)
+	Spot::Spot(const ofVec3f& position)
+		: position(position), box(NULL), rotation(0.0f)
 	{
-		if (barTexture == NULL)
-		{
-			barTexture = new ofImage("data/texturas/Building_texture.jpg");
-		}
-		if (roofTexture == NULL)
-		{
-			roofTexture = new ofImage("data/texturas/oba.jpg");
-		}
-		vector<ofColor> colors;
-		for(int i = 0; i < 5; i ++)
-			colors.push_back(ofColor(rand()%255,rand()%255,rand()%255));
-		vis.setup(colors);
+		const float size = SPOT_RADIUS;
+		vector<ofVec3f> vertexs;
+		vertexs.push_back(ofVec3f(-size * 0.5f, 0, -size * 0.5f));
+		vertexs.push_back(ofVec3f(size * 0.5f, 0, -size * 0.5f));
+		vertexs.push_back(ofVec3f(size * 0.5f, 0, size * 0.5f));
+		vertexs.push_back(ofVec3f(-size * 0.5f, 0, size * 0.5f));
+		area = Polygon3D(vertexs);
 	}
 
-	Box::~Box() {
-
-	}
-
-	void Box::draw(const Floor& floor)
+	Spot::~Spot()
 	{
-		for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
+	}
+
+	void Spot::setup()
+	{
+		texture = new ofImage("spot.png");
+	}
+
+	void Spot::draw()
+	{
+		ofSetColor(kRGBWhite);
+
+		ofPushMatrix();
+			ofTranslate(position);
+			ofRotateY(rotation);
+			texture->bind();
+				ofDrawQuadTextured(area.getVertexs(), ofTexCoordsFor(*texture));
+			texture->unbind();
+		ofPopMatrix();
+	}
+
+	void Spot::update(float elapsedTime)
+	{
+		rotation += PERIOD_TIME * TWO_PI * elapsedTime;
+		if (rotation >= TWO_PI)
 		{
-			/* DEBUG*/
-			switch((*p)->getName())
-			{
-			case kPolygonNameSideA:
-				ofSetColor(255,0,0);
-				break;
-			case kPolygonNameSideB:
-				ofSetColor(0,255,0);
-				break;
-			case kPolygonNameSideC:
-				ofSetColor(0,0,255);
-				break;
-			case kPolygonNameSideD:
-				ofSetColor(255,0,255);
-				break;
-			case kPolygonNameTop:
-				ofSetColor(255,255,255);
-				break;
-			case kPolygonNameBottom:
-				ofSetColor(0,255,255);
-				break;
-			case kPolygonNameUnknown:
-				ofSetColor(255,255,0);
-				break;
-
-
-			}
-			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(*barTexture));
-
-
-			//static ofVec3f vA,vB,vC,vD;
-
-			//ofVec3f v3 = (*p)->getMathModel().getVertexs()[0];
-			//ofVec3f v0 = (*p)->getMathModel().getVertexs()[1];
-			//ofVec3f v1 = (*p)->getMathModel().getVertexs()[2];
-			//ofVec3f v2 = (*p)->getMathModel().getVertexs()[3];
-
-			///*	__________
-			//	|2		3|
-			//	|		 |
-			//	|		 |
-			//	|1		0|
-			//*/
-
-			//if((*p)->getName() == kPolygonNameSideB ||  (*p)->getName() == kPolygonNameSideD) //Side 
-			//{
-			//	// Bind Texture
-			//	ofSetColor(255,255,255,255);
-			//	ofTexture bgTex = vis.getBgTexture();
-			//	bgTex.bind();
-			//
-			//	ofVec3f h12 = v2 - v1;
-			//	ofVec3f h03 = v3 - v0;			
-			//
-			//	ofVec3f v3p = v3 - (h03*(1-progress)); //(v3.x, v0.y - progress * h03, v3.z);
-			//	ofVec3f v2p = v2 - (h12*(1-progress)); //(v2.x, v1.y - progress * h12, v2.z);
-			//	
-			//	vector<ofVec2f> texCoords(ofTexCoordsFor(*barTexture));
-			//	for (vector<ofVec2f>::iterator t = texCoords.begin(); t != texCoords.end(); ++t)
-			//	{
-			//		*t *= progress;
-			//	}
-
-			//	vector<ofVec3f> vertexs;
-			//	vertexs.push_back(v1);
-			//	vertexs.push_back(v0);
-			//	vertexs.push_back(v3p);
-			//	vertexs.push_back(v2p);
-
-			//	ofDrawQuadTextured(vertexs, texCoords);
-
-			//	bgTex.unbind();
-
-			//	ofSetColor(0,0,0);
-			//	glBegin(GL_QUADS);      
-			//		glVertex3f(v3p.x, v3p.y, v3p.z); 
-			//		glVertex3f(v2p.x, v2p.y, v2p.z);
-			//		glVertex3f(v2.x, v2.y, v2.z);
-			//		glVertex3f(v3.x, v3.y, v3.z);
-			//	glEnd();
-
-			//	//vis.draw(v1,v0,v3p,v2p,true);
-
-			//}
-			//else if((*p)->getName() == kPolygonNameSideA ) //Front
-			//{
-			//	vis.draw(v1,v0,v3,v2);
-			//}
-			//else if((*p)->getName() == kPolygonNameTop) //TOP
-			//{
-			//	ofSetColor(255,255,255,255);
-			//	ofTexture bgTex = vis.getBgTexture();
-			//	bgTex.bind();
-			//	ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(bgTex));
-			//	bgTex.unbind();
-			//}
-			////else if((*p)->getName() == kPolygonNameBottom) //TOP
-			////{
-			////	ofVec3f centroid = computeCentroid((*p)->getMathModel().getVertexs());
-			////	ofSetColor(255,255,255,255);
-			////	ofPushMatrix();
-			////	ofTranslate(centroid);
-			////	ofScale(1.5,1.5,1.5);
-
-			////	ofTexture bgTex = vis.getBgTexture();
-			////	bgTex.bind();
-			////	ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(bgTex));
-			////	bgTex.unbind();
-			////}
+			rotation -= TWO_PI;
 		}
 	}
 
-	void Box::update(float progress) {
-		this->progress = progress;
-		vis.update();
+	bool Spot::testHit(Box* box)
+	{
+		ofVec3f boxProjectedCenter(area.getPlane().project(box->getCenter()));
+		return position.distance(boxProjectedCenter) < SPOT_RADIUS;
+	}
+
+	void Spot::setBox(Box* box)
+	{
+		this->box = box;
 	}
 
 }

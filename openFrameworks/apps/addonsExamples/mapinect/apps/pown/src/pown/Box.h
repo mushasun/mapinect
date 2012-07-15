@@ -16,6 +16,8 @@ namespace pown
 
 		inline void		updateModelObject(const IObjectPtr& ob)		{ object = ob; }
 
+		inline ofVec3f	getCenter() const							{ return object->getCenter(); }
+
 		void			update(float elapsedTime);
 		void			draw();
 

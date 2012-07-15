@@ -3,8 +3,10 @@
 
 #include "IApplication.h"
 
+#include <set>
 #include <map>
 #include "Box.h"
+#include "Spot.h"
 
 namespace pown
 {
@@ -15,12 +17,8 @@ namespace pown
 		virtual ~Pown();
 
 		virtual void setup();
-		virtual void update();
+		virtual void update(float elapsedTime);
 		virtual void draw();
-
-		virtual void keyPressed(int key);
-
-		virtual void debugDraw();
 
 		virtual void objectDetected(const IObjectPtr&);
 		virtual void objectUpdated(const IObjectPtr&);
@@ -31,8 +29,9 @@ namespace pown
 		virtual void buttonReleased(const IButtonPtr&);
 
 	private:
-		std::map<int, Box*>	boxes;
-
+		map<int, Box*>		boxes;
+		set<Spot*>			spots;
+		set<Bolt>			bolts;
 	};
 }
 

@@ -2,6 +2,7 @@
 #define SPOT_H__
 
 #include "Box.h"
+#include "ofImage.h"
 
 namespace pown
 {
@@ -11,16 +12,21 @@ namespace pown
 		Spot(const ofVec3f& position);
 		virtual ~Spot();
 
-		void		update();
-		void		draw();
+		static void		setup();
 
-		bool		testBox(Box* box);
-		void		setBox(Box* box);
+		void			update(float elapsedTime);
+		void			draw();
+
+		bool			testHit(Box* box);
+		void			setBox(Box* box);
 
 	private:
-		ofVec3f		position;
-		Box*		box;
+		ofVec3f			position;
+		Box*			box;
+		Polygon3D		area;
+		float			rotation;
 
+		static ofImage*	texture;
 	};
 }
 
