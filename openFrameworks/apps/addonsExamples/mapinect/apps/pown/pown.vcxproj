@@ -116,14 +116,6 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\visualizer\Box.cpp" />
-    <ClCompile Include="src\visualizer\Looper.cpp" />
-    <ClCompile Include="src\visualizer\Visualizer.cpp" />
-    <ClCompile Include="src\visualizer\VisualizerApp.cpp" />
-    <ClCompile Include="src\visualizer\Floor.cpp" />
-    <ClCompile Include="src\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\libs\openFrameworksCompiled\project\vs2010\openframeworksLib.vcxproj">
       <Project>{5837595d-aca9-485c-8e76-729040ce4b0b}</Project>
     </ProjectReference>
@@ -132,11 +124,17 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\visualizer\Box.h" />
-    <ClInclude Include="src\visualizer\Looper.h" />
-    <ClInclude Include="src\visualizer\Visualizer.h" />
-    <ClInclude Include="src\visualizer\VisualizerApp.h" />
-    <ClInclude Include="src\visualizer\Floor.h" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\pown\Bolt.cpp" />
+    <ClCompile Include="src\pown\Box.cpp" />
+    <ClCompile Include="src\pown\Pown.cpp" />
+    <ClCompile Include="src\pown\Spot.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\pown\Bolt.h" />
+    <ClInclude Include="src\pown\Box.h" />
+    <ClInclude Include="src\pown\Pown.h" />
+    <ClInclude Include="src\pown\Spot.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
