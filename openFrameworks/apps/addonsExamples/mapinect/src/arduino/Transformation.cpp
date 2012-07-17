@@ -2,10 +2,11 @@
 
 namespace mapinect
 {
+	Eigen::Affine3f Transformation::worldTransformation;
 
 	Transformation::Transformation() 
 	{
-		worldTransformation  = Eigen::Affine3f();
+		worldTransformation  = Eigen::Affine3f::Identity();
 	}
 
 	Eigen::Affine3f	Transformation::getWorldTransformation() const
