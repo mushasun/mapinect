@@ -431,30 +431,32 @@ namespace mapinect {
 	{
 		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
 		//		en coordenadas de mundo
-		angleMotor2 = round(atan(z/x) * 180.0f / M_PI);			//el de la base, x no deberia ser 0 nunca
+		signed int _angleMotor2 = round(atan(z/x) * 180.0f / M_PI);			//el de la base, x no deberia ser 0 nunca
+		signed int _angleMotor1 = 0;
 		if (y != 0) {
 			if (y > 0)
 			{
-				angleMotor1 = (int)round(asin(y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
+				_angleMotor1 = (int)round(asin(y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
 			}
 			else
 			{
-				angleMotor1 = -(int)round(asin(-y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
+				_angleMotor1 = -(int)round(asin(-y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
 			}
 		} else {
-			angleMotor1 = 0;
+			_angleMotor1 = 0;
 		}
-		if (!inRange(angleMotor1, MIN_ANGLE_1, MAX_ANGLE_1))
+		if (!inRange(_angleMotor1, MIN_ANGLE_1, MAX_ANGLE_1))
 		{
 			return;
 		}
 
-		if (!inRange(angleMotor2, MIN_ANGLE_2, MAX_ANGLE_2))
+		if (!inRange(_angleMotor2, MIN_ANGLE_2, MAX_ANGLE_2))
 		{
 			return;
 		}
 
-		armStartedMoving();
+		angleMotor1 =_angleMotor1;
+		angleMotor2 =_angleMotor2;
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -570,20 +572,20 @@ namespace mapinect {
 				}
 		}		 	
 
+		if (!inRange(int(angulo_v), MIN_ANGLE_4, MAX_ANGLE_4))
+		{
+			return NULL;
+		}
+		if (!inRange(int(angulo_h), MIN_ANGLE_8, MAX_ANGLE_8))
+		{
+			return NULL;
+		}
+
 		angleMotor4 = angulo_v;
 		angleMotor8 = angulo_h;
 
 		//mira_actual = point;
 		mira = point;
-
-		if (!inRange(angleMotor4, MIN_ANGLE_4, MAX_ANGLE_4))
-		{
-			return NULL;
-		}
-		if (!inRange(angleMotor8, MIN_ANGLE_8, MAX_ANGLE_8))
-		{
-			return NULL;
-		}
 
 		armStartedMoving();
 
