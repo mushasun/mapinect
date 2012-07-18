@@ -105,9 +105,10 @@ namespace mapinect {
 			cout << "ICP has converged with fitness score: " << icp.getFitnessScore() << endl;
 			Eigen::Affine3f newTransf (icp.getFinalTransformation());
 					
-			gTransformation->setWorldTransformation(gTransformation->getWorldTransformation() * newTransf);
+			gTransformation->setWorldTransformation(newTransf.inverse() * gTransformation->getWorldTransformation());
+			//gTransformation->setWorldTransformation(Transformation::initialWorldTransformation * newTransf);
 		}
-
+		
 		// Una vez que se terminó de aplicar ICP y se actualizó la matriz de transformación, 
 		//	libero el mutex para que puedan invocar al método getCloud
 		gTransformation->cloudMutex.unlock();

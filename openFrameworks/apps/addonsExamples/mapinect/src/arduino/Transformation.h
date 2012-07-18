@@ -19,8 +19,10 @@ namespace mapinect
 
 		mutable ofxMutex						cloudMutex;
 
+		static  Eigen::Affine3f							initialWorldTransformation;
 	private:
 		static Eigen::Affine3f							worldTransformation;
+
 
 	};
 }
