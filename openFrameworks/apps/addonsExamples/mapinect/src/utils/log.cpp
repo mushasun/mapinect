@@ -15,11 +15,9 @@ void log(const LogFile& file, const std::string& str)
 	assert(file < kLogFileCount);
 
 	ofxScopedMutex osm(logsMutex);
-	logsTimer[file].end();
 	ostringstream oss;
-	oss << logsTimer[file].getElapsedSeconds() << "\t" << str << endl;
+	oss << logsTimer[file].stopResumeAndGetElapsedSeconds() << "\t" << str << endl;
 	logs[file] += oss.str();
-	logsTimer[file].start();
 }
 
 void printLogFileToFile(const LogFile& file, const std::string& filename, bool clear)

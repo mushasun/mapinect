@@ -8,6 +8,7 @@
 #include "PCM.h"
 #include "VM.h"
 #include "Arduino.h"
+#include "Timer.h"
 
 #include "IApplication.h"
 
@@ -86,6 +87,7 @@ namespace mapinect {
 		mapinectApp*	mapinectAppPtr;
 		VM*				vm;
 		ofxFenster*		window;
+		Timer			timer;
 
 		/// <summary>
 		/// User modules

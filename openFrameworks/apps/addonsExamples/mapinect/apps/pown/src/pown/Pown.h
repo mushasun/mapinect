@@ -31,7 +31,7 @@ namespace pown
 	private:
 		map<int, Box*>		boxes;
 		set<Spot*>			spots;
-		set<Bolt>			bolts;
+		set<Bolt*>			bolts;
 	};
 }
 

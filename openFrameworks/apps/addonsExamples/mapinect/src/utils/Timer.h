@@ -1,21 +1,21 @@
 #ifndef MAPINECT_TIMER_H__
 #define MAPINECT_TIMER_H__
 
-#include <time.h>
-
 namespace mapinect {
 	class Timer {
 	public:
 		Timer();
 		virtual ~Timer() {};
 
-		void start();
-		void end();
-		void print();
-		float getElapsedSeconds();
+		void			start();
+		void			stop();
+		void			print();
+		float			getElapsedSeconds();
+		float			stopAndGetElapsedSeconds();
+		float			stopResumeAndGetElapsedSeconds();
 
 	private:
-		time_t	startTime, endTime;
+		unsigned long	startTime, endTime;
 	};
 }
 
