@@ -133,6 +133,8 @@ namespace mapinect {
 
 		EventManager::suscribe(this);
 
+		stoppedMoving = false;
+		
 		armStartedMoving();
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
@@ -140,14 +142,14 @@ namespace mapinect {
 		sendMotor(angleMotor4, ID_MOTOR_4);
 		sendMotor(angleMotor8, ID_MOTOR_8);
 
-		calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
+		if (IsFeatureMoveArmActive()) {
+			calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
+		}
 
 		posicion = getKinect3dCoordinates();
 		mira = lookingAt();
 
 		serial.enumerateDevices();
-		
-		stoppedMoving = false;
 
 		return true;
 	}
@@ -170,7 +172,7 @@ namespace mapinect {
 			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
 			if (elapsedTime >= ELAPSED_TIME_ARM_STOPPED_MOVING)		// Cantidad de milisegundos para considerar que el brazo se terminó de mover
 			{
-				stoppedMoving = true;
+				armStoppedMoving();
 			}
 		}
 
@@ -179,16 +181,17 @@ namespace mapinect {
 		{
 			stoppedMoving = false;
 
-			if (!(cloudBeforeMoving.get() == NULL)) 
+			if (IsFeatureMoveArmActive() && !(cloudBeforeMoving.get() == NULL)) 
 			{
 				cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
 				saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
 
 				icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving);
-
-				armMoving = false;
-				//armStoppedMoving();
+			} else {
+				//	Libero el mutex para que puedan invocar al método getCloud
+				gTransformation->cloudMutex.unlock();
 			}
+
 		}
 
 	}
@@ -336,8 +339,9 @@ namespace mapinect {
 			sendMotor((char) angleMotor8, ID_MOTOR_8);
 		}
 
-		calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
-
+		if (IsFeatureMoveArmActive()) {
+			calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
+		}
 	}
 
 	const char *my_byte_to_binary(int x)
@@ -437,8 +441,9 @@ namespace mapinect {
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
 
-		calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
-
+		if (IsFeatureMoveArmActive()) {
+			calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
+		}
 		posicion = getKinect3dCoordinates(); //ofVec3f(x, y, z);
 	}
 
@@ -567,7 +572,9 @@ namespace mapinect {
 		sendMotor(angleMotor4, ID_MOTOR_4);
 		sendMotor(angleMotor8, ID_MOTOR_8);
 
-		calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
+		if (IsFeatureMoveArmActive()) {
+			calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
+		}
 
 		return NULL;
 	}
@@ -662,9 +669,11 @@ namespace mapinect {
 	{		
 		armMoving = true;
 
-		// Get cloud before moving arm
-		cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
-		saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
+		if (IsFeatureMoveArmActive()) {
+			// Get cloud before moving arm
+			cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
+			saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
+		}
 
 		// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
 		gTransformation->cloudMutex.lock();
@@ -676,7 +685,7 @@ namespace mapinect {
 	void Arduino::armStoppedMoving()
 	{
 		unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
-		cout << "Arms stopped moving after " << elapsedTime << "ms" << endl ;	
+		cout << "Arm stopped moving after " << elapsedTime << "ms" << endl ;	
 
 		armMoving = false;
 		stoppedMoving = true;
