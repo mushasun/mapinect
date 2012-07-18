@@ -23,7 +23,7 @@ namespace mapinect {
 #define		MOTOR_ANGLE_OFFSET_DEFAULT	128
 
 #define		ICP_CLOUD_DENSITY	8
-#define		ELAPSED_TIME_ARM_STOPPED_MOVING	7000
+#define		ELAPSED_TIME_ARM_STOPPED_MOVING	1000
 
 	static string	COM_PORT;
 	static char		KEY_MOVE_1R;
@@ -169,10 +169,26 @@ namespace mapinect {
 		// "Simulo" que el brazo se dejó de mover una vez que pasó una cierta cantidad de tiempo
 		if (armMoving)
 		{
+			//la logica es la siguiente:
+			//si el vector no se ha movido durante ELAPSED_TIME_ARM_STOPPED_MOVING segundos
+			//se toma como que se ha dejado de mover
 			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
 			if (elapsedTime >= ELAPSED_TIME_ARM_STOPPED_MOVING)		// Cantidad de milisegundos para considerar que el brazo se terminó de mover
 			{
 				armStoppedMoving();
+			}
+			else
+			{
+				ofPoint accel = gKinect->getMksAccel();
+				ofVec3f vecAccel = ofVec3f(accel.x, accel.y, accel.z);
+				ofVec3f vecDiff = vecAccel - acceleration;
+				float largo = vecDiff.length();
+				if (vecDiff.length() > 0.4)
+				{
+					//se sigue moviendo
+					acceleration = vecAccel;
+					startTime = ofGetSystemTime();
+				}
 			}
 		}
 
@@ -368,6 +384,8 @@ namespace mapinect {
 		char id_char = (char) id;
 		serial.writeByte(id_char);
 		serial.writeByte(value);
+		// Start measuring time that arm was moving 
+		startTime = ofGetSystemTime();
 	}
 
 	signed int* Arduino::motorAngles() const
@@ -678,8 +696,7 @@ namespace mapinect {
 		// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
 		gTransformation->cloudMutex.lock();
 
-		// Start measuring time that arm was moving 
-		startTime = ofGetSystemTime();
+
 	}
 
 	void Arduino::armStoppedMoving()
@@ -690,6 +707,11 @@ namespace mapinect {
 		armMoving = false;
 		stoppedMoving = true;
 
+	}
+
+	void Arduino::stopFollowing()
+	{
+		idObjectToFollow = -2; //-2 nunca va a ser un ID porque son mayores que 0, -1 es la mesa
 	}
 
 }

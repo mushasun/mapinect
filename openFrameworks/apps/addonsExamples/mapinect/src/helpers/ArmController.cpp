@@ -13,14 +13,9 @@ namespace mapinect {
 		return true;
 	}
 
-	bool ArmController::lookAt(const ofVec3f& eye, const ofVec3f& target, ofVec3f& bestFit)
+	ofVec3f ArmController::lookAt(const ofVec3f& eye, const ofVec3f& target, ofVec3f& bestFit)
 	{
-		return true;
-	}
-
-	bool ArmController::rotateJoint(int jointId, int amount, int& bestFit)
-	{
-		return true;
+		return arduino->lookAt(target);
 	}
 
 	int ArmController::getJointRotation(int jointId)
@@ -28,9 +23,14 @@ namespace mapinect {
 		return 0;
 	}
 
-	void ArmController::lookAtObject(const IObjectPtr& object)
+	void ArmController::followObject(const IObjectPtr& object)
 	{
 		arduino->followObject(object);
+	}
+
+	ofVec3f	ArmController::getKinect3dCoordinates()
+	{
+		return arduino->getKinect3dCoordinates();
 	}
 
 	void ArmController::objectDetected(const IObjectPtr& object)
@@ -73,4 +73,13 @@ namespace mapinect {
 	{
 	}
 
+	ofVec3f	ArmController::setArm3dCoordinates(const ofVec3f& position)
+	{
+		return arduino->setArm3dCoordinates(position);
+	}
+
+	void ArmController::stopFollowing()
+	{
+		arduino->stopFollowing();
+	}
 }
