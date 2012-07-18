@@ -14,10 +14,11 @@ void log(const LogFile& file, const std::string& str)
 {
 	assert(file < kLogFileCount);
 
-	ofxScopedMutex osm(logsMutex);
+	logsMutex.lock();
 	ostringstream oss;
 	oss << logsTimer[file].stopResumeAndGetElapsedSeconds() << "\t" << str << endl;
 	logs[file] += oss.str();
+	logsMutex.unlock();
 }
 
 void printLogFileToFile(const LogFile& file, const std::string& filename, bool clear)
@@ -26,23 +27,25 @@ void printLogFileToFile(const LogFile& file, const std::string& filename, bool c
 
 	ofstream ofs;
 	ofs.open(filename.c_str());
-	ofxScopedMutex osm(logsMutex);
+	logsMutex.lock();
 	ofs << logs[file] << "print" << endl;
 	ofs.close();
 	if (clear)
 		logs[file] = "";
 	logsTimer[file].start();
+	logsMutex.unlock();
 }
 
 void printLogFile(const LogFile& file, bool clear)
 {
 	assert(file < kLogFileCount);
 
-	ofxScopedMutex osm(logsMutex);
+	logsMutex.lock();
 	cout << logs[file] << "print" << endl;
 	if (clear)
 		logs[file] = "";
 	logsTimer[file].start();
+	logsMutex.unlock();
 }
 
 static std::string	pcmThreadStatus = "";
@@ -52,26 +55,30 @@ static ofxMutex		objectsThreadStatusMutex;
 
 void setPCMThreadStatus(const std::string& status)
 {
-	ofxScopedMutex osm(pcmThreadStatusMutex);
+	pcmThreadStatusMutex.lock();
 	pcmThreadStatus = status;
+	pcmThreadStatusMutex.unlock();
 }
 
 std::string getPCMThreadStatus()
 {
-	ofxScopedMutex osm(pcmThreadStatusMutex);
+	pcmThreadStatusMutex.lock();
 	string result(pcmThreadStatus);
+	pcmThreadStatusMutex.unlock();
 	return result;
 }
 
 void setObjectsThreadStatus(const std::string& status)
 {
-	ofxScopedMutex osm(objectsThreadStatusMutex);
+	objectsThreadStatusMutex.lock();
 	objectsThreadStatus = status;
+	objectsThreadStatusMutex.unlock();
 }
 
 std::string getObjectsThreadStatus()
 {
-	ofxScopedMutex osm(objectsThreadStatusMutex);
+	objectsThreadStatusMutex.lock();
 	string result(objectsThreadStatus);
+	objectsThreadStatusMutex.unlock();
 	return result;
 }

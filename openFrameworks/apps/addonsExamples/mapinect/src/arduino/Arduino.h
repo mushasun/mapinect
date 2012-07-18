@@ -77,6 +77,8 @@ namespace mapinect
 
 		ICPThread			icpThread;
 
+		void				loadXMLSettings();
+
 	};
 }
 

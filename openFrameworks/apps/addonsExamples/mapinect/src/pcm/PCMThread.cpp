@@ -49,15 +49,17 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void PCMThread::newFrameAvailable(bool forceDetection)
 	{
-		ofxScopedMutex osm(isNewFrameAvailableMutex);
+		isNewFrameAvailableMutex.lock();
 		isNewFrameAvailable = detectMode;
+		isNewFrameAvailableMutex.unlock();
 	}
 
 	//--------------------------------------------------------------
 	void PCMThread::newForcedFrameAvailable()
 	{
-		ofxScopedMutex osm(isNewFrameAvailableMutex);
+		isNewFrameAvailableMutex.lock();
 		isNewForcedFrameAvailable = true;
+		isNewFrameAvailableMutex.unlock();
 	}
 
 	//--------------------------------------------------------------
@@ -67,10 +69,11 @@ namespace mapinect {
 				
 				bool newFrameAvailable = false;
 				{
-					ofxScopedMutex osm(isNewFrameAvailableMutex);
+					isNewFrameAvailableMutex.lock();
 					newFrameAvailable = isNewFrameAvailable || isNewForcedFrameAvailable;
 					isNewFrameAvailable = false;
 					isNewForcedFrameAvailable = false;
+					isNewFrameAvailableMutex.unlock();
 				}
 
 				if(newFrameAvailable)

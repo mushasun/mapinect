@@ -23,7 +23,6 @@ namespace mapinect {
 #define		MOTOR_ANGLE_OFFSET_DEFAULT	128
 
 #define		ICP_CLOUD_DENSITY	8
-#define		ELAPSED_TIME_ARM_STOPPED_MOVING	1000
 
 	static string	COM_PORT;
 	static char		KEY_MOVE_1R;
@@ -50,6 +49,7 @@ namespace mapinect {
 	static int		MIN_ANGLE_4;
 	static int		MAX_ANGLE_8;
 	static int		MIN_ANGLE_8;
+	static int		ELAPSED_TIME_ARM_STOPPED_MOVING;
 
 	float			Arduino::ARM_LENGTH;
 	float			Arduino::KINECT_HEIGHT;
@@ -79,47 +79,7 @@ namespace mapinect {
 
 		icpThread.setup();
 
-		ofxXmlSettings XML;
-		if(XML.loadFile("Arduino_Config.xml")) {
-
-			COM_PORT = XML.getValue(ARDUINO_CONFIG "COM_PORT", "COM3");
-
-			KEY_MOVE_1R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_1R", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_1L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_1L", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_2R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_2R", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_2L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_2L", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_4R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_4R", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_4L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_4L", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_8R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_8R", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_8L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_8L", KEY_UNDEFINED).c_str()[0];
-
-			KEY_RESET = XML.getValue(ARDUINO_CONFIG "KEY_RESET", KEY_UNDEFINED).c_str()[0];
-			KEY_PRINT_STATUS = XML.getValue(ARDUINO_CONFIG "KEY_PRINT_STATUS", KEY_UNDEFINED).c_str()[0];
-
-			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "ANGLE_STEP", 2);
-
-			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "HEIGHT", 2);
-			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "LENGTH", 2);
-
-			RESET_ANGLE1 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE1", ANGLE_DEFAULT);
-			RESET_ANGLE2 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE2", ANGLE_DEFAULT);
-			RESET_ANGLE4 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE4", ANGLE_DEFAULT);
-			RESET_ANGLE8 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE8", ANGLE_DEFAULT);
-			MOTOR_ANGLE_OFFSET	= XML.getValue(ARDUINO_CONFIG "MOTOR_ANGLE_OFFSET", MOTOR_ANGLE_OFFSET_DEFAULT);
-
-			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.0);
-			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.0);
-			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.0);
-
-			MAX_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_1", 0);
-			MIN_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_1", 0);
-			MAX_ANGLE_2 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_2", 0);
-			MIN_ANGLE_2 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_2", 0);
-			MAX_ANGLE_4 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_4", 0);
-			MIN_ANGLE_4 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_4", 0);
-			MAX_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_8", 0);
-			MIN_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_8", 0);
-		}
+		loadXMLSettings();
 
 		angleMotor1 = RESET_ANGLE1;
 		angleMotor2 = RESET_ANGLE2;
@@ -136,6 +96,8 @@ namespace mapinect {
 		stoppedMoving = false;
 		
 		armStartedMoving();
+		// No se debe aplicar ICP en el setup
+		cloudBeforeMoving.reset();
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -143,7 +105,7 @@ namespace mapinect {
 		sendMotor(angleMotor8, ID_MOTOR_8);
 
 		if (IsFeatureMoveArmActive()) {
-			calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
+			Transformation::initialWorldTransformation = calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
 		}
 
 		posicion = getKinect3dCoordinates();
@@ -200,6 +162,7 @@ namespace mapinect {
 			if (IsFeatureMoveArmActive() && !(cloudBeforeMoving.get() == NULL)) 
 			{
 				cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
+				//cloudAfterMoving = transformCloud(cloudAfterMoving, gTransformation->getWorldTransformation().inverse());
 				saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
 
 				icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving);
@@ -235,7 +198,8 @@ namespace mapinect {
 				lookAt(centroidePrueba);
 				break;
 			case '0':
-				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0)); 
+				reset(); // Vuelve a la posición inicial, resetea la matriz de transformación y no aplica ICP
+				//setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0)); 
 				break;
 			case '1':
 				//AngleMotor1 = -15
@@ -258,9 +222,8 @@ namespace mapinect {
 				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos8, -Arduino::ARM_LENGTH*sin8, 0)); 
 				break;
 			case '.':
-				// For testing - Vero
-				stoppedMoving = true;
-				armMoving = false;
+				// Recargar settings desde el archivo XML, por si se modificaron
+				loadXMLSettings();
 				break;
 			case '=':
 				applyICPLoadedClouds();
@@ -336,7 +299,12 @@ namespace mapinect {
 	{
 		CHECK_ACTIVE;
 
+		loadXMLSettings();
+
 		armStartedMoving();
+		// No se debe aplicar ICP en el reset; sirve para "volver a una posición segura"
+		cloudBeforeMoving.reset();
+
 
 		if (RESET_ANGLE1 != ANGLE_UNDEFINED) {
 			angleMotor1 = RESET_ANGLE1;
@@ -384,7 +352,7 @@ namespace mapinect {
 		char id_char = (char) id;
 		serial.writeByte(id_char);
 		serial.writeByte(value);
-		// Start measuring time that arm was moving 
+		// Comienzo a contar cuanto tiempo pasó desde que se envía la señal para que se muevan los motores 
 		startTime = ofGetSystemTime();
 	}
 
@@ -457,6 +425,8 @@ namespace mapinect {
 
 		angleMotor1 =_angleMotor1;
 		angleMotor2 =_angleMotor2;
+
+		armStartedMoving();
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -690,8 +660,9 @@ namespace mapinect {
 		armMoving = true;
 
 		if (IsFeatureMoveArmActive()) {
-			// Get cloud before moving arm
+			// Obtener nube antes de mover los motores
 			cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
+			//cloudBeforeMoving = transformCloud(cloudBeforeMoving, gTransformation->getWorldTransformation().inverse());
 			saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
 		}
 
@@ -714,6 +685,53 @@ namespace mapinect {
 	void Arduino::stopFollowing()
 	{
 		idObjectToFollow = -2; //-2 nunca va a ser un ID porque son mayores que 0, -1 es la mesa
+	}
+
+	void Arduino::loadXMLSettings()
+	{
+		ofxXmlSettings XML;
+		if(XML.loadFile("Arduino_Config.xml")) {
+
+			COM_PORT = XML.getValue(ARDUINO_CONFIG "COM_PORT", "COM3");
+
+			KEY_MOVE_1R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_1R", KEY_UNDEFINED).c_str()[0];
+			KEY_MOVE_1L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_1L", KEY_UNDEFINED).c_str()[0];
+			KEY_MOVE_2R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_2R", KEY_UNDEFINED).c_str()[0];
+			KEY_MOVE_2L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_2L", KEY_UNDEFINED).c_str()[0];
+			KEY_MOVE_4R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_4R", KEY_UNDEFINED).c_str()[0];
+			KEY_MOVE_4L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_4L", KEY_UNDEFINED).c_str()[0];
+			KEY_MOVE_8R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_8R", KEY_UNDEFINED).c_str()[0];
+			KEY_MOVE_8L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_8L", KEY_UNDEFINED).c_str()[0];
+
+			KEY_RESET = XML.getValue(ARDUINO_CONFIG "KEY_RESET", KEY_UNDEFINED).c_str()[0];
+			KEY_PRINT_STATUS = XML.getValue(ARDUINO_CONFIG "KEY_PRINT_STATUS", KEY_UNDEFINED).c_str()[0];
+
+			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "ANGLE_STEP", 2);
+
+			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "HEIGHT", 2);
+			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "LENGTH", 2);
+
+			RESET_ANGLE1 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE1", ANGLE_DEFAULT);
+			RESET_ANGLE2 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE2", ANGLE_DEFAULT);
+			RESET_ANGLE4 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE4", ANGLE_DEFAULT);
+			RESET_ANGLE8 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE8", ANGLE_DEFAULT);
+			MOTOR_ANGLE_OFFSET	= XML.getValue(ARDUINO_CONFIG "MOTOR_ANGLE_OFFSET", MOTOR_ANGLE_OFFSET_DEFAULT);
+
+			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.0);
+			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.0);
+			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.0);
+
+			MAX_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_1", 0);
+			MIN_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_1", 0);
+			MAX_ANGLE_2 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_2", 0);
+			MIN_ANGLE_2 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_2", 0);
+			MAX_ANGLE_4 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_4", 0);
+			MIN_ANGLE_4 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_4", 0);
+			MAX_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_8", 0);
+			MIN_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_8", 0);
+
+			ELAPSED_TIME_ARM_STOPPED_MOVING = XML.getValue(ARDUINO_CONFIG "ELAPSED_TIME_ARM_STOPPED_MOVING", 2000);
+		}
 	}
 
 }

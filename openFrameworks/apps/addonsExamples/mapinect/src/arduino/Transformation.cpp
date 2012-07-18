@@ -3,10 +3,12 @@
 namespace mapinect
 {
 	Eigen::Affine3f Transformation::worldTransformation;
+	Eigen::Affine3f Transformation::initialWorldTransformation;
 
 	Transformation::Transformation() 
 	{
 		worldTransformation  = Eigen::Affine3f::Identity();
+		initialWorldTransformation = Eigen::Affine3f::Identity();
 	}
 
 	Eigen::Affine3f	Transformation::getWorldTransformation() const
