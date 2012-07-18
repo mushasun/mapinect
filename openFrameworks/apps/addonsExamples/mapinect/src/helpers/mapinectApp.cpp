@@ -200,6 +200,7 @@ namespace mapinect {
 
 		app->setup();
 		EventManager::suscribe(app);
+		timer.start();
 	}
 
 
@@ -221,7 +222,9 @@ namespace mapinect {
 		EventManager::fireEvents();
 
 		vm->update();
-		app->update();
+
+		float elapsedTime = timer.stopResumeAndGetElapsedSeconds();
+		app->update(elapsedTime);
 	}
 
 	//--------------------------------------------------------------

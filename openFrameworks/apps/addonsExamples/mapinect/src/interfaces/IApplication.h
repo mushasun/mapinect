@@ -28,7 +28,7 @@ namespace mapinect {
 
 		virtual void exit()													{ }
 		virtual void setup()												{ }
-		virtual void update()												{ }
+		virtual void update(float elapsedTime)								{ }
 		virtual void draw()													{ }
 
 		virtual void debugDraw()											{ }
