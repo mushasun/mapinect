@@ -39,6 +39,7 @@ namespace mapinect
 		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);
 		void				objectUpdated(const IObjectPtr&);
 		void				followObject(const IObjectPtr&);
+		void				stopFollowing();
 		
 		char*				read();
 		
@@ -69,6 +70,7 @@ namespace mapinect
 		int					idObjectToFollow;
 		ofVec3f				centerOfFollowingObject;
 		void				applyICPLoadedClouds(); 
+		ofVec3f				acceleration;
 
 		void				armStartedMoving();
 		void				armStoppedMoving();

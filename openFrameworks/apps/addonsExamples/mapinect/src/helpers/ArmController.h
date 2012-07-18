@@ -17,19 +17,21 @@ namespace mapinect {
 
 		//IArmController Methods
 		bool			isReachable(const ofVec3f& eye, ofVec3f& bestFit);
-		bool			lookAt(const ofVec3f& eye, const ofVec3f& target, ofVec3f& bestFit);
+		ofVec3f			lookAt(const ofVec3f& eye, const ofVec3f& target, ofVec3f& bestFit);
 		inline ofVec3f	getEye()		{ return eye; }
 		inline ofVec3f	getTarget()		{ return target; }
-		bool			rotateJoint(int jointId, int amount, int& bestFit);
 		int				getJointRotation(int jointId);
-		void			lookAtObject(const IObjectPtr&);
+		void			followObject(const IObjectPtr&);
+		ofVec3f			setArm3dCoordinates(const ofVec3f& position);
+		ofVec3f			getKinect3dCoordinates();
+		void			stopFollowing();
 
-		//IObjectNotification methods
-		void objectDetected(const IObjectPtr&);
-		void objectUpdated(const IObjectPtr&);
-		void objectLost(const IObjectPtr&);
-		void objectMoved(const IObjectPtr&, const DataMovement&);
-		void objectTouched(const IObjectPtr&, const DataTouch&);
+		//INotification methods
+		void			objectDetected(const IObjectPtr&);
+		void			objectUpdated(const IObjectPtr&);
+		void			objectLost(const IObjectPtr&);
+		void			objectMoved(const IObjectPtr&, const DataMovement&);
+		void			objectTouched(const IObjectPtr&, const DataTouch&);
 
 	private:
 		map<int, int>	jointIdMapping;
