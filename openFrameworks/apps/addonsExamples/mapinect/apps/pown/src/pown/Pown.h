@@ -29,6 +29,7 @@ namespace pown
 		virtual void buttonReleased(const IButtonPtr&);
 
 	private:
+		IObjectPtr			floor;
 		map<int, Box*>		boxes;
 		set<Spot*>			spots;
 		set<Bolt*>			bolts;

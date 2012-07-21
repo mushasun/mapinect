@@ -11,7 +11,7 @@ namespace pown
 	class Box
 	{
 	public:
-		Box(const IObjectPtr& object);
+		Box(const IObjectPtr& object, const ofColor& color);
 		virtual ~Box();
 
 		inline void		updateModelObject(const IObjectPtr& ob)		{ object = ob; }
