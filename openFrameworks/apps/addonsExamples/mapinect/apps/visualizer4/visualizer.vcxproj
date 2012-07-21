@@ -90,15 +90,15 @@ if not exist "$(ProjectDir)bin\data" mkdir  "$(ProjectDir)bin\data"
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <AdditionalOptions>/opt:ref,icf %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>openframeworksLib.lib;mapinect.lib;advapi32.lib;cairo-static.lib;comctl32.lib;comdlg32.lib;dsound.lib;flann_cpp_s.lib;fmodex_vc.lib;FreeImage.lib;freenect.lib;gdi32.lib;glew32s.lib;glu32.lib;glut32.lib;kernel32.lib;libboost_date_time-vc100-mt-1_47.lib;libboost_filesystem-vc100-mt-1_47.lib;libboost_system-vc100-mt-1_47.lib;libboost_thread-vc100-mt-1_47.lib;libfreetype.lib;libghost.lib;msimg32.lib;ole32.lib;oleaut32.lib;opencv_calib3d220.lib;opencv_contrib220.lib;opencv_core220.lib;opencv_features2d220.lib;opencv_flann220.lib;opencv_gpu220.lib;opencv_haartraining_engine.lib;opencv_highgui220.lib;opencv_imgproc220.lib;opencv_lapack.lib;opencv_legacy220.lib;opencv_ml220.lib;opencv_objdetect220.lib;opencv_ts220.lib;opencv_video220.lib;OpenGL32.lib;opengl32.lib;pcl_common_release.lib;pcl_features_release.lib;pcl_filters_release.lib;pcl_io_release.lib;pcl_kdtree_release.lib;pcl_keypoints_release.lib;pcl_octree_release.lib;pcl_range_image_border_extractor_release.lib;pcl_registration_release.lib;pcl_sample_consensus_release.lib;pcl_search_release.lib;pcl_segmentation_release.lib;pcl_surface_release.lib;pcl_tracking_release.lib;pixman-1.lib;PocoFoundationmd.lib;PocoNetmd.lib;PocoUtilmd.lib;PocoXMLmd.lib;qhullstatic.lib;qtmlClient.lib;rtAudio.lib;setupapi.lib;shell32.lib;tess2.lib;user32.lib;uuid.lib;vfw32.lib;videoInput.lib;vtkCommon.lib;vtkDICOMParser.lib;vtkexoIIc.lib;vtkexpat.lib;vtkFiltering.lib;vtkfreetype.lib;vtkftgl.lib;vtkGraphics.lib;vtkHybrid.lib;vtkImaging.lib;vtkIO.lib;vtkjpeg.lib;vtkmetaio.lib;vtkNetCDF.lib;vtkNetCDF_cxx.lib;vtkpng.lib;vtkRendering.lib;vtksqlite.lib;vtksys.lib;vtktiff.lib;vtkverdict.lib;vtkWidgets.lib;vtkzlib.lib;winspool.lib;ws2_32.lib;wsock32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>lib;..\..\lib;..\..\..\..\..\libs\openFrameworksCompiled\lib\vs2010;..\..\..\..\..\libs\cairo\lib\vs2010;..\..\..\..\..\libs\fmodex\lib\vs2010;..\..\..\..\..\libs\FreeImage\lib\vs2010;..\..\..\..\..\libs\freetype\lib\vs2010;..\..\..\..\..\libs\glew\lib\vs2010;..\..\..\..\..\libs\glu\lib\vs2010;..\..\..\..\..\libs\glut\lib\vs2010;..\..\..\..\..\libs\Poco\lib\vs2010;..\..\..\..\..\libs\quicktime\lib\vs2010;..\..\..\..\..\libs\rtAudio\lib\vs2010;..\..\..\..\..\libs\tess2\lib\vs2010;..\..\..\..\..\libs\videoInput\lib\vs2010;..\..\..\..\..\addons\ofxFenster\libs\ghost\lib\win_vs;..\..\..\..\..\addons\ofxKinect\libs;..\..\..\..\..\addons\ofxOpenCv\libs\opencv\lib\vs2010;..\..\..\..\..\..\PCL\PCL\lib;..\..\..\..\..\..\PCL\Flann\lib;..\..\..\..\..\..\PCL\Boost\lib;..\..\..\..\..\..\PCL\Qhull\lib;..\..\..\..\..\..\PCL\VTK\lib\vtk-5.8;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>atlthunk.lib; LIBC.lib; LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

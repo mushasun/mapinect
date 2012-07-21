@@ -41,6 +41,16 @@ namespace mapinect
 	float				Constants::TOUCH_TRANSLATION_TOLERANCE_FACTOR		= 4.0f;
 	int					Constants::TOUCH_MAX_PER_FACE						= 4;
 
+	//contsantes de view field
+	float				Constants::WFAR										= (0.87 * CLOUD_Z_MAX)/0.7;
+	float				Constants::HFAR										= (0.63 * CLOUD_Z_MAX)/0.7;
+	float				Constants::WFAR_2									= WFAR / 2;
+	float				Constants::HFAR_2									= HFAR / 2;
+	float				Constants::WNEAR									= 0.87;
+	float				Constants::HNEAR									= 0.63;
+	float				Constants::WNEAR_2									= 0.435;
+	float				Constants::HNEAR_2									= 0.315;
+	float				Constants::NDISTANCE								= 0.7;
 
 	void Constants::LoadConstants()
 	{
@@ -152,5 +162,4 @@ namespace mapinect
 	{
 		return CLOUD_VOXEL_SIZE * TOUCH_TRANSLATION_TOLERANCE_FACTOR;
 	}
-
 }

@@ -178,7 +178,7 @@ namespace mapinect {
 			
 			//TODO: Chequear un minimo de puntos
 			//Remove outliers by clustering
-			vector<pcl::PointIndices> cluster_indices(findClusters(cloud_p, 0.02, 5, 10000));
+			vector<pcl::PointIndices> cluster_indices(findClusters(cloud_p, 0.02, 10, 10000));
 			int debuccount = 0;
 
 			PCPtr cloud_p_filtered (new PC());

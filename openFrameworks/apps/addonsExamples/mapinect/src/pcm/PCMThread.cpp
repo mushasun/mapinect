@@ -237,7 +237,7 @@ namespace mapinect {
 								if ((*p)->getMathModel().isInPolygon(planeProjected))
 								{
 									float distance = (*p)->getMathModel().distance(*v);
-									if (inRange(distance, touchDistance / 4.0f, touchDistance) && distance < minDistance)
+									if (distance <= touchDistance && distance < minDistance)
 									{
 										minDistance = distance;
 										polygon = *p;

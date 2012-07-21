@@ -67,6 +67,17 @@ namespace mapinect
 		static int					TOUCH_CLUSTER_MIN_SIZE();
 		static float				TOUCH_TRANSLATION_TOLERANCE();
 
+		//contsantes de view field
+		static float				WFAR;
+		static float				HFAR;
+		static float				WFAR_2;
+		static float				HFAR_2;
+		static float				WNEAR;
+		static float				HNEAR;
+		static float				WNEAR_2;
+		static float				HNEAR_2;
+		static float				NDISTANCE;
+	
 	};
 }
 
