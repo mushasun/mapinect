@@ -199,7 +199,7 @@ namespace mapinect {
 			glScalef(1,-1,-1);											//3 - Pasar del sist. de coord. de nuestro modelo al de OpenGL (X,-Y,-Z)
 			glMultMatrixf(inv_proj_RT_premult);							//2 - Pasar de rgb-camera space al sistema de coord. del proyector
 			glMultMatrixf(kinect_matrix_RT);							//1 - Pasar de depth-camera space a rgb-camera space	
-			Eigen::Affine3f inverseWorldTransformationMatrix = gTransformation->getWorldTransformation();
+			Eigen::Affine3f inverseWorldTransformationMatrix = gTransformation->getInverseWorldTransformation();
 			glMultMatrixf(inverseWorldTransformationMatrix.data()); //0 - Aplicar transformación de mundo real
 
 			// Check current translation after multiplying matrices

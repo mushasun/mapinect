@@ -13,6 +13,7 @@ namespace mapinect
 
 		// thread-safe
 		Eigen::Affine3f							getWorldTransformation() const;
+		Eigen::Affine3f							getInverseWorldTransformation() const;
 		void									setWorldTransformation(const Eigen::Affine3f& newTransformation);
 
 		mutable ofxMutex						transformationMatrixMutex;
@@ -22,6 +23,7 @@ namespace mapinect
 		static  Eigen::Affine3f							initialWorldTransformation;
 	private:
 		static Eigen::Affine3f							worldTransformation;
+		static Eigen::Affine3f							inverseWorldTransformation;
 
 
 	};
