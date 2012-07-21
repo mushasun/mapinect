@@ -37,8 +37,9 @@ private:
     
     // Drawing
     ofFbo bgFbo, scene, final;
-    ofImage texture, noise;
-    ofShader texturizer;
+    static ofImage* texture;
+	static ofImage* noise;
+    static ofShader* texturizer;
     float blurScale;
     
     // Particles

@@ -180,6 +180,72 @@ ofVec3f getScreenCoords(const ofVec3f& transformedWorldPoint)
 	return PCXYZ_OFVEC3F(screenPoint);
 }
 
+bool isInViewField(ofVec3f vec)
+{
+	// initial values
+	ofVec3f ftl, ftr, fbl, fbr, ntl, ntr, nbl, nbr;
+	ofVec3f direction(0,0,1);
+	ofVec3f up(0,1,0);
+	ofVec3f right(1,0,0);
+	ofVec3f p(0,0,0);
+
+	ofVec3f fc = direction * mapinect::Constants::CLOUD_Z_MAX;
+
+	/*ftl = fc + (up * HFAR_2) - (right * WFAR_2);
+	ftr = fc + (up * HFAR_2) + (right * WFAR_2);
+	fbl = fc - (up * HFAR_2) - (right * WFAR_2);
+	fbr = fc - (up * HFAR_2) + (right * WFAR_2);*/
+
+	ofVec3f nc = direction * mapinect::Constants::NDISTANCE;
+
+	//ntl = nc + (up * HNEAR_2) - (right * WNEAR_2);
+	//ntr = nc + (up * HNEAR_2) + (right * WNEAR_2);
+	//nbl = nc - (up * HNEAR_2) - (right * WNEAR_2);
+	//nbr = nc - (up * HNEAR_2) + (right * WNEAR_2);
+
+	ofVec3f a = (nc + right * mapinect::Constants::WNEAR_2) - p;
+	a.normalize();
+	ofVec3f normalRight = up.crossed(a);
+
+	ofVec3f b = (nc - right * mapinect::Constants::WNEAR_2) - p;
+	b.normalize();
+	ofVec3f normalLeft = up.crossed(b);
+
+	ofVec3f c = (nc + up * mapinect::Constants::HNEAR_2) - p;
+	c.normalize();
+	ofVec3f normalTop = right.crossed(c);
+
+	ofVec3f d = (nc - up * mapinect::Constants::HNEAR_2) - p;
+	d.normalize();
+	ofVec3f normalBottom = right.crossed(d);
+
+	Eigen::Affine3f transformationMatrix = gTransformation->getWorldTransformation();
+	ofVec3f at = transformPoint(a, transformationMatrix); 
+	ofVec3f bt = transformPoint(b, transformationMatrix); 
+	ofVec3f ct = transformPoint(c, transformationMatrix); 
+	ofVec3f dt = transformPoint(d, transformationMatrix); 
+	ofVec3f normalRightTransformed = transformPoint(normalRight, transformationMatrix); 
+	ofVec3f normalLeftTransformed = transformPoint(normalLeft, transformationMatrix); 
+	ofVec3f normalTopTransformed = transformPoint(normalTop, transformationMatrix); 
+	ofVec3f normalBottomTransformed = transformPoint(normalBottom, transformationMatrix); 
+
+	mapinect::Plane3D pl;
+	mapinect::Plane3D pt;
+	mapinect::Plane3D pr;
+	mapinect::Plane3D pb;
+	pr = mapinect::Plane3D(at,normalRightTransformed);
+	pl = mapinect::Plane3D(bt,normalLeftTransformed);
+	pt = mapinect::Plane3D(ct,normalTopTransformed);
+	pb = mapinect::Plane3D(dt,normalBottomTransformed);
+
+	bool retVal = pr.signedDistance(vec) < 0 &&
+		   pl.signedDistance(vec) < 0 &&
+		   pt.signedDistance(vec) < 0 &&
+		   pb.signedDistance(vec) < 0;
+
+	return retVal;
+}
+
 // -------------------------------------------------------------------------------------
 // i/o utils
 // -------------------------------------------------------------------------------------

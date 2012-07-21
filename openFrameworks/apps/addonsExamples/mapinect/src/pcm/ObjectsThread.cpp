@@ -88,8 +88,11 @@ namespace mapinect {
 
 		// Updating temporal detections
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			(*iter)->addCounter(-1);
+			/*if(!(*iter)->hasObject() ||
+				isInViewField((*iter)->getTrackedObject()->getCenter()))*/
+				(*iter)->addCounter(-1);
 		}
+
 		trackedClouds.remove_if(countIsZero);
 		
 		if(cloud->empty())
@@ -178,7 +181,7 @@ namespace mapinect {
 	vector<TrackedCloudPtr> ObjectsThread::computeOcclusions(const vector<TrackedCloudPtr>& potentialOcclusions)
 	{
 		vector<TrackedCloudPtr> occlusions;
-		ofVec3f origin(0,0,0);
+		ofVec3f origin = PCXYZ_OFVEC3F(eyePos());
 
 		inCloudMutex.lock();
 		PCPtr cloud = PCPtr(new PC(*inRawCloud));
@@ -200,18 +203,6 @@ namespace mapinect {
 				PCPolyhedron* polyhedron = dynamic_cast<PCPolyhedron*>(potentialOcclusions.at(i)->getTrackedObject().get());
 
 				vector<ofVec3f> vexs = polyhedron->getVertexs();
-				/*for(int o = 0; o < vexs.size() && !occluded; o++)
-				{
-					Line3D ray (vexs.at(o), ofVec3f(0,0,0));
-					for(int j = 0; j < occluders.size() && !occluded; j ++)
-					{
-						vector<IPolygonPtr> pols  = occluders.at(i)->getTrackedObject()->getMathModelApproximation()->getPolygons();
-						for(int k = 0; k < pols.size() && !occluded; k ++)
-							occluded = pols.at(j)->getMathModel().isInPolygon(ray);
-					}
-					if(occluded)
-						occlusions.push_back(potentialOcclusions.at(i));
-				}*/
 		
 				for(int o = 0; o < vexs.size() && !occluded; o++)
 				{

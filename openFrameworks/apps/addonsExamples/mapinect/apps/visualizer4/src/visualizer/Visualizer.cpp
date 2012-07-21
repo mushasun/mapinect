@@ -1,6 +1,10 @@
 #include "Visualizer.h"
 #include "ofGraphicsUtils.h"
 
+	ofImage* Visualizer::noise = NULL;
+	ofImage* Visualizer::texture = NULL;
+	ofShader* Visualizer::texturizer = NULL;
+
 void Visualizer::setup(vector<ofColor> baseColors)
 {
 
@@ -18,8 +22,10 @@ void Visualizer::setup(vector<ofColor> baseColors)
     scene.allocate(WIDTH, HEIGHT);
     final.allocate(WIDTH, HEIGHT);
     bgFbo.allocate(WIDTH, HEIGHT);
-	noise.loadImage("Film_Grain.jpg");
-	texture.loadImage("vignette.jpg");
+	if (noise == NULL)
+		noise = new ofImage("Film_Grain.jpg");
+	if(texture == NULL)
+		texture = new ofImage("vignette.jpg");
     //blurScale = 1 / 9;
     
     // create circle outline for "random" particles to follow
@@ -33,8 +39,11 @@ void Visualizer::setup(vector<ofColor> baseColors)
     circle.close(); 
         
     // Shader loading
-    texturizer.load("shaders/texture.vert", "shaders/texture.frag");
-
+	if(texturizer == NULL)
+	{
+		texturizer = new ofShader();
+		texturizer->load("shaders/texture.vert", "shaders/texture.frag");
+	}
     // FFT initialization
 	fftSmoothed = new float[8192];
 	for (int i = 0; i < 8192; i++){
@@ -123,23 +132,23 @@ void Visualizer::draw(ofVec3f v1, ofVec3f v2, ofVec3f v3, ofVec3f v4, bool bgOnl
     // texture background using shader
     bgFbo.begin();
 	ofClear(255, 255, 255); 
-    texturizer.begin();       
+    texturizer->begin();       
         ofSetColor(background, 255);	
         ofRect(0, 0, WIDTH, HEIGHT);
         // pass in noise and texture images
-        texturizer.setUniformTexture("uInputTexture1", noise, 0);
-        texturizer.setUniformTexture("uInputTexture2", texture, 1);
-        texturizer.setUniform2f("uNoiseOffset", ofRandom(WIDTH),  ofRandom(HEIGHT));
-        texturizer.setUniform3f("uColor", background.r, background.g, background.b);
+        texturizer->setUniformTexture("uInputTexture1", *noise, 0);
+        texturizer->setUniformTexture("uInputTexture2", *texture, 1);
+        texturizer->setUniform2f("uNoiseOffset", ofRandom(WIDTH),  ofRandom(HEIGHT));
+        texturizer->setUniform3f("uColor", background.r, background.g, background.b);
         // set alpha for ghosting effect
-        texturizer.setUniform1f("uAlpha", 0.8);
+        texturizer->setUniform1f("uAlpha", 0.8);
         glBegin(GL_QUADS);  
             glTexCoord2f(0, 0);				glVertex2f(0, 0);  
             glTexCoord2f(WIDTH, 0);			glVertex2f(WIDTH, 0);  
             glTexCoord2f(WIDTH, HEIGHT);	glVertex2f(WIDTH, HEIGHT); 
             glTexCoord2f(0, HEIGHT);		glVertex2f(0, HEIGHT);   
         glEnd();      
-    texturizer.end();
+    texturizer->end();
     bgFbo.end();
 
 	if(bgOnly)
