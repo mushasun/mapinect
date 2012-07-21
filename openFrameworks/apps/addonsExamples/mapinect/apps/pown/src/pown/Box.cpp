@@ -6,8 +6,8 @@
 
 namespace pown
 {
-	Box::Box(const IObjectPtr& object)
-		: object(object)
+	Box::Box(const IObjectPtr& object, const ofColor& color)
+		: object(object), color(color), boostColor(0)
 	{
 	}
 
