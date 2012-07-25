@@ -34,7 +34,9 @@ namespace mapinect {
 			virtual bool		matches(const PCPolygonPtr& polygon, PCPolygonPtr& removed, bool& wasRemoved);
 			void				updateMatching();
 			void				removeMatching();
+			void				rollBackMatching();
 			inline pcl::ModelCoefficients getCoefficients()		{ return coefficients; }
+			inline void			setEstimated(bool value) { estimated = value; }
 			inline bool			isEstimated() { return estimated; }
 			Eigen::Affine3f		getMatchingTransformation();
 		protected:
@@ -45,7 +47,11 @@ namespace mapinect {
 			float				matchedDistance;
 			bool				estimated;
 			Eigen::Affine3f		matchingTransformation;
-
+		private:
+			vector<ofVec3f>		rollBackVertexs;
+			Plane3D				rollBackPlane;
+			pcl::ModelCoefficients	rollBackCoefficients;
+			PCPtr				rollBackCloud;
 	};
 }
 

@@ -1,14 +1,12 @@
 #include "TrackedTouch.h"
+#include "Constants.h"
 
 namespace mapinect
 {
-
-#define kTrackedTouchLifeFrames		3
-
 	static int gId = 0;
 
 	TrackedTouch::TrackedTouch(const IPolygonPtr& polygon, const ofVec3f& point)
-		: id(gId++), status(kTouchTypeStarted), polygon(polygon), point(point), lifeCounter(kTrackedTouchLifeFrames)
+		: id(gId++), status(kTouchTypeStarted), polygon(polygon), point(point), lifeCounter(Constants::TOUCH_FRAMES_TO_DISCARD)
 	{
 		removeMatching();
 	}
@@ -51,7 +49,7 @@ namespace mapinect
 		if (hasMatching())
 		{
 			status = kTouchTypeHolding;
-			lifeCounter = kTrackedTouchLifeFrames;
+			lifeCounter = Constants::TOUCH_FRAMES_TO_DISCARD;
 			if (point == matchingTouch->point)
 			{
 				hasChanged = false;

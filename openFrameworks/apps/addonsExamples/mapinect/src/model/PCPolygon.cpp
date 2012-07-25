@@ -177,10 +177,17 @@ namespace mapinect {
 				/*for (int i = 0; i < bestMatch.size(); i++) {
 					getPolygonModelObject()->setVertex(bestMatch[i].ixA, matchedVertexs.at(bestMatch[i].ixB));
 				}*/
+
+				//copio valores para rollback
+				rollBackVertexs = getPolygonModelObject()->getMathModel().getVertexs();
+				rollBackPlane = getPolygonModelObject()->getMathModel().getPlane();
+				rollBackCoefficients = coefficients;
+				rollBackCloud = cloud;
+
+				//seteo nuevos valores
 				getPolygonModelObject()->setVertexs(matchedVertexs);
-
 				getPolygonModelObject()->getMathModel().setPlane(matchedPlane);
-
+				
 				//actualizo coeficientes
 				coefficients.header = matched->coefficients.header;
 				coefficients.values = matched->coefficients.values;
@@ -203,6 +210,19 @@ namespace mapinect {
 		}
 	}
 	
+	void PCPolygon::rollBackMatching()
+	{
+		//seteo nuevos valores
+		getPolygonModelObject()->setVertexs(rollBackVertexs);
+		getPolygonModelObject()->getMathModel().setPlane(rollBackPlane);
+				
+		//actualizo coeficientes
+		coefficients = rollBackCoefficients;
+			
+		//Actualizo nube
+		setCloud(rollBackCloud);
+	}
+
 	void PCPolygon::removeMatching() {
 		if (hasMatching()) {
 			matched.reset();

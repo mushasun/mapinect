@@ -60,7 +60,7 @@ namespace mapinect {
 		}
 		else if(counter >= Constants::OBJECT_FRAMES_TO_ACCEPT && !hasObject())
 		{
-			counter = Constants::OBJECT_FRAMES_TO_ACCEPT*5;
+			counter = Constants::OBJECT_FRAMES_TO_ACCEPT*2;
 			
 			//////////////Para identificar si es un objeto o una mano/////////////////
 			ObjectType objType = getObjectType(cloud);
@@ -71,7 +71,7 @@ namespace mapinect {
 					objectInModel = PCModelObjectPtr(new PCBox(cloud));
 					break;
 				case UNRECOGNIZED:
-					counter-= 2;
+					counter = 0;
 					break;
 			}
 
@@ -112,7 +112,7 @@ namespace mapinect {
 		PCPtr newObjectCloud(new PC(*cloud));
 
 		ofVec3f clusterCentroid = computeCentroid(cluster);
-		ofVec3f objCentroid = computeCentroid(cluster);
+		ofVec3f objCentroid = computeCentroid(newObjectCloud);
 		ofVec3f translation = clusterCentroid - objCentroid;
 
 		nearest = translation.length();
@@ -131,11 +131,14 @@ namespace mapinect {
 			int difCount = getDifferencesCount(newObjectCloud, cluster, Constants::OBJECT_RECALCULATE_TOLERANCE());
 			int maxDif = newObjectCloud->points.size() * Constants::OBJECT_CLOUD_DIFF_PERCENT;
 
+			//cout << "dif: " << difCount << "necesita: " << maxDif << endl;
+
 			if(difCount > maxDif)
 				needRecalculateFaces = true;
 			else
 				needRecalculateFaces = false;
 			////////////////////////////////////////////////////////
+			//cout << "nearest: " << nearest << "necesita: " << Constants::OBJECT_TRANSLATION_TOLERANCE() << endl;
 			if(nearest > Constants::OBJECT_TRANSLATION_TOLERANCE())
 			{
 				translationV = translation;
@@ -245,6 +248,7 @@ namespace mapinect {
 		ofVec3f translation = clusterCentroid - objCentroid;
 
 		float length = translation.length();
+
 		if(length > nearest)
 			return -1;
 		else
