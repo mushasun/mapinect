@@ -24,7 +24,7 @@ namespace mapinect
 		void						processCloud();
 		bool						findBestFit(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud, bool &removed);
 		void						updateDetectedObjects();
-		vector<TrackedCloudPtr>		computeOcclusions(const vector<TrackedCloudPtr>& potentialOcclusions);
+		vector<TrackedCloudPtr>		computeOcclusions(const list<TrackedCloudPtr>& potentialOcclusions);
 
 		PCPtr						inCloud;
 		PCPtr						inRawCloud;

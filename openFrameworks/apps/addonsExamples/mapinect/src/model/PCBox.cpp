@@ -150,52 +150,58 @@ namespace mapinect {
 	}
 
 	// ------------------------------------------------------------------------------
-	vector<PCPolygonPtr> PCBox::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons)
+	vector<PCPolygonPtr> PCBox::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons, bool& estimationOk)
 	{
-		vector<PCPolygonPtr> estimated;
+		map<IPolygonName, PCPolygonPtr> estimated;
 		if(newPolygons.size() <= 0)
-			return estimated;
+		{
+			estimationOk = false;
+			return vector<PCPolygonPtr>();
+		}
 
 		for(int i = 0; i < newPolygons.size(); i ++)
 		{
 			PCPolygonPtr estimatedPol = duplicatePol(newPolygons.at(i),newPolygons);
-			estimated.push_back(estimatedPol);
+			estimated[estimatedPol->getPolygonModelObject()->getName()] = estimatedPol;
 			saveCloud("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
 		}
 		
-		vector<PCPolygonPtr> partialEstimation = estimated;
-		partialEstimation.insert(partialEstimation.begin(), newPolygons.begin(), newPolygons.end());
+		map<IPolygonName, PCPolygonPtr> partialEstimation = estimated;
+		for(int i = 0; i < newPolygons.size(); i++)
+			partialEstimation[newPolygons.at(i)->getPolygonModelObject()->getName()] = newPolygons.at(i);
 	
-		int maxIter = 3;
+		int maxIter = 0;
 		int i = 0;
 			
 		list<IPolygonName> missing = getMissing(partialEstimation);
 
 		while(partialEstimation.size() < 6 && 
-				maxIter > 0 &&
+				maxIter < 5 &&
 				partialEstimation.size() > 1 &&
 				missing.size() > 0)
 		{
-			maxIter--;
+			maxIter++;
 			IPolygonName toEstimate = *missing.begin();
 			PCPolygonPtr next, prev;
 			vector<ofVec3f> nextVec, prevVec;
 
 			if(toEstimate == kPolygonNameTop || toEstimate == kPolygonNameBottom)
 			{
-				int j = 0;
+				map<IPolygonName, PCPolygonPtr>::iterator it = partialEstimation.begin();
 				do
 				{
-					next = partialEstimation.at(j);
+					next = (partialEstimation.begin())->second;
 					prev = getOppositePolygon(next->getPolygonModelObject()->getName(),partialEstimation);//Estimate TOP
-					j++;
+					it++;
 				}
-				while(prev.get() == NULL && j < partialEstimation.size());
+				while(prev.get() == NULL && it != partialEstimation.end());
 
 				if(prev.get() == NULL)
 				{
 					missing.remove(toEstimate);
-					continue; // no se puede estimar el poligono
+					cerr<<"no se puede estimar el poligono " << toEstimate << endl;
+					estimationOk = false;
+					return vector<PCPolygonPtr>(); // no se puede estimar el poligono
 				}
 
 				nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
@@ -225,7 +231,9 @@ namespace mapinect {
 				if(next.get() == NULL || prev.get() == NULL)
 				{
 					missing.remove(toEstimate);
-					continue; // no se puede estimar el poligono
+					cerr<<"no se puede estimar el poligono " << toEstimate << endl;
+					estimationOk = false;
+					return vector<PCPolygonPtr>(); // no se puede estimar el poligono
 				}
 
 				nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
@@ -294,18 +302,25 @@ namespace mapinect {
 			pcp->getPolygonModelObject()->setName(toEstimate);
 
 					
-			partialEstimation.push_back(pcp);
-			estimated.push_back(pcp);
+			partialEstimation[toEstimate] = pcp;
+			estimated[toEstimate] = pcp;
 
-			PCPolygonPtr estimatedPol = duplicatePol(pcp,partialEstimation);
-			partialEstimation.push_back(estimatedPol);
-			estimated.push_back(estimatedPol);
+			if(!isFaceOccluded(toEstimate))
+			{
+				PCPolygonPtr estimatedPol = duplicatePol(pcp,partialEstimation);
+				partialEstimation[estimatedPol->getPolygonModelObject()->getName()] = estimatedPol;
+				estimated[estimatedPol->getPolygonModelObject()->getName()] = estimatedPol;
+			}
 			missing = getMissing(partialEstimation);
 			saveCloud("fullEstimatedFace.pcd",*faceCloud);
 
 			i++;
 		}
-		return estimated;
+
+		vector<PCPolygonPtr> estimatedVector;
+		for(map<IPolygonName,PCPolygonPtr>::const_iterator it = estimated.begin(); it != estimated.end(); ++it)
+			estimatedVector.push_back(it->second);
+		return estimatedVector;
 	}
 
 	// ------------------------------------------------------------------------------
@@ -348,6 +363,16 @@ namespace mapinect {
 
 	//// Get Polygons
 	// ------------------------------------------------------------------------------
+	PCPolygonPtr PCBox::getPCPolygon(IPolygonName name, const map<IPolygonName,PCPolygonPtr>& estimated)
+	{
+		map<IPolygonName,PCPolygonPtr>::const_iterator it = estimated.find(name);
+		if(it == estimated.end())
+			return PCPolygonPtr();
+		else
+			return it->second;
+	}
+
+	// ------------------------------------------------------------------------------
 	PCPolygonPtr PCBox::getPCPolygon(IPolygonName name, const vector<PCPolygonPtr>& newPolygons)
 	{
 		for(int i = 0; i < newPolygons.size(); i++)
@@ -356,6 +381,7 @@ namespace mapinect {
 
 		return PCPolygonPtr();
 	}
+
 
 	// ------------------------------------------------------------------------------
 	list<IPolygonName> PCBox::getMissing(const vector<PCPolygonPtr>& estimated)
@@ -376,41 +402,60 @@ namespace mapinect {
 
 		return missing;
 	}
+
+	// ------------------------------------------------------------------------------
+	list<IPolygonName> PCBox::getMissing(const map<IPolygonName,PCPolygonPtr>& estimated)
+	{
+		list<IPolygonName> missing;
+		if(estimated.find(kPolygonNameTop) == estimated.end())
+			missing.push_back(kPolygonNameTop);
+		if(estimated.find(kPolygonNameSideA) == estimated.end())
+			missing.push_back(kPolygonNameSideA);
+		if(estimated.find(kPolygonNameSideB) == estimated.end())
+			missing.push_back(kPolygonNameSideB);
+		if(estimated.find(kPolygonNameSideC) == estimated.end())
+			missing.push_back(kPolygonNameSideC);
+		if(estimated.find(kPolygonNameSideD) == estimated.end())
+			missing.push_back(kPolygonNameSideD);
+		if(estimated.find(kPolygonNameBottom) == estimated.end())
+			missing.push_back(kPolygonNameBottom);
+
+		return missing;
+	}
 	
 	// ------------------------------------------------------------------------------
-	PCPolygonPtr PCBox::getNextPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
+	PCPolygonPtr PCBox::getNextPolygon(IPolygonName toEstimate, const map<IPolygonName,PCPolygonPtr>& estimated)
 	{
 		IPolygonName searchedPolygon = getNextPolygonName(toEstimate);
 
-		for(int i = 0; i < newPolygons.size(); i++)
-			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
-				return newPolygons.at(i);
-		
-		return PCPolygonPtr();
+		map<IPolygonName,PCPolygonPtr>::const_iterator it = estimated.find(searchedPolygon);
+		if(it == estimated.end())
+			return PCPolygonPtr();
+		else
+			return it->second;
 	}
 
 	// ------------------------------------------------------------------------------
-	PCPolygonPtr PCBox::getPrevPolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
+	PCPolygonPtr PCBox::getPrevPolygon(IPolygonName toEstimate, const map<IPolygonName,PCPolygonPtr>& estimated)
 	{
 		IPolygonName searchedPolygon = getPrevPolygonName(toEstimate);
 
-		for(int i = 0; i < newPolygons.size(); i++)
-			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
-				return newPolygons.at(i);
-		
-		return PCPolygonPtr();
+		map<IPolygonName,PCPolygonPtr>::const_iterator it = estimated.find(searchedPolygon);
+		if(it == estimated.end())
+			return PCPolygonPtr();
+		else
+			return it->second;
 	}
 
 	// ------------------------------------------------------------------------------
-	PCPolygonPtr PCBox::getOppositePolygon(IPolygonName toEstimate, const vector<PCPolygonPtr>& newPolygons)
+	PCPolygonPtr PCBox::getOppositePolygon(IPolygonName toEstimate, const map<IPolygonName,PCPolygonPtr>& estimated)
 	{
 		IPolygonName searchedPolygon = getOppositePolygonName(toEstimate);
-
-		for(int i = 0; i < newPolygons.size(); i++)
-			if(newPolygons.at(i)->getPolygonModelObject()->getName() == searchedPolygon)
-				return newPolygons.at(i);
-		
-		return PCPolygonPtr();
+		map<IPolygonName,PCPolygonPtr>::const_iterator it = estimated.find(searchedPolygon);
+		if(it == estimated.end())
+			return PCPolygonPtr();
+		else
+			return it->second;
 	}
 
 	// ------------------------------------------------------------------------------
@@ -534,6 +579,15 @@ namespace mapinect {
 		}
 
 		return polygonsInBox;
+	}
+
+	// ------------------------------------------------------------------------------
+	PCPolygonPtr PCBox::duplicatePol(const PCPolygonPtr& polygon,const map<IPolygonName,PCPolygonPtr>& estimated)
+	{
+		vector<PCPolygonPtr> newPolygons;
+		for(map<IPolygonName,PCPolygonPtr>::const_iterator it = estimated.begin(); it != estimated.end(); ++it)
+			newPolygons.push_back(it->second);
+		return duplicatePol(polygon,newPolygons);
 	}
 
 	// ------------------------------------------------------------------------------

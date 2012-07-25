@@ -60,7 +60,7 @@ namespace mapinect {
 		}
 		else if(counter >= Constants::OBJECT_FRAMES_TO_ACCEPT && !hasObject())
 		{
-			counter = Constants::OBJECT_FRAMES_TO_ACCEPT + 2;
+			counter = Constants::OBJECT_FRAMES_TO_ACCEPT*5;
 			
 			//////////////Para identificar si es un objeto o una mano/////////////////
 			ObjectType objType = getObjectType(cloud);

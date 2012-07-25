@@ -6,7 +6,7 @@
 #include "ofVecUtils.h"
 #include "Tejo.h"
 #include "Segment3D.h"
-#include "BObject.h"
+//#include "BObject.h"
 
 namespace bouncing {
 	class BouncingBall : public IApplication {
@@ -23,7 +23,7 @@ namespace bouncing {
 		virtual void objectTouched(const IObjectPtr&, const DataTouch&);
 
 	private:
-		bool tableSetted;
+		/*bool tableSetted;
 		Tejo ball;
 		std::vector<Segment3D> tableSegment3Ds;
 		std::vector<Segment3D> segments;
@@ -36,7 +36,7 @@ namespace bouncing {
 		BObject* getBObject(int id);
 		void clearUnvisitedObjects();
 		vector<BObject*> bobjects;
-		BObject* table;
+		BObject* table;*/
 	};
 }
 
