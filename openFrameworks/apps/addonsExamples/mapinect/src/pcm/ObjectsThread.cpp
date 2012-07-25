@@ -70,9 +70,9 @@ namespace mapinect {
 	}
 	
 	//--------------------------------------------------------------
-	bool countIsZero(const TrackedCloudPtr &trackedCloud)
+	bool countIsLessThanZero(const TrackedCloudPtr &trackedCloud)
 	{
-		return trackedCloud->getCounter() == 0;
+		return trackedCloud->getCounter() <= 0;
 	}
 
 	//--------------------------------------------------------------
@@ -93,8 +93,8 @@ namespace mapinect {
 				(*iter)->addCounter(-1);
 		}
 
-		trackedClouds.remove_if(countIsZero);
-		
+		trackedClouds.remove_if(countIsLessThanZero);
+		//cout << "trackedCloudsCount: " << trackedClouds.size() << endl;
 		if(cloud->empty())
 		{
 			updateDetectedObjects();
@@ -181,6 +181,7 @@ namespace mapinect {
 	vector<TrackedCloudPtr> ObjectsThread::computeOcclusions(const list<TrackedCloudPtr>& potentialOcclusions)
 	{
 		vector<TrackedCloudPtr> occlusions;
+
 		ofVec3f origin = PCXYZ_OFVEC3F(eyePos());
 
 		inCloudMutex.lock();
@@ -236,15 +237,14 @@ namespace mapinect {
 
 						if(occludedVertexs > 3)
 						{
-							//cout << "occluded face: " << pols.at(i)->getName() << endl;
 							polyhedron->setOccludedFace(pols.at(i)->getName());
 							occludedFaces++;
 						}
 					}
-					if(occludedFaces > 2)
+					if(occludedFaces > 1)
 					{
 						occlusions.push_back((*iter));
-						cout << "	occluded pol " << endl;
+						//cout << "	occluded pol " << endl;
 					}
 				}
 			}
@@ -256,6 +256,15 @@ namespace mapinect {
 	{
 		vector<TrackedCloudPtr> potentialOcclusions;
 		vector<TrackedCloudPtr> occlusions = computeOcclusions(trackedClouds);
+
+		if(occlusions.size() > 0)
+		{
+			for(int i = 0; i < occlusions.size(); i++)
+			{
+				if(!occlusions.at(i)->hasMatching())
+					occlusions.at(i)->addCounter(1);
+			}
+		}
 
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
 			if ((*iter)->hasMatching())
@@ -273,17 +282,10 @@ namespace mapinect {
 				}
 				(*iter)->removeMatching();
 			}
-			else if ((*iter)->hasObject())
+			else 
 			{
-				potentialOcclusions.push_back(*iter);
-			}
-		}
-
-		if(potentialOcclusions.size() > 0)
-		{
-			for(int i = 0; i < occlusions.size(); i++)
-			{
-				occlusions.at(i)->addCounter(1);
+				cout << "		no matching! " << (*iter)->getCounter() << endl;
+				saveCloud("noMatched.pcd",*(*iter)->getTrackedCloud());
 			}
 		}
 	}

@@ -55,6 +55,17 @@ namespace mapinect {
 		return result;
 	}
 
+	const vector<IPolygonPtr> PCPolyhedron::getVisiblePolygons()
+	{
+		vector<IPolygonPtr> pols;
+		for (vector<PCPolygonPtr>::iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
+		{
+			if(!(*p)->isEstimated())
+				pols.push_back((*p)->getMathPolygonModelApproximation());
+		}
+		return pols;
+	}
+
 	vector<PCPolygonPtr> PCPolyhedron::mergePolygons(vector<PCPolygonPtr>& toMerge) {
 		vector<PCPolygonPtr> aAgregar;
 		vector<PCPolygonPtr> aProcesar;
@@ -96,6 +107,7 @@ namespace mapinect {
 			if (indexOf(pcpolygons, polygonsInBox[i]) < 0) {
 				PCPolygonPtr closer = findCloserPolygon(polygonsInBox[i],missing);
 				polygonsInBox[i]->getPolygonModelObject()->setName(closer->getPolygonModelObject()->getName());
+				polygonsInBox[i]->setEstimated(false);
 				keep.push_back(polygonsInBox[i]);
 			}
 		}
@@ -257,7 +269,10 @@ namespace mapinect {
 		vector<PCPolygonPtr> missing;
 		for (int i = 0; i < pcpolygons.size(); i++) {
 			if(pcpolygons[i]->hasMatching())
+			{
 				pcpolygons[i]->updateMatching();
+				pcpolygons[i]->removeMatching();
+			}
 			else
 				missing.push_back(pcpolygons[i]);
 		}
@@ -424,26 +439,26 @@ namespace mapinect {
 
 	void checkForUnknown(vector<PCPolygonPtr> pols, int seq)
 	{
-		/*cout << "seq: " << seq << endl;
-		for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
-		{
-			cout << "--" << (*p)->getPolygonModelObject()->getName() << endl;
-			if((*p)->getPolygonModelObject()->getName() == kPolygonNameUnknown)
-				cout << "-----unknown in " << seq << endl;
-		}*/
+		//cout << "seq: " << seq << endl;
+		//for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
+		//{
+		//	cout << "--" << (*p)->getPolygonModelObject()->getName() << endl;
+		//	if((*p)->getPolygonModelObject()->getName() == kPolygonNameUnknown)
+		//		cout << "-----unknown in " << seq << endl;
+		//}
 	}
 
 	void checkForRepeat(vector<PCPolygonPtr> pols, int seq)
 	{
-		/*map<int,int> map;
+		//map<int,int> map;
 
-		for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
-		{
-			if(map.count((*p)->getPolygonModelObject()->getName()) > 0)
-				cout << "repeated " <<  (*p)->getPolygonModelObject()->getName() << " in: " << seq << endl;
-			else
-				map[(*p)->getPolygonModelObject()->getName()] = (*p)->getPolygonModelObject()->getName();
-		}*/
+		//for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
+		//{
+		//	if(map.count((*p)->getPolygonModelObject()->getName()) > 0)
+		//		cout << "repeated " <<  (*p)->getPolygonModelObject()->getName() << " in: " << seq << endl;
+		//	else
+		//		map[(*p)->getPolygonModelObject()->getName()] = (*p)->getPolygonModelObject()->getName();
+		//}
 	}
 
 	void PCPolyhedron::addToModel(const PCPtr& nuCloud)
@@ -462,10 +477,13 @@ namespace mapinect {
 
 		if(trimmedCloud->size() < this->cloud->size() * 0.4)
 		{
-			cout << "puntos insuficientes!" << endl;
+			cout << "puntos insuficientes!  " << "necesita: "<< this->cloud->size() * 0.4 << "   tiene: " << trimmedCloud->size() << endl;
 			return; //Si la nube no tiene suficientes puntos, mantengo el procesamiento anterior.
 		}
+
 		pcPolygonsMutex.lock();
+		vector<PCPolygonPtr> prevPcPolygons = pcpolygons;
+
 		//Detecto nuevas caras
 		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,0.003,2.6,false); 
 		
@@ -484,6 +502,8 @@ namespace mapinect {
 
 		if(estimationOK)
 		{
+			for(int i = 0; i < nuevos.size(); i++)
+				nuevos.at(i)->setEstimated(false);
 			//Actualizo los nuevos polygons si no hubo errores
 			nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());
 			pcpolygons = nuevos;
@@ -500,8 +520,14 @@ namespace mapinect {
 			unifyVertexs();
 		}
 		else
+		{
+			//Si hay errores en la estimación, rollback de los pcpolygons mergeados
+			for(int i = 0; i < nuevos.size(); i++)
+				nuevos.at(i)->rollBackMatching();
+			pcpolygons = prevPcPolygons;
 			cout << "error en estimacion, mantengo vista anterior" << endl;
-		//Si hay errores en la estimación, no actualizo pcpolygons
+		}
+		
 
 		//Seteo nueva nube
 		PCPtr finalCloud (new PC());

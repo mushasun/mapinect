@@ -320,6 +320,7 @@ namespace mapinect {
 		vector<PCPolygonPtr> estimatedVector;
 		for(map<IPolygonName,PCPolygonPtr>::const_iterator it = estimated.begin(); it != estimated.end(); ++it)
 			estimatedVector.push_back(it->second);
+		estimationOk = true;
 		return estimatedVector;
 	}
 

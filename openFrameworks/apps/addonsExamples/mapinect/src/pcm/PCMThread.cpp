@@ -173,7 +173,14 @@ namespace mapinect {
 		//saveCloudAsFile("modelsCloud.pcd", *modelsCloud);
 
 		PCPtr filteredCloud(new PointCloud<PointXYZ>);
-		int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, Constants::CLOUD_VOXEL_SIZE);
+		
+		
+		// Comentado para probar estabilidad en la diferencia de nube
+		//int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, Constants::CLOUD_VOXEL_SIZE);
+		int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, Constants::CLOUD_VOXEL_SIZE*2);
+		
+		
+		
 		//cout << "Differences count: " << ofToString(dif) << endl;
 
 		//saveCloudAsFile("dif.pcd", *filteredCloud);

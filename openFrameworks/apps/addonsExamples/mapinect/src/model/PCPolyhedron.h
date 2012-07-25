@@ -28,6 +28,7 @@ namespace mapinect {
 			virtual void			addToModel(const PCPtr& nuCloud);
 
 			inline const vector<IPolygon*>	getPolygons()						{ return polygonsCache; }
+			const vector<IPolygonPtr>		getVisiblePolygons();
 			inline const vector<ofVec3f>	getVertexs()						{ return vertexs; }
 			inline void						resetOccludedFaces()				{ occludedFaces.clear(); }
 			inline void						setOccludedFace(IPolygonName name)	{ occludedFaces.push_back(name); }
