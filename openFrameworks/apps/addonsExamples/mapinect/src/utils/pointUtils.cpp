@@ -209,11 +209,11 @@ bool isInViewField(ofVec3f vec)
 
 	ofVec3f b = (nc - right * mapinect::Constants::WNEAR_2) - p;
 	b.normalize();
-	ofVec3f normalLeft = up.crossed(b);
+	ofVec3f normalLeft = -up.crossed(b);
 
 	ofVec3f c = (nc + up * mapinect::Constants::HNEAR_2) - p;
 	c.normalize();
-	ofVec3f normalTop = right.crossed(c);
+	ofVec3f normalTop = - right.crossed(c);
 
 	ofVec3f d = (nc - up * mapinect::Constants::HNEAR_2) - p;
 	d.normalize();
@@ -238,12 +238,23 @@ bool isInViewField(ofVec3f vec)
 	pt = mapinect::Plane3D(ct,normalTopTransformed);
 	pb = mapinect::Plane3D(dt,normalBottomTransformed);
 
-	bool retVal = pr.signedDistance(vec) < 0 &&
+	////debug
+	//vector<ofVec3f> ptos;
+	//ptos.push_back(at);
+	//ptos.push_back(bt);
+	//ptos.push_back(ct);
+	//ptos.push_back(dt);
+	//saveCloud("frustum.pcd",ptos);
+
+	/*bool retVal = pr.signedDistance(vec) < 0;
+	retVal = retVal && pl.signedDistance(vec) < 0;
+	retVal = retVal && pt.signedDistance(vec) < 0;
+	retVal = retVal && pb.signedDistance(vec) < 0;
+*/
+	return pr.signedDistance(vec) < 0 &&
 		   pl.signedDistance(vec) < 0 &&
 		   pt.signedDistance(vec) < 0 &&
 		   pb.signedDistance(vec) < 0;
-
-	return retVal;
 }
 
 // -------------------------------------------------------------------------------------

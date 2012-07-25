@@ -15,6 +15,8 @@
 #define PCXYZ_OFVEC3F(p)			ofVec3f(p.x, p.y, p.z)
 #define PCLNORMAL_OFVEC3F(p)		ofVec3f(p.normal_x, p.normal_y, p.normal_z)
 #define OFVEC3F_PCXYZ(v)			PCXYZ(v.x, v.y, v.z)
+#define PCXYZ_EIGEN3F(v)			Eigen::Vector3f(v.x, v.y, v.z)
+#define OFVEC3F_EIGEN3F(v)			Eigen::Vector3f(v.x, v.y, v.z)
 
 void setPCXYZ(PCXYZ& p, float x, float y, float z);
 

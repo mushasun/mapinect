@@ -239,7 +239,8 @@ namespace mapinect {
 		vector<PCPolygonPtr> nuevos = detectPolygons(cloud); 
 		nuevos = discardPolygonsOutOfBox(nuevos); 
 		namePolygons(nuevos);
-		vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos);
+		bool estimationOk;
+		vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos,estimationOk);
 		pcpolygons = nuevos;
 		pcpolygons.insert(pcpolygons.end(),estimated.begin(),estimated.end());		
 		unifyVertexs();
@@ -415,20 +416,21 @@ namespace mapinect {
 		return toDiscard;
 	}
 
-	vector<PCPolygonPtr> PCPolyhedron::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons)
+	vector<PCPolygonPtr> PCPolyhedron::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons, bool& estimationOk)
 	{
+		estimationOk = true;
 		return vector<PCPolygonPtr>();
 	}
 
 	void checkForUnknown(vector<PCPolygonPtr> pols, int seq)
 	{
-		cout << "seq: " << seq << endl;
+		/*cout << "seq: " << seq << endl;
 		for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
 		{
 			cout << "--" << (*p)->getPolygonModelObject()->getName() << endl;
 			if((*p)->getPolygonModelObject()->getName() == kPolygonNameUnknown)
 				cout << "-----unknown in " << seq << endl;
-		}
+		}*/
 	}
 
 	void checkForRepeat(vector<PCPolygonPtr> pols, int seq)
@@ -446,56 +448,62 @@ namespace mapinect {
 
 	void PCPolyhedron::addToModel(const PCPtr& nuCloud)
 	{
-		pcPolygonsMutex.lock();
 		PCModelObject::addToModel(nuCloud);
 
-		///TODO:
 		/// 1 - Detectar caras de la nueva nube
 		/// 2 - Descartar caras que no pertenecen a la caja (caras de la mano)
 		/// 3 - Matchear caras de la nube anterior con las nuevas caras
 		/// 4 - Estimar caras ocultas (?)
 		
-		//TODO: CHequear si es necesario, en TrackedCLoud ya se hace
 		PCPtr trimmedCloud = getHalo(this->getvMin(),this->getvMax(),0.05,nuCloud);
 		
 		saveCloud("nucloud.pcd",*nuCloud);
 		saveCloud("trimmed.pcd",*trimmedCloud);
 
+		if(trimmedCloud->size() < this->cloud->size() * 0.4)
+		{
+			cout << "puntos insuficientes!" << endl;
+			return; //Si la nube no tiene suficientes puntos, mantengo el procesamiento anterior.
+		}
+		pcPolygonsMutex.lock();
 		//Detecto nuevas caras
 		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,0.003,2.6,false); 
 		
-		//namePolygons(nuevos);
-		//checkForRepeat(nuevos, 1);
-
+		//Matching de las caras detectadas con las anteriores
 		nuevos = mergePolygons(nuevos);
 
 		checkForUnknown(nuevos, 2);
 		checkForRepeat(nuevos, 2);
 
-		vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos);
+		//Estimación de caras no visibles
+		bool estimationOK;
+		vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos,estimationOK);
 
 		checkForUnknown(estimated, 3);
 		checkForRepeat(estimated, 3);
 
-		//int prevEst = estimated.size();
-		//estimated = mergePolygons(estimated);
-		//if(estimated.size() != prevEst)
-		//	cout << "puto merge " << prevEst << " - " << estimated.size() <<endl; 
-
-		nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());
-		
-		pcpolygons = nuevos;
-		polygonsCache.clear();
-		for (vector<PCPolygonPtr>::iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
+		if(estimationOK)
 		{
-			polygonsCache.push_back((*p)->getPolygonModelObject());
+			//Actualizo los nuevos polygons si no hubo errores
+			nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());
+			pcpolygons = nuevos;
+			polygonsCache.clear();
+			for (vector<PCPolygonPtr>::iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
+			{
+				polygonsCache.push_back((*p)->getPolygonModelObject());
+			}
+
+			checkForRepeat(pcpolygons, 4);
+			checkForUnknown(pcpolygons, 4);
+
+			//Unifico vertices
+			unifyVertexs();
 		}
+		else
+			cout << "error en estimacion, mantengo vista anterior" << endl;
+		//Si hay errores en la estimación, no actualizo pcpolygons
 
-		checkForRepeat(pcpolygons, 4);
-		checkForUnknown(pcpolygons, 4);
-
-		unifyVertexs();
-		
+		//Seteo nueva nube
 		PCPtr finalCloud (new PC());
 		for(int i = 0; i < pcpolygons.size(); i ++)
 		{
@@ -510,4 +518,8 @@ namespace mapinect {
 
 	}
 
+	bool PCPolyhedron::isFaceOccluded(IPolygonName name)
+	{
+		return find(occludedFaces.begin(), occludedFaces.end(),name) != occludedFaces.end();
+	}
 }

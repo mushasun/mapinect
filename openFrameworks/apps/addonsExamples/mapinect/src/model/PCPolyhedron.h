@@ -27,18 +27,23 @@ namespace mapinect {
 			virtual void			increaseLod(const PCPtr& nuCloud);
 			virtual void			addToModel(const PCPtr& nuCloud);
 
-			inline const vector<IPolygon*>	getPolygons()					{ return polygonsCache; }
-			inline const vector<ofVec3f>	getVertexs()					{ return vertexs; }
+			inline const vector<IPolygon*>	getPolygons()						{ return polygonsCache; }
+			inline const vector<ofVec3f>	getVertexs()						{ return vertexs; }
+			inline void						resetOccludedFaces()				{ occludedFaces.clear(); }
+			inline void						setOccludedFace(IPolygonName name)	{ occludedFaces.push_back(name); }
+			bool							isFaceOccluded(IPolygonName name);
 		private:
 			vector<PCPolygonPtr>			updatePolygons();
 			PCPolygonPtr					findCloserPolygon(PCPolygonPtr pol, vector<PCPolygonPtr> polygons);
 			bool							findBestFit(const PCPolygonPtr&, PCPolygonPtr& removed, bool& wasRemoved);
 			vector<PCPolygonPtr>			detectPolygons(const PCPtr& cloudTemp, float planeTolerance = 0.003, float pointsTolerance = 4.0, bool limitFaces = true);
-			virtual vector<PCPolygonPtr>	estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons);
+			virtual vector<PCPolygonPtr>	estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons, bool& estimationOk);
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard, const vector<PCPolygonPtr>& inPolygon);
 			virtual void					namePolygons(vector<PCPolygonPtr>& toName);
 			
+			vector<IPolygonName>			occludedFaces;
+
 		protected:
 			vector<PCPolygonPtr>			pcpolygons;
 			vector<IPolygon*>				polygonsCache;
