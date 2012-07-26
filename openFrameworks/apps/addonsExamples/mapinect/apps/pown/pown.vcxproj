@@ -128,12 +128,14 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\pown\Bolt.cpp" />
     <ClCompile Include="src\pown\Box.cpp" />
     <ClCompile Include="src\pown\Pown.cpp" />
+    <ClCompile Include="src\pown\PownConstants.cpp" />
     <ClCompile Include="src\pown\Spot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pown\Bolt.h" />
     <ClInclude Include="src\pown\Box.h" />
     <ClInclude Include="src\pown\Pown.h" />
+    <ClInclude Include="src\pown\PownConstants.h" />
     <ClInclude Include="src\pown\Spot.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

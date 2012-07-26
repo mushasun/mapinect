@@ -2,6 +2,11 @@
 
 #include <assert.h>
 
+ofColor ofRandomColor()
+{
+	return ofColor(ofRandomf() * 255.0f, ofRandomf() * 255.0f, ofRandomf() * 255.0f);
+}
+
 void ofDrawQuadTextured(const ofPoint& vA, const ofPoint& vB, const ofPoint& vC, const ofPoint& vD,
 	float sA, float tA, float sB, float tB, float sC, float tC, float sD, float tD) {
 	

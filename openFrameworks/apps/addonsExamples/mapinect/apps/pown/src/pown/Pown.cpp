@@ -1,16 +1,13 @@
 #include "Pown.h"
 
+#include "PownConstants.h"
 #include "ofGraphicsUtils.h"
 #include "Timer.h"
 
 namespace pown
 {
-	const float kEmitTime = 1.0f;
-	static Timer timer;
-
-	static int emisor = -1;
-
 	Pown::Pown()
+		: emisor(-1)
 	{
 	}
 
@@ -24,6 +21,8 @@ namespace pown
 
 	void Pown::setup()
 	{
+		PownConstants::LoadPownConstants();
+		Spot::setup();
 	}
 
 	void Pown::draw()
@@ -40,35 +39,74 @@ namespace pown
 			(*spot)->draw();
 		for (set<Bolt*>::const_iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
 			(*bolt)->draw();
-		for (map<int, Box*>::iterator iter = boxes.begin(); iter != boxes.end(); iter++)
-			(iter->second)->draw();
+		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
+			(box->second)->draw();
+	}
+
+	void Pown::testCollisions()
+	{
+		// test spots with boxes
+		for (set<Spot*>::iterator spot = spots.begin(); spot != spots.end(); spot++)
+			for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
+				if ((*spot)->testHit(box->second))
+					(*spot)->setBox(box->second);
+
+		// test bolts with boxes
+		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
+			if (box->first != emisor)
+				for (set<Bolt*>::iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
+					if ((*bolt)->isAlive() && box->second->testHit(*bolt))
+						box->second->absorbBolt(*bolt);
+	}
+
+	void Pown::handleBoltEmision(float elapsedTime)
+	{
+		map<int, Box*>::iterator boxIterator = boxes.find(emisor);
+		if (boxIterator != boxes.end())
+		{
+			Box* box = boxIterator->second;
+			static float boltEmisorTimer = 0;
+			boltEmisorTimer += elapsedTime;
+			if (boltEmisorTimer >= PownConstants::EMIT_TIME)
+			{
+				boltEmisorTimer -= PownConstants::EMIT_TIME;
+
+				ofColor color(ofRandomColor());
+				
+				ofVec3f boltCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
+				boltCenter.y -= 0.001f;
+
+				static int boltCount = 0;
+				static int boltsPeriod = 8;
+				ofVec3f boltSpeed = ofVec3f(1, 0, 0);
+				boltSpeed *= PownConstants::BOLT_INITIAL_SPEED;
+				boltSpeed.rotateRad(0, (float)boltCount * TWO_PI / (float)boltsPeriod, 0);
+				boltCount = (boltCount + 1) % boltsPeriod;
+
+				Bolt* bolt = new Bolt(color, boltCenter, boltSpeed);
+				// Ensure the bolt takes up the missing delay
+				bolt->update(boltEmisorTimer);
+				bolts.insert(bolt);
+			}
+		}
 	}
 
 	void Pown::update(float elapsedTime)
 	{
-		if (emisor > 0)
-		{
-			map<int, Box*>::iterator boxIterator = boxes.find(emisor);
-			if (boxIterator != boxes.end())
-			{
-				Box* box = boxIterator->second;
-				timer.stop();
-				if (timer.getElapsedSeconds() >= kEmitTime)
-				{
-					ofColor color(255, 0, 0);
-					ofVec3f boltCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
-					Bolt* bolt = new Bolt(color, boltCenter, ofVec3f(0.4f, 0, 0));
-					bolts.insert(bolt);
-				}
-			}
-		}
+		// update all existing objects
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
 			(*spot)->update(elapsedTime);
 		for (set<Bolt*>::const_iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
 			(*bolt)->update(elapsedTime);
-		for (map<int, Box*>::iterator iter = boxes.begin(); iter != boxes.end(); iter++)
-			(iter->second)->update(elapsedTime);
+		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
+			(box->second)->update(elapsedTime);
 		
+		testCollisions();
+
+		// emit bolts
+		handleBoltEmision(elapsedTime);
+
+		// remove dead bolts
 		for (set<Bolt*>::iterator bolt = bolts.begin(); bolt != bolts.end();)
 		{
 			if (!(*bolt)->isAlive())
@@ -89,11 +127,15 @@ namespace pown
 			if (boxes.find(object->getId()) == boxes.end())
 			{
 				ofColor color(ofRandomf() * 255.0f, ofRandomf() * 255.0f, ofRandomf() * 255.0f);
-				boxes[object->getId()] = new Box(object, color);
+				Box* box = new Box(object, color);
+				boxes[object->getId()] = box;
+				ofVec3f spotCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
+				spotCenter.y -= 0.001f;
+				Spot* spot = new Spot(spotCenter);
+				spots.insert(spot);
 				if (emisor < 0)
 				{
 					emisor = object->getId();
-					timer.start();
 				}
 			}
 		}
@@ -120,6 +162,14 @@ namespace pown
 			if (boxes.find(object->getId()) != boxes.end())
 			{
 				boxes.erase(object->getId());
+			}
+			if (emisor == object->getId())
+			{
+				emisor = -1;
+				if (boxes.begin() != boxes.end())
+				{
+					emisor = boxes.begin()->first;
+				}
 			}
 		}
 	}

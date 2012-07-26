@@ -19,7 +19,7 @@ namespace pown {
 		void			draw();
 
 		bool			isAlive() const;
-		float			size() const;
+		float			radius() const;
 		void			absorb();
 
 	private:

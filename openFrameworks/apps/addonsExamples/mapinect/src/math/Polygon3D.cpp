@@ -126,7 +126,7 @@ namespace mapinect
 
 				m1 = p1.length();
 				m2 = p2.length();
-				if (m1*m2 <= MATH_EPSILON)
+				if (m1 <= MATH_EPSILON)
 					return true; /* We are on a node, consider this inside */
 				else
 					costheta = (p1.x*p2.x + p1.y*p2.y + p1.z*p2.z) / (m1*m2);

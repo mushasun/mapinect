@@ -14,15 +14,16 @@ namespace pown
 		Box(const IObjectPtr& object, const ofColor& color);
 		virtual ~Box();
 
-		inline void		updateModelObject(const IObjectPtr& ob)		{ object = ob; }
+		inline void					updateModelObject(const IObjectPtr& ob)	{ object = ob; }
 
-		inline ofVec3f	getCenter() const							{ return object->getCenter(); }
+		inline const IObjectPtr&	getObject()								{ return object; }
+		inline ofVec3f				getCenter() const						{ return object->getCenter(); }
 
-		void			update(float elapsedTime);
-		void			draw();
+		void						update(float elapsedTime);
+		void						draw();
 
-		bool			testHit(Bolt* bolt);
-		void			absorbBolt(Bolt* bolt);
+		bool						testHit(Bolt* bolt);
+		void						absorbBolt(Bolt* bolt);
 
 	private:
 		IObjectPtr		object;

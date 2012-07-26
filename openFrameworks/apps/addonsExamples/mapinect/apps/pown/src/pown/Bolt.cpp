@@ -1,10 +1,9 @@
 #include "Bolt.h"
 
 #include "ofGraphics.h"
+#include "PownConstants.h"
 
 #define INTENSITY_ALIVE_PERCENT		0.05f
-#define INTENSITY_DECREASE_FACTOR	5.0f
-#define BASE_SIZE					0.01f
 
 namespace pown
 {
@@ -21,13 +20,17 @@ namespace pown
 	void Bolt::draw()
 	{
 		ofSetColor(color);
-		ofCircle(position.x, position.y, position.z, size());
+		ofPushMatrix();
+			ofTranslate(position);
+			ofRotateX(90);
+			ofEllipse(0, 0, 0, radius(), radius());
+		ofPopMatrix();
 	}
 
 	void Bolt::update(float elapsedTime)
 	{
 		position += speed * elapsedTime;
-		intensity -= INTENSITY_DECREASE_FACTOR * elapsedTime;
+		intensity -= PownConstants::BOLT_INTENSITY_DECREASE_FACTOR * elapsedTime;
 	}
 
 	bool Bolt::isAlive() const
@@ -35,9 +38,9 @@ namespace pown
 		return intensity > INTENSITY_ALIVE_PERCENT;
 	}
 
-	float Bolt::size() const
+	float Bolt::radius() const
 	{
-		return BASE_SIZE * intensity;
+		return PownConstants::BOLT_BASE_RADIUS * intensity;
 	}
 
 	void Bolt::absorb()
