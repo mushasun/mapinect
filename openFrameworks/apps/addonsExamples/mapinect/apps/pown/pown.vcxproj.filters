@@ -19,6 +19,9 @@
     <ClCompile Include="src\pown\Bolt.cpp">
       <Filter>pown</Filter>
     </ClCompile>
+    <ClCompile Include="src\pown\PownConstants.cpp">
+      <Filter>pown</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pown\Box.h">
@@ -31,6 +34,9 @@
       <Filter>pown</Filter>
     </ClInclude>
     <ClInclude Include="src\pown\Bolt.h">
+      <Filter>pown</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pown\PownConstants.h">
       <Filter>pown</Filter>
     </ClInclude>
   </ItemGroup>
