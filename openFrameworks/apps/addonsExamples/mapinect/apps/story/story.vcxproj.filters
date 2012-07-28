@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\story\Box.cpp">
+      <Filter>story</Filter>
+    </ClCompile>
+    <ClCompile Include="src\story\Story.cpp">
+      <Filter>story</Filter>
+    </ClCompile>
+    <ClCompile Include="src\story\Road.cpp">
+      <Filter>story</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="story">
+      <UniqueIdentifier>{5244f333-5b86-450f-8984-56087961afad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\story\Box.h">
+      <Filter>story</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\Story.h">
+      <Filter>story</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\Road.h">
+      <Filter>story</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
