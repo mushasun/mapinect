@@ -177,7 +177,7 @@ namespace mapinect {
 		
 		// Comentado para probar estabilidad en la diferencia de nube
 		//int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, Constants::CLOUD_VOXEL_SIZE);
-		int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, Constants::CLOUD_VOXEL_SIZE*2);
+		int dif = getDifferencesCloud(modelsCloud, cloud, filteredCloud, Constants::CLOUD_VOXEL_SIZE*3);
 		
 		
 		
@@ -200,10 +200,10 @@ namespace mapinect {
 		bool dif;
 		PCPtr occluders (new PC());
 		PCPtr objectsOnTableTopCloud = getObjectsOnTableTopCloud(occluders);
+		if(objectDetection)
+			objectsThread.setClouds(objectsOnTableTopCloud);
 
-		objectsThread.setClouds(objectsOnTableTopCloud);
-
-		if(IsFeatureActive(FEATURE_HAND_DETECTION))
+		if(IsFeatureActive(FEATURE_HAND_DETECTION) && touchDetection)
 		{
 			// split the new cloud from the existing one
 			setPCMThreadStatus("Obtaining difference cloud from model...");

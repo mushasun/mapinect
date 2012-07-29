@@ -20,7 +20,10 @@ namespace mapinect {
 		virtual void		objectTouched(const IObjectPtr&, const DataTouch&);
 
 		void				drawPointCloud();
-
+		void				objectDetectionEnabled(bool enabled);
+		void				touchDetectionEnabled(bool enabled);
+		bool				isObjectDetectionEnabled();
+		bool				isTouchDetectionEnabled();
 	private:
 		bool				isActive();
 		ofTexture			calibratedTex; 

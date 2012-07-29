@@ -16,7 +16,7 @@ namespace visualizer {
 		virtual ~VisualizerApp();
 
 		virtual void setup();
-		virtual void update();
+		virtual void update(float elapsedTime);
 		virtual void draw();
 
 		virtual void keyPressed(int key);
@@ -51,6 +51,7 @@ namespace visualizer {
 		ofImage*					btnPrev;
 		ofImage*					btnPrevOn;
 
+		ofVideoPlayer myPlayer;
 	};
 }
 

@@ -50,7 +50,7 @@ namespace mapinect
 	float				Constants::HNEAR									= 0.63;
 	float				Constants::WNEAR_2									= 0.435;
 	float				Constants::HNEAR_2									= 0.315;
-	float				Constants::NDISTANCE								= 0.7;
+	float				Constants::NDISTANCE								= 0.2;
 
 	void Constants::LoadConstants()
 	{

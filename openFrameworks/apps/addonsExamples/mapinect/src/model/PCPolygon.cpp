@@ -220,7 +220,9 @@ namespace mapinect {
 		coefficients = rollBackCoefficients;
 			
 		//Actualizo nube
-		setCloud(rollBackCloud);
+		if(rollBackCloud != PCPtr() &&
+		   rollBackCloud->size() > 10)
+			setCloud(rollBackCloud);
 	}
 
 	void PCPolygon::removeMatching() {

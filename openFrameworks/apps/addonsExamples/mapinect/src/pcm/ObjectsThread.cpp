@@ -88,8 +88,8 @@ namespace mapinect {
 
 		// Updating temporal detections
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			if(!(*iter)->hasObject() ||
-				isInViewField((*iter)->getTrackedObject()->getCenter()))
+			//if(!(*iter)->hasObject() ||
+			//	isInViewField((*iter)->getTrackedObject()->getCenter()))
 				(*iter)->addCounter(-1);
 		}
 

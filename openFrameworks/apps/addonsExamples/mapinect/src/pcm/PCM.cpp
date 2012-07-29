@@ -149,6 +149,10 @@ namespace mapinect {
 		case 'k':
 			printLogFileToFile(kLogFilePCMThread, "pcmThread.log");
 			printLogFileToFile(kLogFileObjectsThread, "objectsThread.log");
+			break;
+		case 'o':
+			pcmThread.setObjectDetection(!pcmThread.getObjectDetection());
+			break;
 		}
 		//case 't':
 		//	setTransformation();
@@ -173,5 +177,29 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	bool PCM::isActive() {
 		return IsFeaturePCMActive();
+	}
+
+	//--------------------------------------------------------------
+	void PCM::objectDetectionEnabled(bool enabled)
+	{
+		pcmThread.setObjectDetection(enabled);
+	}
+	
+	//--------------------------------------------------------------
+	void PCM::touchDetectionEnabled(bool enabled)
+	{
+		pcmThread.setTouchDetection(enabled);
+	}
+
+	//--------------------------------------------------------------
+	bool PCM::isObjectDetectionEnabled()
+	{
+		return pcmThread.getObjectDetection();
+	}
+
+	//--------------------------------------------------------------
+	bool PCM::isTouchDetectionEnabled()
+	{
+		return pcmThread.getTouchDetection();
 	}
 }

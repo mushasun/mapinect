@@ -27,10 +27,10 @@ namespace mapinect
 		wasRemoved = false;
 		if (polygon->getId() == tracked->polygon->getId())
 		{
-			ofVec3f translation(tracked->point - point);
-			if(translation.length() < nearest)
+			float translationLen = (tracked->point - point).length();
+			if(translationLen < nearest && translationLen < Constants::TOUCH_TRANSLATION_TOLERANCE())
 			{
-				nearest = translation.length();
+				nearest = translationLen;
 				if(matchingTouch.get() != NULL)
 				{
 					removed = matchingTouch;

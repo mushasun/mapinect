@@ -11,6 +11,7 @@
 #include "ofxKinect.h"
 #include "pointUtils.h"
 #include "ButtonManager.h"
+#include "ModeManager.h"
 
 namespace mapinect {
 
@@ -50,7 +51,7 @@ namespace mapinect {
 
 		app->armController = new ArmController(&arduino);
 		app->btnManager = new ButtonManager();
-
+		app->modeManager = new ModeManager(&pcm);
 	}
 
 	//--------------------------------------------------------------
