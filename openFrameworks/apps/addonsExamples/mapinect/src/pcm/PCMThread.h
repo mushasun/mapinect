@@ -20,7 +20,12 @@ namespace mapinect
 		void						setup();
 		void						exit();
 		virtual void				threadedFunction();
-		inline void					startDetection()		{ detectMode = true; }
+		inline void					startDetection()					{ detectMode = true; }
+		inline void					setObjectDetection(bool value)		{ objectDetection = value; }
+		inline bool					getObjectDetection()				{ return objectDetection; }
+		inline void					setTouchDetection(bool value)		{ touchDetection = value; }
+		inline bool					getTouchDetection()					{ return touchDetection; }
+
 		void						newFrameAvailable(bool forceDetection = false);
 		void						newForcedFrameAvailable();
 
@@ -36,6 +41,8 @@ namespace mapinect
 		list<TrackedTouchPtr>		trackedTouchPoints;
 
 		bool						detectMode;
+		bool						objectDetection;
+		bool						touchDetection;
 		bool						isNewFrameAvailable;
 		bool						isNewForcedFrameAvailable;
 		ofxMutex					isNewFrameAvailableMutex;

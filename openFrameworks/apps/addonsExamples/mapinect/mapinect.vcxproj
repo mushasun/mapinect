@@ -276,6 +276,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\helpers\Globals.h" />
     <ClInclude Include="src\helpers\mapinectApp.h" />
     <ClInclude Include="src\helpers\mapinectTypes.h" />
+    <ClInclude Include="src\helpers\ModeManager.h" />
     <ClInclude Include="src\interfaces\DataMovement.h" />
     <ClInclude Include="src\interfaces\DataTouch.h" />
     <ClInclude Include="src\interfaces\IApplication.h" />
@@ -283,6 +284,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\interfaces\IButton.h" />
     <ClInclude Include="src\interfaces\IButtonManager.h" />
     <ClInclude Include="src\interfaces\IMapinect.h" />
+    <ClInclude Include="src\interfaces\IModeManager.h" />
     <ClInclude Include="src\interfaces\INotification.h" />
     <ClInclude Include="src\interfaces\IObject.h" />
     <ClInclude Include="src\interfaces\IPolygon.h" />

@@ -4,6 +4,7 @@
 #include "SimpleButton.h"
 #include "DraggableButton.h"
 #include "ObjectButton.h"
+#include "ofGraphicsUtils.h"
 
 namespace visualizer {
 	
@@ -62,6 +63,11 @@ namespace visualizer {
 		btnNextOn = new ofImage("data/texturas/buttons/rewind-on.jpg");
 		btnPrev = new ofImage("data/texturas/buttons/forward.jpg");
 		btnPrevOn = new ofImage("data/texturas/buttons/forward-on.jpg");
+
+		/*myPlayer.setUseTexture(true);
+		myPlayer.loadMovie("data/video.MOV");
+		myPlayer.play();
+		myPlayer.setLoopState(OF_LOOP_NORMAL);*/
 	}
 
 	//--------------------------------------------------------------
@@ -91,9 +97,40 @@ namespace visualizer {
 	//--------------------------------------------------------------
 	void VisualizerApp::draw()
 	{
-		/*if (floor != NULL) {
-			floor->draw();
-		}*/
+		if (floor != NULL) {
+			/*Polygon3D pol(floor->getModelObject()->getMathModel());
+
+			ofTexture &tex = myPlayer.getTextureReference();  
+			glMatrixMode(GL_TEXTURE);  
+			glPushMatrix();  
+			glLoadIdentity();  
+      
+			ofTextureData texData = tex.getTextureData();  
+			if(texData.textureTarget == GL_TEXTURE_RECTANGLE_ARB) {  
+				glScalef(tex.getWidth(), tex.getHeight(), 1.0f);  
+			} else {  
+				glScalef(tex.getWidth() / texData.tex_w, tex.getHeight() / texData.tex_h, 1.0f);  
+			}  
+      
+			glMatrixMode(GL_MODELVIEW);       
+
+			glBegin(GL_QUADS);      
+				glVertex3f(pol.getVertexs()[1].x, pol.getVertexs()[1].y, pol.getVertexs()[1].z); 
+				glVertex3f(pol.getVertexs()[2].x, pol.getVertexs()[2].y, pol.getVertexs()[2].z);
+				glVertex3f(pol.getVertexs()[3].x, pol.getVertexs()[3].y, pol.getVertexs()[3].z);
+				glVertex3f(pol.getVertexs()[0].x, pol.getVertexs()[0].y, pol.getVertexs()[0].z);
+			glEnd();
+
+			myPlayer.getTextureReference().unbind();  
+      
+			glMatrixMode(GL_TEXTURE);  
+			glPopMatrix();  
+			glMatrixMode(GL_MODELVIEW); */
+/*
+			ofImage i;
+			i.setFromPixels(myPlayer.getPixelsRef());
+			ofDrawQuadTextured(pol.getVertexs(), ofTexCoordsFor(i.getTextureReference()));*/
+		}
 
 		for (map<int, Box*>::iterator iter = boxes.begin(); iter != boxes.end(); iter++) {
 			(iter->second)->draw(*floor);
@@ -114,7 +151,8 @@ namespace visualizer {
 	}
 
 	//--------------------------------------------------------------
-	void VisualizerApp::update() {
+	void VisualizerApp::update(float elapsedTime) {
+		myPlayer.update();
 		vis.update();
 		ofSoundUpdate();
 		int chanel[3] = { 1, 7, 27}; //bass - snare - symbol
@@ -148,6 +186,21 @@ namespace visualizer {
 	//--------------------------------------------------------------
 	void VisualizerApp::keyPressed(int key)
 	{
+		switch(key)
+		{
+			case '9': 
+				modeManager->disableObjectTracking();
+				break;
+			case '8':
+				modeManager->enableObjectTracking();
+				break;
+			case '7': 
+				modeManager->disableTouchTracking();
+				break;
+			case '6':
+				modeManager->enableTouchTracking();
+				break;
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -247,7 +300,7 @@ namespace visualizer {
 								btnLyric,
 								btnLyric);
 
-				this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d2)));
+				//this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d2)));
 			}
 		}
 		else

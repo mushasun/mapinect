@@ -33,7 +33,7 @@ namespace visualizer {
 	{
 		for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 		{
-			/* DEBUG*/
+			///* DEBUG*/
 			switch((*p)->getName())
 			{
 			case kPolygonNameSideA:

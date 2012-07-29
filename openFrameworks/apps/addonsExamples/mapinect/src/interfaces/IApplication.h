@@ -9,6 +9,7 @@
 #include "IArmController.h"
 #include "IObject.h"
 #include "IButtonManager.h"
+#include "IModeManager.h"
 
 namespace mapinect {
 	
@@ -44,6 +45,7 @@ namespace mapinect {
 
 		IArmController*	armController;
 		IButtonManager*	btnManager;
+		IModeManager*	modeManager;
 	};
 }
 

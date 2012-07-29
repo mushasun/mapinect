@@ -444,6 +444,12 @@
     <ClInclude Include="src\arduino\Transformation.h">
       <Filter>arduino</Filter>
     </ClInclude>
+    <ClInclude Include="src\interfaces\IModeManager.h">
+      <Filter>interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\ModeManager.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
