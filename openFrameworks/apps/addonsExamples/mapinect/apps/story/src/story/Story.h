@@ -5,6 +5,9 @@
 
 #include <map>
 #include "Box.h"
+#include "DraggableButton.h"
+#include "ofVec3f.h"
+#include "Road.h"
 
 namespace story
 {
@@ -31,7 +34,11 @@ namespace story
 		virtual void buttonReleased(const IButtonPtr&);
 
 	private:
-		std::map<int, Box*>	boxes;
+		std::map<int, Box*>			boxes;
+		std::list<Road*>	roads;
+		std::list<Park*>	parks;
+		ofVec3f						firstTableTouch;
+		bool						firstTouchDone;
 
 	};
 }

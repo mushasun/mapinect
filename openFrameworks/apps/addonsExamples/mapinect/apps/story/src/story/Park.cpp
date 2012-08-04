@@ -1,17 +1,17 @@
-#include "Road.h"
+#include "Park.h"
 
 #include "ofGraphicsUtils.h"
 #include "DraggableButton.h"
-#define NORMAL_FACTOR 5
+
 
 namespace story
 {
-	Road::Road(const ofVec3f begin, const ofVec3f end)
+	Park::Park(const ofVec3f begin, const ofVec3f end)
 		: begin(begin), end(end)
 	{
 		texture = new ofImage("img/road.jpg");
 		normal = ofVec3f(0, 1, 0);
-		ofVec3f direccion = normal.cross(begin-end).normalize() * NORMAL_FACTOR;
+		ofVec3f direccion = normal.cross(begin-end).normalize() * (begin-end).length();
 		vector<ofVec3f> draggable;
 		draggable.push_back(begin + direccion);
 		draggable.push_back(begin - direccion);
@@ -23,18 +23,18 @@ namespace story
 							texture);
 	}
 
-	Road::~Road()
+	Park::~Park()
 	{
 	}
 
-	void Road::update(float elapsedTime)
+	void Park::update(float elapsedTime)
 	{
 		//dibujar autos?
 	}
 
-	void Road::draw()
+	void Park::draw()
 	{
-		//no va el dibujado porque lo hace el button
+
 	}
 
 }

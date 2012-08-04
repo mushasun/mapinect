@@ -1,7 +1,6 @@
 #include "Story.h"
 
 #include "SimpleButton.h"
-#include "DraggableButton.h"
 #include "ObjectButton.h"
 
 namespace story {
@@ -72,6 +71,23 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
+		if (object->getId() == TABLE_ID)
+		{
+			if (!firstTouchDone)
+			{
+				firstTouchDone = true;
+				this->firstTableTouch = touchPoint.getTouchPoint();
+			}
+			else
+			{
+				Road *road = new Road(firstTableTouch, touchPoint.getTouchPoint());
+				roads.push_back(road);
+			}
+		}
+		else 
+		{
+
+		}
 
 	}
 
