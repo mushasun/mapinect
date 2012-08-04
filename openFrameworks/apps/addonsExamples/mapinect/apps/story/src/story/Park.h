@@ -1,5 +1,5 @@
-#ifndef ROAD_H__
-#define ROAD_H__
+#ifndef PARK_H__
+#define PARK_H__
 
 #include "IObject.h"
 #include "ofImage.h"
@@ -9,11 +9,11 @@ using namespace mapinect;
 
 namespace story
 {
-	class Road
+	class Park
 	{
 	public:
-		Road(const ofVec3f begin, const ofVec3f end);
-		virtual ~Road();
+		Park(const ofVec3f begin, const ofVec3f end);
+		virtual ~Park();
 
 		void			update(float elapsedTime);
 		void			draw();

@@ -2,8 +2,6 @@
 
 #include "ofGraphicsUtils.h"
 
-#define BOLT_BOOST_COLOR_DECREASE_FACTOR	1.0f
-
 namespace story
 {
 	Box::Box(const IObjectPtr& object)
