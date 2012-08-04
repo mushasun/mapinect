@@ -408,7 +408,7 @@ PCPtr getCloud(int stride)
 
 PCPtr getCloudWithoutMutex()
 {
-	return getCloud(mapinect::Constants::CLOUD_STRIDE());
+	return getCloudWithoutMutex(mapinect::Constants::CLOUD_STRIDE());
 }
 
 PCPtr getCloud()
