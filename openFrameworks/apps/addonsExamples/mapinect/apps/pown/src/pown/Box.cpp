@@ -17,7 +17,7 @@ namespace pown
 		object.reset();
 	}
 
-	void Box::draw()
+	void Box::draw() const
 	{
 		ofSetColor(color + boostColor);
 		//ofDrawQuad(object->getPolygon(kPolygonNameBottom)->getMathModel().getVertexs());
@@ -40,7 +40,7 @@ namespace pown
 		}
 	}
 
-	bool Box::testHit(Bolt* bolt)
+	bool Box::testHit(Bolt* bolt) const
 	{
 		IPolygonPtr bottomPolygon = object->getPolygon(kPolygonNameBottom);
 		ofVec3f projected(bottomPolygon->getMathModel().getPlane().project(bolt->getPosition()));

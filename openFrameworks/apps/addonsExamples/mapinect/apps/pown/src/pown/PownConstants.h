@@ -17,6 +17,9 @@ namespace pown
 		static float				BOLT_INTENSITY_DECREASE_FACTOR;
 		static float				BOLT_BOOST_COLOR_DECREASE_FACTOR;
 
+		static float				FLOOR_BUMP_EFFECT_LIFETIME;
+		static float				FLOOR_BUMP_EFFECT_WIDTH;
+
 		static void					LoadPownConstants();
 
 	};

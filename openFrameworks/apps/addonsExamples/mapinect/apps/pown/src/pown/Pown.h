@@ -6,6 +6,7 @@
 #include <set>
 #include <map>
 #include "Box.h"
+#include "Floor.h"
 #include "Spot.h"
 
 namespace pown
@@ -32,7 +33,7 @@ namespace pown
 		void				handleBoltEmision(float elapsedTime);
 
 	private:
-		IObjectPtr			floor;
+		Floor*				floor;
 		map<int, Box*>		boxes;
 		set<Spot*>			spots;
 		set<Bolt*>			bolts;
