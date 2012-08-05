@@ -20,15 +20,15 @@ namespace pown
 		inline ofVec3f				getCenter() const						{ return object->getCenter(); }
 
 		void						update(float elapsedTime);
-		void						draw();
+		void						draw() const;
 
-		bool						testHit(Bolt* bolt);
-		void						absorbBolt(Bolt* bolt);
+		virtual bool				testHit(Bolt* bolt) const;
+		virtual void				absorbBolt(Bolt* bolt);
 
-	private:
-		IObjectPtr		object;
-		ofColor			color;
-		ofColor			boostColor;
+	protected:
+		IObjectPtr					object;
+		ofColor						color;
+		ofColor						boostColor;
 
 	};
 }

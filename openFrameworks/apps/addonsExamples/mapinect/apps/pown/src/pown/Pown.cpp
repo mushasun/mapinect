@@ -7,7 +7,7 @@
 namespace pown
 {
 	Pown::Pown()
-		: emisor(-1)
+		: emisor(-1), floor(NULL)
 	{
 	}
 
@@ -27,14 +27,8 @@ namespace pown
 
 	void Pown::draw()
 	{
-		if (floor.get() != NULL)
-		{
-			ofSetColor(kRGBWhite);
-			for (vector<IPolygonPtr>::const_iterator p = floor->getPolygons().begin(); p != floor->getPolygons().end(); ++p)
-			{
-				ofDrawQuad((*p)->getMathModel().getVertexs());
-			}
-		}
+		if (floor != NULL)
+			floor->draw();
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
 			(*spot)->draw();
 		for (set<Bolt*>::const_iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
@@ -57,6 +51,12 @@ namespace pown
 				for (set<Bolt*>::iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
 					if ((*bolt)->isAlive() && box->second->testHit(*bolt))
 						box->second->absorbBolt(*bolt);
+
+		// test bolts with floor
+		if (floor != NULL)
+			for (set<Bolt*>::iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
+				if ((*bolt)->isAlive() && floor->testHit(*bolt))
+					floor->absorbBolt(*bolt);
 	}
 
 	void Pown::handleBoltEmision(float elapsedTime)
@@ -73,7 +73,7 @@ namespace pown
 
 				ofColor color(ofRandomColor());
 				
-				ofVec3f boltCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
+				ofVec3f boltCenter = floor->getObject()->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
 				boltCenter.y -= 0.001f;
 
 				static int boltCount = 0;
@@ -94,6 +94,8 @@ namespace pown
 	void Pown::update(float elapsedTime)
 	{
 		// update all existing objects
+		if (floor != NULL)
+			floor->update(elapsedTime);
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
 			(*spot)->update(elapsedTime);
 		for (set<Bolt*>::const_iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
@@ -120,7 +122,7 @@ namespace pown
 	{
 		if (object->getId() == TABLE_ID)
 		{
-			floor = object;
+			floor = new Floor(object, kRGBWhite);
 		}
 		else
 		{
@@ -129,7 +131,7 @@ namespace pown
 				ofColor color(ofRandomf() * 255.0f, ofRandomf() * 255.0f, ofRandomf() * 255.0f);
 				Box* box = new Box(object, color);
 				boxes[object->getId()] = box;
-				ofVec3f spotCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
+				ofVec3f spotCenter = floor->getObject()->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
 				spotCenter.y -= 0.001f;
 				Spot* spot = new Spot(spotCenter);
 				spots.insert(spot);
@@ -145,7 +147,7 @@ namespace pown
 	{
 		if (object->getId() == TABLE_ID)
 		{
-			floor = object;
+			floor->updateModelObject(object);
 		}
 		else
 		{
