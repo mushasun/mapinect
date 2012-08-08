@@ -85,10 +85,11 @@ namespace mapinect {
 
 		v2 = v1 + normV1V2 * width;
 
-		vertexs.push_back(v1);
+		
 		vertexs.push_back(v2);
 		vertexs.push_back(v2 + norm * height);
 		vertexs.push_back(v1 + norm * height);
+		vertexs.push_back(v1);
 
 		polygon = Polygon3D(vertexs);
 	}
@@ -100,6 +101,7 @@ namespace mapinect {
 		IPolygonPtr pol = obj->getPolygon(face);
 		ofVec3f v1 = pol->getMathModel().getVertexs().at(1);
 		ofVec3f v2 = pol->getMathModel().getVertexs().at(2);
+		ofVec3f faceNorm = pol->getMathModel().getPlane().getNormal();
 		ofVec3f norm = (pol->getMathModel().getVertexs().at(0) - v1).normalized();
 		ofVec3f normV1V2 = (v2 - v1).normalized();
 
@@ -108,10 +110,14 @@ namespace mapinect {
 
 		v2 = v1 + normV1V2 * width;
 
-		vertexs.push_back(v1);
-		vertexs.push_back(v2);
-		vertexs.push_back(v2 + norm * height);
-		vertexs.push_back(v1 + norm * height);
+		ofVec3f zModifier = faceNorm * ZINDEX_MULT;
+		zModifier *= zIndex;
+
+		vertexs.push_back((v1 + norm * height) + zModifier);
+		vertexs.push_back(v1 + zModifier);
+		vertexs.push_back(v2 + zModifier);
+		vertexs.push_back((v2 + norm * height) + zModifier);
+		
 
 		polygon = Polygon3D(vertexs);
 	}
@@ -150,7 +156,7 @@ namespace mapinect {
 			case kObjectButtonTypeFullObject:
 				return drawInFullObject();
 			case kObjectButtonTypeOnFace:
-				return drawInFace();
+ 				return drawInFace();
 			case kObjectButtonTypeOnTable:
 				return drawInFloor();
 			default:
@@ -170,10 +176,15 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void ObjectButton::drawInFace()
 	{
-		for (vector<IPolygonPtr>::const_iterator p = obj->getPolygons().begin(); p != obj->getPolygons().end(); ++p)
+		if(calculatedPolygon)
+			drawFace(polygon);
+		else
 		{
-			if((*p)->getName() == face)
-				drawFace(*p);
+			for (vector<IPolygonPtr>::const_iterator p = obj->getPolygons().begin(); p != obj->getPolygons().end(); ++p)
+			{
+				if((*p)->getName() == face)
+					drawFace(*p);
+			}
 		}
 	}
 
@@ -230,7 +241,10 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	bool ObjectButton::checkInFace(const DataTouch& touch)
 	{
-		return face == touch.getPolygon()->getName();
+		if(calculatedPolygon)
+			return polygon.isInPolygon(touch.getTouchPoint());
+		else
+			return face == touch.getPolygon()->getName();
 	}
 
 	//--------------------------------------------------------------

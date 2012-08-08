@@ -25,6 +25,7 @@ namespace mapinect
 		d = -(normal.dot(p1));
 	}
 
+
 	Plane3D::Plane3D(const Plane3D& plane)
 		: normal(plane.normal), d(plane.d)
 	{

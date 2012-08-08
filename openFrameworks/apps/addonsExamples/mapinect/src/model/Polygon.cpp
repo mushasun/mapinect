@@ -40,8 +40,22 @@ namespace mapinect {
 	void Polygon::setVertexs(const vector<ofVec3f>& v)
 	{
 		vector<ofVec3f> vertexs(v);
-		//sort(vertexs.begin(), vertexs.end(), SortPolar(vertexs));
 		mathModel.setVertexs(vertexs);
+	}
+
+	void Polygon::setVertexsOrdered(const vector<ofVec3f>& v)
+	{
+		vector<ofVec3f> vertexs(v);
+		vector<ofVec3f> oldVertexs = mathModel.getVertexs();
+		vector<ofVec3f> orderedVertexs;
+
+		for(int i = 0; i < oldVertexs.size(); i++)
+		{
+			vector<ofVec3f>::const_iterator idx = findCloser(oldVertexs.at(i), vertexs);
+			orderedVertexs.push_back(*idx);
+			vertexs.erase(idx);
+		}
+		mathModel.setVertexs(orderedVertexs);
 	}
 
 	void Polygon::draw() {

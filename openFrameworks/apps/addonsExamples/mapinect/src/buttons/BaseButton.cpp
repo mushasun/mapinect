@@ -12,6 +12,7 @@ namespace mapinect {
 		btnIds++;
 		leaderTouch = -1;
 		leaderChanged = false;
+		zIndex = 1;
 	}
 
 	BaseButton::BaseButton(const ofColor& idle, const ofColor& pressed)
