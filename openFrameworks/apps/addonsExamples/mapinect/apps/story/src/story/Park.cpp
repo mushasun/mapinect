@@ -11,7 +11,7 @@ namespace story
 	{
 		texture = new ofImage("img/road.jpg");
 		normal = ofVec3f(0, 1, 0);
-		ofVec3f direccion = normal.cross(begin-end).normalize() * (begin-end).length();
+		ofVec3f direccion = normal.cross(begin-end).normalize() * (begin-end).length()/2;
 		vector<ofVec3f> draggable;
 		draggable.push_back(begin + direccion);
 		draggable.push_back(begin - direccion);
