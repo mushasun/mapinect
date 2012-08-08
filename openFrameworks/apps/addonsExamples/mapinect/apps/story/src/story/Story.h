@@ -8,6 +8,7 @@
 #include "DraggableButton.h"
 #include "ofVec3f.h"
 #include "Road.h"
+#include "Park.h"
 
 namespace story
 {
@@ -34,11 +35,13 @@ namespace story
 		virtual void buttonReleased(const IButtonPtr&);
 
 	private:
-		std::map<int, Box*>			boxes;
-		std::list<Road*>	roads;
-		std::list<Park*>	parks;
+		std::map<int, Box>			boxes;
+		std::list<Road>	roads;
+		std::list<Park>	parks;
 		ofVec3f						firstTableTouch;
 		bool						firstTouchDone;
+		void						touchTable(const IObjectPtr&, const DataTouch&);
+		void						touchObject(const IObjectPtr&, const DataTouch&);
 
 	};
 }

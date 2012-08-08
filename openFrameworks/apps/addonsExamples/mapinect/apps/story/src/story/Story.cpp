@@ -73,6 +73,17 @@ namespace story {
 	{
 		if (object->getId() == TABLE_ID)
 		{
+			touchTable(object, touchPoint);
+		}
+		else 
+		{
+			touchObject(object, touchPoint);
+		}
+
+	}
+
+	void Story::touchTable(const IObjectPtr& object, const DataTouch& touchPoint)
+	{
 			if (!firstTouchDone)
 			{
 				firstTouchDone = true;
@@ -80,15 +91,13 @@ namespace story {
 			}
 			else
 			{
-				Road *road = new Road(firstTableTouch, touchPoint.getTouchPoint());
+				Road road = Road(firstTableTouch, touchPoint.getTouchPoint());
 				roads.push_back(road);
-			}
-		}
-		else 
-		{
+			}	
+	}
 
-		}
-
+	void Story::touchObject(const IObjectPtr& object, const DataTouch& touchPoint)
+	{
 	}
 
 	void Story::buttonPressed(const IButtonPtr& btn)
