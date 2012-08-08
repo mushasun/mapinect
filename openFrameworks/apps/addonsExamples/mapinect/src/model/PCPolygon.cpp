@@ -185,7 +185,9 @@ namespace mapinect {
 				rollBackCloud = cloud;
 
 				//seteo nuevos valores
-				getPolygonModelObject()->setVertexs(matchedVertexs);
+				//Mantengo el orden de los vectores
+
+				getPolygonModelObject()->setVertexsOrdered(matchedVertexs);
 				getPolygonModelObject()->getMathModel().setPlane(matchedPlane);
 				
 				//actualizo coeficientes
@@ -212,6 +214,9 @@ namespace mapinect {
 	
 	void PCPolygon::rollBackMatching()
 	{
+		if(rollBackVertexs.size() == 0)
+			return; // si no tengo valores de rollback
+
 		//seteo nuevos valores
 		getPolygonModelObject()->setVertexs(rollBackVertexs);
 		getPolygonModelObject()->getMathModel().setPlane(rollBackPlane);

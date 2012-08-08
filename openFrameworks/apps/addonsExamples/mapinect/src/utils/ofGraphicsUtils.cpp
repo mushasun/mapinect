@@ -39,10 +39,10 @@ void ofDrawQuadTextured(const vector<ofVec3f>& vertexs, const vector<ofVec2f>& t
 vector<ofVec2f> ofTexCoordsFor(ofBaseDraws& d)
 {
 	vector<ofVec2f> result;
-	result.push_back(ofVec2f(0, 0));
 	result.push_back(ofVec2f(d.getWidth(), 0));
 	result.push_back(ofVec2f(d.getWidth(), d.getHeight()));
 	result.push_back(ofVec2f(0, d.getHeight()));
+	result.push_back(ofVec2f(0, 0));
 	
 	return result;
 }

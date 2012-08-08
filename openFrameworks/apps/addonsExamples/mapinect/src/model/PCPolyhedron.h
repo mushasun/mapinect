@@ -55,6 +55,7 @@ namespace mapinect {
 			virtual vector<PCPolygonPtr>	mergePolygons(vector<PCPolygonPtr>& toMerge);
 			const PCPolygonPtr&				getPCPolygon(int index);
 			int								getPCPolygonSize();
+			virtual bool					validate();
 
 			mutable ofxMutex				pcPolygonsMutex;
 

@@ -109,6 +109,7 @@ int getDifferencesCount(const PCPtr& src, const PCPtr& tgt, float distanceThresh
 vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int minClusterSize);
 vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int minClusterSize, int maxClusterSize);
 
+vector<ofVec3f>::const_iterator findCloser(const ofVec3f& v, const vector<ofVec3f>& vertexs);
 // -------------------------------------------------------------------------------------
 
 #endif // POINT_UTILS_H__

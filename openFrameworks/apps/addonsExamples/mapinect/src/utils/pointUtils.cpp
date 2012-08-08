@@ -881,4 +881,21 @@ vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int 
 	return result;
 }
 
+vector<ofVec3f>::const_iterator findCloser(const ofVec3f& v, const vector<ofVec3f>& vertexs)
+{
+	float dist = numeric_limits<float>::max();
+	vector<ofVec3f>::const_iterator idx = vertexs.begin();
+	float curDist;
+	for(vector<ofVec3f>::const_iterator iter = vertexs.begin(); iter != vertexs.end(); ++iter)
+	{
+		curDist = v.squareDistance(*iter);
+		if(curDist < dist)
+		{
+			dist = curDist;
+			idx = iter;
+		}
+	}
+	return idx;
+
+}
 // -------------------------------------------------------------------------------------

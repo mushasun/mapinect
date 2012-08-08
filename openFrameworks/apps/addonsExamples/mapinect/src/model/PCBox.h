@@ -10,6 +10,7 @@ namespace mapinect {
 
 	typedef boost::shared_ptr<PCBox> PCBoxPtr;
 
+
 	class PCBox : public PCPolyhedron{
 		public:
 			PCBox(const PCPtr& cloud, int objId = -1);
@@ -21,6 +22,7 @@ namespace mapinect {
 
 		private:
 			virtual void					unifyVertexs();
+			virtual bool					validate();
 			PCPolygonPtr					duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons);
 			PCPolygonPtr					duplicatePol(const PCPolygonPtr& polygon,const map<IPolygonName,PCPolygonPtr>& estimated);
 			virtual vector<PCPolygonPtr>	estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons, bool& estimationOk);
@@ -38,6 +40,7 @@ namespace mapinect {
 			IPolygonName					getOppositePolygonName(IPolygonName toEstimate);
 			IPolygonName					getPrevPolygonName(IPolygonName toEstimate);
 			IPolygonName					getNextPolygonName(IPolygonName toEstimate);
+			void							fixVertexsOrder(PCPolygonPtr& pol, IPolygonName polName);
 
 
 			PCPolygonPtr					top;
@@ -47,10 +50,11 @@ namespace mapinect {
 			PCPolygonPtr					sideD;
 			PCPolygonPtr					bottom;
 
-			void							messureBox();
-			float							width;			//Respecto a la cara A
-			float							height;			//Respecto a la cara A
-			float							depth;			//Respecto a la cara B
+			ofVec3f							messureBox();
+			ofVec3f							messures; // x = width , y = height, z = depth
+			//float							width;			//Respecto a la cara A
+			//float							height;			//Respecto a la cara A
+			//float							depth;			//Respecto a la cara B
 			bool							messured;
 
 	};
