@@ -118,9 +118,12 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\story\Box.cpp" />
+    <ClCompile Include="src\story\House.cpp" />
     <ClCompile Include="src\story\Park.cpp" />
     <ClCompile Include="src\story\Road.cpp" />
+    <ClCompile Include="src\story\Spot.cpp" />
     <ClCompile Include="src\story\Story.cpp" />
+    <ClCompile Include="src\story\StoryConstants.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\libs\openFrameworksCompiled\project\vs2010\openframeworksLib.vcxproj">
@@ -132,9 +135,12 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\story\Box.h" />
+    <ClInclude Include="src\story\House.h" />
     <ClInclude Include="src\story\Park.h" />
     <ClInclude Include="src\story\Road.h" />
+    <ClInclude Include="src\story\Spot.h" />
     <ClInclude Include="src\story\Story.h" />
+    <ClInclude Include="src\story\StoryConstants.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
