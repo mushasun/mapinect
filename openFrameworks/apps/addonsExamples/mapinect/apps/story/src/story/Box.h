@@ -3,25 +3,43 @@
 
 #include "IObject.h"
 #include "ofImage.h"
+#include "IButtonManager.h"
+#include "DataTouch.h"
 
 using namespace mapinect;
 
 namespace story
 {
+	enum BuildType{
+		kHouse,
+		kPowerPlant
+	};
+
 	class Box
 	{
 	public:
-		Box(const IObjectPtr& object);
+		Box(const IObjectPtr& object, IButtonManager* btnManager);
 		virtual ~Box();
 
-		inline void		updateModelObject(const IObjectPtr& ob)		{ object = ob; }
+		inline void				updateModelObject(const IObjectPtr& ob)		{ object = ob; }
 
-		void			update(float elapsedTime);
-		void			draw();
+		virtual void			update(float elapsedTime);
+		void					draw();
 
-	private:
+		inline vector<int>		getButtonsId()		{ return buttonsId; }
+		inline BuildType		getBuildType()		{ return buildType; }
+		
+		virtual void			buttonEvent(const IButtonPtr& btn, bool released) = 0;
+		virtual void			objectEvent(const DataTouch& touchPoint, const BuildType& selection) = 0;
+	protected:
 		IObjectPtr		object;
-		ofImage*		texture;
+		ofImage*		textureTop;
+		ofImage*		textureA;
+		ofImage*		textureB;
+		ofImage*		textureC;
+		ofImage*		textureD;
+		vector<int>		buttonsId;
+		BuildType		buildType;
 		
 	};
 }

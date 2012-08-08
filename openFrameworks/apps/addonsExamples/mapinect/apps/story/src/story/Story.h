@@ -4,11 +4,14 @@
 #include "IApplication.h"
 
 #include <map>
+#include <set>
 #include "Box.h"
+#include "House.h"
 #include "DraggableButton.h"
 #include "ofVec3f.h"
 #include "Road.h"
 #include "Park.h"
+#include "Spot.h"
 
 namespace story
 {
@@ -19,7 +22,7 @@ namespace story
 		virtual ~Story();
 
 		virtual void setup();
-		virtual void update();
+		virtual void update(float elapsedTime);
 		virtual void draw();
 
 		virtual void keyPressed(int key);
@@ -35,13 +38,19 @@ namespace story
 		virtual void buttonReleased(const IButtonPtr&);
 
 	private:
-		std::map<int, Box>			boxes;
+		std::map<int, Box*>			boxes;
+		std::map<int, DataTouch>	touchPoints;
+
 		std::list<Road>	roads;
 		std::list<Park>	parks;
+		IObjectPtr					floor;
 		ofVec3f						firstTableTouch;
 		bool						firstTouchDone;
 		void						touchTable(const IObjectPtr&, const DataTouch&);
 		void						touchObject(const IObjectPtr&, const DataTouch&);
+		
+		map<int,Box*>::iterator		selectedBoxIdx;
+		Spot						spot;
 
 	};
 }

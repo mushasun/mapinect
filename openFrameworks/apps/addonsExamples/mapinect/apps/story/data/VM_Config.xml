@@ -1,0 +1,20 @@
+<VMConfig>
+	<NEAR_PLANE>0.001</NEAR_PLANE>
+	<FAR_PLANE>4.0</FAR_PLANE>
+	
+	<PROJ_CALIB><![CDATA[data/calib/calibration-projector-05-12.yml]]></PROJ_CALIB>
+	<KINECT_CALIB><![CDATA[data/calib/calibration-guille.yml]]></KINECT_CALIB>
+	
+	<PROJ_WIDTH>1280</PROJ_WIDTH>
+	<PROJ_HEIGHT>768</PROJ_HEIGHT>
+	
+	<PROJ_FX>1991.0</PROJ_FX>	
+	<PROJ_FY>1566.0</PROJ_FY>	
+	<PROJ_CX>624.0</PROJ_CX>	
+	<PROJ_CY>442.0</PROJ_CY>	
+	
+	<TRANS_X>-0.090</TRANS_X>  
+	<TRANS_Y>-0.0030</TRANS_Y> 
+	<TRANS_Z>0</TRANS_Z>
+	
+</VMConfig>
