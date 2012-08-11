@@ -17,7 +17,7 @@ namespace mapinect
 		void						exit();
 		virtual void				threadedFunction();
 
-		void						applyICP(const PCPtr& cloudBefore, const PCPtr& cloudAfter);
+		void						applyICP(const PCPtr& cloudBefore, const PCPtr& cloudAfter, int maxIterations);
 
 		void						processICP();
 
@@ -25,6 +25,7 @@ namespace mapinect
 		bool						checkApplyICP;
 		PCPtr						cloudBeforeMoving;
 		PCPtr						cloudAfterMoving;
+		int							maxIterations;
 
 		ofxMutex					icpMutex;	
 	};

@@ -49,6 +49,8 @@ namespace mapinect
 		static float		KINECT_HEIGHT;
 		static float		MOTORS_HEIGHT;
 
+		inline bool	isArmMoving()	{	return armMoving;	}
+
 	private:
 		bool				isActive();
 		void				sendMotor(int value, int id);
