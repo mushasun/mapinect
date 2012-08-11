@@ -94,12 +94,15 @@ namespace mapinect {
 		EventManager::suscribe(this);
 
 		stoppedMoving = false;
+		armMoving = false;
 		
-		armMoving = true;
-		// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
-		gTransformation->cloudMutex.lock();
-		// No se debe aplicar ICP en el setup
-		cloudBeforeMoving.reset();
+		if (IsFeatureMoveArmActive()) {
+			armMoving = true;
+			// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
+			gTransformation->cloudMutex.lock();
+			// No se debe aplicar ICP en el setup
+			cloudBeforeMoving.reset();
+		}
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -130,49 +133,52 @@ namespace mapinect {
 	void Arduino::update() {
 		CHECK_ACTIVE;
 
-		if (armMoving)
-		{
-			//la logica es la siguiente:
-			//si el vector no se ha movido durante ELAPSED_TIME_ARM_STOPPED_MOVING segundos
-			//se toma como que se ha dejado de mover
-			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
-			if (elapsedTime >= ELAPSED_TIME_ARM_STOPPED_MOVING)		// Cantidad de milisegundos para considerar que el brazo se terminó de mover
+		if (IsFeatureMoveArmActive()) {
+
+			if (armMoving)
 			{
-				armStoppedMoving();
-			}
-			else
-			{
-				ofPoint accel = gKinect->getMksAccel();
-				ofVec3f vecAccel = ofVec3f(accel.x, accel.y, accel.z);
-				ofVec3f vecDiff = vecAccel - acceleration;
-				float largo = vecDiff.length();
-				if (vecDiff.length() > 0.4)
+				//la logica es la siguiente:
+				//si el vector no se ha movido durante ELAPSED_TIME_ARM_STOPPED_MOVING segundos
+				//se toma como que se ha dejado de mover
+				unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
+				if (elapsedTime >= ELAPSED_TIME_ARM_STOPPED_MOVING)		// Cantidad de milisegundos para considerar que el brazo se terminó de mover
 				{
-					//se sigue moviendo
-					acceleration = vecAccel;
-					startTime = ofGetSystemTime();
+					armStoppedMoving();
+				}
+				else
+				{
+					ofPoint accel = gKinect->getMksAccel();
+					ofVec3f vecAccel = ofVec3f(accel.x, accel.y, accel.z);
+					ofVec3f vecDiff = vecAccel - acceleration;
+					float largo = vecDiff.length();
+					if (vecDiff.length() > 0.4)
+					{
+						//se sigue moviendo
+						acceleration = vecAccel;
+						startTime = ofGetSystemTime();
+					}
 				}
 			}
-		}
 
 
-		if (stoppedMoving)
-		{
-			stoppedMoving = false;
-
-			if (IsFeatureMoveArmActive() && !(cloudBeforeMoving.get() == NULL)) 
+			if (stoppedMoving)
 			{
-				cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
-				saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
+				stoppedMoving = false;
 
-				icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving,ICP_MAX_ITERATIONS);
-			} else {
-				//	Libero el mutex para que puedan invocar al método getCloud
-				gTransformation->cloudMutex.unlock();
+				if (IsFeatureMoveArmActive() && !(cloudBeforeMoving.get() == NULL)) 
+				{
+					cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
+					saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
+
+					icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving,ICP_MAX_ITERATIONS);
+				} else {
+					//	Libero el mutex para que puedan invocar al método getCloud
+					gTransformation->cloudMutex.unlock();
+				}
+
 			}
 
 		}
-
 	}
 
 	void Arduino::draw() {
@@ -301,12 +307,13 @@ namespace mapinect {
 
 		loadXMLSettings();
 
-		armMoving = true;
-		// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
-		gTransformation->cloudMutex.lock();
-		// No se debe aplicar ICP en el reset; sirve para "volver a una posición segura"
-		cloudBeforeMoving.reset();
-
+		if (IsFeatureMoveArmActive()) {
+			armMoving = true;
+			// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
+			gTransformation->cloudMutex.lock();
+			// No se debe aplicar ICP en el reset; sirve para "volver a una posición segura"
+			cloudBeforeMoving.reset();
+		}
 
 		if (RESET_ANGLE1 != ANGLE_UNDEFINED) {
 			angleMotor1 = RESET_ANGLE1;
@@ -433,7 +440,9 @@ namespace mapinect {
 		angleMotor1 =_angleMotor1;
 		angleMotor2 =_angleMotor2;
 
-		armStartedMoving();
+		if (IsFeatureMoveArmActive()) {
+			armStartedMoving();
+		}
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -564,7 +573,9 @@ namespace mapinect {
 		//mira_actual = point;
 		mira = point;
 
-		armStartedMoving();
+		if (IsFeatureMoveArmActive()) {
+			armStartedMoving();
+		}
 
 		sendMotor(angleMotor4, ID_MOTOR_4);
 		sendMotor(angleMotor8, ID_MOTOR_8);
@@ -664,33 +675,29 @@ namespace mapinect {
 
 	void Arduino::armStartedMoving()
 	{		
-		armMoving = true;
-		gTransformation->setIsWorldTransformationStable(false);
-
 		if (IsFeatureMoveArmActive()) {
+			armMoving = true;
+			gTransformation->setIsWorldTransformationStable(false);
+
 			// Obtener nube antes de mover los motores
 			cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
 			saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
+
+			// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
+			gTransformation->cloudMutex.lock();
 		}
-
-		// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
-		gTransformation->cloudMutex.lock();
-
 
 	}
 
 	void Arduino::armStoppedMoving()
 	{
-		unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
-		cout << "Brazo se dejo de mover luego de " << elapsedTime << "ms" << endl ;	
+		if (IsFeatureMoveArmActive()) {
+			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
+			cout << "Brazo se dejo de mover luego de " << elapsedTime << "ms" << endl ;	
 
-		armMoving = false;
-		stoppedMoving = true;
-
-		// Para probar, voy a considerar que cuando el brazo paró ya se pueda dibujar en la ventana de mapping, mientras resuelva lo de ICP
-		// TODO : sacar esta linea cuando termine de resolver lo de ICP
-//		gTransformation->setIsWorldTransformationStable(true);
-
+			armMoving = false;
+			stoppedMoving = true;
+		}
 	}
 
 	void Arduino::stopFollowing()
