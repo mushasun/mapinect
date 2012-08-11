@@ -210,11 +210,17 @@ namespace mapinect {
 	{
 		window->setBackgroundColor(0, 0, 0);
 		ofSetColor(255);
-		vm->setupView();
-		vm->draw();
-		app->draw();
-		((ButtonManager*)app->btnManager)->draw();
-		vm->endView();
+		
+		if (gTransformation->getIsWorldTransformationStable()) 
+		{
+			// Dibujar mesa y objetos detectados
+			vm->setupView();
+			vm->draw();
+			app->draw();								
+			((ButtonManager*)app->btnManager)->draw();	
+			vm->endView();
+		}
+
 	}
 
 	//--------------------------------------------------------------
