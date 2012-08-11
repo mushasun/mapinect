@@ -2,6 +2,7 @@
 
 #include "ofGraphicsUtils.h"
 #include "PownConstants.h"
+#include "SoundManager.h"
 
 namespace pown
 {
@@ -55,6 +56,7 @@ namespace pown
 			if (edges[i].distance(boltPosition) < edges[closest].distance(boltPosition))
 				closest = i;
 		
+		SoundManager::playNote(closest);
 		int edgeA = (closest + edgeCount - 1) % edgeCount;
 		int edgeB = (closest + 1) % edgeCount;
 
@@ -89,10 +91,8 @@ namespace pown
 		Line3D bar1(bar(0, 1));
 		Line3D bar2(bar((0.5f - abs(lifetime - 0.5f)) * widthPercent * PownConstants::FLOOR_BUMP_EFFECT_WIDTH, 1));
 
-		ofEnableAlphaBlending();
-			ofSetColor(color);
-			ofDrawQuadTextured(bar1.getOrigin(), bar1.getDestination(), bar2.getDestination(), bar2.getOrigin());
-		ofDisableAlphaBlending();
+		ofSetColor(color);
+		ofDrawQuadTextured(bar1.getOrigin(), bar1.getDestination(), bar2.getDestination(), bar2.getOrigin());
 	}
 
 	Line3D FloorBumpEffect::bar(float advance, float length) const

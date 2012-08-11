@@ -2,7 +2,7 @@
 
 #include "ofGraphicsUtils.h"
 #include "PownConstants.h"
-
+#include "SoundManager.h"
 #include "utils.h"
 
 namespace pown
@@ -50,6 +50,7 @@ namespace pown
 
 	void Box::absorbBolt(Bolt* bolt)
 	{
+		SoundManager::playNote(object->getId() + 4);
 		ofColor boost = bolt->getColor() * bolt->getIntensity();
 		boostColor.r = min(255, boostColor.r + boost.r + color.r) - color.r;
 		boostColor.g = min(255, boostColor.g + boost.g + color.g) - color.g;

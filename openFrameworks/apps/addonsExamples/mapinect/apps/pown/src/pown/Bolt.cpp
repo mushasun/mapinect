@@ -1,15 +1,25 @@
 #include "Bolt.h"
 
-#include "ofGraphics.h"
+#include "ofGraphicsUtils.h"
+#include "ofLight.h"
 #include "PownConstants.h"
 
 #define INTENSITY_ALIVE_PERCENT		0.05f
 
 namespace pown
 {
+	static ofLight boltLight;
+
+	void Bolt::setup()
+	{
+		boltLight.setPointLight();
+		boltLight.setAmbientColor(ofColor(kRGBWhite));
+	}
+
 	Bolt::Bolt(const ofColor& color, const ofVec3f& initialPosition, const ofVec3f& initialSpeed)
 		: color(color), position(initialPosition), speed(initialSpeed)
 	{
+		this->color.a = 128;
 		intensity = 1.0f;
 	}
 
@@ -21,9 +31,18 @@ namespace pown
 	{
 		ofSetColor(color);
 		ofPushMatrix();
-			ofTranslate(position);
-			ofRotateX(90);
-			ofEllipse(0, 0, 0, radius(), radius());
+		/*
+			boltLight.enable();
+			boltLight.setPosition(position);
+			ofColor diffuseColor(color);
+			diffuseColor.a = 64;
+			boltLight.setDiffuseColor(diffuseColor);
+			boltLight.setSpecularColor(diffuseColor);
+			//ofRotateX(90);
+			//ofEllipse(0, 0, 0, radius(), radius());
+		*/
+			ofCircle(position, radius());
+		//	boltLight.disable();
 		ofPopMatrix();
 	}
 
