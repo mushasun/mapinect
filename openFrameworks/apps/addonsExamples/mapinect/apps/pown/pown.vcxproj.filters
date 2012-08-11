@@ -4,6 +4,21 @@
     <Filter Include="pown">
       <UniqueIdentifier>{942253a8-e66a-4ff9-a232-106040664b70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="addons">
+      <UniqueIdentifier>{a4edc461-54a2-4104-87a8-396f741b7538}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxMidi">
+      <UniqueIdentifier>{0f46f4c1-b21f-49cd-9eb5-e891e4783753}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxMidi\src">
+      <UniqueIdentifier>{b5d3e02f-ff37-46f5-9518-3b768ad50678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxMidi\src\desktop">
+      <UniqueIdentifier>{6ea70d07-8f0d-4d2a-819a-902b6a780b2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxMidi\src\desktop\rtmidi">
+      <UniqueIdentifier>{3cf84e3b-87db-40f1-b93b-6ee95bc834bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -25,6 +40,33 @@
     <ClCompile Include="src\pown\Floor.cpp">
       <Filter>pown</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\ofxBaseMidi.cpp">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidi.cpp">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiIn.cpp">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiMessage.cpp">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiOut.cpp">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\desktop\ofxRtMidiIn.cpp">
+      <Filter>addons\ofxMidi\src\desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\desktop\ofxRtMidiOut.cpp">
+      <Filter>addons\ofxMidi\src\desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\desktop\rtmidi\RtMidi.cpp">
+      <Filter>addons\ofxMidi\src\desktop\rtmidi</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pown\SoundManager.cpp">
+      <Filter>pown</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pown\Box.h">
@@ -43,6 +85,42 @@
       <Filter>pown</Filter>
     </ClInclude>
     <ClInclude Include="src\pown\Floor.h">
+      <Filter>pown</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxBaseMidi.h">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidi.h">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiConstants.h">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiIn.h">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiMessage.h">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiOut.h">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiTypes.h">
+      <Filter>addons\ofxMidi\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\desktop\ofxRtMidiIn.h">
+      <Filter>addons\ofxMidi\src\desktop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\desktop\ofxRtMidiOut.h">
+      <Filter>addons\ofxMidi\src\desktop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\desktop\rtmidi\RtError.h">
+      <Filter>addons\ofxMidi\src\desktop\rtmidi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\desktop\rtmidi\RtMidi.h">
+      <Filter>addons\ofxMidi\src\desktop\rtmidi</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pown\SoundManager.h">
       <Filter>pown</Filter>
     </ClInclude>
   </ItemGroup>

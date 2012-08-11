@@ -1,14 +1,24 @@
 #include "Pown.h"
 
-#include "PownConstants.h"
 #include "ofGraphicsUtils.h"
+#include "ofLight.h"
+
+#include "PownConstants.h"
+#include "SoundManager.h"
 #include "Timer.h"
 
 namespace pown
 {
+
+	static ofLight ambientLight;
+
 	Pown::Pown()
 		: emisor(-1), floor(NULL)
 	{
+		ambientLight.setDirectional();
+		ambientLight.setAmbientColor(kRGBRed);
+		ambientLight.setDiffuseColor(kRGBWhite);
+		ambientLight.setSpecularColor(kRGBGreen);
 	}
 
 	Pown::~Pown()
@@ -22,11 +32,18 @@ namespace pown
 	void Pown::setup()
 	{
 		PownConstants::LoadPownConstants();
+		SoundManager::setup();
 		Spot::setup();
 	}
 
 	void Pown::draw()
 	{
+		ofEnableAlphaBlending();
+		//ofEnableLighting();
+
+		//ambientLight.enable();
+		ambientLight.setPosition(ofVec3f(0, -0.3, 0));
+		
 		if (floor != NULL)
 			floor->draw();
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
@@ -35,6 +52,11 @@ namespace pown
 			(*bolt)->draw();
 		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
 			(box->second)->draw();
+		
+		//ambientLight.disable();
+		
+		//ofDisableLighting();
+		ofDisableAlphaBlending();
 	}
 
 	void Pown::testCollisions()
@@ -71,28 +93,36 @@ namespace pown
 			{
 				boltEmisorTimer -= PownConstants::EMIT_TIME;
 
-				ofColor color(ofRandomColor());
+				const int boltsPeriod = 8;
+				const int boltSubPeriod = 4; 
+				static int delay = 0;
+				float mismatch = (float)delay * TWO_PI / ((float)boltSubPeriod * (float)boltsPeriod);
+				delay = (delay + 1) % boltSubPeriod;
+
+				for (int i = 0; i < boltsPeriod; i++)
+				{
+					ofColor color(ofRandomColor());
 				
-				ofVec3f boltCenter = floor->getObject()->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
-				boltCenter.y -= 0.001f;
+					ofVec3f boltCenter = floor->getObject()->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
+					boltCenter.y -= 0.001f;
 
-				static int boltCount = 0;
-				static int boltsPeriod = 8;
-				ofVec3f boltSpeed = ofVec3f(1, 0, 0);
-				boltSpeed *= PownConstants::BOLT_INITIAL_SPEED;
-				boltSpeed.rotateRad(0, (float)boltCount * TWO_PI / (float)boltsPeriod, 0);
-				boltCount = (boltCount + 1) % boltsPeriod;
+					ofVec3f boltSpeed = ofVec3f(1, 0, 0);
+					boltSpeed *= PownConstants::BOLT_INITIAL_SPEED;
+					boltSpeed.rotateRad(0, (float)i * TWO_PI / (float)boltsPeriod + mismatch, 0);
 
-				Bolt* bolt = new Bolt(color, boltCenter, boltSpeed);
-				// Ensure the bolt takes up the missing delay
-				bolt->update(boltEmisorTimer);
-				bolts.insert(bolt);
+					Bolt* bolt = new Bolt(color, boltCenter, boltSpeed);
+					// Ensure the bolt takes up the missing delay
+					bolt->update(boltEmisorTimer);
+					bolts.insert(bolt);
+				}
 			}
 		}
 	}
 
 	void Pown::update(float elapsedTime)
 	{
+		SoundManager::update(elapsedTime);
+
 		// update all existing objects
 		if (floor != NULL)
 			floor->update(elapsedTime);

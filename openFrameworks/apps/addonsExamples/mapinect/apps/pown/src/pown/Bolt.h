@@ -8,6 +8,8 @@ namespace pown {
 
 	class Bolt {
 	public:
+		static void		setup();
+
 		Bolt(const ofColor& color, const ofVec3f& initialPosition, const ofVec3f& initialSpeed);
 		virtual ~Bolt();
 
