@@ -16,6 +16,7 @@ namespace mapinect
 		FEATURE_HAND_DETECTION,
 		FEATURE_MOVE_ARM,
 		FEATURE_UNIFORM_DENSITY,
+		FEATURE_CALIBRATE_TABLE,
 
 		FEATURE_COUNT
 	};
@@ -32,6 +33,7 @@ namespace mapinect
 	bool IsFeatureSaveCloudActive();
 	bool IsFeatureMoveArmActive();
 	bool IsFeatureUniformDensity();
+	bool IsFeatureCalibrateTableActive();
 
 	#define CHECK_ACTIVE		if (!isActive()) return
 }

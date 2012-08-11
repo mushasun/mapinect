@@ -168,7 +168,7 @@ vector<ofVec3f> getScreenCoords(const vector<ofVec3f>& transformedWorldCloud)
 PCXYZ getScreenCoords(const PCXYZ& transformedWorldPoint)
 {
 	// Apply to world point the inverse transformation
-	PCXYZ transf = pcl::transformPoint(transformedWorldPoint, gTransformation->getWorldTransformation().inverse());
+	PCXYZ transf = pcl::transformPoint(transformedWorldPoint, gTransformation->getInverseWorldTransformation());
 	// Then, we call the depth device instance to transform to the depth image coordinates
 	ofVec3f screenCoord = gKinect->getScreenCoordsFromWorldCoords(PCXYZ_OFVEC3F(transf));
 	return OFVEC3F_PCXYZ(screenCoord);

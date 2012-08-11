@@ -62,11 +62,23 @@ namespace mapinect {
 		//cout << calculateArea() << endl;
 		if(this->getId() == TABLE_ID)
 		{
-			for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); ++v) {
+			ofVec3f prev;
+			for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); v++) {
 				ofSetColor(kRGBGreen);
 				ofVec3f w = getScreenCoords(*v);
 				ofCircle(w.x, w.y, 4, 4);
+				if (v != mathModel.getVertexs().begin()) {
+					prev.z = 0;
+					w.z = 0;
+					ofLine(prev,w);
+				}
+				prev = w;
 			}
+
+			ofVec3f first = getScreenCoords(*mathModel.getVertexs().begin());
+			prev.z = 0;
+			first.z = 0;
+			ofLine(prev, first);
 		}
 	}
 }
