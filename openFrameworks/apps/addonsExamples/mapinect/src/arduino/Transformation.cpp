@@ -10,9 +10,10 @@ namespace mapinect
 	{
 		worldTransformation  = Eigen::Affine3f::Identity();
 		initialWorldTransformation = Eigen::Affine3f::Identity();
+		isWorldTransformationStable = true;
 	}
 
-	Eigen::Affine3f	Transformation::getWorldTransformation() const
+	const Eigen::Affine3f	Transformation::getWorldTransformation() const
 	{
 		{
 			transformationMatrixMutex.lock();
@@ -22,7 +23,7 @@ namespace mapinect
 		}
 	}
 
-	Eigen::Affine3f	Transformation::getInverseWorldTransformation() const
+	const Eigen::Affine3f	Transformation::getInverseWorldTransformation() const
 	{
 		{
 			transformationMatrixMutex.lock();
@@ -41,6 +42,33 @@ namespace mapinect
 			inverseWorldTransformation = newTransformation.inverse();
 			transformationMatrixMutex.unlock();
 		}
+	}
+
+	const Eigen::Affine3f Transformation::getInitialWorldTransformation() const
+	{
+			transformationMatrixMutex.lock();
+			Eigen::Affine3f transf (initialWorldTransformation);
+			transformationMatrixMutex.unlock();
+			return transf;
+
+	}
+
+	void Transformation::setInitialWorldTransformation(const Eigen::Affine3f& newTransformation)
+	{
+			transformationMatrixMutex.lock();
+			initialWorldTransformation = newTransformation;
+			transformationMatrixMutex.unlock();
+	}
+
+
+	bool Transformation::getIsWorldTransformationStable() const
+	{
+		return isWorldTransformationStable;
+	}
+	
+	void Transformation::setIsWorldTransformationStable(bool isStable)
+	{
+		isWorldTransformationStable = isStable;
 	}
 
 }
