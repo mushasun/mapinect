@@ -7,6 +7,7 @@
 #include "log.h"
 #include "pointUtils.h"
 
+
 using namespace std;
 
 namespace mapinect {
@@ -67,6 +68,8 @@ namespace mapinect {
 			}
 
 			ofResetColor();
+
+			// Dibujar mesa y objetos detectados
 			ofPushMatrix();
 			{
 				gModel->objectsMutex.lock();

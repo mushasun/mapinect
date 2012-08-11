@@ -77,6 +77,11 @@ namespace mapinect
 		static float				WNEAR_2;
 		static float				HNEAR_2;
 		static float				NDISTANCE;
+
+		// Para la calibración inicial de la mesa
+		static int					PIXEL_TOLERANCE_ESTIMATED_VERTEX;
+		static float				TABLE_WIDTH;
+		static float				TABLE_LENGTH;
 	
 	};
 }

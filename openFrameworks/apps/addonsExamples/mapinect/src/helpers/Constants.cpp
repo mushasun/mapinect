@@ -52,6 +52,11 @@ namespace mapinect
 	float				Constants::HNEAR_2									= 0.315;
 	float				Constants::NDISTANCE								= 0.2;
 
+	// Para la calibración inicial de la mesa
+	int					Constants::PIXEL_TOLERANCE_ESTIMATED_VERTEX			= 40;
+	float				Constants::TABLE_WIDTH								= 0.3;
+	float				Constants::TABLE_LENGTH								= 0.3;
+
 	void Constants::LoadConstants()
 	{
 		ofxXmlSettings XML;
@@ -95,6 +100,12 @@ namespace mapinect
 			TOUCH_CLUSTER_MIN_PERCENT				= XML.getValue(PCM_CONFIG "TOUCH_CLUSTER_MIN_PERCENT", TOUCH_CLUSTER_MIN_PERCENT);
 			TOUCH_TRANSLATION_TOLERANCE_FACTOR		= XML.getValue(PCM_CONFIG "TOUCH_TRANSLATION_TOLERANCE_FACTOR", TOUCH_TRANSLATION_TOLERANCE_FACTOR);
 			TOUCH_MAX_PER_FACE						= XML.getValue(PCM_CONFIG "TOUCH_MAX_PER_FACE", TOUCH_MAX_PER_FACE);
+
+			// Para la calibración inicial de la mesa
+			PIXEL_TOLERANCE_ESTIMATED_VERTEX		= XML.getValue(PCM_CONFIG "PIXEL_TOLERANCE_ESTIMATED_VERTEX", PIXEL_TOLERANCE_ESTIMATED_VERTEX);
+			TABLE_WIDTH								= XML.getValue(PCM_CONFIG "TABLE_WIDTH", TABLE_WIDTH);
+			TABLE_LENGTH							= XML.getValue(PCM_CONFIG "TABLE_LENGTH", TABLE_LENGTH);
+
 		}
 	}
 
