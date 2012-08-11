@@ -29,6 +29,8 @@ namespace pown
 		virtual void		buttonPressed(const IButtonPtr&);
 		virtual void		buttonReleased(const IButtonPtr&);
 
+		virtual void		keyPressed(int key);
+
 		void				testCollisions();
 		void				handleBoltEmision(float elapsedTime);
 

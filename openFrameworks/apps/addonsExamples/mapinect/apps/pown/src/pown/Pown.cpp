@@ -228,4 +228,20 @@ namespace pown
 	void Pown::buttonReleased(const IButtonPtr& btn)
 	{
 	}
+
+	void Pown::keyPressed(int key)
+	{
+		static int pgm = 0;
+		switch (key)
+		{
+		case 'k':
+			pgm = (pgm + 1) % 128;
+			SoundManager::setProgram(pgm);
+			break;
+		case 'l':
+			pgm = (pgm + 128 - 1) % 128;
+			SoundManager::setProgram(pgm);
+			break;
+		}
+	}
 }
