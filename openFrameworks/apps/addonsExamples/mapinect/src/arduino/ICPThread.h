@@ -28,6 +28,9 @@ namespace mapinect
 		int							maxIterations;
 
 		ofxMutex					icpMutex;	
+
+		bool						goodTableEstimation(PCPtr newCloud, float maxAngleThreshold);
+		bool						goodTableEstimationRedetectingTable(PCPtr nubeAfterMovingTransfICP);
 	};
 }
 
