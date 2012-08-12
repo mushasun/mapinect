@@ -11,7 +11,10 @@
 #include "ofVec3f.h"
 #include "Road.h"
 #include "Park.h"
+#include "River.h"
 #include "Spot.h"
+#include "ofImage.h"
+#include "SimpleButton.h"
 
 namespace story
 {
@@ -41,8 +44,10 @@ namespace story
 		std::map<int, Box*>			boxes;
 		std::map<int, DataTouch>	touchPoints;
 
-		std::list<Road>	roads;
-		std::list<Park>	parks;
+		std::list<Road>				roads;
+		std::list<Park>				parks;
+		River						river; //por ahora, solo un río
+
 		IObjectPtr					floor;
 		ofVec3f						firstTableTouch;
 		bool						firstTouchDone;
@@ -51,6 +56,23 @@ namespace story
 		
 		map<int,Box*>::iterator		selectedBoxIdx;
 		Spot						spot;
+
+		int							streetButtonId;
+		int							powerPlantButtonId;
+		int							waterPlantButtonId;
+		int							houseButtonId;
+		int							riverButtonId;
+		bool						addingStreet;
+		bool						addingRiver;
+		bool						addingPowePlant;
+		bool						addingWaterPlant;
+		bool						addingHouse;
+
+		ofImage						imgStreetButton;
+		ofImage						imgRiverButton;
+		ofImage						imgPowerPlantButton;
+		ofImage						imgWaterPlantButton;
+		ofImage						imgHouseButton;
 
 	};
 }
