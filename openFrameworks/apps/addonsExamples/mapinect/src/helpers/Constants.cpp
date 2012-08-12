@@ -54,8 +54,8 @@ namespace mapinect
 
 	// Para la calibración inicial de la mesa
 	int					Constants::PIXEL_TOLERANCE_ESTIMATED_VERTEX			= 40;
-	float				Constants::TABLE_WIDTH								= 0.3;
-	float				Constants::TABLE_LENGTH								= 0.3;
+	float				Constants::TABLE_LENGTH_AB							= 0.3;
+	float				Constants::TABLE_LENGTH_AD							= 0.3;
 
 	void Constants::LoadConstants()
 	{
@@ -103,8 +103,8 @@ namespace mapinect
 
 			// Para la calibración inicial de la mesa
 			PIXEL_TOLERANCE_ESTIMATED_VERTEX		= XML.getValue(PCM_CONFIG "PIXEL_TOLERANCE_ESTIMATED_VERTEX", PIXEL_TOLERANCE_ESTIMATED_VERTEX);
-			TABLE_WIDTH								= XML.getValue(PCM_CONFIG "TABLE_WIDTH", TABLE_WIDTH);
-			TABLE_LENGTH							= XML.getValue(PCM_CONFIG "TABLE_LENGTH", TABLE_LENGTH);
+			TABLE_LENGTH_AB							= XML.getValue(PCM_CONFIG "TABLE_LENGTH_AB", TABLE_LENGTH_AB);
+			TABLE_LENGTH_AD							= XML.getValue(PCM_CONFIG "TABLE_LENGTH_AD", TABLE_LENGTH_AD);
 
 		}
 	}

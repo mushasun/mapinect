@@ -57,132 +57,127 @@ namespace mapinect
 			//					/			   \
 			//				   /			    \
 			//			  A+3 *------------------* A+2
-
+			// Se va a tomar el punto A como el que esté más arriba (mayor Y) y más a la izquierda (menor X), en coordenadas de pantalla
 			int TOLERANCE = Constants::PIXEL_TOLERANCE_ESTIMATED_VERTEX;
-			float anchoMesa = Constants::TABLE_WIDTH;
-			float largoMesa = Constants::TABLE_LENGTH;
+			float TABLE_LENGTH_AB = Constants::TABLE_LENGTH_AB;
+			float TABLE_LENGTH_AD = Constants::TABLE_LENGTH_AD;
 
 			float minX = 0 + TOLERANCE;
 			float maxX = KINECT_DEFAULT_WIDTH - TOLERANCE;
 			float minY = 0 + TOLERANCE;
 			float maxY = KINECT_DEFAULT_HEIGHT - TOLERANCE;
-			ofPoint pScreenA = ofPoint(KINECT_DEFAULT_WIDTH,KINECT_DEFAULT_HEIGHT,0); // En coordenadas de pantalla
+			ofPoint init = ofPoint(KINECT_DEFAULT_WIDTH,0,0); // En coordenadas de pantalla
+			ofPoint pScreenA = init;
 			ofPoint pWorldA = ofPoint(0,0,0);
 			int indexA = -1;
-			// Verificar si hay vértices estimados
-			// Buscar cuál es el vértice A
-			//	Será el que tenga máximo Z y mínimo X
-			for(vector<ofVec3f>::const_iterator it = vertexs.begin(); it != vertexs.end(); it++) 
-			{
+			// Buscar cuál es el vértice A - Será el que tenga máximo Y y mínimo X
+			for(vector<ofVec3f>::const_iterator it = vertexs.begin(); it != vertexs.end(); it++) {
 				ofPoint p = getScreenCoords(*it);
-				// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto
-				//	y por lo tanto fue estimado en la detección del rectángulo de la mesa
-				// Si está dentro, pero sobre el borde, es un punto estimado (la mesa se corta)
-				if(inRange(p.x, minX, maxX) && inRange(p.y, minY, maxY) && p.z > pScreenA.z && p.x < pScreenA.x)
-				{
-					// Si es un vértice real, visto, que no es estimado, y es el que tiene X mínima 
+				if (p.y > pScreenA.y && p.x < pScreenA.x) {
 					pScreenA = p;
 					pWorldA = *it;
 					indexA = indexOf(vertexs,*it);
 				}
 			}
 
-			if (pScreenA == ofPoint(KINECT_DEFAULT_WIDTH,KINECT_DEFAULT_HEIGHT,0)) 
-			{
+			if (pScreenA == init) {
 				cout << "Todos los vértices fueron estimados" << endl;
 				cout << "Intente posicionar el brazo mirando hacia el vértice izquierdo de la mesa" << endl;
-			} else {
-				// maxZWorld es el vértice izquierdo más alejado de la cámara, y no es un vértice estimado
-				ofVec3f v3A(vertexs.at(indexA));
+			} else if (!(inRange(pScreenA.x, minX, maxX) && inRange(pScreenA.y, minY, maxY))) {
+				// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto
+				//	y por lo tanto fue estimado en la detección del rectángulo de la mesa
+				cout << "El vértice A fue estimado" << endl;
+			}  
+
+			// maxZWorld es el vértice izquierdo más alejado de la cámara, y no es un vértice estimado
+			ofVec3f v3A(vertexs.at(indexA));
 			
-				// Busco el siguiente (B), el anterior (D) y el opuesto (C) al punto A (con A = maxZ)
-				int indexB = -1;
-				if (indexA == vertexs.size() - 1) 
-				{
-					// Si es el último, el siguiente es el primero
-					indexB = 0;
-				} else {
-					indexB = indexA + 1;
-				}
-				ofVec3f v3B(vertexs.at(indexB));
+			// Busco el siguiente (B), el anterior (D) y el opuesto (C) al punto A
+			int indexB = -1;
+			if (indexA == vertexs.size() - 1) {
+				// Si es el último, el siguiente es el primero
+				indexB = 0;
+			} else {
+				indexB = indexA + 1;
+			}
+			ofVec3f v3B(vertexs.at(indexB));
 
-				int indexD = -1;
-				if (indexA == 0) 
-				{
-					// Si es el primero, el anterior es el último
-					indexD = vertexs.size() - 1;
-				} else {
-					indexD = indexA - 1;
-				}
-				ofVec3f v3D(vertexs.at(indexD));
+			int indexD = -1;
+			if (indexA == 0) {
+				// Si es el primero, el anterior es el último
+				indexD = vertexs.size() - 1;
+			} else {
+				indexD = indexA - 1;
+			}
+			ofVec3f v3D(vertexs.at(indexD));
 
-				int indexC = -1;
-				if (indexB == vertexs.size() - 1) 
-				{
-					// Si es el último, el siguiente es el primero
-					indexC = 0;
-				} else {
-					indexC = indexB + 1;
-				}
-				ofVec3f v3C(vertexs.at(indexC));
+			int indexC = -1;
+			if (indexB == vertexs.size() - 1) {
+				// Si es el último, el siguiente es el primero
+				indexC = 0;
+			} else {
+				indexC = indexB + 1;
+			}
+			ofVec3f v3C(vertexs.at(indexC));
 
-				//       A -------- B ---------B'
-				//	    /		      \
-				//     /			   \
-				//    D-----------------C
-				//   /
-				//  D'
-				// anchoMesa = dist (A,B')
-				// largoMesa = dist(A,D')
+			//       A -------- B ---------B'
+			//	    /		      \
+			//     /			   \
+			//    D-----------------C
+			//   /
+			//  D'
+			// anchoMesa = dist (A,B')
+			// largoMesa = dist(A,D')
 
-				// Verificar si B es estimado
-				ofPoint pB = getScreenCoords(vertexs.at(indexB));
-				ofVec3f nuevoVerticeB = vertexs.at(indexB);
-				ofVec3f nuevoVerticeC = vertexs.at(indexC);
-				// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto
-				//	y por lo tanto fue estimado en la detección del rectángulo de la mesa
-				// Si está dentro, pero sobre el borde, es un punto estimado (la mesa se corta)
-				if(!inRange(pB.x, minX, maxX) || !inRange(pB.y, minY, maxY))
-				{
-					// B fue estimado, entonces se debe calcular el nuevo B' con el ancho de mesa 
-					mapinect::Line3D lineAB(v3A, v3B);
-					double distanceAB = v3A.distance(v3B);
-					nuevoVerticeB = lineAB.calculateValue(anchoMesa / distanceAB);
-				}
+			// Verificar si B es estimado
+			ofPoint pB = getScreenCoords(vertexs.at(indexB));
+			ofVec3f nuevoVerticeB = vertexs.at(indexB);
+			ofVec3f nuevoVerticeC = vertexs.at(indexC);
+			// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto
+			//	y por lo tanto fue estimado en la detección del rectángulo de la mesa
+			// Si está dentro, pero sobre el borde, es un punto estimado (la mesa se corta)
+			if(!inRange(pB.x, minX, maxX) || !inRange(pB.y, minY, maxY))
+			{
+				// B fue estimado, entonces se debe calcular el nuevo B' con el ancho de mesa 
+				mapinect::Line3D lineAB(v3A, v3B);
+				double distanceAB = v3A.distance(v3B);
+				nuevoVerticeB = lineAB.calculateValue(TABLE_LENGTH_AB / distanceAB);
+				cout << "El vertice B fue modificado" << endl;
+			}
 
-				// Verificar si D es estimado
-				ofPoint pD = getScreenCoords(vertexs.at(indexD));
-				ofVec3f nuevoVerticeD = vertexs.at(indexD);
-				// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto
-				//	y por lo tanto fue estimado en la detección del rectángulo de la mesa
-				// Si está dentro, pero sobre el borde, es un punto estimado (la mesa se corta)
-				if(!inRange(pD.x, minX, maxX) || !inRange(pD.y, minY, maxY))
-				{
-					// D fue estimado, entonces se debe calcular el nuevo D' con el largo de mesa 
-					mapinect::Line3D lineAD(v3A,v3D);
-					double distanceAD = v3A.distance(v3D);
-					nuevoVerticeD = lineAD.calculateValue(largoMesa / distanceAD);
-				}
+			// Verificar si D es estimado
+			ofPoint pD = getScreenCoords(vertexs.at(indexD));
+			ofVec3f nuevoVerticeD = vertexs.at(indexD);
+			// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto
+			//	y por lo tanto fue estimado en la detección del rectángulo de la mesa
+			// Si está dentro, pero sobre el borde, es un punto estimado (la mesa se corta)
+			if(!inRange(pD.x, minX, maxX) || !inRange(pD.y, minY, maxY))
+			{
+				// D fue estimado, entonces se debe calcular el nuevo D' con el largo de mesa 
+				mapinect::Line3D lineAD(v3A,v3D);
+				double distanceAD = v3A.distance(v3D);
+				nuevoVerticeD = lineAD.calculateValue(TABLE_LENGTH_AD / distanceAD);
+				cout << "El vertice D fue modificado" << endl;
+			}
 
-				if (nuevoVerticeB != vertexs.at(indexB) || nuevoVerticeD != vertexs.at(indexD)) 
-				{
-					// Si B o D fueron recalculados, se debe actualizar C también
-					// AB + AD = AC
-					// AC = C - A
-					// => C = (AB + AD) + A = (B-A + D-A) + A
-					ofVec3f AC = nuevoVerticeB - v3A + nuevoVerticeD - v3A; 
-					nuevoVerticeC = AC + v3A;
+			if (nuevoVerticeB != vertexs.at(indexB) || nuevoVerticeD != vertexs.at(indexD)) 
+			{
+				// Si B o D fueron recalculados, se debe actualizar C también
+				// AB + AD = AC
+				// AC = C - A
+				// => C = (AB + AD) + A = (B-A + D-A) + A
+				ofVec3f AC = nuevoVerticeB - v3A + nuevoVerticeD - v3A; 
+				nuevoVerticeC = AC + v3A;
+				cout << "El vertice C fue modificado" << endl;
 
-					vector<ofVec3f> nuevosVertices;
-					nuevosVertices.push_back(v3A);
-					nuevosVertices.push_back(nuevoVerticeB);
-					nuevosVertices.push_back(nuevoVerticeC);
-					nuevosVertices.push_back(nuevoVerticeD);			
+				vector<ofVec3f> nuevosVertices;
+				nuevosVertices.push_back(v3A);
+				nuevosVertices.push_back(nuevoVerticeB);
+				nuevosVertices.push_back(nuevoVerticeC);
+				nuevosVertices.push_back(nuevoVerticeD);			
 
-					// Actualizar la mesa con los nuevos vértices
-					gModel->getTable()->getPolygonModelObject()->setVertexs(nuevosVertices);
-				}
-
+				// Actualizar la mesa con los nuevos vértices
+				gModel->getTable()->getPolygonModelObject()->setVertexs(nuevosVertices);
 			}
 			/**************** Fin de la calibración inicial de la mesa ********************/
 		}

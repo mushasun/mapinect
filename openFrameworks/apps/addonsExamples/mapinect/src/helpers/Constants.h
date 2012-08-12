@@ -80,8 +80,8 @@ namespace mapinect
 
 		// Para la calibración inicial de la mesa
 		static int					PIXEL_TOLERANCE_ESTIMATED_VERTEX;
-		static float				TABLE_WIDTH;
-		static float				TABLE_LENGTH;
+		static float				TABLE_LENGTH_AB;
+		static float				TABLE_LENGTH_AD;
 	
 	};
 }
