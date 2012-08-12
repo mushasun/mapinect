@@ -23,6 +23,9 @@
     <ClCompile Include="src\story\StoryConstants.cpp">
       <Filter>story</Filter>
     </ClCompile>
+    <ClCompile Include="src\story\River.cpp">
+      <Filter>story</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="story">
@@ -49,6 +52,9 @@
       <Filter>story</Filter>
     </ClInclude>
     <ClInclude Include="src\story\StoryConstants.h">
+      <Filter>story</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\River.h">
       <Filter>story</Filter>
     </ClInclude>
   </ItemGroup>

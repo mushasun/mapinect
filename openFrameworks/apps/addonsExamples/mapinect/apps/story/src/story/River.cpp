@@ -1,4 +1,4 @@
-#include "Road.h"
+#include "River.h"
 
 #include "ofGraphicsUtils.h"
 #include "DraggableButton.h"
@@ -6,7 +6,11 @@
 
 namespace story
 {
-	Road::Road(const ofVec3f begin, const ofVec3f end)
+	River::River()
+	{
+	}
+
+	River::River(const ofVec3f begin, const ofVec3f end)
 		: begin(begin), end(end)
 	{
 		texture = new ofImage("data/texturas/road/road.jpg");
@@ -23,16 +27,16 @@ namespace story
 							texture);
 	}
 
-	Road::~Road()
+	River::~River()
 	{
 	}
 
-	void Road::update(float elapsedTime)
+	void River::update(float elapsedTime)
 	{
 		//dibujar autos?
 	}
 
-	void Road::draw()
+	void River::draw()
 	{
 		//no va el dibujado porque lo hace el button
 	}

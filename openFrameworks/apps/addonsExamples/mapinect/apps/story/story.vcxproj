@@ -120,6 +120,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\story\Box.cpp" />
     <ClCompile Include="src\story\House.cpp" />
     <ClCompile Include="src\story\Park.cpp" />
+    <ClCompile Include="src\story\River.cpp" />
     <ClCompile Include="src\story\Road.cpp" />
     <ClCompile Include="src\story\Spot.cpp" />
     <ClCompile Include="src\story\Story.cpp" />
@@ -137,6 +138,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\story\Box.h" />
     <ClInclude Include="src\story\House.h" />
     <ClInclude Include="src\story\Park.h" />
+    <ClInclude Include="src\story\River.h" />
     <ClInclude Include="src\story\Road.h" />
     <ClInclude Include="src\story\Spot.h" />
     <ClInclude Include="src\story\Story.h" />
