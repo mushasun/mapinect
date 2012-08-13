@@ -5,13 +5,19 @@
 
 namespace pown
 {
+	const int NOTES = 16;
+	const int BEATS = 16;
+
+	const int MIN_PROGRAM = 0;
+	const int MAX_PROGRAM = 127;
+
 	class SoundManager
 	{
 	public:
 		static void				setup();
 
 		static void				update(float elapsedTime);
-		static void				playNote(int note);
+		static void				playNote(int note, int program = -1);
 		static void				setProgram(int program);
 		static void				setBeatPeriod(float period);
 
@@ -19,7 +25,8 @@ namespace pown
 		SoundManager();
 
 		void					myUpdate(float elapsedTime);
-		void					myPlayNote(int note);
+		void					myPlayNote(int note, int program = -1);
+		void					myPlayNoteNow(int note, int program = -1);
 		void					mySetProgram(int program);
 		void					mySetBeatPeriod(float period);
 
