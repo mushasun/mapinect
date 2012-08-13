@@ -376,7 +376,6 @@ namespace mapinect {
 					MapinectEvent(kMapinectEventTypeObjectTouched,
 						(*iter)->getObject(),
 						(*iter)->getDataTouch()));
-				//TODO: refinar cuando se envian estas senales
 			}
 		}
 		// Clear released touch points

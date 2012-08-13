@@ -6,7 +6,7 @@ namespace mapinect
 	static int gId = 0;
 
 	TrackedTouch::TrackedTouch(const IPolygonPtr& polygon, const ofVec3f& point)
-		: id(gId++), status(kTouchTypeStarted), polygon(polygon), point(point), lifeCounter(Constants::TOUCH_FRAMES_TO_DISCARD)
+		: id(gId++), status(kTouchTypeStarted), polygon(polygon), point(point), lifeCounter(2)
 	{
 		removeMatching();
 	}
@@ -45,31 +45,47 @@ namespace mapinect
 
 	bool TrackedTouch::updateMatching()
 	{
-		bool hasChanged = true;
+		bool reportStatus = false;
+
 		if (hasMatching())
+			lifeCounter++;
+		else
+			lifeCounter--;
+
+		if (status == kTouchTypeStarted)
 		{
-			status = kTouchTypeHolding;
-			lifeCounter = Constants::TOUCH_FRAMES_TO_DISCARD;
-			if (point == matchingTouch->point)
+			if (lifeCounter == Constants::OBJECT_FRAMES_TO_ACCEPT + 1)
+				status = kTouchTypeHolding;
+			else if (lifeCounter == 0)
+				status = kTouchTypeReleased;
+		}
+
+		if (status == kTouchTypeHolding)
+		{
+			reportStatus = true;
+			if (hasMatching())
 			{
-				hasChanged = false;
+				lifeCounter = Constants::TOUCH_FRAMES_TO_DISCARD;
+				if (point == matchingTouch->point)
+				{
+					reportStatus = false;
+				}
+				else
+				{
+					point = matchingTouch->point;
+				}
+				polygon = matchingTouch->polygon;
+				removeMatching();
 			}
 			else
 			{
-				point = matchingTouch->point;
-			}
-			polygon = matchingTouch->polygon;
-			removeMatching();
-		}
-		else if (status == kTouchTypeHolding)
-		{
-			lifeCounter--;
-			if (lifeCounter == 0)
-			{
-				status = kTouchTypeReleased;
+				if (lifeCounter == 0)
+				{
+					status = kTouchTypeReleased;
+				}
 			}
 		}
-		return hasChanged;
+		return reportStatus;
 	}
 
 	void TrackedTouch::updateToHolding()
