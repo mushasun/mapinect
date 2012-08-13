@@ -9,25 +9,22 @@ using namespace mapinect;
 
 namespace pown
 {
-	class FloorBumpEffect
+	class FloorBrick
 	{
 	public:
-		FloorBumpEffect(const ofColor& color, float widthPercent, const Line3D& lineA, const Line3D& lineB);
+		FloorBrick(const Polygon3D& polygon, const ofColor& color);
 
 		void				update(float elapsedTime);
 		void				draw() const;
 
-		Line3D				bar(float advance, float length) const;
-		bool				isAlive() const;
+		inline void			setColor(const ofColor& color)		{ this->color = color; }
 
 	private:
+		Polygon3D			polygon;
 		ofColor				color;
-		float				widthPercent;
-		float				lifetime;
-		Line3D				lineA, lineB;
 	};
 
-	class Floor : public Box
+	class Floor
 	{
 	public:
 		Floor(const IObjectPtr& object, const ofColor& color);
@@ -37,12 +34,11 @@ namespace pown
 		void				draw() const;
 
 		bool				testHit(Bolt* bolt) const;
-		void				absorbBolt(Bolt* bolt);
-
-		inline IPolygonPtr	getPolygon() const			{ return object->getPolygons()[0]; }
 
 	private:
-		list<FloorBumpEffect>	bumpEffects;
+		IPolygonPtr&		object;
+		ofColor				baseColor;
+		vector<FloorBrick>	bricks;
 	};
 }
 
