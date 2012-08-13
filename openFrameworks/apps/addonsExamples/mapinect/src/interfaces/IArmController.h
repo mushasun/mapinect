@@ -26,7 +26,8 @@ namespace mapinect {
 
 		virtual ofVec3f			getEye() = 0;
 		virtual ofVec3f			getTarget() = 0;
-		ofVec3f					getKinect3dCoordinates();
+		ofVec3f			getKinect3dCoordinates();
+		ofVec3f			moveMotor(int motor_id, signed int degrees);
 
 		/// <summary>
 		/// Arm will try to rotate the joint an 'amount' of degrees.

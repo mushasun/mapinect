@@ -24,6 +24,7 @@ namespace mapinect {
 		void			followObject(const IObjectPtr&);
 		ofVec3f			setArm3dCoordinates(const ofVec3f& position);
 		ofVec3f			getKinect3dCoordinates();
+		ofVec3f			moveMotor(int motor_id, signed int degrees);
 		void			stopFollowing();
 
 		//INotification methods

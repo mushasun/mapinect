@@ -4,9 +4,12 @@
 
 namespace mapinect {
 
+	SimpleButton::SimpleButton()
+	{
+	}
+
 	void SimpleButton::init()
 	{
-
 	}
 
 	SimpleButton::SimpleButton(const Polygon3D& polygon, const ofColor& idle, const ofColor& pressed)

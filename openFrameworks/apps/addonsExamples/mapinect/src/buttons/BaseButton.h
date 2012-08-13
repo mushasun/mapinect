@@ -16,6 +16,7 @@ namespace mapinect {
 	class BaseButton : public IButton
 	{
 	public:
+		BaseButton();
 		BaseButton(const ofColor& idle, const ofColor& pressed);
 		BaseButton(ofImage* idle, ofImage* pressed);
 
