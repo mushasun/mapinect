@@ -16,8 +16,8 @@ namespace pown
 		boltLight.setAmbientColor(ofColor(kRGBWhite));
 	}
 
-	Bolt::Bolt(const ofColor& color, const ofVec3f& initialPosition, const ofVec3f& initialSpeed)
-		: color(color), position(initialPosition), speed(initialSpeed)
+	Bolt::Bolt(int note, const ofColor& color, const ofVec3f& initialPosition, const ofVec3f& initialSpeed)
+		: note(note), color(color), position(initialPosition), speed(initialSpeed)
 	{
 		this->color.a = 128;
 		intensity = 1.0f;

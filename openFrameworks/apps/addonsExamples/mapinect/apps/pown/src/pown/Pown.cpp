@@ -83,6 +83,37 @@ namespace pown
 
 	void Pown::handleBoltEmision(float elapsedTime)
 	{
+		if (floor != NULL)
+		{
+			static float boltEmisorTimer = 0;
+			boltEmisorTimer += elapsedTime;
+			if (boltEmisorTimer >= PownConstants::EMIT_TIME)
+			{
+				boltEmisorTimer -= PownConstants::EMIT_TIME;
+
+				const Polygon3D& floorPoly(floor->getPolygon()->getMathModel());
+				const Line3D& beatsLine(floorPoly.getEdges()[2]);
+				const Line3D& notesLine(floorPoly.getEdges()[1]);
+
+				for (int i = 0; i < NOTES; i++)
+				{
+					ofColor color(ofRandomColor());
+
+					float k = ((float)i + 0.5f) / (float)(NOTES + 1);
+					ofVec3f boltCenter = notesLine.calculateValue(k);
+					boltCenter.y -= 0.001f;
+
+					ofVec3f boltSpeed = beatsLine.getDestination() - beatsLine.getOrigin();
+					boltSpeed /= PownConstants::EMIT_TIME;
+
+					Bolt* bolt = new Bolt(i, color, boltCenter, boltSpeed);
+					// Ensure the bolt takes up the missing delay
+					bolt->update(boltEmisorTimer);
+					bolts.insert(bolt);
+				}
+			}
+		}
+		/*
 		map<int, Box*>::iterator boxIterator = boxes.find(emisor);
 		if (boxIterator != boxes.end())
 		{
@@ -117,6 +148,7 @@ namespace pown
 				}
 			}
 		}
+		*/
 	}
 
 	void Pown::update(float elapsedTime)
@@ -231,14 +263,14 @@ namespace pown
 
 	void Pown::keyPressed(int key)
 	{
-		static int pgm = 0;
+		static int pgm = 50;
 		switch (key)
 		{
-		case 'k':
+		case '6':
 			pgm = (pgm + 1) % 128;
 			SoundManager::setProgram(pgm);
 			break;
-		case 'l':
+		case '5':
 			pgm = (pgm + 128 - 1) % 128;
 			SoundManager::setProgram(pgm);
 			break;

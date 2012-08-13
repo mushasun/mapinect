@@ -56,7 +56,7 @@ namespace pown
 			if (edges[i].distance(boltPosition) < edges[closest].distance(boltPosition))
 				closest = i;
 		
-		SoundManager::playNote(closest);
+		SoundManager::playNote(bolt->getNote());
 		int edgeA = (closest + edgeCount - 1) % edgeCount;
 		int edgeB = (closest + 1) % edgeCount;
 

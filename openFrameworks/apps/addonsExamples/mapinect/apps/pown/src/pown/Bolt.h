@@ -10,10 +10,11 @@ namespace pown {
 	public:
 		static void		setup();
 
-		Bolt(const ofColor& color, const ofVec3f& initialPosition, const ofVec3f& initialSpeed);
+		Bolt(int note, const ofColor& color, const ofVec3f& initialPosition, const ofVec3f& initialSpeed);
 		virtual ~Bolt();
 
 		inline float	getIntensity() const		{ return intensity; }
+		inline int		getNote() const				{ return note; }
 		inline ofColor	getColor() const			{ return color; }
 		inline ofVec3f	getPosition() const			{ return position; }
 
@@ -26,6 +27,7 @@ namespace pown {
 
 	private:
 		float			intensity;
+		int				note;
 		ofColor			color;
 		ofVec3f			position;
 		ofVec3f			speed;
