@@ -11,11 +11,6 @@ namespace mapinect {
 
 #define		ARDUINO_CONFIG		"ArduinoConfig:"
 
-#define		ID_MOTOR_1			1
-#define		ID_MOTOR_2			2
-#define		ID_MOTOR_4			4
-#define		ID_MOTOR_8			8
-
 #define		ANGLE_UNDEFINED		MAXCHAR
 #define		ANGLE_DEFAULT		0
 #define		KEY_UNDEFINED		""
@@ -81,10 +76,10 @@ namespace mapinect {
 
 		loadXMLSettings();
 
-		angleMotor1 = RESET_ANGLE1;
-		angleMotor2 = RESET_ANGLE2;
-		angleMotor4 = RESET_ANGLE4;
-		angleMotor8 = RESET_ANGLE8;	// La posición inicial de este motor es mirando de costado. 
+		moveMotor(ID_MOTOR_1, RESET_ANGLE1);
+		moveMotor(ID_MOTOR_2, RESET_ANGLE2);
+		moveMotor(ID_MOTOR_4, RESET_ANGLE4);
+		moveMotor(ID_MOTOR_8, RESET_ANGLE8);// La posición inicial de este motor es mirando de costado. 
 
 		if (!serial.setup(COM_PORT, 9600)) {
 			cout << "Error en setup del Serial, puerto COM: " << COM_PORT << endl;
@@ -752,6 +747,56 @@ namespace mapinect {
 			ICP_CLOUD_DENSITY = XML.getValue(ARDUINO_CONFIG "ICP_CLOUD_DENSITY", 5);
 			ICP_MAX_ITERATIONS = XML.getValue(ARDUINO_CONFIG "ICP_MAX_ITERATIONS", 20);
 		}
+	}
+
+	ofVec3f Arduino::moveMotor(int motor_id, signed int degrees)
+	{
+		ofVec3f error = ofVec3f(INT_MAX, INT_MAX, INT_MAX);
+		if (motor_id == ID_MOTOR_1)
+		{
+			if (!inRange(degrees, MIN_ANGLE_1, MAX_ANGLE_1))
+			{
+				return error;
+			}
+			else
+			{
+				angleMotor1 = degrees;
+			}
+		}
+		if (motor_id == ID_MOTOR_2)
+		{
+			if (!inRange(degrees, MIN_ANGLE_2, MAX_ANGLE_2))
+			{
+				return error;
+			}
+			else
+			{
+				angleMotor2 = degrees;
+			}
+		}
+		if (motor_id == ID_MOTOR_4)
+		{
+			if (!inRange(degrees, MIN_ANGLE_4, MAX_ANGLE_4))
+			{
+				return error;
+			}
+			else
+			{
+				angleMotor4 = degrees;
+			}
+		}
+		if (motor_id == ID_MOTOR_8)
+		{
+			if (!inRange(degrees, MIN_ANGLE_8, MAX_ANGLE_8))
+			{
+				return error;
+			}
+			else
+			{
+				angleMotor8 = degrees;
+			}
+		}
+		return getKinect3dCoordinates();
 	}
 
 }

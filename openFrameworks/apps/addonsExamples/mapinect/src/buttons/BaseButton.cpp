@@ -6,6 +6,10 @@ namespace mapinect {
 	
 	static int btnIds = 0;
 
+	BaseButton::BaseButton()
+	{
+	}
+
 	void BaseButton::init()
 	{
 		id = btnIds;

@@ -11,6 +11,7 @@ namespace mapinect
 	class SimpleButton : public BaseButton
 	{
 	public:
+		SimpleButton();
 		SimpleButton(const Polygon3D& polygon, const ofColor& idle, const ofColor& pressed);
 		SimpleButton(const Polygon3D& polygon, ofImage* idle, ofImage* pressed);
 		virtual void draw();

@@ -82,4 +82,9 @@ namespace mapinect {
 	{
 		arduino->stopFollowing();
 	}
+
+	ofVec3f	ArmController::moveMotor(int motor_id, signed int degrees)
+	{
+		return arduino->moveMotor(motor_id, degrees);
+	}
 }

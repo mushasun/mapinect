@@ -14,6 +14,14 @@
 
 #include "ICPThread.h"
 
+#define		COULD_NOT_REACH		1
+#define		CANT_MOVE			1
+
+#define		ID_MOTOR_1			1
+#define		ID_MOTOR_2			2
+#define		ID_MOTOR_4			4
+#define		ID_MOTOR_8			8
+
 namespace mapinect
 {
 	class Arduino : public INotification
@@ -34,6 +42,7 @@ namespace mapinect
 
 		ofVec3f				getKinect3dCoordinates();
 		ofVec3f				setArm3dCoordinates(const ofVec3f& position);
+		ofVec3f				moveMotor(int motor_id, signed int degrees);
 		ofVec3f				lookAt(const ofVec3f& point);
 		ofVec3f				lookingAt();
 		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);
@@ -49,7 +58,7 @@ namespace mapinect
 		static float		KINECT_HEIGHT;
 		static float		MOTORS_HEIGHT;
 
-		inline bool	isArmMoving()	{	return armMoving;	}
+		inline bool			isArmMoving()	{	return armMoving;	}
 
 	private:
 		bool				isActive();
