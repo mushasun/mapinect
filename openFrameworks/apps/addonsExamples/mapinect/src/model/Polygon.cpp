@@ -62,23 +62,32 @@ namespace mapinect {
 		//cout << calculateArea() << endl;
 		if(this->getId() == TABLE_ID)
 		{
+			vector<char> tableVertexs;
+			tableVertexs.push_back('A');
+			tableVertexs.push_back('B');
+			tableVertexs.push_back('C');
+			tableVertexs.push_back('D');
 			ofVec3f prev;
-			for (vector<ofVec3f>::const_iterator v = mathModel.getVertexs().begin(); v != mathModel.getVertexs().end(); v++) {
+			for (int i = 0; i < mathModel.getVertexs().size(); i++) {
+				ofVec3f w = getScreenCoords(mathModel.getVertexs().at(i));
+				ofSetColor(kRGBBlue);
+				ofDrawBitmapString(ofToString(tableVertexs.at(i)), w.x + 10, w.y + 10, 0);
+				prev.z = 0;
+				w.z = 0;
 				ofSetColor(kRGBGreen);
-				ofVec3f w = getScreenCoords(*v);
 				ofCircle(w.x, w.y, 4, 4);
-				if (v != mathModel.getVertexs().begin()) {
-					prev.z = 0;
-					w.z = 0;
+				if (i != 0) {
 					ofLine(prev,w);
 				}
 				prev = w;
 			}
 
-			ofVec3f first = getScreenCoords(*mathModel.getVertexs().begin());
-			prev.z = 0;
-			first.z = 0;
-			ofLine(prev, first);
+			if (mathModel.getVertexs().size() > 0) {
+				ofVec3f first = getScreenCoords(mathModel.getVertexs().at(0));
+				prev.z = 0;
+				first.z = 0;
+				ofLine(prev, first);
+			}
 		}
 	}
 }

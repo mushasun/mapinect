@@ -6,6 +6,9 @@
 #include "Globals.h"
 #include "mapinectTypes.h"
 #include "pointUtils.h"
+#include <algorithm>
+#include "SortPolar.h"
+#include <cmath>
 
 namespace mapinect
 {
@@ -51,13 +54,6 @@ namespace mapinect
 		{
 			/************************************************************************/
 			/*     Calibración inicial de la Mesa - Tamaño de la mesa en el XML  	*/
-			vector<ofVec3f> vertexs  = gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs();
-			// Los vértices del Math Model vienen en orden, pero no se sabe cuál es el primero 
-			//				   A *------------* A+1
-			//					/			   \
-			//				   /			    \
-			//			  A+3 *------------------* A+2
-			// Se va a tomar el punto A como el que esté más arriba (mayor Y) y más a la izquierda (menor X), en coordenadas de pantalla
 			int TOLERANCE = Constants::PIXEL_TOLERANCE_ESTIMATED_VERTEX;
 			float TABLE_LENGTH_AB = Constants::TABLE_LENGTH_AB;
 			float TABLE_LENGTH_AD = Constants::TABLE_LENGTH_AD;
@@ -66,59 +62,88 @@ namespace mapinect
 			float maxX = KINECT_DEFAULT_WIDTH - TOLERANCE;
 			float minY = 0 + TOLERANCE;
 			float maxY = KINECT_DEFAULT_HEIGHT - TOLERANCE;
-			ofPoint init = ofPoint(KINECT_DEFAULT_WIDTH,0,0); // En coordenadas de pantalla
-			ofPoint pScreenA = init;
-			ofPoint pWorldA = ofPoint(0,0,0);
-			int indexA = -1;
-			// Buscar cuál es el vértice A - Será el que tenga máximo Y y mínimo X
-			for(vector<ofVec3f>::const_iterator it = vertexs.begin(); it != vertexs.end(); it++) {
-				ofPoint p = getScreenCoords(*it);
-				if (p.y > pScreenA.y && p.x < pScreenA.x) {
-					pScreenA = p;
-					pWorldA = *it;
-					indexA = indexOf(vertexs,*it);
+
+			// Se deben ordener los vértices en screen coords
+			//	de modo que el A sea el que está mas cerca del (0,0) en Screen coords
+			//	y luego en sentido horario B, C y D
+			//				   A *------------* B
+			//					/			   \
+			//				   /			    \
+			//			    D *------------------* C
+			vector<ofVec3f> vertexs  = gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs();
+			vector<ofVec3f> vertexs2D;
+			for (int i = 0; i < vertexs.size(); i++) 
+			{
+				ofVec3f screenCoord = getScreenCoords(vertexs.at(i));	// Transformar a 2D
+				screenCoord.z = 0;										// Descartar coordenada Z
+				vertexs2D.push_back(screenCoord);						// Agregar nuevo elemento al final del vector
+			}
+			// Re ordena el conjunto vertexs2D, en sentido antihorario
+			sort(vertexs2D.begin(),vertexs2D.end(),SortPolar(vertexs2D));	
+			// Buscar cuál es el vértice A, que es el que esté más cerca del (0,0) en coordenadas de pantalla
+			ofPoint init = ofPoint(KINECT_DEFAULT_WIDTH,KINECT_DEFAULT_HEIGHT,0); // En coordenadas de pantalla
+			int indexAVertex2D = -1;
+			float distance = sqrt(pow(init.x,2) + pow(init.y,2));
+			for (int i = 0; i < vertexs2D.size(); i++) 
+			{
+				// Calcular la distancia entre el punto actual y el (0,0)
+				float currentDistance = sqrt(pow(vertexs2D.at(i).x,2) + pow(vertexs2D.at(i).y,2));
+				if (currentDistance < distance) 
+				{
+					distance = currentDistance;
+					indexAVertex2D = i;
+				}
+			}
+			vector<ofVec3f> orderedVertexs2D;
+			if (indexAVertex2D == -1) {
+				cout << "Error - no se pudo determinar cual es el vertice A de la mesa" << endl;
+			} else {
+				for (int i = indexAVertex2D; i >= 0; i--) {
+					orderedVertexs2D.push_back(vertexs2D.at(i));		// orderedVertexs2D.at(0) = vertexs2D.at(indexAVertex2D);
+				} 
+				for (int i = vertexs2D.size() - 1 ; i > indexAVertex2D; i--) {
+					orderedVertexs2D.push_back(vertexs2D.at(i));
 				}
 			}
 
-			if (pScreenA == init) {
-				cout << "Todos los vértices fueron estimados" << endl;
-				cout << "Intente posicionar el brazo mirando hacia el vértice izquierdo de la mesa" << endl;
-			} else if (!(inRange(pScreenA.x, minX, maxX) && inRange(pScreenA.y, minY, maxY))) {
+			vector<ofVec3f> orderedVertexs3D;	// orderedVertexs3D = {A,B,C,D}
+			for (int i = 0; i < orderedVertexs2D.size(); i++) {
+				for (int j = 0; j < vertexs.size(); j++) {
+					ofVec3f screenCoord = getScreenCoords(vertexs.at(j));	// Transformar a 2D
+					screenCoord.z = 0;
+					if (screenCoord == orderedVertexs2D.at(i)) {
+						orderedVertexs3D.push_back(vertexs.at(j));
+					}
+				}
+			}
+
+			// Setear los vertices ordenados en la mesa
+			if (orderedVertexs3D.size() == 4) {
+				gModel->getTable()->getPolygonModelObject()->setVertexs(orderedVertexs3D);
+			}
+
+			vector<ofVec3f> tableVertexs = gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs();
+
+			ofVec3f pWorldA		= tableVertexs.at(0);
+			ofVec3f pScreenA	= getScreenCoords(pWorldA);	
+
+			ofVec3f pWorldB		= tableVertexs.at(1);
+			ofVec3f pScreenB	= getScreenCoords(pWorldB);	
+			ofVec3f nuevoVerticeB = pWorldB;
+
+			ofVec3f pWorldC		= tableVertexs.at(2);
+			ofVec3f nuevoVerticeC = pWorldC;
+
+			ofVec3f pWorldD		= tableVertexs.at(3);
+			ofVec3f pScreenD	= getScreenCoords(pWorldD);		
+			ofVec3f nuevoVerticeD = pWorldD;
+
+
+			if (!(inRange(pScreenA.x, minX, maxX) && inRange(pScreenA.y, minY, maxY))) {
 				// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto
 				//	y por lo tanto fue estimado en la detección del rectángulo de la mesa
-				cout << "El vértice A fue estimado" << endl;
+				cout << "El vertice A fue estimado" << endl;
 			}  
-
-			// maxZWorld es el vértice izquierdo más alejado de la cámara, y no es un vértice estimado
-			ofVec3f v3A(vertexs.at(indexA));
-			
-			// Busco el siguiente (B), el anterior (D) y el opuesto (C) al punto A
-			int indexB = -1;
-			if (indexA == vertexs.size() - 1) {
-				// Si es el último, el siguiente es el primero
-				indexB = 0;
-			} else {
-				indexB = indexA + 1;
-			}
-			ofVec3f v3B(vertexs.at(indexB));
-
-			int indexD = -1;
-			if (indexA == 0) {
-				// Si es el primero, el anterior es el último
-				indexD = vertexs.size() - 1;
-			} else {
-				indexD = indexA - 1;
-			}
-			ofVec3f v3D(vertexs.at(indexD));
-
-			int indexC = -1;
-			if (indexB == vertexs.size() - 1) {
-				// Si es el último, el siguiente es el primero
-				indexC = 0;
-			} else {
-				indexC = indexB + 1;
-			}
-			ofVec3f v3C(vertexs.at(indexC));
 
 			//       A -------- B ---------B'
 			//	    /		      \
@@ -126,52 +151,39 @@ namespace mapinect
 			//    D-----------------C
 			//   /
 			//  D'
-			// anchoMesa = dist (A,B')
-			// largoMesa = dist(A,D')
+			// TABLE_LENGTH_AB = dist(A,B')
+			// TABLE_LENGTH_AD = dist(A,D')
 
-			// Verificar si B es estimado
-			ofPoint pB = getScreenCoords(vertexs.at(indexB));
-			ofVec3f nuevoVerticeB = vertexs.at(indexB);
-			ofVec3f nuevoVerticeC = vertexs.at(indexC);
-			// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto
-			//	y por lo tanto fue estimado en la detección del rectángulo de la mesa
-			// Si está dentro, pero sobre el borde, es un punto estimado (la mesa se corta)
-			if(!inRange(pB.x, minX, maxX) || !inRange(pB.y, minY, maxY))
-			{
+			mapinect::Line3D lineAB(pWorldA, pWorldB);	// Linea entre A y B, ambos en 3D
+			double distanceAB = pWorldA.distance(pWorldB);
+			// Se va a modificar el vertice B solo si fue estimado, o si se quiere acortar el lado AB
+			if(!inRange(pScreenB.x, minX, maxX) || !inRange(pScreenB.y, minY, maxY) || (TABLE_LENGTH_AB < distanceAB)) {
 				// B fue estimado, entonces se debe calcular el nuevo B' con el ancho de mesa 
-				mapinect::Line3D lineAB(v3A, v3B);
-				double distanceAB = v3A.distance(v3B);
 				nuevoVerticeB = lineAB.calculateValue(TABLE_LENGTH_AB / distanceAB);
 				cout << "El vertice B fue modificado" << endl;
 			}
 
-			// Verificar si D es estimado
-			ofPoint pD = getScreenCoords(vertexs.at(indexD));
-			ofVec3f nuevoVerticeD = vertexs.at(indexD);
-			// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto
-			//	y por lo tanto fue estimado en la detección del rectángulo de la mesa
-			// Si está dentro, pero sobre el borde, es un punto estimado (la mesa se corta)
-			if(!inRange(pD.x, minX, maxX) || !inRange(pD.y, minY, maxY))
-			{
+			mapinect::Line3D lineAD(pWorldA,pWorldD);	// Linea entre A y D, ambos en 3D
+			double distanceAD = pWorldA.distance(pWorldD);
+			// Se va a modificar el vertice D solo si fue estimado, o si se quiere acortar el lado AD
+			if(!inRange(pScreenD.x, minX, maxX) || !inRange(pScreenD.y, minY, maxY) || (TABLE_LENGTH_AD < distanceAD)) {
 				// D fue estimado, entonces se debe calcular el nuevo D' con el largo de mesa 
-				mapinect::Line3D lineAD(v3A,v3D);
-				double distanceAD = v3A.distance(v3D);
 				nuevoVerticeD = lineAD.calculateValue(TABLE_LENGTH_AD / distanceAD);
 				cout << "El vertice D fue modificado" << endl;
 			}
 
-			if (nuevoVerticeB != vertexs.at(indexB) || nuevoVerticeD != vertexs.at(indexD)) 
+			if (nuevoVerticeB != pWorldB || nuevoVerticeD != pWorldD ) 
 			{
 				// Si B o D fueron recalculados, se debe actualizar C también
 				// AB + AD = AC
 				// AC = C - A
 				// => C = (AB + AD) + A = (B-A + D-A) + A
-				ofVec3f AC = nuevoVerticeB - v3A + nuevoVerticeD - v3A; 
-				nuevoVerticeC = AC + v3A;
+				ofVec3f AC = nuevoVerticeB - pWorldA + nuevoVerticeD - pWorldA; 
+				nuevoVerticeC = AC + pWorldA;
 				cout << "El vertice C fue modificado" << endl;
 
 				vector<ofVec3f> nuevosVertices;
-				nuevosVertices.push_back(v3A);
+				nuevosVertices.push_back(pWorldA);
 				nuevosVertices.push_back(nuevoVerticeB);
 				nuevosVertices.push_back(nuevoVerticeC);
 				nuevosVertices.push_back(nuevoVerticeD);			
