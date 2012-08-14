@@ -76,10 +76,10 @@ namespace mapinect {
 
 		loadXMLSettings();
 
-		moveMotor(ID_MOTOR_1, RESET_ANGLE1);
-		moveMotor(ID_MOTOR_2, RESET_ANGLE2);
-		moveMotor(ID_MOTOR_4, RESET_ANGLE4);
-		moveMotor(ID_MOTOR_8, RESET_ANGLE8);// La posición inicial de este motor es mirando de costado. 
+		angleMotor1 = RESET_ANGLE1;
+		angleMotor2 = RESET_ANGLE2;
+		angleMotor4 = RESET_ANGLE4;
+		angleMotor8 = RESET_ANGLE8;// La posición inicial de este motor es mirando de costado. 
 
 		if (!serial.setup(COM_PORT, 9600)) {
 			cout << "Error en setup del Serial, puerto COM: " << COM_PORT << endl;
@@ -221,6 +221,9 @@ namespace mapinect {
 			case '5':
 				//AngleMotor1 = -8
 				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos8, -Arduino::ARM_LENGTH*sin8, 0)); 
+				break;
+			case '6':
+				moveMotor(8,80);
 				break;
 			case '.':
 				// Recargar settings desde el archivo XML, por si se modificaron
@@ -796,7 +799,22 @@ namespace mapinect {
 				angleMotor8 = degrees;
 			}
 		}
-		return getKinect3dCoordinates();
+		
+		if (IsFeatureMoveArmActive()) {
+			armStartedMoving();
+		}
+
+		sendMotor(angleMotor1, ID_MOTOR_1);
+		sendMotor(angleMotor2, ID_MOTOR_2);
+		sendMotor(angleMotor4, ID_MOTOR_4);
+		sendMotor(angleMotor8, ID_MOTOR_8);
+
+		if (IsFeatureMoveArmActive()) {
+			calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
+		}
+		posicion = getKinect3dCoordinates(); //ofVec3f(x, y, z);
+
+		return posicion;
 	}
 
 }
