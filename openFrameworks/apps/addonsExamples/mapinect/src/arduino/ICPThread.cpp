@@ -92,9 +92,9 @@ namespace mapinect {
 		bool isTableWellEstimated = goodTableEstimation(afterMoving, maxAngleThreshold);
 
 		if (isTableWellEstimated) {
-			cout << "La transformación calculada es una buena aproximación" << endl;
+			cout << "La transformacion calculada es una buena aproximación" << endl;
 		} else {
-			cout << "Se necesita mejorar la transformación" << endl;
+			cout << "Se necesita mejorar la transformacion" << endl;
 			cout << "Aplicando ICP..." << endl;
 
 			// Comienza procesamiento de ICP
