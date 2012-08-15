@@ -130,7 +130,9 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::objectLost(const IObjectPtr& object)
 	{
-		boxes.erase(boxes.find(object->getId()));
+		map<int,Box*>::iterator box = boxes.find(object->getId());
+		if(box != boxes.end())
+			boxes.erase(box);
 	}
 
 	//--------------------------------------------------------------
@@ -181,6 +183,7 @@ namespace story {
 				if (addingStreet)
 				{
 					Road road = Road(firstTableTouch, touchPoint.getTouchPoint());
+					btnManager->addButton(road.button);
 					roads.push_back(road);
 				}
 				firstTouchDone = false;

@@ -2,6 +2,7 @@
 
 #include "ofGraphicsUtils.h"
 #include "DraggableButton.h"
+#include "DraggableButton.h"
 #define NORMAL_FACTOR 5
 
 namespace story
@@ -18,9 +19,9 @@ namespace story
 		draggable.push_back(end + direccion);
 		draggable.push_back(end - direccion);
 		Polygon3D area = Polygon3D(draggable);
-		DraggableButton d1( draggable,
+		button = IButtonPtr(new DraggableButton ( draggable,
 							texture,
-							texture);
+							texture));
 	}
 
 	Road::~Road()

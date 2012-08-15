@@ -4,6 +4,7 @@
 #include "IObject.h"
 #include "ofImage.h"
 #include "ofVec3f.h"
+#include "IButton.h"
 
 using namespace mapinect;
 
@@ -17,6 +18,7 @@ namespace story
 
 		void			update(float elapsedTime);
 		void			draw();
+		IButtonPtr		button;
 
 	private:
 		ofImage*		texture;
