@@ -2,34 +2,42 @@
 #define BOX_H__
 
 #include "IObject.h"
-#include "Bolt.h"
+#include "Brick.h"
 
 using namespace mapinect;
 
 namespace pown
 {
+	class Brick;
+
 	class Box
 	{
 	public:
-		Box(const IObjectPtr& object, const ofColor& color);
+		Box(const IObjectPtr& object, const ofColor& color, const NoteBeat& noteBeat);
 		virtual ~Box();
 
 		inline void					updateModelObject(const IObjectPtr& ob)	{ object = ob; }
 
 		inline const IObjectPtr&	getObject()								{ return object; }
 		inline ofVec3f				getCenter() const						{ return object->getCenter(); }
+		inline const ofFloatColor&	getColor() const						{ return color; }
+		inline const NoteBeat&		getNoteBeat() const						{ return noteBeat; }
+		inline void					setNoteBeat(const NoteBeat& nb)			{ noteBeat = nb; }
 
 		void						update(float elapsedTime);
 		void						draw() const;
 
-		virtual bool				testHit(Bolt* bolt) const;
-		virtual void				absorbBolt(Bolt* bolt);
+		void						doBeat();
+
+		bool						testHit(Brick* brick) const;
 
 	protected:
 		IObjectPtr					object;
-		ofColor						color;
-		ofColor						boostColor;
+		ofFloatColor				color;
+		NoteBeat					noteBeat;
 
+		ofFloatColor				boostColor;
+		int							program;
 	};
 }
 

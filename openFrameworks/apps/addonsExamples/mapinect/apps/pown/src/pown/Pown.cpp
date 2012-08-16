@@ -13,8 +13,9 @@ namespace pown
 	static ofLight ambientLight;
 
 	Pown::Pown()
-		: emisor(-1), floor(NULL)
+		: brickManager(NULL)
 	{
+		floor.reset();
 		ambientLight.setDirectional();
 		ambientLight.setAmbientColor(kRGBRed);
 		ambientLight.setDiffuseColor(kRGBWhite);
@@ -44,12 +45,10 @@ namespace pown
 		//ambientLight.enable();
 		ambientLight.setPosition(ofVec3f(0, -0.3, 0));
 		
-		if (floor != NULL)
-			floor->draw();
+		if (brickManager != NULL)
+			brickManager->draw();
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
 			(*spot)->draw();
-		for (set<Bolt*>::const_iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
-			(*bolt)->draw();
 		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
 			(box->second)->draw();
 		
@@ -59,163 +58,92 @@ namespace pown
 		ofDisableAlphaBlending();
 	}
 
+	void Pown::handleCreateSpot(float elapsedTime)
+	{
+		static float spotTimer = 0.0f;
+		spotTimer += elapsedTime;
+		if (spotTimer >= PownConstants::SPOT_SEED_TIME)
+		{
+			spotTimer -= PownConstants::SPOT_SEED_TIME;
+			/*
+			ofVec3f spotCenter = floor->getMathModel().getPlane().project(box->getCenter());
+			spotCenter.y -= 0.001f;
+			Spot* spot = new Spot(spotCenter);
+			spots.insert(spot);
+			*/
+		}
+	}
+
 	void Pown::testCollisions()
 	{
 		// test spots with boxes
 		for (set<Spot*>::iterator spot = spots.begin(); spot != spots.end(); spot++)
 			for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
 				if ((*spot)->testHit(box->second))
-					(*spot)->setBox(box->second);
-
-		// test bolts with boxes
-		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
-			if (box->first != emisor)
-				for (set<Bolt*>::iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
-					if ((*bolt)->isAlive() && box->second->testHit(*bolt))
-						box->second->absorbBolt(*bolt);
-
-		// test bolts with floor
-		if (floor != NULL)
-			for (set<Bolt*>::iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
-				if ((*bolt)->isAlive() && floor->testHit(*bolt))
-					floor->absorbBolt(*bolt);
+					;
 	}
 
-	void Pown::handleBoltEmision(float elapsedTime)
+	void Pown::updateBeat(float elapsedTime)
 	{
-		if (floor != NULL)
+		if (brickManager != NULL)
 		{
 			static float boltEmisorTimer = 0;
 			boltEmisorTimer += elapsedTime;
-			if (boltEmisorTimer >= PownConstants::EMIT_TIME)
+			if (boltEmisorTimer >= PownConstants::BEAT_TIME)
 			{
-				boltEmisorTimer -= PownConstants::EMIT_TIME;
+				boltEmisorTimer -= PownConstants::BEAT_TIME;
 
-				const Polygon3D& floorPoly(floor->getPolygon()->getMathModel());
-				const Line3D& beatsLine(floorPoly.getEdges()[2]);
-				const Line3D& notesLine(floorPoly.getEdges()[1]);
+				brickManager->doBeat(boxes);
 
-				for (int i = 0; i < NOTES; i++)
-				{
-					ofColor color(ofRandomColor());
-
-					float k = ((float)i + 0.5f) / (float)(NOTES + 1);
-					ofVec3f boltCenter = notesLine.calculateValue(k);
-					boltCenter.y -= 0.001f;
-
-					ofVec3f boltSpeed = beatsLine.getDestination() - beatsLine.getOrigin();
-					boltSpeed /= PownConstants::EMIT_TIME;
-
-					Bolt* bolt = new Bolt(i, color, boltCenter, boltSpeed);
-					// Ensure the bolt takes up the missing delay
-					bolt->update(boltEmisorTimer);
-					bolts.insert(bolt);
-				}
+				SoundManager::beat();
 			}
 		}
-		/*
-		map<int, Box*>::iterator boxIterator = boxes.find(emisor);
-		if (boxIterator != boxes.end())
-		{
-			Box* box = boxIterator->second;
-			static float boltEmisorTimer = 0;
-			boltEmisorTimer += elapsedTime;
-			if (boltEmisorTimer >= PownConstants::EMIT_TIME)
-			{
-				boltEmisorTimer -= PownConstants::EMIT_TIME;
-
-				const int boltsPeriod = 8;
-				const int boltSubPeriod = 4; 
-				static int delay = 0;
-				float mismatch = (float)delay * TWO_PI / ((float)boltSubPeriod * (float)boltsPeriod);
-				delay = (delay + 1) % boltSubPeriod;
-
-				for (int i = 0; i < boltsPeriod; i++)
-				{
-					ofColor color(ofRandomColor());
-				
-					ofVec3f boltCenter = floor->getObject()->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
-					boltCenter.y -= 0.001f;
-
-					ofVec3f boltSpeed = ofVec3f(1, 0, 0);
-					boltSpeed *= PownConstants::BOLT_INITIAL_SPEED;
-					boltSpeed.rotateRad(0, (float)i * TWO_PI / (float)boltsPeriod + mismatch, 0);
-
-					Bolt* bolt = new Bolt(color, boltCenter, boltSpeed);
-					// Ensure the bolt takes up the missing delay
-					bolt->update(boltEmisorTimer);
-					bolts.insert(bolt);
-				}
-			}
-		}
-		*/
 	}
 
 	void Pown::update(float elapsedTime)
 	{
-		SoundManager::update(elapsedTime);
-
 		// update all existing objects
-		if (floor != NULL)
-			floor->update(elapsedTime);
+		if (brickManager != NULL)
+			brickManager->update(elapsedTime);
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
 			(*spot)->update(elapsedTime);
-		for (set<Bolt*>::const_iterator bolt = bolts.begin(); bolt != bolts.end(); bolt++)
-			(*bolt)->update(elapsedTime);
 		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
 			(box->second)->update(elapsedTime);
 		
 		testCollisions();
 
-		// emit bolts
-		handleBoltEmision(elapsedTime);
+		// update beats
+		updateBeat(elapsedTime);
 
-		// remove dead bolts
-		for (set<Bolt*>::iterator bolt = bolts.begin(); bolt != bolts.end();)
-		{
-			if (!(*bolt)->isAlive())
-				bolts.erase(bolt++);
-			else
-				++bolt;
-		}
 	}
 
 	void Pown::objectDetected(const IObjectPtr& object)
 	{
 		if (object->getId() == TABLE_ID)
 		{
-			floor = new Floor(object, kRGBWhite);
+			floor = object->getPolygons()[0];
+			brickManager = new BrickManager(floor);
 		}
 		else
 		{
 			if (boxes.find(object->getId()) == boxes.end())
 			{
 				ofColor color(ofRandomf() * 255.0f, ofRandomf() * 255.0f, ofRandomf() * 255.0f);
-				Box* box = new Box(object, color);
+				Box* box = new Box(object, color, NoteBeat(-1, -1));
+				brickManager->updateBox(box);
 				boxes[object->getId()] = box;
-				ofVec3f spotCenter = floor->getObject()->getPolygons()[0]->getMathModel().getPlane().project(box->getCenter());
-				spotCenter.y -= 0.001f;
-				Spot* spot = new Spot(spotCenter);
-				spots.insert(spot);
-				if (emisor < 0)
-				{
-					emisor = object->getId();
-				}
 			}
 		}
 	}
 		
 	void Pown::objectUpdated(const IObjectPtr& object)
 	{
-		if (object->getId() == TABLE_ID)
-		{
-			floor->updateModelObject(object);
-		}
-		else
+		if (object->getId() != TABLE_ID)
 		{
 			map<int, Box*>::iterator b = boxes.find(object->getId());
 			if (b != boxes.end())
 				b->second->updateModelObject(object);
+			brickManager->updateBox(b->second);
 		}
 	}
 
@@ -226,14 +154,6 @@ namespace pown
 			if (boxes.find(object->getId()) != boxes.end())
 			{
 				boxes.erase(object->getId());
-			}
-			if (emisor == object->getId())
-			{
-				emisor = -1;
-				if (boxes.begin() != boxes.end())
-				{
-					emisor = boxes.begin()->first;
-				}
 			}
 		}
 	}

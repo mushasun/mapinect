@@ -5,8 +5,8 @@
 
 #include <set>
 #include <map>
+#include "Brick.h"
 #include "Box.h"
-#include "Floor.h"
 #include "Spot.h"
 
 namespace pown
@@ -31,16 +31,16 @@ namespace pown
 
 		virtual void		keyPressed(int key);
 
-		void				testCollisions();
-		void				handleBoltEmision(float elapsedTime);
-
 	private:
-		Floor*				floor;
+		void				testCollisions();
+		void				updateBeat(float elapsedTime);
+
+		void				handleCreateSpot(float elapsedTime);
+
+		IPolygonPtr			floor;
+		BrickManager*		brickManager;
 		map<int, Box*>		boxes;
 		set<Spot*>			spots;
-		set<Bolt*>			bolts;
-
-		int					emisor;
 	};
 }
 

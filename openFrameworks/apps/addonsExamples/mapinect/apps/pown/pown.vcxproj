@@ -133,9 +133,9 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiMessage.cpp" />
     <ClCompile Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiOut.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\pown\Bolt.cpp" />
     <ClCompile Include="src\pown\Box.cpp" />
-    <ClCompile Include="src\pown\Floor.cpp" />
+    <ClCompile Include="src\pown\Brick.cpp" />
+    <ClCompile Include="src\pown\NoteBeat.cpp" />
     <ClCompile Include="src\pown\Pown.cpp" />
     <ClCompile Include="src\pown\PownConstants.cpp" />
     <ClCompile Include="src\pown\SoundManager.cpp" />
@@ -153,9 +153,9 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiMessage.h" />
     <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiOut.h" />
     <ClInclude Include="..\..\..\..\..\addons\ofxMidi\src\ofxMidiTypes.h" />
-    <ClInclude Include="src\pown\Bolt.h" />
     <ClInclude Include="src\pown\Box.h" />
-    <ClInclude Include="src\pown\Floor.h" />
+    <ClInclude Include="src\pown\Brick.h" />
+    <ClInclude Include="src\pown\NoteBeat.h" />
     <ClInclude Include="src\pown\Pown.h" />
     <ClInclude Include="src\pown\PownConstants.h" />
     <ClInclude Include="src\pown\SoundManager.h" />

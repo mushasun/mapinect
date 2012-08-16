@@ -9,7 +9,9 @@ namespace pown
 
 	const int VELOCITY = 64;
 	const int BASE_PITCH = 57;
-	static int pentatonicScale[NOTES] = { 0, 2, 5, 7, 9, 12, 14, 17, 19, 21, 24, 26, 29, 31, 33, 36 };
+	const int BASE_SCALE_NOTES = 5;
+	static int baseScale[BASE_SCALE_NOTES] = { 0, 2, 5, 7, 9 };
+	static int* scale;
 
 	struct ProgramNote
 	{
@@ -24,19 +26,20 @@ namespace pown
 	SoundManager::SoundManager()
 		: channel(1), program(0)
 	{
-		timer = 0;
-		mySetBeatPeriod(PownConstants::EMIT_TIME / (float)BEATS);
 		midiOut.openPort(0);
 	}
 
 	void SoundManager::setup()
 	{
+		scale = new int[PownConstants::NOTES];
+		for (int i = 0; i < PownConstants::NOTES; i++)
+			scale[i] = BASE_PITCH + baseScale[i % BASE_SCALE_NOTES] + 12 * (i / BASE_SCALE_NOTES);
 		instance = new SoundManager();
 	}
 
-	void SoundManager::update(float elapsedTime)
+	void SoundManager::beat()
 	{
-		instance->myUpdate(elapsedTime);
+		instance->myBeat();
 	}
 
 	void SoundManager::playNote(int note, int program)
@@ -49,25 +52,15 @@ namespace pown
 		instance->mySetProgram(program);
 	}
 
-	void SoundManager::setBeatPeriod(float period)
+	void SoundManager::myBeat()
 	{
-		instance->mySetBeatPeriod(period);
-	}
-
-	void SoundManager::myUpdate(float elapsedTime)
-	{
-		timer += elapsedTime;
-		if (timer >= beatPeriod)
+		for (int i = 0; i < PownConstants::NOTES; i++)
+			midiOut.sendNoteOff(channel, scale[i], VELOCITY);
+		if (playSynchronized)
 		{
-			for (int i = 0; i < NOTES; i++)
-				midiOut.sendNoteOff(channel, BASE_PITCH + pentatonicScale[i], VELOCITY);
-			if (playSynchronized)
-			{
-				for (int i = 0; i < notesToPlay.size(); i++)
-					myPlayNoteNow(notesToPlay[i].note, notesToPlay[i].program);
-				notesToPlay.clear();
-			}
-			timer -= beatPeriod;
+			for (int i = 0; i < notesToPlay.size(); i++)
+				myPlayNoteNow(notesToPlay[i].note, notesToPlay[i].program);
+			notesToPlay.clear();
 		}
 	}
 
@@ -85,20 +78,15 @@ namespace pown
 	void SoundManager::myPlayNoteNow(int note, int program)
 	{
 		int saveProgram = this->program;
-		//mySetProgram(program);
-		midiOut.sendNoteOn(channel, BASE_PITCH + pentatonicScale[note], VELOCITY);
-		//mySetProgram(saveProgram);
+		mySetProgram(program);
+		midiOut.sendNoteOn(channel, scale[note], VELOCITY);
+		mySetProgram(saveProgram);
 	}
 
 	void SoundManager::mySetProgram(int program)
 	{
 		this->program = program;
 		midiOut.sendProgramChange(channel, program);
-	}
-
-	void SoundManager::mySetBeatPeriod(float period)
-	{
-		beatPeriod = period;
 	}
 
 }
