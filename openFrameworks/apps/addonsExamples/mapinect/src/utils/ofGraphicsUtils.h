@@ -6,7 +6,8 @@
 const ofColor kRGBWhite			(255, 255, 255);
 const ofColor kRGBBlack			(0, 0, 0);
 const ofColor kRGBLightGray		(192, 192, 192);
-const ofColor kRGBDarkGray		(128, 128, 128);
+const ofColor kRGBMidGray		(128, 128, 128);
+const ofColor kRGBDarkGray		(64, 64, 64);
 const ofColor kRGBRed			(255, 0, 0);
 const ofColor kRGBGreen			(0, 255, 0);
 const ofColor kRGBBlue			(0, 0, 255);

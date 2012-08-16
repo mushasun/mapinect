@@ -7,18 +7,19 @@ namespace pown
 	{
 	public:
 
+		static int					NOTES;
+		static int					BEATS;
+
 		static float				EMIT_TIME;
+		static float				BEAT_TIME;
 
-		static float				SPOT_BASE_RADIUS;
-		static float				SPOT_ROTATION_PERIOD_TIME;
+		static float				SPOT_PERIOD_TIME;
+		static float				SPOT_SEED_TIME;
 
-		static float				BOLT_INITIAL_SPEED;
-		static float				BOLT_BASE_RADIUS;
-		static float				BOLT_INTENSITY_DECREASE_FACTOR;
-		static float				BOLT_BOOST_COLOR_DECREASE_FACTOR;
+		static float				BOX_BEAT_TIME;
 
-		static float				FLOOR_BUMP_EFFECT_LIFETIME;
-		static float				FLOOR_BUMP_EFFECT_WIDTH;
+		static float				WAVE_INTENSITY_DECREASE_FACTOR;
+		static float				WAVE_RADIUS_INCREASE_TIME;
 
 		static void					LoadPownConstants();
 

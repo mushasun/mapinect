@@ -5,9 +5,6 @@
 
 namespace pown
 {
-	const int NOTES = 16;
-	const int BEATS = 16;
-
 	const int MIN_PROGRAM = 0;
 	const int MAX_PROGRAM = 127;
 
@@ -16,28 +13,23 @@ namespace pown
 	public:
 		static void				setup();
 
-		static void				update(float elapsedTime);
+		static void				beat();
 		static void				playNote(int note, int program = -1);
 		static void				setProgram(int program);
-		static void				setBeatPeriod(float period);
 
 	private:
 		SoundManager();
 
-		void					myUpdate(float elapsedTime);
+		void					myBeat();
 		void					myPlayNote(int note, int program = -1);
 		void					myPlayNoteNow(int note, int program = -1);
 		void					mySetProgram(int program);
-		void					mySetBeatPeriod(float period);
 
 		static SoundManager*	instance;
 
 		ofxMidiOut				midiOut;
 		int						channel;
 		int						program;
-		float					beatPeriod;
-
-		float					timer;
 	};
 }
 

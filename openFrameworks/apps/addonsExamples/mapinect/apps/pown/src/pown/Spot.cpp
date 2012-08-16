@@ -10,7 +10,7 @@ namespace pown
 	Spot::Spot(const ofVec3f& position)
 		: position(position), box(NULL), rotation(0.0f)
 	{
-		const float size = PownConstants::SPOT_BASE_RADIUS;
+		const float size = 0.05f;
 		vector<ofVec3f> vertexs;
 		vertexs.push_back(ofVec3f(-size * 0.5f, 0, -size * 0.5f));
 		vertexs.push_back(ofVec3f(size * 0.5f, 0, -size * 0.5f));
@@ -43,7 +43,7 @@ namespace pown
 
 	void Spot::update(float elapsedTime)
 	{
-		rotation += TWO_PI * elapsedTime / PownConstants::SPOT_ROTATION_PERIOD_TIME;
+		rotation += TWO_PI * elapsedTime / PownConstants::SPOT_PERIOD_TIME;
 		if (rotation >= TWO_PI)
 		{
 			rotation -= TWO_PI;
@@ -53,7 +53,7 @@ namespace pown
 	bool Spot::testHit(Box* box)
 	{
 		ofVec3f boxProjectedCenter(area.getPlane().project(box->getCenter()));
-		return position.distance(boxProjectedCenter) < PownConstants::SPOT_BASE_RADIUS;
+		return position.distance(boxProjectedCenter) < 0.05f;
 	}
 
 	void Spot::setBox(Box* box)
