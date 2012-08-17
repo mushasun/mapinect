@@ -183,119 +183,50 @@ namespace mapinect {
 	void Arduino::keyPressed (int key) {
 		CHECK_ACTIVE;
 
-		ofVec3f centroidePrueba(0.3188, 0.2454, 1.0842);
-
-		float sin8 = 0.12533;
-		float sin15 = 0.2588;
-		float sin30 = 0.5;
-		float sin45 = 0.7071;
-		float cos8 = 0.9921;
-		float cos15 = 0.9659;
-		float cos30 = 0.866;
-		float cos45 = 0.7071;
-		switch (key)
-		{
-			case '9':
-				lookAt(centroidePrueba);
-				break;
-			case '0':
-				reset(); // Vuelve a la posición inicial, resetea la matriz de transformación y no aplica ICP
-				//setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0)); 
-				break;
-			case '1':
-				//AngleMotor1 = -15
-				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos15, -Arduino::ARM_LENGTH*sin15, 0)); 
-				break;
-			case '2':
-				//AngleMotor2 = 15
-				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos15, 0, Arduino::ARM_LENGTH*sin15)); 
-				break;
-			case '3':
-				//AngleMotor8 > 90
-				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0));
-				break;
-			case '4':
-				//AngleMotor4 < 0 
-				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH, 0, 0));
-				break;
-			case '5':
-				//AngleMotor1 = -8
-				setArm3dCoordinates(ofVec3f(Arduino::ARM_LENGTH*cos8, -Arduino::ARM_LENGTH*sin8, 0)); 
-				break;
-			case '6':
-				moveMotor(8,80);
-				break;
-			case '.':
-				// Recargar settings desde el archivo XML, por si se modificaron
-				loadXMLSettings();
-				break;
-			case '=':
-				applyICPLoadedClouds();
-				break;
+		bool debug = true;
+	
+		if (debug) {
+			switch (key)
+			{
+				case '0':
+					reset(); // Vuelve a la posición inicial, resetea la matriz de transformación y no aplica ICP
+					break;
+				case '6':
+					moveMotor(8,80);
+					break;
+				case '.':
+					// Recargar settings desde el archivo XML, por si se modificaron
+					loadXMLSettings();
+					break;
+			}
+			if (key == KEY_MOVE_1R) {
+				moveMotor(1,angleMotor1 + ANGLE_STEP);
+			} else if (key == KEY_MOVE_1L) {
+				moveMotor(1,angleMotor1 - ANGLE_STEP);
+			} else if (key == KEY_MOVE_2R) {
+				moveMotor(2,angleMotor2 + ANGLE_STEP);
+			} else if (key == KEY_MOVE_2L) {
+				moveMotor(2,angleMotor2 - ANGLE_STEP);
+			} else if (key == KEY_MOVE_4R) {
+				moveMotor(4,angleMotor4 + ANGLE_STEP);
+			} else if (key == KEY_MOVE_4L) {
+				moveMotor(4,angleMotor4 - ANGLE_STEP);
+			} else if (key == KEY_MOVE_8R) {
+				moveMotor(8,angleMotor8 + ANGLE_STEP);
+			} else if (key == KEY_MOVE_8L) {
+				moveMotor(8,angleMotor8 - ANGLE_STEP);
+			} 
+			else if (key == KEY_RESET) {
+				reset();
+			}
+			else if (key == KEY_PRINT_STATUS) {
+				cout << read() << endl;
+				cout << "motor 1: " << angleMotor1 << endl;
+				cout << "motor 2: " << angleMotor2 << endl;
+				cout << "motor 4: " << angleMotor4 << endl;
+				cout << "motor 8: " << angleMotor8 << endl;
+			}		
 		}
-		if (key == KEY_MOVE_1R) {
-			angleMotor1 += ANGLE_STEP;
-			sendMotor((char) angleMotor1, ID_MOTOR_1);
-		}
-		else if (key == KEY_MOVE_1L) {
-			angleMotor1 -= ANGLE_STEP;
-			sendMotor((char) angleMotor1, ID_MOTOR_1);
-		}
-		else if (key == KEY_MOVE_2R) {
-			angleMotor2 += ANGLE_STEP;
-			sendMotor((char) angleMotor2, ID_MOTOR_2);
-		}
-		else if (key == KEY_MOVE_2L) {
-			angleMotor2 -= ANGLE_STEP;
-			sendMotor((char) angleMotor2, ID_MOTOR_2);
-		}
-		else if (key == KEY_MOVE_4R) {
-			angleMotor4 += ANGLE_STEP;
-			sendMotor((char) angleMotor4, ID_MOTOR_4);
-		}
-		else if (key == KEY_MOVE_4L) {
-			angleMotor4 -= ANGLE_STEP;
-			sendMotor((char) angleMotor4, ID_MOTOR_4);
-		}
-		else if (key == KEY_MOVE_8R) {
-			angleMotor8 += ANGLE_STEP;
-			sendMotor((char) angleMotor8, ID_MOTOR_8);
-		}
-		else if (key == KEY_MOVE_8L) {
-			angleMotor8 -= ANGLE_STEP;
-			sendMotor((char) angleMotor8, ID_MOTOR_8);
-		}
-		else if (key == KEY_RESET) {
-			reset();
-		}
-		else if (key == KEY_PRINT_STATUS) {
-			cout << read() << endl;
-			cout << "motor 1: " << angleMotor1 << endl;
-			cout << "motor 2: " << angleMotor2 << endl;
-			cout << "motor 4: " << angleMotor4 << endl;
-			cout << "motor 8: " << angleMotor8 << endl;
-		}
-		else if (key == 'z')
-		{
-			setArm3dCoordinates(ofVec3f(ARM_LENGTH, -0.10, 0.10));
-		}
-		else if (key == 'a')
-		{
-			setArm3dCoordinates(ofVec3f(ARM_LENGTH, 0, 0));
-		}
-		else if (key == 'x')
-		{
-			lookAt(ofVec3f(0.35, -0.16, 0.15));
-		}
-		else if (key == 'c')
-		{
-			lookAt(ofVec3f(0.35, -0.13, 0.10));
-		}
-		else if (key == 's')
-		{
-			lookAt(ofVec3f(0.33, -KINECT_HEIGHT-MOTORS_HEIGHT, 0.1));
-		}		
-
 	}
 
 
@@ -661,14 +592,6 @@ namespace mapinect {
 		idObjectToFollow = object->getId();
 		centerOfFollowingObject = object->getCenter();
 		//lookAt(object->getCenter());
-	}
-
-	void Arduino::applyICPLoadedClouds() 
-	{
-		PCPtr cloudBefore = loadCloud("cloudBeforeMoving2.pcd");
-		PCPtr cloudAfter = loadCloud("cloudAfterMoving2.pcd");
-
-		icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving,ICP_MAX_ITERATIONS);
 	}
 
 	void Arduino::armStartedMoving()
