@@ -2,24 +2,20 @@
 	<NEAR_PLANE>0.001</NEAR_PLANE>
 	<FAR_PLANE>4.0</FAR_PLANE>
 	
-	<PROJ_CALIB><![CDATA[data/calib/calibration-projector-05-12.yml]]></PROJ_CALIB>
-	<KINECT_CALIB><![CDATA[data/calib/calibration-guille.yml]]></KINECT_CALIB>
+	<PROJ_CALIB><![CDATA[data/calib/16Ago2012-CalibProyKinect.yml]]></PROJ_CALIB>
+	<KINECT_CALIB><![CDATA[data/calib/16Ago2012-CalibKinect.yml]]></KINECT_CALIB>
 	
 	<PROJ_WIDTH>1280</PROJ_WIDTH>
 	<PROJ_HEIGHT>768</PROJ_HEIGHT>
 	
-	<PROJ_FX>1929.0</PROJ_FX>
-	<PROJ_FY>1593.0</PROJ_FY>
-	<PROJ_CX>634.0</PROJ_CX>
-	<PROJ_CY>373.0</PROJ_CY>
+	<!-- If different calib parameters are needed -->
+	<PROJ_FX>2095.0</PROJ_FX>	
+	<PROJ_FY>1689.0</PROJ_FY>	
+	<PROJ_CX>590.0</PROJ_CX>	
+	<PROJ_CY>377.0</PROJ_CY>	
 	
-
-	<TRANS_X>-0.112</TRANS_X>
-	<TRANS_Y>0.020</TRANS_Y>
-	<TRANS_Z>0</TRANS_Z>
-	<!--
-	<TRANS_X>-357.00000</TRANS_X>
-	<TRANS_Y>-344.00000</TRANS_Y>
-	<TRANS_Z>-77.286613</TRANS_Z>-->
+	<TRANS_X>-0.1100</TRANS_X>  
+	<TRANS_Y>-0.0180</TRANS_Y> 
+	<TRANS_Z>0.2240</TRANS_Z>
 
 </VMConfig>
