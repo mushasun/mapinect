@@ -5,7 +5,7 @@
 #include "Globals.h"
 #include "pointUtils.h"
 #include "Constants.h"
-
+#include "Plane3D.h"
 
 using namespace std;
 
@@ -131,7 +131,8 @@ namespace mapinect {
 
 				// Verificar el resultado de ICP recalculando la mesa
 				/* Método para detectar mesa - PCL SACSegmentation */
-				bool isICPTableWellEstimated = goodTableEstimation(nubeAfterMovingTransfICP, maxAngleThreshold); // Sino usar goodTableEstimationRedetectingTable
+				float maxToleratedAngle = 10;
+				bool isICPTableWellEstimated = goodTableEstimation(nubeAfterMovingTransfICP, maxToleratedAngle); // Sino usar goodTableEstimationRedetectingTable
 				if (isICPTableWellEstimated) {
 					cout << "Se aplica la transformación de ICP" << endl;
 					gTransformation->setWorldTransformation(newTransf * gTransformation->getWorldTransformation());
@@ -154,8 +155,6 @@ namespace mapinect {
 		// http://pointclouds.org/documentation/tutorials/planar_segmentation.php#planar-segmentation
 		// http://www.pcl-users.org/Ransac-Planes-td2085912.html#a2086759
 
-		startTime = ofGetSystemTime();
-
 		pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
 		pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
 
@@ -173,16 +172,43 @@ namespace mapinect {
 		seg.setInputCloud(newCloud);
 		seg.segment(*inliers, *coefficients);
 
-		unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
-		cout << "Tiempo para verificar ICP detectando mesa - SACSegmentation: " << elapsedTime << endl;
+		Plane3D p(*coefficients);
+		ofVec3f tableCentroid = gModel->getTable()->getCenter();
+		Plane3D modelTablePlane(gModel->getTable()->getCoefficients());
+		float centroidDistance = p.distance(tableCentroid);
+		float normalDifference = p.getNormal().angle(modelTablePlane.getNormal());
 
-		if (inliers->indices.size () == 0) {
-			// No se pudo encontrar la mesa
-			return false;
-		} else {
-			return true;
+		float MAX_ANGLE = 2;
+		float MAX_TOLERATED_ANGLE = 10;
+		float MAX_CENTROID_DISTANCE = 0.005;
+		float MAX_TOLERATED_CENTROID_DISTANCE = 0.05; 
+
+		if (inliers->indices.size () != 0) {
+			if (normalDifference < MAX_ANGLE && centroidDistance < MAX_CENTROID_DISTANCE) {
+				cout << "La mesa fue detectada correctamente" << endl;
+				return true;
+			} else if (normalDifference < MAX_TOLERATED_ANGLE && centroidDistance < MAX_TOLERATED_CENTROID_DISTANCE) {
+				// Tomo como mesa lo que se detectó			
+				cout << "Voy a pisar la mesa con la nueva detectada" << endl;
+				gModel->tableMutex.lock();
+				TablePtr modelTable = gModel->getTable();
+				if (modelTable != NULL) {
+					modelTable->SetTablePlane(p.getCoefficients());
+					cout << "Se pisó la mesa" << endl;
+				}
+				gModel->tableMutex.unlock();
+				return true;
+			} else {
+				cout << "La mesa detectada no es buena!" << endl;
+				// TODO: evaluar si no hay que resetear todo y volver a calcular la transformacion de cero
+				// Y resetear la mesa a la inicial (hay que guardarla)
+				return false;
+			}
 		}
 
+		cout << "La mesa no se detectó, muña!" << endl;
+		return false;
+		
 	}
 
 	bool ICPThread::goodTableEstimationRedetectingTable(PCPtr nubeAfterMovingTransfICP)
