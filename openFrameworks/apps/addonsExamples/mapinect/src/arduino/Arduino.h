@@ -80,7 +80,6 @@ namespace mapinect
 		PCPtr				cloudAfterMoving;
 		int					idObjectToFollow;
 		ofVec3f				centerOfFollowingObject;
-		void				applyICPLoadedClouds(); 
 		ofVec3f				acceleration;
 
 		void				armStartedMoving();
