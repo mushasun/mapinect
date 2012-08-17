@@ -26,9 +26,6 @@ namespace mapinect {
 		virtual void mouseReleased(int x, int y, int button);
 		virtual void dragEvent(ofDragInfo info);
 
-/*		virtual void setCameraPosition(ofVec3f position);
-		virtual void setCameraLookat(ofVec3f lookAt);
-*/
 		virtual std::string getKinectCalibFile();
 
 	private:

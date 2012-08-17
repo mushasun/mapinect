@@ -9,9 +9,9 @@ namespace mapinect {
 
 #define		VM_CONFIG			"VMConfig:"
 
-	static float transX =   -0.112;  //-0.112;  //-0.065; //-0.088;	//0.019;
-	static float transY =    0.020;  //0.008; // 0.004;	//-0.003;
-	static float transZ =   0;		//-0.050;
+	static float transX =   0;
+	static float transY =   0;
+	static float transZ =   0;		
 	static float rotYAxis = 0;
 
 	static ofVec3f currentModelviewT(0,0,0);
@@ -90,12 +90,6 @@ namespace mapinect {
 		proj_cx = (float) cvGetReal2D(projector_intrinsics, 0, 2);
 		proj_cy = (float) cvGetReal2D(projector_intrinsics, 1, 2);
 
-		// Pruebo de modificar los parámetros intrínsecos para ver si se ajusta mejor el tamaño
-		proj_fx = 1929.0f;			//1978.0f;						//2100.0f;
-		proj_fy = 1593.0f;			//1586.0f;						//1794.0f;
-		proj_cx = 634.0f;			//642.0f;						//658.0f;
-		proj_cy = 373.0f;						//504.0f;
-		 
 		float proj_width = (float) cvGetReal2D(projector_size, 0, 0); 
 		float proj_height = (float) cvGetReal2D(projector_size, 0, 1);
 		if (proj_width != projWidth || proj_height != projHeight)
@@ -407,16 +401,6 @@ namespace mapinect {
 		proj_matrix_glproj[9] = 2. * (cy / projHeight) - 1.;
 	}
 
-/*	void VM::setCameraPosition(ofVec3f position)
-	{
-		cameraPosition = position;
-	}
-
-	void VM::setCameraLookat(ofVec3f lookAt)
-	{
-		cameraLookAt = lookAt;
-	}
-*/
 	std::string VM::getKinectCalibFile()
 	{
 		return kinectCalibFile;
