@@ -12,6 +12,21 @@
 
 namespace mapinect
 {
+	void Table::SetTablePlane(const pcl::ModelCoefficients& coefficients) {
+		
+		TablePtr table(new Table(coefficients, gModel->getTable()->getCloud()));
+		// Y los vertices?? No hay que setearlos??
+		Plane3D newPlane(coefficients);
+		vector<ofVec3f> vertexs  = gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs();
+		vector<ofVec3f> projectedVertexs;  
+		for (int i = 0; i < vertexs.size(); i++) {
+			projectedVertexs.push_back(newPlane.project(vertexs.at(i)));
+		}
+		table->getPolygonModelObject()->setVertexs(projectedVertexs);
+		gModel->setTable(table);
+
+	}
+
 	TablePtr Table::Create(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
 	{
 		PCPtr transformedCloud(cloud);
@@ -50,6 +65,66 @@ namespace mapinect
 		table->setDrawPointCloud(false);
 		gModel->setTable(table);
 
+		// Se deben ordenar los vértices en screen coords
+		//	de modo que el A sea el que está mas cerca del (0,0) en Screen coords
+		//	y luego en sentido horario B, C y D
+		//				   A *------------* B
+		//					/			   \
+		//				   /			    \
+		//			    D *------------------* C
+		vector<ofVec3f> vertexs  = gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs();
+		vector<ofVec3f> vertexs2D;
+		for (int i = 0; i < vertexs.size(); i++) 
+		{
+			ofVec3f screenCoord = getScreenCoords(vertexs.at(i));	// Transformar a 2D
+			screenCoord.z = 0;										// Descartar coordenada Z
+			vertexs2D.push_back(screenCoord);						// Agregar nuevo elemento al final del vector
+		}
+		// Re ordena el conjunto vertexs2D, en sentido antihorario
+		sort(vertexs2D.begin(),vertexs2D.end(),SortPolar(vertexs2D));	
+		// Buscar cuál es el vértice A, que es el que esté más cerca del (0,0) en coordenadas de pantalla
+		ofPoint init = ofPoint(KINECT_DEFAULT_WIDTH,KINECT_DEFAULT_HEIGHT,0); // En coordenadas de pantalla
+		int indexAVertex2D = -1;
+		float distance = sqrt(pow(init.x,2) + pow(init.y,2));
+		for (int i = 0; i < vertexs2D.size(); i++) 
+		{
+			// Calcular la distancia entre el punto actual y el (0,0)
+			float currentDistance = sqrt(pow(vertexs2D.at(i).x,2) + pow(vertexs2D.at(i).y,2));
+			if (currentDistance < distance) 
+			{
+				distance = currentDistance;
+				indexAVertex2D = i;
+			}
+		}
+		vector<ofVec3f> orderedVertexs2D;
+		if (indexAVertex2D == -1) {
+			cout << "Error - no se pudo determinar cual es el vertice A de la mesa" << endl;
+		} else {
+			for (int i = indexAVertex2D; i >= 0; i--) {
+				orderedVertexs2D.push_back(vertexs2D.at(i));		// orderedVertexs2D.at(0) = vertexs2D.at(indexAVertex2D);
+			} 
+			for (int i = vertexs2D.size() - 1 ; i > indexAVertex2D; i--) {
+				orderedVertexs2D.push_back(vertexs2D.at(i));
+			}
+		}
+
+		vector<ofVec3f> orderedVertexs3D;	// orderedVertexs3D = {A,B,C,D}
+		for (int i = 0; i < orderedVertexs2D.size(); i++) {
+			for (int j = 0; j < vertexs.size(); j++) {
+				ofVec3f screenCoord = getScreenCoords(vertexs.at(j));	// Transformar a 2D
+				screenCoord.z = 0;
+				if (screenCoord == orderedVertexs2D.at(i)) {
+					orderedVertexs3D.push_back(vertexs.at(j));
+				}
+			}
+		}
+
+		// Setear los vertices ordenados en la mesa
+		if (orderedVertexs3D.size() == 4) {
+			gModel->getTable()->getPolygonModelObject()->setVertexs(orderedVertexs3D);
+		}
+
+
 		if (IsFeatureCalibrateTableActive())
 		{
 			/************************************************************************/
@@ -62,65 +137,6 @@ namespace mapinect
 			float maxX = KINECT_DEFAULT_WIDTH - TOLERANCE;
 			float minY = 0 + TOLERANCE;
 			float maxY = KINECT_DEFAULT_HEIGHT - TOLERANCE;
-
-			// Se deben ordener los vértices en screen coords
-			//	de modo que el A sea el que está mas cerca del (0,0) en Screen coords
-			//	y luego en sentido horario B, C y D
-			//				   A *------------* B
-			//					/			   \
-			//				   /			    \
-			//			    D *------------------* C
-			vector<ofVec3f> vertexs  = gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs();
-			vector<ofVec3f> vertexs2D;
-			for (int i = 0; i < vertexs.size(); i++) 
-			{
-				ofVec3f screenCoord = getScreenCoords(vertexs.at(i));	// Transformar a 2D
-				screenCoord.z = 0;										// Descartar coordenada Z
-				vertexs2D.push_back(screenCoord);						// Agregar nuevo elemento al final del vector
-			}
-			// Re ordena el conjunto vertexs2D, en sentido antihorario
-			sort(vertexs2D.begin(),vertexs2D.end(),SortPolar(vertexs2D));	
-			// Buscar cuál es el vértice A, que es el que esté más cerca del (0,0) en coordenadas de pantalla
-			ofPoint init = ofPoint(KINECT_DEFAULT_WIDTH,KINECT_DEFAULT_HEIGHT,0); // En coordenadas de pantalla
-			int indexAVertex2D = -1;
-			float distance = sqrt(pow(init.x,2) + pow(init.y,2));
-			for (int i = 0; i < vertexs2D.size(); i++) 
-			{
-				// Calcular la distancia entre el punto actual y el (0,0)
-				float currentDistance = sqrt(pow(vertexs2D.at(i).x,2) + pow(vertexs2D.at(i).y,2));
-				if (currentDistance < distance) 
-				{
-					distance = currentDistance;
-					indexAVertex2D = i;
-				}
-			}
-			vector<ofVec3f> orderedVertexs2D;
-			if (indexAVertex2D == -1) {
-				cout << "Error - no se pudo determinar cual es el vertice A de la mesa" << endl;
-			} else {
-				for (int i = indexAVertex2D; i >= 0; i--) {
-					orderedVertexs2D.push_back(vertexs2D.at(i));		// orderedVertexs2D.at(0) = vertexs2D.at(indexAVertex2D);
-				} 
-				for (int i = vertexs2D.size() - 1 ; i > indexAVertex2D; i--) {
-					orderedVertexs2D.push_back(vertexs2D.at(i));
-				}
-			}
-
-			vector<ofVec3f> orderedVertexs3D;	// orderedVertexs3D = {A,B,C,D}
-			for (int i = 0; i < orderedVertexs2D.size(); i++) {
-				for (int j = 0; j < vertexs.size(); j++) {
-					ofVec3f screenCoord = getScreenCoords(vertexs.at(j));	// Transformar a 2D
-					screenCoord.z = 0;
-					if (screenCoord == orderedVertexs2D.at(i)) {
-						orderedVertexs3D.push_back(vertexs.at(j));
-					}
-				}
-			}
-
-			// Setear los vertices ordenados en la mesa
-			if (orderedVertexs3D.size() == 4) {
-				gModel->getTable()->getPolygonModelObject()->setVertexs(orderedVertexs3D);
-			}
 
 			vector<ofVec3f> tableVertexs = gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs();
 
@@ -137,7 +153,6 @@ namespace mapinect
 			ofVec3f pWorldD		= tableVertexs.at(3);
 			ofVec3f pScreenD	= getScreenCoords(pWorldD);		
 			ofVec3f nuevoVerticeD = pWorldD;
-
 
 			if (!(inRange(pScreenA.x, minX, maxX) && inRange(pScreenA.y, minY, maxY))) {
 				// Si está fuera de pantalla, es porque el Kinect no llega a ver a ese punto

@@ -8,6 +8,7 @@ namespace mapinect {
 	class Table : public PCQuadrilateral {
 	public:
 		static TablePtr Create(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud);
+		void SetTablePlane(const pcl::ModelCoefficients& coefficients);
 
 		virtual IObjectPtr		getMathModelApproximation() const;
 
