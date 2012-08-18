@@ -114,8 +114,6 @@ namespace mapinect {
 
 		polygonsInBox.clear();
 
-		
-
 		return keep;
 	}
 	
@@ -445,13 +443,13 @@ namespace mapinect {
 
 	void checkForUnknown(vector<PCPolygonPtr> pols, int seq)
 	{
-		cout << "seq: " << seq << endl;
+		/*cout << "seq: " << seq << endl;
 		for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
 		{
 			cout << "--" << (*p)->getPolygonModelObject()->getName() << endl;
 			if((*p)->getPolygonModelObject()->getName() == kPolygonNameUnknown)
 				cout << "-----unknown in " << seq << endl;
-		}
+		}*/
 	}
 
 	void checkForRepeat(vector<PCPolygonPtr> pols, int seq)
@@ -481,11 +479,11 @@ namespace mapinect {
 		saveCloud("nucloud.pcd",*nuCloud);
 		saveCloud("trimmed.pcd",*trimmedCloud);
 
-		if(trimmedCloud->size() < this->cloud->size() * 0.2)
-		{
-			cout << "puntos insuficientes!  " << "necesita: "<< this->cloud->size() * 0.2 << "   tiene: " << trimmedCloud->size() << endl;
-			return; //Si la nube no tiene suficientes puntos, mantengo el procesamiento anterior.
-		}
+		//if(trimmedCloud->size() < this->cloud->size() * 0.2)
+		//{
+		//	cout << "puntos insuficientes!  " << "necesita: "<< this->cloud->size() * 0.2 << "   tiene: " << trimmedCloud->size() << endl;
+		//	return; //Si la nube no tiene suficientes puntos, mantengo el procesamiento anterior.
+		//}
 
 		pcPolygonsMutex.lock();
 		vector<PCPolygonPtr> prevPcPolygons = pcpolygons;

@@ -218,19 +218,47 @@ namespace mapinect {
 
 				if(toEstimate == kPolygonNameBottom)
 				{
-					nextVecToEstimate.push_back(nextVec.at(1));
-					nextVecToEstimate.push_back(nextVec.at(2));
+					if(fullEstimation)
+					{
+						nextVecToEstimate.push_back(nextVec.at(1));
+						nextVecToEstimate.push_back(nextVec.at(2));
 
-					prevVecToEstimate.push_back(prevVec.at(1));
-					prevVecToEstimate.push_back(prevVec.at(2));
+						prevVecToEstimate.push_back(prevVec.at(1));
+						prevVecToEstimate.push_back(prevVec.at(2));
+					}
+					else
+					{
+						sort(nextVec.begin(), nextVec.end(), sortOnYDesc<ofVec3f>);
+						sort(prevVec.begin(), prevVec.end(), sortOnYDesc<ofVec3f>);
+						
+						nextVecToEstimate.push_back(nextVec.at(0));
+						nextVecToEstimate.push_back(nextVec.at(1));
+
+						prevVecToEstimate.push_back(prevVec.at(0));
+						prevVecToEstimate.push_back(prevVec.at(1));
+					}
 				}
 				else
 				{
-					nextVecToEstimate.push_back(nextVec.at(0));
-					nextVecToEstimate.push_back(nextVec.at(3));
+					if(fullEstimation)
+					{
+						nextVecToEstimate.push_back(nextVec.at(0));
+						nextVecToEstimate.push_back(nextVec.at(3));
 
-					prevVecToEstimate.push_back(prevVec.at(0));
-					prevVecToEstimate.push_back(prevVec.at(3));
+						prevVecToEstimate.push_back(prevVec.at(0));
+						prevVecToEstimate.push_back(prevVec.at(3));
+					}
+					else
+					{
+						sort(nextVec.begin(), nextVec.end(), sortOnYAsc<ofVec3f>);
+						sort(prevVec.begin(), prevVec.end(), sortOnYAsc<ofVec3f>);
+						
+						nextVecToEstimate.push_back(nextVec.at(0));
+						nextVecToEstimate.push_back(nextVec.at(1));
+
+						prevVecToEstimate.push_back(prevVec.at(0));
+						prevVecToEstimate.push_back(prevVec.at(1));
+					}
 				}
 			}	
 			else
@@ -238,18 +266,6 @@ namespace mapinect {
 				next = getNextPolygon(toEstimate,partialEstimation);
 				prev = getPrevPolygon(toEstimate,partialEstimation);
 
-				// TODO: Corregir estos casos y descomentar!!!
-				//if(next.get() == NULL)
-				//{
-				//	//TODO: corregir nextVecToEstimate para este caso
-				//	next = getPCPolygon(kPolygonNameTop,partialEstimation);
-				//}
-
-				//if(prev.get() == NULL)
-				//{
-				//	//TODO: corregir prevVecToEstimate para este caso
-				//	prev = getPCPolygon(kPolygonNameBottom,partialEstimation);
-				//}
 				if(next.get() == NULL || prev.get() == NULL)
 				{
 					missing.remove(toEstimate);
@@ -261,11 +277,43 @@ namespace mapinect {
 				nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
 				prevVec = prev->getPolygonModelObject()->getMathModel().getVertexs();
 
-				nextVecToEstimate.push_back(nextVec.at(3));
-				nextVecToEstimate.push_back(nextVec.at(2));
+				if(fullEstimation)
+				{
+					nextVecToEstimate.push_back(nextVec.at(3));
+					nextVecToEstimate.push_back(nextVec.at(2));
 
-				prevVecToEstimate.push_back(prevVec.at(0));
-				prevVecToEstimate.push_back(prevVec.at(1));
+					prevVecToEstimate.push_back(prevVec.at(0));
+					prevVecToEstimate.push_back(prevVec.at(1));
+				}
+				else
+				{
+					if(toEstimate == kPolygonNameSideA)
+					{
+						sort(nextVec.begin(), nextVec.end(), sortOnZDesc<ofVec3f>);
+						sort(prevVec.begin(), prevVec.end(), sortOnZDesc<ofVec3f>);
+					}
+					if(toEstimate == kPolygonNameSideC)
+					{
+						sort(nextVec.begin(), nextVec.end(), sortOnZAsc<ofVec3f>);
+						sort(prevVec.begin(), prevVec.end(), sortOnZAsc<ofVec3f>);
+					}
+					if(toEstimate == kPolygonNameSideB)
+					{
+						sort(nextVec.begin(), nextVec.end(), sortOnXDesc<ofVec3f>);
+						sort(prevVec.begin(), prevVec.end(), sortOnXDesc<ofVec3f>);
+					}
+					if(toEstimate == kPolygonNameSideD)
+					{
+						sort(nextVec.begin(), nextVec.end(), sortOnXAsc<ofVec3f>);
+						sort(prevVec.begin(), prevVec.end(), sortOnXAsc<ofVec3f>);
+					}
+
+					nextVecToEstimate.push_back(nextVec.at(0));
+					nextVecToEstimate.push_back(nextVec.at(1));
+
+					prevVecToEstimate.push_back(prevVec.at(0));
+					prevVecToEstimate.push_back(prevVec.at(1));
+				}
 			}
 
 			vector<ofVec3f> faceVertex;
@@ -346,6 +394,7 @@ namespace mapinect {
 		pcPolygonsMutex.lock();
 		if(pcpolygons.size() == 6)
 		{
+			cout << "+++++++++++++++++ full estimation +++++++++++++++" << endl;
 			fullEstimation = true;
 			for(int i = 0; i < pcpolygons.size(); i ++)
 			{
@@ -373,6 +422,14 @@ namespace mapinect {
 				}
 			}
 			messures = messureBox();
+			cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+			cout << "\tw: " << messures.x << endl;
+			cout << "\th: " << messures.y << endl;
+			cout << "\td: " << messures.z << endl;
+		}
+		else
+		{
+			cout << "--------------No full estimation--------------" << endl;
 		}
 		pcPolygonsMutex.unlock();
 	}
@@ -602,15 +659,7 @@ namespace mapinect {
 	// ------------------------------------------------------------------------------
 	PCPolygonPtr PCBox::duplicatePol(const PCPolygonPtr& polygon,const map<IPolygonName,PCPolygonPtr>& estimated)
 	{
-		vector<PCPolygonPtr> newPolygons;
-		for(map<IPolygonName,PCPolygonPtr>::const_iterator it = estimated.begin(); it != estimated.end(); ++it)
-			newPolygons.push_back(it->second);
-		return duplicatePol(polygon,newPolygons);
-	}
 
-	// ------------------------------------------------------------------------------
-	PCPolygonPtr PCBox::duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons)
-	{
 		pcl::ModelCoefficients coeff = polygon->getCoefficients();
 		PCPtr cloudToMove = polygon->getCloud();
 		PCPtr cloudMoved (new PC()); 
@@ -654,73 +703,38 @@ namespace mapinect {
 		}
 		else
 		{
-			PCPolygonPtr f1;
-
 			//Encuentro el poligono 'vecino' al que quiero duplicar
-			TablePtr t = gModel->getTable();
-			bool parallelAndNotInContact = t->isParallelToTable(polygon) && !t->isOnTable(polygon->getCloud());
-			bool foundFace = false;
-			//saveCloudAsFile ("from.pcd", *polygon->getCloud());
-			/// Si es paralelo a la mesa (cara techo), tomo cualquier otro poligono
-			/// Si es perpendicular, busco otro poligono perpendicular
-			for(int i = 0; i < newPolygons.size(); i ++)
+			PCPolygonPtr f1;
+			bool useTop = false;
+			if(polFatherName != kPolygonNameTop)
 			{
-				if(newPolygons.at(i) != polygon)
+				f1 = getNextPolygon(polFatherName, estimated);
+				if(f1 == PCPolygonPtr())
+					f1 = getPrevPolygon(polFatherName, estimated);
+				if(f1 == PCPolygonPtr())
 				{
-					if((!parallelAndNotInContact && (!t->isParallelToTable(newPolygons.at(i)) || t->isOnTable(newPolygons.at(i)->getCloud()))) ||
-						parallelAndNotInContact)
-					{
-						f1 = newPolygons.at(i);
-						foundFace = true;
-						break;
-					}
+					f1 = getPCPolygon(kPolygonNameTop, estimated);
+					useTop = true;
 				}
-			}
-			/// Si no encontre otro poligono que cumple las condiciones anteriores, tomo cualquier poligono 
-			/// que no sea el mismo
-			if(!foundFace)
-			{
-				for(int i = 0; i < newPolygons.size(); i ++)
-				{
-					if(newPolygons.at(i) != polygon)
-					{
-						f1 = newPolygons.at(i);
-						break;
-					}
-				}
-			}
+				if(f1 == PCPolygonPtr()) // no se puede duplicar
+					return PCPolygonPtr();
 
-			//Si no logro encontrar f1 retorno mala estimacion
-			if(f1 == PCPolygonPtr())
-			{
-				return PCPolygonPtr();
-			}
-
-			if(polName == kPolygonNameBottom)
-			{
-				coeff =  t->getCoefficients();
-				normal = t->getNormal();
-				cloudMoved = projectPointsInPlane(cloudToMove, coeff);
-			}
-			else
-			{
-				//Busco el largo que tengo que desplazar
 				vector<ofVec3f> vex = f1->getPolygonModelObject()->getMathModel().getVertexs();
-		
-				if(!parallelAndNotInContact && foundFace) // Busco los 2 puntos con menor 'y' para hallar el ancho de la cara
+				if(useTop)
 				{
+					// Busco los 2 puntos con menor 'x'
+					sort(vex.begin(), vex.end(), sortOnXDesc<ofVec3f>);					
+				}
+				else
+				{
+					// Busco los 2 puntos con menor 'y' 
 					sort(vex.begin(), vex.end(), sortOnYDesc<ofVec3f>);
 				}
-				else // Busco los 2 puntos con menor 'x' para hallar el alto de la cara
-				{
-					sort(vex.begin(),vex.end(), sortOnXDesc<ofVec3f>);
-				}
+				
 				ofVec3f min1 = vex.at(0);
 				ofVec3f min2 = vex.at(1);
 
-				saveCloud("min1_" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd",min1);
-				saveCloud("min2_"+ofToString(f1->getPolygonModelObject()->getName())+".pcd",min2);
-
+				//traslado la nube
 				float f1Width = abs((min1 - min2).length());
 				normal = polygon->getNormal();
 				ofVec3f traslation = normal * (-f1Width); 
@@ -728,9 +742,23 @@ namespace mapinect {
 				transformation = Eigen::Translation<float,3>(traslation.x, traslation.y, traslation.z);
 
 				pcl::transformPointCloud(*cloudToMove,*cloudMoved,transformation);
-				saveCloud("with" + ofToString(f1->getPolygonModelObject()->getName()) + ".pcd", *f1->getCloud());
+
 			}
+			else
+			{
+				gModel->tableMutex.lock();
+				gModel->getTable()->getCoefficients();
+				coeff =  gModel->getTable()->getCoefficients();
+				gModel->tableMutex.unlock();
+				normal = polygon->getNormal();
+				cloudMoved = projectPointsInPlane(cloudToMove, coeff);
+			}
+
+			
+			/////**********************************/////////////
+			
 		}
+
 		//Corrección de coeficiente
 		//invierto la normal
 		normal *= -1;
@@ -749,6 +777,17 @@ namespace mapinect {
 		
 
 		return estimatedPol;
+
+
+	}
+
+	// ------------------------------------------------------------------------------
+	PCPolygonPtr PCBox::duplicatePol(const PCPolygonPtr& polygon,const vector<PCPolygonPtr>& newPolygons)
+	{
+		map<IPolygonName,PCPolygonPtr> estimated;
+		for(vector<PCPolygonPtr>::const_iterator it = newPolygons.begin(); it != newPolygons.end(); ++it)
+			estimated[(*it)->getPolygonModelObject()->getName()] = (*it);
+		return duplicatePol(polygon,estimated);
 	}
 
 	// ------------------------------------------------------------------------------
@@ -756,8 +795,8 @@ namespace mapinect {
 	{
 		float w,h,d;
 	//	cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
-		vector<ofVec3f> sideAVex = sideA->getPolygonModelObject()->getMathModel().getVertexs();
-		vector<ofVec3f> sideBVex = sideB->getPolygonModelObject()->getMathModel().getVertexs();
+		vector<ofVec3f> sideAVex = getPCPolygon(kPolygonNameSideA, pcpolygons)->getPolygonModelObject()->getMathModel().getVertexs();
+		vector<ofVec3f> sideBVex = getPCPolygon(kPolygonNameSideB, pcpolygons)->getPolygonModelObject()->getMathModel().getVertexs();
 		w = abs((sideAVex.at(1) - sideAVex.at(2)).length());
 		//cout << "\tw: " << w << endl;
 		h = abs((sideAVex.at(0) - sideAVex.at(1)).length());
@@ -785,6 +824,10 @@ namespace mapinect {
 	bool PCBox::validate()
 	{
 		ofVec3f newMessure = messureBox();
+		cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+		cout << "\tw: " << newMessure.x << endl;
+		cout << "\th: " << newMessure.y << endl;
+		cout << "\td: " << newMessure.z << endl;
 		return (newMessure - messures).length() < 0.05;
 	}
 
