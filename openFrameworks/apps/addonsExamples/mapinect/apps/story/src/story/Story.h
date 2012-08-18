@@ -41,6 +41,7 @@ namespace story
 		virtual void buttonReleased(const IButtonPtr&);
 
 	private:
+		void						removeMenu();
 		std::map<int, Box*>			boxes;
 		std::map<int, DataTouch>	touchPoints;
 
@@ -67,6 +68,7 @@ namespace story
 		bool						addingPowePlant;
 		bool						addingWaterPlant;
 		bool						addingHouse;
+		float						timeMenuShown;
 
 		ofImage						imgStreetButton;
 		ofImage						imgRiverButton;
