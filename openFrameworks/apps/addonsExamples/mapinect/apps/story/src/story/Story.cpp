@@ -45,6 +45,7 @@ namespace story {
 		addingRiver = false;
 		addingStreet = false;
 		addingWaterPlant = false;
+		firstTouchDone = false;
 	}
 
 	//--------------------------------------------------------------
@@ -87,6 +88,7 @@ namespace story {
 		powerPlantButtonId = -1;
 		waterPlantButtonId = -1;
 		houseButtonId = -1;
+
 	}
 
 	//--------------------------------------------------------------
@@ -208,7 +210,7 @@ namespace story {
 	{
 		if (addingRiver||addingStreet)
 		{
-			if (firstTouchDone)
+			if (firstTouchDone && firstTableTouch.distance(touchPoint.getTouchPoint())> 0.05)
 			{
 				if (addingRiver)
 				{
@@ -237,8 +239,8 @@ namespace story {
 				timeMenuShown = 0;			
 				//dibujo el menu de cosas a construir
 				ofVec3f begin = touchPoint.getTouchPoint();
-				ofVec3f arriba = ofVec3f(0.f, 0.f, 0.07);
-				ofVec3f costado = ofVec3f(0.07, 0.f, 0.f);
+				ofVec3f arriba = ofVec3f(0.f, 0.f, BUTTON_SIDE);
+				ofVec3f costado = ofVec3f(BUTTON_SIDE, 0.f, 0.f);
 				vector<ofVec3f> button_vertex;
 				//primero casa
 				button_vertex.push_back(begin + arriba);
@@ -327,7 +329,7 @@ namespace story {
 			addingRiver = (btn->getId() == riverButtonId);
 			addingPowePlant = (btn->getId() == powerPlantButtonId);
 			addingWaterPlant = (btn->getId() == waterPlantButtonId);
-			addingHouse = true;(btn->getId() == houseButtonId);
+			addingHouse = (btn->getId() == houseButtonId);
 			if (addingHouse || addingPowePlant || addingWaterPlant)
 			{
 				modeManager->enableObjectTracking();
