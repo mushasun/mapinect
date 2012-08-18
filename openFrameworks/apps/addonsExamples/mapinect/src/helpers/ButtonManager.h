@@ -16,6 +16,12 @@ namespace mapinect
 		int						addButton(const IButtonPtr& btn);
 		void					removeButton(int id);
 		
+		virtual void			setIdle(const ofColor& color, int id);
+		virtual void			setIdle(ofImage* img, int id);
+		virtual void			setPressed(const ofColor& color, int id);
+		virtual void			setPressed(ofImage* img, int id);
+		virtual vector<ofVec3f> getVertexs(int id);
+
 		//// INotification implementation
 		void					objectDetected(const IObjectPtr&);
 		void					objectUpdated(const IObjectPtr&);

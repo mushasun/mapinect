@@ -42,6 +42,7 @@ namespace mapinect
 		static int					TOUCH_FRAMES_TO_DISCARD;
 	private:
 		static float				TOUCH_DISTANCE_FACTOR;
+		static float				TOUCH_TOLERANCE_FACTOR;
 		static float				TOUCH_CLUSTER_MIN_PERCENT;
 		static float				TOUCH_TRANSLATION_TOLERANCE_FACTOR;
 	public:
@@ -64,6 +65,7 @@ namespace mapinect
 		static float				OBJECT_TRANSLATION_TOLERANCE();
 
 		static float				TOUCH_DISTANCE();
+		static float				TOUCH_TOLERANCE();
 		static int					TOUCH_CLUSTER_MIN_SIZE();
 		static float				TOUCH_TRANSLATION_TOLERANCE();
 

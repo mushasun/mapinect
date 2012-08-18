@@ -70,7 +70,10 @@ namespace mapinect
 
 	float Polygon3D::distance(const ofVec3f& p) const
 	{
-		return p.distance(project(p));
+		if(isInPolygon(p))
+			return plane.distance(p);
+		else
+			return p.distance(project(p));
 	}
 
 	ofVec3f Polygon3D::project(const ofVec3f& p) const
@@ -106,10 +109,13 @@ namespace mapinect
 		return result;
 	}
 
-	bool Polygon3D::isInPolygon(const ofVec3f& p) const
+	bool Polygon3D::isInPolygon(const ofVec3f& point) const
 	{
 		if(true)
 		{
+			ofVec3f p;
+			p = plane.project(point);
+
 			int i;
 			double m1,m2;
 			double anglesum=0,costheta;
@@ -126,7 +132,8 @@ namespace mapinect
 
 				m1 = p1.length();
 				m2 = p2.length();
-				if (m1 <= MATH_EPSILON)
+				if (m1 <= MATH_EPSILON ||
+					m2 <= MATH_EPSILON)
 					return true; /* We are on a node, consider this inside */
 				else
 					costheta = (p1.x*p2.x + p1.y*p2.y + p1.z*p2.z) / (m1*m2);
@@ -135,7 +142,7 @@ namespace mapinect
 			}
 			return fabs(anglesum - TWO_PI) < MATH_EPSILON;
 		}
-		else
+		/*else
 		{
 			if (plane.distance(p) < MATH_EPSILON)
 			{
@@ -159,7 +166,7 @@ namespace mapinect
 				return true;
 			}
 			return false;
-		}
+		}*/
 	}
 
 	bool Polygon3D::isInPolygon(const Line3D& l) const

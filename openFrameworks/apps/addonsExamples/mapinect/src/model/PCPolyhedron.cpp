@@ -265,7 +265,7 @@ namespace mapinect {
 			}
 		}
 		else
-			;// TODO eliminar objeto? Volver a llamar detectPrimitives?
+			cout << "estimation failed in detect primitives" << endl;// TODO eliminar objeto? Volver a llamar detectPrimitives?
 		pcPolygonsMutex.unlock();
 
 	}
@@ -445,13 +445,13 @@ namespace mapinect {
 
 	void checkForUnknown(vector<PCPolygonPtr> pols, int seq)
 	{
-		//cout << "seq: " << seq << endl;
-		//for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
-		//{
-		//	cout << "--" << (*p)->getPolygonModelObject()->getName() << endl;
-		//	if((*p)->getPolygonModelObject()->getName() == kPolygonNameUnknown)
-		//		cout << "-----unknown in " << seq << endl;
-		//}
+		cout << "seq: " << seq << endl;
+		for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
+		{
+			cout << "--" << (*p)->getPolygonModelObject()->getName() << endl;
+			if((*p)->getPolygonModelObject()->getName() == kPolygonNameUnknown)
+				cout << "-----unknown in " << seq << endl;
+		}
 	}
 
 	void checkForRepeat(vector<PCPolygonPtr> pols, int seq)

@@ -346,6 +346,7 @@ namespace mapinect {
 		pcPolygonsMutex.lock();
 		if(pcpolygons.size() == 6)
 		{
+			cout << "+++++++++++++++++ full estimation +++++++++++++++" << endl;
 			fullEstimation = true;
 			for(int i = 0; i < pcpolygons.size(); i ++)
 			{
@@ -373,6 +374,14 @@ namespace mapinect {
 				}
 			}
 			messures = messureBox();
+			cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+			cout << "\tw: " << messures.x << endl;
+			cout << "\th: " << messures.y << endl;
+			cout << "\td: " << messures.z << endl;
+		}
+		else
+		{
+			cout << "--------------No full estimation--------------" << endl;
 		}
 		pcPolygonsMutex.unlock();
 	}

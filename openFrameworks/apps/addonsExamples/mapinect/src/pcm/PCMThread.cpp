@@ -275,7 +275,7 @@ namespace mapinect {
 					bool usePCL = false;
 					if (useClustering)
 					{
-						const double tolerance = touchDistance / 2.0f;
+						const double tolerance = Constants::TOUCH_TOLERANCE();
 						const int minClusterSize = 1;
 						const int maxTouchClusterSize = Constants::TOUCH_MAX_PER_FACE;
 						if (usePCL)
@@ -295,8 +295,12 @@ namespace mapinect {
 						}
 						else
 						{
-							vector<vector<ofVec3f> > clusters =
-									findClusters(pointCloudToOfVecVector(polygonTouchPointsCloud), tolerance, minClusterSize);
+							// Arreglo para que tome de a un punto tambien. 
+							vector<vector<ofVec3f> > clusters;
+							if(polygonTouchPointsCloud->size() == minClusterSize)
+								clusters.push_back(i->second);
+							else
+								clusters = findClusters(pointCloudToOfVecVector(polygonTouchPointsCloud), tolerance, minClusterSize);
 
 							for (vector<vector<ofVec3f> >::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
 							{
