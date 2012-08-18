@@ -16,6 +16,8 @@
 #include "ofImage.h"
 #include "SimpleButton.h"
 
+#define BUTTON_SIDE 0.05f
+
 namespace story
 {
 	class Story : public IApplication
