@@ -2,6 +2,7 @@
 #define BOX_H__
 
 #include "IObject.h"
+#include "DataTouch.h"
 #include "Brick.h"
 
 using namespace mapinect;
@@ -13,7 +14,7 @@ namespace pown
 	class Box
 	{
 	public:
-		Box(const IObjectPtr& object, const ofColor& color, const NoteBeat& noteBeat);
+		Box(const IObjectPtr& object, const NoteBeat& noteBeat);
 		virtual ~Box();
 
 		inline void					updateModelObject(const IObjectPtr& ob)	{ object = ob; }
@@ -26,6 +27,7 @@ namespace pown
 
 		void						update(float elapsedTime);
 		void						draw() const;
+		void						objectTouched(const IObjectPtr& object, const DataTouch& touchPoint);
 
 		void						doBeat();
 

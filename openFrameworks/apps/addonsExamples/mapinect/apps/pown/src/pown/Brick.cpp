@@ -9,8 +9,9 @@ namespace pown
 	const ofFloatColor	kBeatBoostColor = kRGBMidGray;
 	const float			kWaveBaseIntensity = 0.8f;
 
-	Brick::Brick(const NoteBeat& noteBeat, const Polygon3D& polygon, const ofFloatColor& color)
-		: noteBeat(noteBeat), polygon(polygon), color(color)
+	Brick::Brick(const NoteBeat& noteBeat, const Polygon3D& hitPolygon,
+		const vector<ofVec3f>& drawVertexs, const ofFloatColor& color)
+		: noteBeat(noteBeat), hitPolygon(hitPolygon), drawVertexs(drawVertexs), color(color)
 	{
 	}
 
@@ -21,7 +22,7 @@ namespace pown
 	void Brick::draw() const
 	{
 		ofSetColor(color);
-		ofDrawQuad(polygon.getVertexs());
+		ofDrawQuad(drawVertexs);
 	}
 
 	Wave::Wave(const NoteBeat& noteBeat, const ofFloatColor& color, float intensity, float intensitySpeed, float radiusSpeed)
@@ -116,12 +117,17 @@ namespace pown
 			for (int j = 0; j < PownConstants::BEATS; j++)
 			{
 				NoteBeat nb(i, j);
-				vector<ofVec3f> vertexs;
-				vertexs.push_back(origin + dnote * i		+ dbeat * j		+ nnote + nbeat);
-				vertexs.push_back(origin + dnote * i		+ dbeat * (j+1)	+ nnote - nbeat);
-				vertexs.push_back(origin + dnote * (i+1)	+ dbeat * (j+1)	- nnote - nbeat);
-				vertexs.push_back(origin + dnote * (i+1)	+ dbeat * j		- nnote + nbeat);
-				bricks[getBrickPos(nb)] = new Brick(nb, Polygon3D(vertexs), kDefaultBrickColor);
+				vector<ofVec3f> hitVertexs;
+				hitVertexs.push_back(origin + dnote * i		+ dbeat * j);
+				hitVertexs.push_back(origin + dnote * i		+ dbeat * (j+1));
+				hitVertexs.push_back(origin + dnote * (i+1)	+ dbeat * (j+1));
+				hitVertexs.push_back(origin + dnote * (i+1)	+ dbeat * j);
+				vector<ofVec3f> drawVertexs;
+				drawVertexs.push_back(hitVertexs[0] + nnote + nbeat);
+				drawVertexs.push_back(hitVertexs[1]	+ nnote - nbeat);
+				drawVertexs.push_back(hitVertexs[2]	- nnote - nbeat);
+				drawVertexs.push_back(hitVertexs[3] - nnote + nbeat);
+				bricks[getBrickPos(nb)] = new Brick(nb, Polygon3D(hitVertexs), drawVertexs, kDefaultBrickColor);
 			}
 		}
 	}
