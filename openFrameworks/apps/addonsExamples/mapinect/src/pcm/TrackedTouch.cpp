@@ -52,15 +52,16 @@ namespace mapinect
 		else
 			lifeCounter--;
 
+		bool changing = false;
 		if (status == kTouchTypeStarted)
 		{
 			if (lifeCounter == Constants::OBJECT_FRAMES_TO_ACCEPT + 1)
-				status = kTouchTypeHolding;
+				changing = true;
 			else if (lifeCounter == 0)
 				status = kTouchTypeReleased;
 		}
 
-		if (status == kTouchTypeHolding)
+		if (status == kTouchTypeHolding || changing)
 		{
 			reportStatus = true;
 			if (hasMatching())
@@ -90,7 +91,8 @@ namespace mapinect
 
 	void TrackedTouch::updateToHolding()
 	{
-		status = kTouchTypeHolding;
+		if (status == kTouchTypeStarted && lifeCounter >= Constants::OBJECT_FRAMES_TO_ACCEPT + 1)
+			status = kTouchTypeHolding;
 	}
 
 }
