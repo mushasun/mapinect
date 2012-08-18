@@ -6,11 +6,13 @@
 
 namespace pown
 {
-	const ofFloatColor kBaseBoostColor = kRGBDarkGray;
+	const ofFloatColor kBaseBoostColor = kRGBMidGray;
 
-	Box::Box(const IObjectPtr& object, const ofColor& color, const NoteBeat& noteBeat)
-		: object(object), color(color), noteBeat(noteBeat), boostColor(0), program(0)
+	Box::Box(const IObjectPtr& object, const NoteBeat& noteBeat)
+		: object(object), noteBeat(noteBeat), boostColor(0)
 	{
+		color = ofRandomColor();
+		program = ofRandom(MAX_PROGRAM);
 	}
 
 	Box::~Box()
@@ -41,6 +43,15 @@ namespace pown
 		}
 	}
 
+	void Box::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
+	{
+		if (touchPoint.getType() == kTouchTypeStarted)
+		{
+			program = ofRandom(MAX_PROGRAM);
+			color = ofRandomColor();
+		}
+	}
+
 	void Box::doBeat()
 	{
 		boostColor = kBaseBoostColor;
@@ -49,8 +60,8 @@ namespace pown
 
 	bool Box::testHit(Brick* brick) const
 	{
-		ofVec3f projected(brick->getPolygon().getPlane().project(getCenter()));
-		bool result = brick->getPolygon().isInPolygon(projected);
+		ofVec3f projected(brick->getHitPolygon().getPlane().project(getCenter()));
+		bool result = brick->getHitPolygon().isInPolygon(projected);
 		return result;
 	}
 

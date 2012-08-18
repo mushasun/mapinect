@@ -128,8 +128,7 @@ namespace pown
 		{
 			if (boxes.find(object->getId()) == boxes.end())
 			{
-				ofColor color(ofRandomf() * 255.0f, ofRandomf() * 255.0f, ofRandomf() * 255.0f);
-				Box* box = new Box(object, color, NoteBeat(-1, -1));
+				Box* box = new Box(object, NoteBeat(-1, -1));
 				brickManager->updateBox(box);
 				boxes[object->getId()] = box;
 			}
@@ -172,6 +171,9 @@ namespace pown
 	
 	void Pown::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
+		map<int, Box*>::iterator b = boxes.find(object->getId());
+		if (b != boxes.end())
+			b->second->objectTouched(object, touchPoint);
 	}
 
 	void Pown::buttonPressed(const IButtonPtr& btn)
@@ -183,17 +185,5 @@ namespace pown
 
 	void Pown::keyPressed(int key)
 	{
-		static int pgm = 50;
-		switch (key)
-		{
-		case '6':
-			pgm = (pgm + 1) % 128;
-			SoundManager::setProgram(pgm);
-			break;
-		case '5':
-			pgm = (pgm + 128 - 1) % 128;
-			SoundManager::setProgram(pgm);
-			break;
-		}
 	}
 }

@@ -3,6 +3,8 @@
 #include "PownConstants.h"
 #include "utils.h"
 
+#include <set>
+
 namespace pown
 {
 	SoundManager* SoundManager::instance = NULL;
@@ -16,10 +18,31 @@ namespace pown
 	struct ProgramNote
 	{
 		ProgramNote(int program, int note) : program(program), note(note) { }
+
+		inline bool operator==(const ProgramNote& other) const
+		{
+			return program == other.program && note == other.note;
+		}
+		inline bool operator<(const ProgramNote& other) const
+		{
+			return program < other.program || (program == other.program && note < other.note);
+		}
+
 		int program;
 		int note;
 	};
-	static vector<ProgramNote> notesToPlay;
+
+	struct ProgramNotePlaying
+	{
+		ProgramNotePlaying(const ProgramNote& pn, int lifetime) : programNote(pn), lifetime(lifetime) { }
+
+		inline bool isAlive() const { return lifetime > 0; }
+		ProgramNote programNote;
+		int lifetime;
+	};
+
+	static set<ProgramNote> notesToPlay;
+	static list<ProgramNotePlaying> notesPlaying;
 
 	const bool playSynchronized = true;
 
@@ -58,8 +81,8 @@ namespace pown
 			midiOut.sendNoteOff(channel, scale[i], VELOCITY);
 		if (playSynchronized)
 		{
-			for (int i = 0; i < notesToPlay.size(); i++)
-				myPlayNoteNow(notesToPlay[i].note, notesToPlay[i].program);
+			for (set<ProgramNote>::const_iterator pn = notesToPlay.begin(); pn != notesToPlay.end(); pn++)
+				myPlayNoteNow(pn->note, pn->program);
 			notesToPlay.clear();
 		}
 	}
@@ -70,7 +93,7 @@ namespace pown
 			program = this->program;
 
 		if (playSynchronized)
-			notesToPlay.push_back(ProgramNote(program, note));
+			notesToPlay.insert(ProgramNote(program, note));
 		else
 			myPlayNoteNow(note, program);
 	}

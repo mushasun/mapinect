@@ -19,18 +19,19 @@ namespace pown
 	class Brick
 	{
 	public:
-		Brick(const NoteBeat& noteBeat, const Polygon3D& polygon, const ofFloatColor& color);
+		Brick(const NoteBeat& noteBeat, const Polygon3D& hitPolygon, const vector<ofVec3f>& drawVertexs, const ofFloatColor& color);
 
 		void					update(float elapsedTime);
 		void					draw() const;
 
 		inline const NoteBeat&	getNoteBeat() const					{ return noteBeat; }
-		inline const Polygon3D&	getPolygon() const					{ return polygon; }
+		inline const Polygon3D&	getHitPolygon() const				{ return hitPolygon; }
 		inline void				setColor(const ofColor& color)		{ this->color = color; }
 
 	private:
 		NoteBeat				noteBeat;
-		Polygon3D				polygon;
+		Polygon3D				hitPolygon;
+		vector<ofVec3f>			drawVertexs;
 		ofFloatColor			color;
 	};
 
