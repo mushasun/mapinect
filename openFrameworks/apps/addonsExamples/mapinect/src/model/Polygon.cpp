@@ -43,6 +43,11 @@ namespace mapinect {
 		mathModel.setVertexs(vertexs);
 	}
 
+	void Polygon::setPlane(const Plane3D& p) 
+	{
+		mathModel.setPlane(p);
+	}
+
 	void Polygon::setVertexsOrdered(const vector<ofVec3f>& v)
 	{
 		vector<ofVec3f> vertexs(v);

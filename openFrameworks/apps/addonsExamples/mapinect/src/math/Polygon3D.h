@@ -26,7 +26,7 @@ namespace mapinect
 
 		void							setPlane(const Plane3D&);
 		void							setVertex(int pos, const ofVec3f& v);
-		void							setVertexs(const vector<ofVec3f>& v);
+		virtual void					setVertexs(const vector<ofVec3f>& v);
 
 		float				distance(const ofVec3f& p) const;
 		ofVec3f				project(const ofVec3f& p) const;

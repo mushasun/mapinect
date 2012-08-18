@@ -17,6 +17,7 @@ namespace mapinect
 		void									setWorldTransformation(const Eigen::Affine3f& newTransformation);
 		const Eigen::Affine3f					getInitialWorldTransformation() const;
 		void									setInitialWorldTransformation(const Eigen::Affine3f& newTransformation);
+
 		mutable ofxMutex						transformationMatrixMutex;
 
 		mutable ofxMutex						cloudMutex;

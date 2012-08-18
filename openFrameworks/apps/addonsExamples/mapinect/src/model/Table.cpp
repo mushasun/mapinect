@@ -15,7 +15,6 @@ namespace mapinect
 	void Table::SetTablePlane(const pcl::ModelCoefficients& coefficients) {
 		
 		TablePtr table(new Table(coefficients, gModel->getTable()->getCloud()));
-		// Y los vertices?? No hay que setearlos??
 		Plane3D newPlane(coefficients);
 		vector<ofVec3f> vertexs  = gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs();
 		vector<ofVec3f> projectedVertexs;  
@@ -23,8 +22,9 @@ namespace mapinect
 			projectedVertexs.push_back(newPlane.project(vertexs.at(i)));
 		}
 		table->getPolygonModelObject()->setVertexs(projectedVertexs);
+		table->getPolygonModelObject()->setPlane(newPlane);
+		table->setDrawPointCloud(false);
 		gModel->setTable(table);
-
 	}
 
 	TablePtr Table::Create(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
@@ -67,11 +67,11 @@ namespace mapinect
 
 		// Se deben ordenar los vértices en screen coords
 		//	de modo que el A sea el que está mas cerca del (0,0) en Screen coords
-		//	y luego en sentido horario B, C y D
-		//				   A *------------* B
+		//	y luego en sentido anti-horario B, C y D
+		//				   A *------------* D
 		//					/			   \
 		//				   /			    \
-		//			    D *------------------* C
+		//			    B *------------------* C
 		vector<ofVec3f> vertexs  = gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs();
 		vector<ofVec3f> vertexs2D;
 		for (int i = 0; i < vertexs.size(); i++) 
@@ -100,10 +100,10 @@ namespace mapinect
 		if (indexAVertex2D == -1) {
 			cout << "Error - no se pudo determinar cual es el vertice A de la mesa" << endl;
 		} else {
-			for (int i = indexAVertex2D; i >= 0; i--) {
+			for (int i = indexAVertex2D; i < vertexs2D.size(); i++) {
 				orderedVertexs2D.push_back(vertexs2D.at(i));		// orderedVertexs2D.at(0) = vertexs2D.at(indexAVertex2D);
 			} 
-			for (int i = vertexs2D.size() - 1 ; i > indexAVertex2D; i--) {
+			for (int i = 0 ; i < indexAVertex2D; i++) {
 				orderedVertexs2D.push_back(vertexs2D.at(i));
 			}
 		}
@@ -160,12 +160,12 @@ namespace mapinect
 				cout << "El vertice A fue estimado" << endl;
 			}  
 
-			//       A -------- B ---------B'
-			//	    /		      \
-			//     /			   \
-			//    D-----------------C
+			//       A -------- D -----D'
+			//	    /		     \
+			//     /			  \
+			//    B----------------C
 			//   /
-			//  D'
+			//  B'
 			// TABLE_LENGTH_AB = dist(A,B')
 			// TABLE_LENGTH_AD = dist(A,D')
 

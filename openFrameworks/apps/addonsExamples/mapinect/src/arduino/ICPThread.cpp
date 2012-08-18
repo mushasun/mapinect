@@ -92,7 +92,7 @@ namespace mapinect {
 		bool isTableWellEstimated = goodTableEstimation(afterMoving, maxAngleThreshold);
 
 		if (isTableWellEstimated) {
-			cout << "La transformacion calculada es una buena aproximación" << endl;
+			cout << "La transformacion estimada es buena. No aplicar ICP" << endl;
 		} else {
 			cout << "Se necesita mejorar la transformacion" << endl;
 			cout << "Aplicando ICP..." << endl;
@@ -130,16 +130,19 @@ namespace mapinect {
 				saveCloud("nubeAfterMovingTransfICP.pcd",*nubeAfterMovingTransfICP);
 
 				// Verificar el resultado de ICP recalculando la mesa
+				cout << "Verificando resultado de ICP, recalculando mesa" << endl;
 				/* Método para detectar mesa - PCL SACSegmentation */
 				float maxToleratedAngle = 10;
 				bool isICPTableWellEstimated = goodTableEstimation(nubeAfterMovingTransfICP, maxToleratedAngle); // Sino usar goodTableEstimationRedetectingTable
 				if (isICPTableWellEstimated) {
-					cout << "Se aplica la transformación de ICP" << endl;
+					cout << "Se aplica la transformacion de ICP" << endl;
 					gTransformation->setWorldTransformation(newTransf * gTransformation->getWorldTransformation());
 				} else {
 					cout << "No se aplica la transformación de ICP" << endl;				
 				}			
 
+			} else {
+				cout << "No convergio ICP" << endl;
 			}
 
 		}	
@@ -155,6 +158,9 @@ namespace mapinect {
 		// http://pointclouds.org/documentation/tutorials/planar_segmentation.php#planar-segmentation
 		// http://www.pcl-users.org/Ransac-Planes-td2085912.html#a2086759
 
+		cout << "GTE: Chequeando si la mesa detectada es buena "<< endl;
+		cout << "	maxAngleThreshold = " << maxAngleThreshold << endl;
+
 		pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
 		pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
 
@@ -165,6 +171,7 @@ namespace mapinect {
 		seg.setMaxIterations (100);  
 		seg.setDistanceThreshold (0.01);  //  How close a point must be to the model in order to be considered an inlier
 		ofVec3f tableNormal = gModel->getTable()->getNormal();
+		cout << "Buscando planos con normal = (" << tableNormal.x << ", " << tableNormal.y << ", " << tableNormal.z << ")" << endl;
 		seg.setAxis(Eigen::Vector3f(tableNormal.x,tableNormal.y,tableNormal.z));  
 		float maxAngleThresholdRad = ofDegToRad(maxAngleThreshold);
 		seg.setEpsAngle(maxAngleThresholdRad);
@@ -176,37 +183,46 @@ namespace mapinect {
 		ofVec3f tableCentroid = gModel->getTable()->getCenter();
 		Plane3D modelTablePlane(gModel->getTable()->getCoefficients());
 		float centroidDistance = p.distance(tableCentroid);
-		float normalDifference = p.getNormal().angle(modelTablePlane.getNormal());
+		float normalDifference = abs(p.getNormal().angle(modelTablePlane.getNormal()));
 
 		float MAX_ANGLE = 2;
 		float MAX_TOLERATED_ANGLE = 10;
 		float MAX_CENTROID_DISTANCE = 0.005;
 		float MAX_TOLERATED_CENTROID_DISTANCE = 0.05; 
 
+		// A veces la normal forma casi 180 grados con la buscada, es decir apunta en el sentido opuesto, pero es la mesa
+		if (abs(180 - normalDifference) < MAX_TOLERATED_ANGLE) {
+			normalDifference = abs(180 - normalDifference);	
+		}
+
 		if (inliers->indices.size () != 0) {
+			cout << "Se detecto una mesa" << endl;
 			if (normalDifference < MAX_ANGLE && centroidDistance < MAX_CENTROID_DISTANCE) {
-				cout << "La mesa fue detectada correctamente" << endl;
+				cout << "La mesa fue detectada correctamente. Fin GTE" << endl;
 				return true;
 			} else if (normalDifference < MAX_TOLERATED_ANGLE && centroidDistance < MAX_TOLERATED_CENTROID_DISTANCE) {
+				cout << "La mesa detectada no es optima" << endl;
 				// Tomo como mesa lo que se detectó			
-				cout << "Voy a pisar la mesa con la nueva detectada" << endl;
 				gModel->tableMutex.lock();
 				TablePtr modelTable = gModel->getTable();
 				if (modelTable != NULL) {
 					modelTable->SetTablePlane(p.getCoefficients());
-					cout << "Se pisó la mesa" << endl;
+					cout << "Se pisa la mesa con la nueva detectada" << endl;
+					cout << "Nueva normal = (" << gModel->getTable()->getNormal().x;
+					cout << ", " << gModel->getTable()->getNormal().y << ", " << gModel->getTable()->getNormal().z << ")" << endl;
+					cout << "Fin GTE" << endl;
 				}
 				gModel->tableMutex.unlock();
 				return true;
 			} else {
-				cout << "La mesa detectada no es buena!" << endl;
+				cout << "La mesa detectada no es buena. Es un problema. Fin GTE" << endl;
 				// TODO: evaluar si no hay que resetear todo y volver a calcular la transformacion de cero
 				// Y resetear la mesa a la inicial (hay que guardarla)
 				return false;
 			}
 		}
 
-		cout << "La mesa no se detectó, muña!" << endl;
+		cout << "No se detecto mesa. Fin de GTE" << endl;
 		return false;
 		
 	}

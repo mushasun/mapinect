@@ -70,7 +70,7 @@ namespace mapinect {
 
 	bool Arduino::setup()
 	{
-		CHECK_ACTIVE false;
+		CHECK_ACTIVE true;
 
 		icpThread.setup();
 
@@ -99,10 +99,12 @@ namespace mapinect {
 			cloudBeforeMoving.reset();
 		}
 
-		sendMotor(angleMotor1, ID_MOTOR_1);
-		sendMotor(angleMotor2, ID_MOTOR_2);
-		sendMotor(angleMotor4, ID_MOTOR_4);
-		sendMotor(angleMotor8, ID_MOTOR_8);
+		cout << "Moviendo los motores" << endl;
+
+		sendMotor((char) angleMotor1, ID_MOTOR_1);
+		sendMotor((char) angleMotor2, ID_MOTOR_2);
+		sendMotor((char) angleMotor4, ID_MOTOR_4);
+		sendMotor((char) angleMotor8, ID_MOTOR_8);
 
 		if (IsFeatureMoveArmActive()) {
 			gTransformation->setInitialWorldTransformation(calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8));
@@ -112,6 +114,9 @@ namespace mapinect {
 		mira = lookingAt();
 
 		serial.enumerateDevices();
+
+		//	Libero el mutex para que puedan invocar al método getCloud, por si quedó en lock
+		gTransformation->cloudMutex.unlock();
 
 		return true;
 	}
@@ -366,12 +371,18 @@ namespace mapinect {
 			return;
 		}
 
-		angleMotor1 =_angleMotor1;
-		angleMotor2 =_angleMotor2;
 
 		if (IsFeatureMoveArmActive()) {
-			armStartedMoving();
+			if (gTransformation->getIsWorldTransformationStable()) {
+				armStartedMoving();	
+			} else {
+				posicion = getKinect3dCoordinates();
+				return;
+			}
 		}
+
+		angleMotor1 =_angleMotor1;
+		angleMotor2 =_angleMotor2;
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
 		sendMotor(angleMotor2, ID_MOTOR_2);
@@ -496,15 +507,19 @@ namespace mapinect {
 			return NULL;
 		}
 
+		if (IsFeatureMoveArmActive()) {
+			if (gTransformation->getIsWorldTransformationStable()) {
+				armStartedMoving();
+			} else {
+				return posicion = getKinect3dCoordinates();
+			}
+		}
+
 		angleMotor4 = angulo_v;
 		angleMotor8 = angulo_h;
 
 		//mira_actual = point;
 		mira = point;
-
-		if (IsFeatureMoveArmActive()) {
-			armStartedMoving();
-		}
 
 		sendMotor(angleMotor4, ID_MOTOR_4);
 		sendMotor(angleMotor8, ID_MOTOR_8);
@@ -678,53 +693,47 @@ namespace mapinect {
 	ofVec3f Arduino::moveMotor(int motor_id, signed int degrees)
 	{
 		ofVec3f error = ofVec3f(INT_MAX, INT_MAX, INT_MAX);
-		if (motor_id == ID_MOTOR_1)
-		{
-			if (!inRange(degrees, MIN_ANGLE_1, MAX_ANGLE_1))
-			{
+		signed int angle1 = angleMotor1, angle2 = angleMotor2, angle4 = angleMotor4, angle8 = angleMotor8;
+
+		if (motor_id == ID_MOTOR_1)	{
+			if (!inRange(degrees, MIN_ANGLE_1, MAX_ANGLE_1)) {
 				return error;
-			}
-			else
-			{
-				angleMotor1 = degrees;
+			} else {
+				angle1 = degrees;
 			}
 		}
-		if (motor_id == ID_MOTOR_2)
-		{
-			if (!inRange(degrees, MIN_ANGLE_2, MAX_ANGLE_2))
-			{
+		if (motor_id == ID_MOTOR_2) {
+			if (!inRange(degrees, MIN_ANGLE_2, MAX_ANGLE_2)) {
 				return error;
-			}
-			else
-			{
-				angleMotor2 = degrees;
+			} else {
+				angle2 = degrees;
 			}
 		}
-		if (motor_id == ID_MOTOR_4)
-		{
-			if (!inRange(degrees, MIN_ANGLE_4, MAX_ANGLE_4))
-			{
+		if (motor_id == ID_MOTOR_4) {
+			if (!inRange(degrees, MIN_ANGLE_4, MAX_ANGLE_4)) {
 				return error;
-			}
-			else
-			{
-				angleMotor4 = degrees;
+			} else {
+				angle4 = degrees;
 			}
 		}
-		if (motor_id == ID_MOTOR_8)
-		{
-			if (!inRange(degrees, MIN_ANGLE_8, MAX_ANGLE_8))
-			{
+		if (motor_id == ID_MOTOR_8) {
+			if (!inRange(degrees, MIN_ANGLE_8, MAX_ANGLE_8)) {
 				return error;
-			}
-			else
-			{
-				angleMotor8 = degrees;
+			} else {
+				angle8 = degrees;
 			}
 		}
 		
 		if (IsFeatureMoveArmActive()) {
-			armStartedMoving();
+			if (gTransformation->getIsWorldTransformationStable()) {
+				angleMotor1 = angle1;
+				angleMotor2 = angle2;
+				angleMotor4 = angle4;
+				angleMotor8 = angle8;
+				armStartedMoving();
+			} else {
+				return posicion = getKinect3dCoordinates();
+			}
 		}
 
 		sendMotor(angleMotor1, ID_MOTOR_1);
