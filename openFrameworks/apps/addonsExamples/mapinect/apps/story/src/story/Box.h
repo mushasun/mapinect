@@ -24,7 +24,7 @@ namespace story
 		inline void				updateModelObject(const IObjectPtr& ob)		{ object = ob; }
 
 		virtual void			update(float elapsedTime);
-		void					draw();
+		virtual void			draw();
 
 		inline vector<int>		getButtonsId()		{ return buttonsId; }
 		inline BuildType		getBuildType()		{ return buildType; }

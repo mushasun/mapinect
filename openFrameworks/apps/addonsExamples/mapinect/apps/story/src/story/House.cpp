@@ -2,7 +2,7 @@
 
 #include "ofGraphicsUtils.h"
 #include "ObjectButton.h"
-#include "ObjectButton.h"
+#include "StoryConstants.h"
 #include <cmath>
 
 namespace story
@@ -16,11 +16,17 @@ namespace story
 	ofImage* House::txLightSwitchOn = NULL;
 	ofImage* House::txLightSwitchOff = NULL;
 	ofImage* House::txHouseDoor = NULL;
+	ofImage* House::txHouseGarden1 = NULL;
+	ofImage* House::txHouseGarden2 = NULL;
+	ofImage* House::txHouseGarden3 = NULL;
+	ofFbo 	 House::gardenFbo;
 	ofSoundPlayer*	House::ding = NULL;
 	ofSoundPlayer*	House::knock = NULL;
 	ofSoundPlayer*	House::click = NULL;
 	ofSoundPlayer*	House::call = NULL;
+	ofSoundPlayer*	House::water = NULL;
 	
+
 	/*-------------------------------------------------------------*/
 	void House::setup()
 	{
@@ -33,12 +39,26 @@ namespace story
 	{
 		lightsOn = false;
 		connected = false;
+		lastWateringInSeconds = 0;
+		isWatering = false;
+		this->btnManager = btnManager;
+
 		assosiateTextures();
 		buildType = BuildType::kHouse;
 		/*Button in floor of box*/
 		ObjectButton btnDoorbell(object, kPolygonNameSideA, true, txHouseDoorBellOff, txHouseDoorBellOn,
 								0.05,0.05, 0 ,0.04);
 		
+		
+		
+		/*Calculo jardin*/
+		Polygon3D polB = object->getPolygon(kPolygonNameSideB)->getMathModel();
+		float widthB = fabs((polB.getVertexs().at(1) - polB.getVertexs().at(2)).length());
+		float heightB = fabs((polB.getVertexs().at(1) - polB.getVertexs().at(0)).length());
+		ObjectButton btnGarden(object, kPolygonNameSideB, true, txHouseGarden1, txHouseGarden2, 
+								0.05,widthB, 0 , 0.02);
+		gardenBtnId = btnGarden.getId();
+
 		//Calculo de la puerta
 		Polygon3D pol = object->getPolygon(kPolygonNameSideA)->getMathModel();
 		float width = fabs((pol.getVertexs().at(1) - pol.getVertexs().at(2)).length());
@@ -50,13 +70,16 @@ namespace story
 
 		ObjectButton btnDoor(object, kPolygonNameSideA, false, txHouseDoor, txHouseDoor,
 								doorHeight,doorWidth,padding,0);
-
+		
 		btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnDoorbell)));
 		buttonsId.push_back(btnDoorbell.getId());
 		actionsMap[btnDoorbell.getId()] = DOORBELL;
 		btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnDoor)));
 		buttonsId.push_back(btnDoor.getId());
 		actionsMap[btnDoor.getId()] = KNOCK;
+		btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnGarden)));
+		buttonsId.push_back(btnGarden.getId());
+		actionsMap[btnGarden.getId()] = GARDEN;
 
 	}
 
@@ -86,6 +109,13 @@ namespace story
 				if(!released)
 					knock->play();
 				break;
+			case GARDEN:
+				isWatering = !released;
+				if(isWatering)
+					water->setPaused(false);
+				else
+					water->setPaused(true);
+				break;
 		}
 	}
 
@@ -110,6 +140,48 @@ namespace story
 		}
 	}
 
+	/*-------------------------------------------------------------*/
+	void House::update(float elapsedTime)
+	{
+		if(isWatering)
+			lastWateringInSeconds = max(lastWateringInSeconds - (elapsedTime*4), 0.0f);
+		else
+			lastWateringInSeconds = min(lastWateringInSeconds + elapsedTime, StoryConstants::HOUSE_GARDEN_1_TIME*4);
+	}
+
+	/*-------------------------------------------------------------*/
+	void House::draw()
+	{
+		Box::draw();
+		vector<ofVec3f> gardenVexs = btnManager->getVertexs(gardenBtnId);
+		if(gardenVexs.size() > 0)
+		{
+			float factor1 = min((lastWateringInSeconds / StoryConstants::HOUSE_GARDEN_1_TIME)*255, 255.0f);
+			float factor2 = min((lastWateringInSeconds / (StoryConstants::HOUSE_GARDEN_1_TIME*4))*255, 255.0f);
+			
+			gardenFbo.begin();
+			glDisable(GL_DEPTH_TEST);
+			ofSetColor(255,255,255,255);
+			txHouseGarden1->draw(0,0);
+			ofSetColor(255,255,255,factor1);
+			txHouseGarden2->draw(0,0);
+			ofSetColor(255,255,255,factor2);
+			txHouseGarden3->draw(0,0);
+			glEnable(GL_DEPTH_TEST);
+			gardenFbo.end();
+
+			ofSetColor(255,255,255,255);
+			gardenFbo.getTextureReference().bind();
+			glBegin(GL_QUADS);  
+				glTexCoord2f(0, 0);											glVertex3f(gardenVexs[0].x, gardenVexs[0].y, gardenVexs[0].z);  
+				glTexCoord2f(gardenFbo.getWidth(), 0);						glVertex3f(gardenVexs[1].x, gardenVexs[1].y, gardenVexs[1].z);  
+				glTexCoord2f(gardenFbo.getWidth(), gardenFbo.getHeight());	glVertex3f(gardenVexs[2].x, gardenVexs[2].y, gardenVexs[2].z); 
+				glTexCoord2f(0, gardenFbo.getHeight());						glVertex3f(gardenVexs[3].x, gardenVexs[3].y, gardenVexs[3].z);   
+			glEnd();
+			gardenFbo.getTextureReference().unbind();
+		}
+	}
+
 
 	/* Textures */
 	/*-------------------------------------------------------------*/
@@ -124,6 +196,10 @@ namespace story
 			txLightSwitchOn = new ofImage("data/texturas/house/LightSwitchOn.jpg");
 			txLightSwitchOff = new ofImage("data/texturas/house/LightSwitchOff.jpg");
 			txHouseDoor = new ofImage("data/texturas/house/Door.jpg");
+			txHouseGarden1 = new ofImage("data/texturas/house/garden1.jpg");
+			txHouseGarden2 = new ofImage("data/texturas/house/garden2.jpg");
+			txHouseGarden3 = new ofImage("data/texturas/house/garden3.jpg");
+			gardenFbo.allocate(txHouseGarden1->getWidth(),txHouseGarden1->getHeight());
 	}
 
 	/*-------------------------------------------------------------*/
@@ -148,5 +224,10 @@ namespace story
 		click->loadSound("data/sonidos/house/click.wav");
 		call = new ofSoundPlayer();
 		call->loadSound("data/sonidos/house/call.wav");
+		water = new ofSoundPlayer();
+		water->loadSound("data/sonidos/house/water.wav");
+		water->play();
+		water->setPaused(true);
+		water->setLoop(true);
 	}
 }
