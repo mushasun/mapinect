@@ -46,10 +46,6 @@ namespace mapinect
 	void Polygon3D::setPlane(const Plane3D& p)
 	{
 		plane = p;
-		if (vertexs.size() > 0)
-		{
-			setVertexs(vertexs);
-		}
 	}
 
 	void Polygon3D::setVertex(int pos, const ofVec3f& v)
@@ -63,8 +59,6 @@ namespace mapinect
 	void Polygon3D::setVertexs(const vector<ofVec3f>& newVertexs)
 	{
 		vertexs = newVertexs;
-		/*for (vector<ofVec3f>::iterator v = vertexs.begin(); v != vertexs.end(); ++v)
-			*v = plane.project(*v);*/
 		init();
 	}
 
