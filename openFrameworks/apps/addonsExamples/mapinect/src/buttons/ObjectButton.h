@@ -32,6 +32,7 @@ namespace mapinect {
 
 		inline int getObjectId() { return obj->getId(); }
 		void updateObject(const IObjectPtr& object);
+		inline virtual vector<ofVec3f>		getVertexs() { return polygon.getVertexs(); }
 
 	protected:
 		virtual bool isInTouch(const DataTouch& touch);

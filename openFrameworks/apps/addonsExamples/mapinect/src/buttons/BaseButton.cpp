@@ -17,6 +17,7 @@ namespace mapinect {
 		leaderTouch = -1;
 		leaderChanged = false;
 		zIndex = 1;
+		touching = false;
 	}
 
 	BaseButton::BaseButton(const ofColor& idle, const ofColor& pressed)
@@ -65,10 +66,17 @@ namespace mapinect {
 				//contacts.insert(pair<int,DataTouch>(touch.getId(),touch));
 
 			if(contacts.size() == 0)
+			{
 				evnt = kButtonEventReleased;
+				touching = false;
+			}
 			else if(contacts.size() == 1 &&
-					touch.getType() == kTouchTypeStarted)
+					(touch.getType() == kTouchTypeStarted || touch.getType() == kTouchTypeHolding) &&
+					touching == false)
+			{
 				evnt = kButtonEventPressed;
+				touching = true;
+			}
 			else
 				evnt = kButtonEventNoChange;
 		}

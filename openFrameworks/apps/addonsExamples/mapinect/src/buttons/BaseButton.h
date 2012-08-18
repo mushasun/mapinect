@@ -30,7 +30,8 @@ namespace mapinect {
 		inline void			setDrawMode(const ButtonDrawMode& m){ mode = m; }
 		inline void			setZIndex(int index)				{ zIndex = index; }
 		
-		virtual void		draw() = 0;
+		virtual void				draw() = 0;
+		virtual vector<ofVec3f>		getVertexs() = 0;
 
 		inline bool			isPressed() const					{ return contacts.size() > 0; } 
 
@@ -42,7 +43,8 @@ namespace mapinect {
 		
 		int					leaderTouch;
 		bool				leaderChanged;
-		
+		bool				touching;
+
 		ButtonDrawMode		mode;
 		ofColor				idleColor;
 		ofColor				pressedColor;

@@ -1,5 +1,7 @@
 #include "ObjectButton.h"
 #include "ofGraphicsUtils.h"
+#include "pointUtils.h"
+#include "ofMain.h"
 
 namespace mapinect {
 
@@ -250,6 +252,9 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	bool ObjectButton::checkInFloor(const DataTouch& touch)
 	{
+		saveCloud("touchPoint.pcd", touch.getTouchPoint());
+		saveCloud("button.pcd", polygon.getVertexs());
+		//cout << "in pol: " << polygon.isInPolygon(touch.getTouchPoint()) << endl;
 		return polygon.isInPolygon(touch.getTouchPoint());
 	}
 }

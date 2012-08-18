@@ -33,6 +33,7 @@ namespace mapinect
 		virtual void setPressed(ofImage*)							= 0;
 		virtual void setPressed(const ofColor&)						= 0;
 		virtual void setDrawMode(const ButtonDrawMode&)				= 0;
+		virtual vector<ofVec3f>		getVertexs()					= 0;
 
 	};
 }

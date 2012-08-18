@@ -282,11 +282,11 @@ namespace mapinect {
 				}
 				(*iter)->removeMatching();
 			}
-			else 
+			/*else 
 			{
 				cout << "		no matching! " << (*iter)->getCounter() << endl;
 				saveCloud("noMatched.pcd",*(*iter)->getTrackedCloud());
-			}
+			}*/
 		}
 	}
 }
