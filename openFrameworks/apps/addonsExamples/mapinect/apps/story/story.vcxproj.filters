@@ -26,6 +26,9 @@
     <ClCompile Include="src\story\River.cpp">
       <Filter>story</Filter>
     </ClCompile>
+    <ClCompile Include="src\story\PowerPlant.cpp">
+      <Filter>story</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="story">
@@ -55,6 +58,12 @@
       <Filter>story</Filter>
     </ClInclude>
     <ClInclude Include="src\story\River.h">
+      <Filter>story</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\PowerPlant.h">
+      <Filter>story</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\StatusChangedData.h">
       <Filter>story</Filter>
     </ClInclude>
   </ItemGroup>

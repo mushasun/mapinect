@@ -9,6 +9,7 @@ namespace story
 
 		static float				SPOT_BASE_RADIUS;
 		static float				SPOT_ROTATION_PERIOD_TIME;
+		static float				HOUSE_GARDEN_1_TIME;
 
 		static void					LoadStoryConstants();
 

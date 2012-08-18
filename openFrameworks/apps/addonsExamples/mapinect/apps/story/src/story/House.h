@@ -18,7 +18,8 @@ namespace story
 		DOORBELL,
 		LIGHT_SWITCH,
 		KNOCK,
-		CONNECT
+		CONNECT,
+		GARDEN
 	};
 
 	class House : public Box
@@ -32,6 +33,9 @@ namespace story
 			virtual void buttonEvent(const IButtonPtr& btn, bool released);
 			virtual void objectEvent(const DataTouch& touchPoint, const BuildType& selection);
 
+			virtual void			update(float elapsedTime);
+			virtual void			draw();
+
 		private:
 			static void				loadTextures();
 			void					assosiateTextures();
@@ -41,12 +45,17 @@ namespace story
 			bool					lightsOn;
 			bool					connected;
 			map<int,HouseAction>	actionsMap;
-			
+			float					lastWateringInSeconds;
+			int						gardenBtnId;
+			bool					isWatering;
+			IButtonManager*			btnManager;
+
 			//sounds
 			static ofSoundPlayer*	ding;
 			static ofSoundPlayer*	knock;
 			static ofSoundPlayer*	click;
 			static ofSoundPlayer*	call;
+			static ofSoundPlayer*	water;
 			
 			//textures
 			static ofImage*		txHouseTop;
@@ -59,6 +68,11 @@ namespace story
 			static ofImage*		txLightSwitchOn;
 			static ofImage*		txLightSwitchOff;
 			static ofImage*		txHouseDoor;
+			static ofImage*		txHouseGarden1;
+			static ofImage*		txHouseGarden2;
+			static ofImage*		txHouseGarden3;
+			static ofFbo		gardenFbo;
+
 		
 	};
 }
