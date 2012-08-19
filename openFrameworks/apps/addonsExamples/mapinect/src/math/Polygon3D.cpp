@@ -41,6 +41,7 @@ namespace mapinect
 			edges.push_back(Line3D(vertexs[i], vertexs[(i + 1) % vertexs.size()]));
 			edges2d.push_back(Line2D(vertexs2d[i], vertexs2d[(i + 1) % vertexs.size()]));
 		}
+		centroid = computeCentroid(vertexs);
 	}
 
 	void Polygon3D::setPlane(const Plane3D& p)
