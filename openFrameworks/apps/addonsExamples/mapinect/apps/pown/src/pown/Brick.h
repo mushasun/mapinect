@@ -5,6 +5,7 @@
 #include "IPolygon.h"
 #include "ofColor.h"
 #include "Box.h"
+#include "Light.h"
 
 #include <map>
 #include <set>
@@ -26,12 +27,16 @@ namespace pown
 
 		inline const NoteBeat&	getNoteBeat() const					{ return noteBeat; }
 		inline const Polygon3D&	getHitPolygon() const				{ return hitPolygon; }
+		inline const ofVec3f&	getCenter() const					{ return center; }
+		inline const ofVec3f&	getNormal() const					{ return normal; }
 		inline void				setColor(const ofColor& color)		{ this->color = color; }
 
 	private:
 		NoteBeat				noteBeat;
 		Polygon3D				hitPolygon;
 		vector<ofVec3f>			drawVertexs;
+		ofVec3f					center;
+		ofVec3f					normal;
 		ofFloatColor			color;
 	};
 
@@ -62,7 +67,7 @@ namespace pown
 	public:
 		BrickManager(const IPolygonPtr& floor);
 
-		void					update(float elapsedTime);
+		void					update(float elapsedTime, const Light& light);
 		void					draw() const;
 		Brick*					getBrick(int note, int beat) const;
 

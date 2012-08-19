@@ -20,13 +20,17 @@ namespace pown
 		object.reset();
 	}
 
-	void Box::draw() const
+	void Box::draw(const Light& light) const
 	{
-		ofSetColor(color + boostColor);
 		//ofDrawQuad(object->getPolygon(kPolygonNameBottom)->getMathModel().getVertexs());
 		for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 		{
-			ofDrawQuad((*p)->getMathModel().getVertexs());
+			IPolygonPtr polygon = *p;
+			const vector<ofVec3f>& vxs(polygon->getMathModel().getVertexs());
+			ofSetColor(light.getColor(color,
+				polygon->getMathModel().getCentroid(),
+				polygon->getMathModel().getPlane().getNormal()) + boostColor);
+			ofDrawQuad(vxs);
 		}
 	}
 

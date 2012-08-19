@@ -7,6 +7,7 @@
 #include <map>
 #include "Brick.h"
 #include "Box.h"
+#include "Light.h"
 #include "Spot.h"
 
 namespace pown
@@ -41,6 +42,8 @@ namespace pown
 		BrickManager*		brickManager;
 		map<int, Box*>		boxes;
 		set<Spot*>			spots;
+
+		Light				light;
 	};
 }
 

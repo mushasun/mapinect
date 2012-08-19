@@ -4,6 +4,7 @@
 #include "IObject.h"
 #include "DataTouch.h"
 #include "Brick.h"
+#include "Light.h"
 
 using namespace mapinect;
 
@@ -26,7 +27,7 @@ namespace pown
 		inline void					setNoteBeat(const NoteBeat& nb)			{ noteBeat = nb; }
 
 		void						update(float elapsedTime);
-		void						draw() const;
+		void						draw(const Light& light) const;
 		void						objectTouched(const IObjectPtr& object, const DataTouch& touchPoint);
 
 		void						doBeat();
