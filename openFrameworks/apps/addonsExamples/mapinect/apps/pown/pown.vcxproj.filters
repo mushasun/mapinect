@@ -67,6 +67,9 @@
     <ClCompile Include="src\pown\NoteBeat.cpp">
       <Filter>pown</Filter>
     </ClCompile>
+    <ClCompile Include="src\pown\Light.cpp">
+      <Filter>pown</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pown\Box.h">
@@ -121,6 +124,9 @@
       <Filter>pown</Filter>
     </ClInclude>
     <ClInclude Include="src\pown\NoteBeat.h">
+      <Filter>pown</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pown\Light.h">
       <Filter>pown</Filter>
     </ClInclude>
   </ItemGroup>

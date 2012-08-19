@@ -2,24 +2,21 @@
 
 #include "ofGraphicsUtils.h"
 #include "ofLight.h"
-
 #include "PownConstants.h"
 #include "SoundManager.h"
 #include "Timer.h"
 
 namespace pown
 {
-
-	static ofLight ambientLight;
+	const float lightRadius = 0.25f;
+	const float lightHeight = -0.4f;
+	const ofFloatColor ambient(0.1f, 0.1f, 0.1f, 1.0f);
+	const ofFloatColor diffuse(0.5f, 0.5f, 0.5f, 1.0f);
 
 	Pown::Pown()
-		: brickManager(NULL)
+		: brickManager(NULL), light(ambient, diffuse, ofVec3f(lightRadius, lightHeight, 0))
 	{
 		floor.reset();
-		ambientLight.setDirectional();
-		ambientLight.setAmbientColor(kRGBRed);
-		ambientLight.setDiffuseColor(kRGBWhite);
-		ambientLight.setSpecularColor(kRGBGreen);
 	}
 
 	Pown::~Pown()
@@ -40,21 +37,18 @@ namespace pown
 	void Pown::draw()
 	{
 		ofEnableAlphaBlending();
-		//ofEnableLighting();
 
-		//ambientLight.enable();
-		ambientLight.setPosition(ofVec3f(0, -0.3, 0));
-		
+		static ofLight debugLight;
+		debugLight.setPosition(light.getPos());
+		debugLight.draw();
+
 		if (brickManager != NULL)
 			brickManager->draw();
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
 			(*spot)->draw();
 		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
-			(box->second)->draw();
+			(box->second)->draw(light);
 		
-		//ambientLight.disable();
-		
-		//ofDisableLighting();
 		ofDisableAlphaBlending();
 	}
 
@@ -87,11 +81,20 @@ namespace pown
 	{
 		if (brickManager != NULL)
 		{
-			static float boltEmisorTimer = 0;
-			boltEmisorTimer += elapsedTime;
-			if (boltEmisorTimer >= PownConstants::BEAT_TIME)
+			static float beatTimer = 0;
+			beatTimer += elapsedTime;
+
+			static float emitTimer = 0;
+			emitTimer += elapsedTime;
+			float phi = 2.0f * PI * (emitTimer / (4.0f * PownConstants::EMIT_TIME));
+			float xx = sin(phi) * lightRadius;
+			float yy = lightHeight;
+			float zz = cos(phi) * lightRadius;
+			light.setPos(ofVec3f(xx, yy, zz));
+
+			if (beatTimer >= PownConstants::BEAT_TIME)
 			{
-				boltEmisorTimer -= PownConstants::BEAT_TIME;
+				beatTimer -= PownConstants::BEAT_TIME;
 
 				brickManager->doBeat(boxes);
 
@@ -104,7 +107,7 @@ namespace pown
 	{
 		// update all existing objects
 		if (brickManager != NULL)
-			brickManager->update(elapsedTime);
+			brickManager->update(elapsedTime, light);
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
 			(*spot)->update(elapsedTime);
 		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)

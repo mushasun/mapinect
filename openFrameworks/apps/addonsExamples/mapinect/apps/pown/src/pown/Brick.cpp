@@ -13,6 +13,8 @@ namespace pown
 		const vector<ofVec3f>& drawVertexs, const ofFloatColor& color)
 		: noteBeat(noteBeat), hitPolygon(hitPolygon), drawVertexs(drawVertexs), color(color)
 	{
+		center = computeCentroid(drawVertexs);
+		normal = computeNormal(drawVertexs).normalized();
 	}
 
 	void Brick::update(float elapsedTime)
@@ -119,14 +121,14 @@ namespace pown
 				NoteBeat nb(i, j);
 				vector<ofVec3f> hitVertexs;
 				hitVertexs.push_back(origin + dnote * i		+ dbeat * j);
-				hitVertexs.push_back(origin + dnote * i		+ dbeat * (j+1));
-				hitVertexs.push_back(origin + dnote * (i+1)	+ dbeat * (j+1));
 				hitVertexs.push_back(origin + dnote * (i+1)	+ dbeat * j);
+				hitVertexs.push_back(origin + dnote * (i+1)	+ dbeat * (j+1));
+				hitVertexs.push_back(origin + dnote * i		+ dbeat * (j+1));
 				vector<ofVec3f> drawVertexs;
 				drawVertexs.push_back(hitVertexs[0] + nnote + nbeat);
-				drawVertexs.push_back(hitVertexs[1]	+ nnote - nbeat);
+				drawVertexs.push_back(hitVertexs[1]	- nnote + nbeat);
 				drawVertexs.push_back(hitVertexs[2]	- nnote - nbeat);
-				drawVertexs.push_back(hitVertexs[3] - nnote + nbeat);
+				drawVertexs.push_back(hitVertexs[3] + nnote - nbeat);
 				bricks[getBrickPos(nb)] = new Brick(nb, Polygon3D(hitVertexs), drawVertexs, kDefaultBrickColor);
 			}
 		}
@@ -179,7 +181,7 @@ namespace pown
 		return result;
 	}
 
-	void BrickManager::update(float elapsedTime)
+	void BrickManager::update(float elapsedTime, const Light& light)
 	{
 		map<Wave*, set<NoteBeat> > waveNoteBeats;
 
@@ -203,6 +205,8 @@ namespace pown
 				for (map<Wave*, set<NoteBeat> >::const_iterator wnb = waveNoteBeats.begin(); wnb != waveNoteBeats.end(); wnb++)
 					if (wnb->second.find(noteBeat) != wnb->second.end())
 						color += wnb->first->getColor(); 
+
+				color = light.getColor(color, brick->getCenter(), brick->getNormal());
 
 				brick->setColor(color);
 			}
