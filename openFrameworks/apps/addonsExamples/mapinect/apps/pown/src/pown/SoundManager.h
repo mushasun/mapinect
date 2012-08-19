@@ -5,8 +5,7 @@
 
 namespace pown
 {
-	const int MIN_PROGRAM = 0;
-	const int MAX_PROGRAM = 127;
+	const int PROGRAMS = 12;
 
 	class SoundManager
 	{

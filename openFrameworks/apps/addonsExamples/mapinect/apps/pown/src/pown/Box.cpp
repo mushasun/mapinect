@@ -12,7 +12,7 @@ namespace pown
 		: object(object), noteBeat(noteBeat), boostColor(0)
 	{
 		color = ofRandomColor();
-		program = ofRandom(MAX_PROGRAM);
+		program = ofRandom(PROGRAMS);
 	}
 
 	Box::~Box()
@@ -51,7 +51,7 @@ namespace pown
 	{
 		if (touchPoint.getType() == kTouchTypeStarted)
 		{
-			program = ofRandom(MAX_PROGRAM);
+			program = ofRandom(PROGRAMS);
 			color = ofRandomColor();
 		}
 	}
