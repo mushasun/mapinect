@@ -14,6 +14,7 @@ namespace pown
 	const int BASE_SCALE_NOTES = 5;
 	static int baseScale[BASE_SCALE_NOTES] = { 0, 2, 5, 7, 9 };
 	static int* scale;
+	const int programs[PROGRAMS] = { 3, 8, 9, 46, 51, 62, 88, 91, 96, 97, 98, 118 };
 
 	struct ProgramNote
 	{
@@ -89,7 +90,7 @@ namespace pown
 
 	void SoundManager::myPlayNote(int note, int program)
 	{
-		if (!inRange(program, MIN_PROGRAM, MAX_PROGRAM))
+		if (!inRange(program, 0, PROGRAMS - 1))
 			program = this->program;
 
 		if (playSynchronized)
@@ -101,7 +102,7 @@ namespace pown
 	void SoundManager::myPlayNoteNow(int note, int program)
 	{
 		int saveProgram = this->program;
-		mySetProgram(program);
+		mySetProgram(programs[program]);
 		midiOut.sendNoteOn(channel, scale[note], VELOCITY);
 		mySetProgram(saveProgram);
 	}
