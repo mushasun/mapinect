@@ -23,6 +23,7 @@ namespace mapinect
 		inline const Plane3D&			getPlane() const				{ return plane; }
 		inline const vector<Line3D>&	getEdges() const				{ return edges; }
 		inline const vector<Line2D>&	getEdges2d() const				{ return edges2d; }
+		inline const ofVec3f&			getCentroid() const				{ return centroid; }
 
 		void							setPlane(const Plane3D&);
 		void							setVertex(int pos, const ofVec3f& v);
@@ -45,6 +46,7 @@ namespace mapinect
 		Plane3D				plane;
 		vector<Line3D>		edges;
 		vector<Line2D>		edges2d;
+		ofVec3f				centroid;
 
 	};
 }
