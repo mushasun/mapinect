@@ -6,7 +6,7 @@
 namespace drawing {
 	
 	Canvas::Canvas(const IPolygonPtr& polygon, const ofColor& backColor, const ofColor& foreColor)
-		: polygon(polygon), backColor(backColor), foreColor(foreColor)
+		: polygon(polygon), backColor(backColor), foreColor(foreColor), needsToRedraw(true)
 	{
 		int vertexCount = polygon->getMathModel().getVertexs().size();
 		assert(vertexCount >= 3);
@@ -56,14 +56,23 @@ namespace drawing {
 
 	void Canvas::redraw()
 	{
-		texture.background(backColor);
+		needsToRedraw = true;
+	}
 
-		for (map<int, IDrawer*>::iterator d = drawers.begin(); d != drawers.end(); ++d)
+	void Canvas::redrawIfNecessary()
+	{
+		if (needsToRedraw)
 		{
-			d->second->draw(texture);
-		}
+			texture.background(backColor);
 
-		texture.update();
+			for (map<int, IDrawer*>::iterator d = drawers.begin(); d != drawers.end(); ++d)
+			{
+				d->second->draw(texture);
+			}
+
+			texture.update();
+			needsToRedraw = false;
+		}
 	}
 
 	void Canvas::draw()
@@ -91,8 +100,7 @@ namespace drawing {
 		case kTouchTypeStarted:
 			touchPoints[id] = touchPoint;
 			drawers[id] = IDrawer::SCreate(mapToTexture(touchPoint.getTouchPoint()), foreColor);
-			setBackColor(ofColor(rand() % 255, rand() % 255, rand() % 255));
-			setForeColor(ofColor(rand() % 255, rand() % 255, rand() % 255));
+			setForeColor(ofRandomColor());
 			break;
 		case kTouchTypeHolding:
 			touchPoints[id] = touchPoint;

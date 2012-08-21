@@ -17,6 +17,7 @@ namespace drawing
 		virtual ~Drawing();
 
 		virtual void setup();
+		virtual void update(float elapsedTime);
 		virtual void draw();
 
 		virtual void objectDetected(const IObjectPtr&);

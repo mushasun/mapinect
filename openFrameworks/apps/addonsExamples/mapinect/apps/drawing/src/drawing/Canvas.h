@@ -32,8 +32,10 @@ namespace drawing
 		inline const ofColor&	getForeColor() const					{ return foreColor; }
 		void					setForeColor(const ofColor&);
 
+		void					redrawIfNecessary();
 	private:
 		void					redraw();
+		bool					needsToRedraw;
 
 		IPolygonPtr				polygon;
 		ofxCairoTexture			texture;
