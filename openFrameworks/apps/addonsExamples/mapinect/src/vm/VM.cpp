@@ -319,7 +319,14 @@ namespace mapinect {
 			case '1':
 				loadCalibParams();
 				printf("Parameters loaded from VM config file\n");
+				keyPressed('q');
 				break;
+			case '2':
+				saveCurrentCalibParams();
+				printf("Parameters saved to VM config file\n");
+				keyPressed('q');
+				break;
+
 			/*********************
 			  SHOW STATUS	 - q
 			*********************/
@@ -540,5 +547,21 @@ namespace mapinect {
 
 	}
 
+	void VM::saveCurrentCalibParams() {
+		ofxXmlSettings XML;
+		if(XML.loadFile("VM_Config.xml")) {
+			XML.setValue(VM_CONFIG "PROJ_FX", proj_fx);
+			XML.setValue(VM_CONFIG "PROJ_FY", proj_fy);
+			XML.setValue(VM_CONFIG "PROJ_CX", proj_cx);
+			XML.setValue(VM_CONFIG "PROJ_CY", proj_cy);
+			
+			XML.setValue(VM_CONFIG "TRANS_X", transX);
+			XML.setValue(VM_CONFIG "TRANS_Y", transY);
+			XML.setValue(VM_CONFIG "TRANS_Z", transZ);
+
+			XML.saveFile("VM_Config.xml");
+		}
+		 
+	}
 
 }
