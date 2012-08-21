@@ -10,6 +10,8 @@ enum LogFile
 	kLogFileCount
 };
 
+void enableCout(bool enable);
+
 void log(const LogFile& file, const std::string& str);
 void printLogFileToFile(const LogFile& file, const std::string& filename, bool clear = true);
 void printLogFile(const LogFile& file, bool clear = true);

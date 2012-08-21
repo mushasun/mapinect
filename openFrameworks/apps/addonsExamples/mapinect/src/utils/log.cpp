@@ -6,6 +6,29 @@
 #include "ofxMutex.h"
 #include "Timer.h"
 
+void enableCout(bool enable)
+{
+	static ofxMutex enabledMutex;
+	static bool isEnabled = true;
+	enabledMutex.lock();
+		if (enable != isEnabled)
+		{
+			static streambuf* cout_sbuf = NULL;
+			if (enable)
+			{
+				cout.rdbuf(cout_sbuf); // restore the original stream buffer
+			}
+			else
+			{
+				cout_sbuf = std::cout.rdbuf(); // save original sbuf
+				ofstream   fout("/dev/null");
+				cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'
+			}
+			isEnabled = enable;
+		}
+	enabledMutex.unlock();
+}
+
 static std::string		logs[kLogFileCount];
 static mapinect::Timer	logsTimer[kLogFileCount];
 static ofxMutex			logsMutex;
