@@ -228,7 +228,7 @@ namespace mapinect {
 
 	///Retorna la distancia de matcheo entre las dos nubes
 	///Retorna -1 en caso de no matchear
-	float TrackedCloud::matchingTrackedObjects(const TrackedCloudPtr& tracked)
+	float TrackedCloud::matchingTrackedObjects(const TrackedCloudPtr& tracked) const
 	{
 		PCPtr diff;
 		PCPtr cluster;
@@ -247,12 +247,12 @@ namespace mapinect {
 
 		ofVec3f translation = clusterCentroid - objCentroid;
 
-		float length = translation.length();
+		float result = translation.length();
 
-		if(length > nearest)
-			return -1;
-		else
-			return length;
+		if(result > nearest)
+			result = numeric_limits<float>::max();
+
+		return result;
 	}
 
 }

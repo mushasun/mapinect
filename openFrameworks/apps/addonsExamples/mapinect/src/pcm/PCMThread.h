@@ -38,7 +38,7 @@ namespace mapinect
 		bool						findBestFit(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved);
 		void						updateDetectedTouchPoints();
 
-		list<TrackedTouchPtr>		trackedTouchPoints;
+		map<int, list<TrackedTouchPtr> >	trackedTouchPoints;
 
 		bool						detectMode;
 		bool						objectDetection;
