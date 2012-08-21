@@ -21,6 +21,25 @@ namespace drawing {
 	}
 
 	//--------------------------------------------------------------
+	void Drawing::update(float elapsedTime)
+	{
+		static float redrawTime = 0;
+		const float redrawTimeLimit = 500.0f;
+		redrawTime += elapsedTime;
+		if (redrawTime > redrawTimeLimit)
+		{
+			for (map<int, map<int, Canvas*> >::iterator ob = canvas.begin(); ob != canvas.end(); ++ob)
+			{
+				for (map<int, Canvas*>::iterator p = ob->second.begin(); p != ob->second.end(); ++p)
+				{
+					p->second->redrawIfNecessary();
+				}
+			}
+			redrawTime = 0.0f;
+		}
+	}
+
+	//--------------------------------------------------------------
 	void Drawing::draw()
 	{
 		for (map<int, map<int, Canvas*> >::iterator ob = canvas.begin(); ob != canvas.end(); ++ob)
