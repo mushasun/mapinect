@@ -3,12 +3,13 @@
 
 #include "PCQuadrilateral.h"
 
-namespace mapinect {
-
-	class Table : public PCQuadrilateral {
+namespace mapinect
+{
+	class Table : public PCQuadrilateral
+	{
 	public:
-		static TablePtr Create(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud);
-		void SetTablePlane(const pcl::ModelCoefficients& coefficients);
+		static TablePtr create(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud);
+		static void updateTablePlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud);
 
 		virtual IObjectPtr		getMathModelApproximation() const;
 

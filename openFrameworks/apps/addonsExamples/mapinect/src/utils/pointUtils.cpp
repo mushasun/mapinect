@@ -428,6 +428,28 @@ ofVec3f getNormal(const pcl::ModelCoefficients& coefficients)
 	return ofVec3f(coefficients.values[0], coefficients.values[1], coefficients.values[2]);
 }
 
+
+PCPtr findPlaneGivenNormal(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, 
+							ofVec3f normal, float angleThreshold, float distanceThreshold, int maxIterations ) {
+	// http://pointclouds.org/documentation/tutorials/planar_segmentation.php#planar-segmentation
+	// http://www.pcl-users.org/Ransac-Planes-td2085912.html#a2086759
+	pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+	pcl::SACSegmentation<pcl::PointXYZ> seg;  
+	seg.setOptimizeCoefficients (false);  
+	seg.setModelType (pcl::SACMODEL_PERPENDICULAR_PLANE);  
+	seg.setMethodType (pcl::SAC_RANSAC);  
+	seg.setMaxIterations (maxIterations);  
+	seg.setDistanceThreshold (distanceThreshold);  //  How close a point must be to the model in order to be considered an inlier
+	cout << "Buscando planos con normal = (" << normal.x << ", " << normal.y << ", " << normal.z << ")" << endl;
+	seg.setAxis(Eigen::Vector3f(normal.x,normal.y,normal.z));  
+	float angleThresholdRad = ofDegToRad(angleThreshold);
+	seg.setEpsAngle(angleThresholdRad);
+	seg.setInputCloud(cloud);
+	seg.segment(*inliers, coefficients);
+	return getCloudFromIndices(cloud, *inliers);
+}
+
+
 PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& remainingCloud,
 							float distanceThreshold, int maxIterations)
 {

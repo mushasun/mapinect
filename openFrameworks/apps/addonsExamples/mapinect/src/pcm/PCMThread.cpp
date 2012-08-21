@@ -136,7 +136,7 @@ namespace mapinect {
 
 			PCPtr biggestPlaneCloud = extractBiggestPlane(tableCluster, coefficients, result, 0.009);
 
-			Table::Create(coefficients, biggestPlaneCloud);
+			Table::create(coefficients, biggestPlaneCloud);
 		}
 		else
 		{
