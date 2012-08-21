@@ -12,7 +12,8 @@ namespace story
 {
 	enum BuildType{
 		kHouse,
-		kPowerPlant
+		kPowerPlant,
+		kWaterPlant
 	};
 
 	class Box

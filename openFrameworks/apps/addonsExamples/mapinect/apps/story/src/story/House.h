@@ -43,7 +43,8 @@ namespace story
 
 			//control
 			bool					lightsOn;
-			bool					connected;
+			bool					connected_to_energy;
+			bool					connected_to_water;
 			map<int,HouseAction>	actionsMap;
 			float					lastWateringInSeconds;
 			int						gardenBtnId;
