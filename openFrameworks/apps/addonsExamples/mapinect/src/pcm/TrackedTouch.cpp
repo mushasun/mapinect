@@ -22,25 +22,33 @@ namespace mapinect
 		 nearest = MAX_FLOAT;
 	}
 	
-	bool TrackedTouch::matches(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved)
+	bool TrackedTouch::confirmMatch(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed)
 	{
-		wasRemoved = false;
+		bool result = false;
+
+		if(matchingTouch != NULL)
+		{
+			removed = matchingTouch;
+			result = true;
+		}
+		nearest = (tracked->point - point).length();
+		matchingTouch = tracked;
+
+		return result;
+	}
+
+	float TrackedTouch::matchingTrackedTouch(const TrackedTouchPtr& tracked) const
+	{
+		float result = numeric_limits<float>::max();
 		if (polygon->getId() == tracked->polygon->getId())
 		{
 			float translationLen = (tracked->point - point).length();
 			if(translationLen < nearest && translationLen < Constants::TOUCH_TRANSLATION_TOLERANCE())
 			{
-				nearest = translationLen;
-				if(matchingTouch.get() != NULL)
-				{
-					removed = matchingTouch;
-					wasRemoved = true;
-				}
-				matchingTouch = tracked;
-				return true;
+				result = translationLen;
 			}
 		}
-		return false;
+		return result;
 	}
 
 	bool TrackedTouch::updateMatching()

@@ -19,18 +19,18 @@ namespace mapinect {
 		virtual ~TrackedCloud();
 
 		bool							confirmMatch(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud);
-		float							matchingTrackedObjects(const TrackedCloudPtr& tracked_temp);
+		float							matchingTrackedObjects(const TrackedCloudPtr& tracked_temp) const;
 
 		void							addCounter(int diff);
 		void							updateMatching();
-		inline int						getCounter()			{ return counter; }
-		inline const PCPtr&				getTrackedCloud()		{ return cloud; }
-		inline bool						hasObject()				{ return objectInModel != NULL; }
-		inline bool						hasMatching()			{ return matchingCloud != NULL; }
+		inline int						getCounter() const		{ return counter; }
+		inline const PCPtr&				getTrackedCloud() const	{ return cloud; }
+		inline bool						hasObject() const		{ return objectInModel != NULL; }
+		inline bool						hasMatching() const		{ return matchingCloud != NULL; }
 		void							removeMatching();
 		void							updateCloud(const PCPtr& cloud_cluster);
 		
-		bool							operator==(const TrackedCloudPtr& other) const ;
+		bool							operator==(const TrackedCloudPtr& other) const;
 		inline const PCModelObjectPtr&	getTrackedObject()		{ return objectInModel; }
 
 	private:

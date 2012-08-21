@@ -20,13 +20,16 @@ namespace mapinect
 		inline	int					getId() const						{ return id; }
 		inline	DataTouchType		getTouchStatus() const				{ return status; }
 		inline	const IPolygonPtr&	getPolygon() const					{ return polygon; }
+		inline	int					getPolygonId() const				{ return polygon->getId(); }
 		inline	const ofVec3f&		getTrackedPoint() const				{ return point; }
 		inline	bool				hasMatching() const					{ return matchingTouch != NULL; }
 
 				DataTouch			getDataTouch() const;
 		inline	IObjectPtr			getObject() const					{ return polygon->getContainer(); }
 
-				bool				matches(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved);
+				bool				confirmMatch(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed);
+				float				matchingTrackedTouch(const TrackedTouchPtr& tracked) const;
+
 				bool				updateMatching();
 				void				updateToHolding();
 

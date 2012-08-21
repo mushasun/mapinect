@@ -272,25 +272,29 @@ namespace mapinect {
 				{
 					PCPtr polygonTouchPointsCloud(ofVecVectorToPointCloud(i->second));
 					bool useClustering = true;
-					bool usePCL = false;
+					bool usePCL = true;
 					if (useClustering)
 					{
 						const double tolerance = Constants::TOUCH_TOLERANCE();
 						const int minClusterSize = 1;
-						const int maxTouchClusterSize = Constants::TOUCH_MAX_PER_FACE;
 						if (usePCL)
 						{
-							std::vector<pcl::PointIndices> cluster_indices =
-								findClusters(polygonTouchPointsCloud, tolerance, minClusterSize);
+							std::vector<pcl::PointIndices> cluster_indices;
+							if (polygonTouchPointsCloud->size() == minClusterSize)
+							{
+								cluster_indices.push_back(pcl::PointIndices());
+								cluster_indices[0].indices.push_back(0);
+							}
+							else
+							{
+								cluster_indices = findClusters(polygonTouchPointsCloud, tolerance, minClusterSize);
+							}
 
 							for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
 							{
-								if (it->indices.size() <= maxTouchClusterSize)		// Avoid new big objects from being recognized as touch points
-								{
-									PCPtr cloud_cluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
-									ofVec3f touchPoint(computeCentroid(cloud_cluster));
-									newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
-								}
+								PCPtr cloudCluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
+								ofVec3f touchPoint(computeCentroid(cloudCluster));
+								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
 							}
 						}
 						else
@@ -304,11 +308,8 @@ namespace mapinect {
 
 							for (vector<vector<ofVec3f> >::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
 							{
-								if (it->size() <= maxTouchClusterSize)
-								{
-									ofVec3f touchPoint(computeCentroid(*it));
-									newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
-								}
+								ofVec3f touchPoint(computeCentroid(*it));
+								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
 							}
 						}
 					}
@@ -346,8 +347,21 @@ namespace mapinect {
 					max_iter--;
 				}
 				while (newTouchPoints.size() > 0 && max_iter > 0);
-
-				trackedTouchPoints.insert(trackedTouchPoints.end(), touchPointsToAdd.begin(), touchPointsToAdd.end());
+				
+				for (list<TrackedTouchPtr>::iterator tt = touchPointsToAdd.begin(); tt != touchPointsToAdd.end(); tt++)
+				{
+					int polygonId = (*tt)->getPolygonId();
+					map<int, list<TrackedTouchPtr> >::iterator polygonTouchs = trackedTouchPoints.find(polygonId);
+					if (polygonTouchs == trackedTouchPoints.end())
+					{
+						trackedTouchPoints.insert(make_pair(polygonId, list<TrackedTouchPtr>()));
+						polygonTouchs = trackedTouchPoints.find(polygonId);
+					}
+					if (polygonTouchs->second.size() < Constants::TOUCH_MAX_PER_FACE)
+					{
+						polygonTouchs->second.push_back(*tt);
+					}
+				}
 			}
 
 			// Effectuate the update of the tracked touch points with the new ones
@@ -359,35 +373,56 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	bool PCMThread::findBestFit(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved) {
-		for (list<TrackedTouchPtr>::iterator iter = trackedTouchPoints.begin(); iter != trackedTouchPoints.end(); iter++) {
-			if ((*iter)->matches(tracked, removed, wasRemoved))
+	bool PCMThread::findBestFit(const TrackedTouchPtr& tracked, TrackedTouchPtr& removed, bool &wasRemoved)
+	{
+		bool result = false;
+
+		float currentDist = numeric_limits<float>::max();
+		TrackedTouchPtr currentMatch;
+		wasRemoved = false;
+		map<int, list<TrackedTouchPtr> >::iterator polygonTouches = trackedTouchPoints.find(tracked->getPolygonId());
+		if (polygonTouches != trackedTouchPoints.end())
+		{
+			for (list<TrackedTouchPtr>::iterator iter = polygonTouches->second.begin(); iter != polygonTouches->second.end(); iter++)
 			{
-				return true;
+				float dist = (*iter)->matchingTrackedTouch(tracked);
+				if (dist < currentDist)
+				{
+					currentMatch = (*iter);
+					currentDist = dist;
+				}
+			}
+			if(currentDist < numeric_limits<float>::max())
+			{
+				wasRemoved = currentMatch->confirmMatch(tracked, removed);
+				result = true;
 			}
 		}
-		return false;
+		return result;
 	}
 
 	//--------------------------------------------------------------
 	void PCMThread::updateDetectedTouchPoints()
 	{
-		for (list<TrackedTouchPtr>::iterator iter = trackedTouchPoints.begin(); iter != trackedTouchPoints.end(); iter++)
+		for (map<int, list<TrackedTouchPtr> >::iterator p = trackedTouchPoints.begin(); p != trackedTouchPoints.end(); p++)
 		{
-			if ((*iter)->updateMatching())
+			for (list<TrackedTouchPtr>::iterator iter = p->second.begin(); iter != p->second.end(); iter++)
 			{
-				EventManager::addEvent(
-					MapinectEvent(kMapinectEventTypeObjectTouched,
-						(*iter)->getObject(),
-						(*iter)->getDataTouch()));
+				if ((*iter)->updateMatching())
+				{
+					EventManager::addEvent(
+						MapinectEvent(kMapinectEventTypeObjectTouched,
+							(*iter)->getObject(),
+							(*iter)->getDataTouch()));
+				}
 			}
-		}
-		// Clear released touch points
-		trackedTouchPoints.remove_if(isStatusReleased);
+			// Clear released touch points
+			p->second.remove_if(isStatusReleased);
 
-		for (list<TrackedTouchPtr>::iterator iter = trackedTouchPoints.begin(); iter != trackedTouchPoints.end(); iter++)
-		{
-			(*iter)->updateToHolding();
+			for (list<TrackedTouchPtr>::iterator iter = p->second.begin(); iter != p->second.end(); iter++)
+			{
+				(*iter)->updateToHolding();
+			}
 		}
 	}
 
