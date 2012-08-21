@@ -70,6 +70,9 @@ PCPtr getCloudWithoutMutex();
 
 ofVec3f getNormal(const pcl::ModelCoefficients&);
 
+PCPtr findPlaneGivenNormal(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, 
+							ofVec3f normal, float angleThreshold, float distanceThreshold, int maxIterations = 50);
+
 PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& remainingCloud,
 							float distanceThreshold, int maxIterations = 50);
 

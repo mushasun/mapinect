@@ -29,8 +29,12 @@ namespace mapinect
 
 		ofxMutex					icpMutex;	
 
-		bool						goodTableEstimation(PCPtr newCloud, float maxAngleThreshold);
-		bool						goodTableEstimationRedetectingTable(PCPtr nubeAfterMovingTransfICP);
+		bool						findNewTablePlane(const PCPtr& cloud, float maxAngleThreshold, float maxDistance, 
+											pcl::ModelCoefficients& coefficients, PCPtr& planeCloud);
+		bool						icpProcessing(const PCPtr& inputCloud, const PCPtr& inputTarget, Eigen::Affine3f& newTransf, 
+											float maxDistance = 0.20, int maxIterations = 30);
+
+
 	};
 }
 
