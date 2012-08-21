@@ -556,6 +556,9 @@ namespace mapinect {
 		Eigen::Vector3f axisY (0, 1, 0);
 		Eigen::Vector3f axisZ (0, 0, 1);
 
+		Eigen::Affine3f translationY3;
+		translationY3 = Eigen::Translation<float, 3>(0, -0.422f, 0);
+
 		Eigen::Affine3f rotationY;
 		rotationY = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
 		
@@ -571,6 +574,9 @@ namespace mapinect {
 		Eigen::Affine3f translationY;
 		translationY = Eigen::Translation<float, 3>(0, -MOTORS_HEIGHT, 0);
 
+		Eigen::Affine3f translationZ;
+		translationZ = Eigen::Translation<float, 3>(0, 0, 0.015f);		// Distancia entre el eje de rotación del motor 8 y el del motor 4
+
 		Eigen::Affine3f rotationX;
 		rotationX = Eigen::AngleAxis<float>(angleMotor4Rad, axisX);
 
@@ -582,7 +588,7 @@ namespace mapinect {
 		//y luego la traslacion a lo largo del brazo
 		
 		Eigen::Affine3f composedMatrix;
-		composedMatrix = rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (rotationX * translationY2)))));
+		composedMatrix = translationY3 * (rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (translationZ * (rotationX * translationY2)))))));
 
 		gTransformation->setWorldTransformation(composedMatrix);
 
