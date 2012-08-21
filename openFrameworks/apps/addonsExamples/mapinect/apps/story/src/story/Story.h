@@ -6,7 +6,8 @@
 #include <map>
 #include <set>
 #include "Box.h"
-#include "House.h"
+#include "Buildings/PowerPlant.h"
+#include "Buildings/WaterPlant.h"
 #include "DraggableButton.h"
 #include "ofVec3f.h"
 #include "Road.h"
@@ -45,6 +46,9 @@ namespace story
 	private:
 		void						removeMenu();
 		std::map<int, Box*>			boxes;
+		std::map<int, Box*>			houses;
+		PowerPlant*					power_plant;
+		WaterPlant*					water_plant;
 		std::map<int, DataTouch>	touchPoints;
 
 		std::list<Road>				roads;

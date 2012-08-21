@@ -38,7 +38,8 @@ namespace story
 	House::House(const IObjectPtr& object, IButtonManager* btnManager):Box(object,btnManager)
 	{
 		lightsOn = false;
-		connected = false;
+		connected_to_energy = false;
+		connected_to_water = false;
 		lastWateringInSeconds = 0;
 		isWatering = false;
 		this->btnManager = btnManager;
@@ -110,12 +111,15 @@ namespace story
 					knock->play();
 				break;
 			case GARDEN:
-				isWatering = !released;
-				if(isWatering)
-					water->setPaused(false);
-				else
-					water->setPaused(true);
-				break;
+				if (connected_to_water)
+				{
+					isWatering = !released;
+					if(isWatering)
+						water->setPaused(false);
+					else
+						water->setPaused(true);
+					break;
+				}
 		}
 	}
 
@@ -129,8 +133,12 @@ namespace story
 				case BuildType::kHouse:
 					call->play();
 					break;
+				case BuildType::kWaterPlant:
+					connected_to_water = true;
+					break;
 				case BuildType::kPowerPlant:
-					connected = true;
+					//dejar este case al final
+					connected_to_energy = true;
 					ObjectButton btnLightSwitch(object, kPolygonNameSideB, true, txLightSwitchOff, txLightSwitchOn,
 								0.05,0.05, 0 ,0.04);
 					buttonsId.push_back(btnLightSwitch.getId());

@@ -2,6 +2,8 @@
 
 #include "ObjectButton.h"
 #include "House.h"
+#include "Buildings/PowerPlant.h"
+#include "Buildings/WaterPlant.h"
 #include "River.h"
 #include "Road.h"
 #include "StoryConstants.h"
@@ -32,7 +34,7 @@ namespace story {
 		imgStreetButton = ofImage("data/texturas/road/road.jpg");
 		imgRiverButton = ofImage("data/texturas/river/river.jpg");
 		imgPowerPlantButton = ofImage("data/texturas/power/sign.jpg");
-		imgWaterPlantButton = ofImage("data/texturas/house/top.jpg");
+		imgWaterPlantButton = ofImage("data/texturas/water/logo.jpg");
 		imgHouseButton = ofImage("data/texturas/house/top.jpg");
 		streetButtonId = -1;
 		riverButtonId = -1;
@@ -118,6 +120,16 @@ namespace story {
 				}
 			}
 		}
+		if (addingHouse || addingPowePlant || addingWaterPlant)
+		{
+			modeManager->enableObjectTracking();
+			modeManager->disableTouchTracking();
+		}
+		else if (addingRiver || addingStreet)
+		{
+			modeManager->disableObjectTracking();
+			modeManager->enableTouchTracking();
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -144,7 +156,11 @@ namespace story {
 			}
 			else if (addingPowePlant)
 			{
-				//poner aca la creacion de la power plant
+				PowerPlant* plant  = new PowerPlant(object, btnManager);
+				boxes.insert(pair<int, Box*>(object->getId(), plant));
+				addingHouse = false;
+				modeManager->disableObjectTracking();
+				modeManager->enableTouchTracking();
 			}
 			else if (addingWaterPlant)
 			{

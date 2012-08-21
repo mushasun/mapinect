@@ -26,13 +26,19 @@
     <ClCompile Include="src\story\River.cpp">
       <Filter>story</Filter>
     </ClCompile>
-    <ClCompile Include="src\story\PowerPlant.cpp">
-      <Filter>story</Filter>
+    <ClCompile Include="src\story\Buildings\PowerPlant.cpp">
+      <Filter>story\Buildings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\story\Buildings\WaterPlant.cpp">
+      <Filter>story\Buildings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="story">
       <UniqueIdentifier>{5244f333-5b86-450f-8984-56087961afad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="story\Buildings">
+      <UniqueIdentifier>{361ac53f-aaad-4ae4-be26-3b222575e961}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -60,11 +66,14 @@
     <ClInclude Include="src\story\River.h">
       <Filter>story</Filter>
     </ClInclude>
-    <ClInclude Include="src\story\PowerPlant.h">
-      <Filter>story</Filter>
-    </ClInclude>
     <ClInclude Include="src\story\StatusChangedData.h">
       <Filter>story</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\Buildings\PowerPlant.h">
+      <Filter>story\Buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\Buildings\WaterPlant.h">
+      <Filter>story\Buildings</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
