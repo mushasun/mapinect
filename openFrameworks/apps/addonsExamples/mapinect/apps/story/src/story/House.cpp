@@ -134,11 +134,12 @@ namespace story
 					call->play();
 					break;
 				case BuildType::kWaterPlant:
-					connected_to_water = true;
+					connected_to_water = !connected_to_water;
 					break;
 				case BuildType::kPowerPlant:
 					//dejar este case al final
-					connected_to_energy = true;
+
+					connected_to_energy = !connected_to_energy;
 					ObjectButton btnLightSwitch(object, kPolygonNameSideB, true, txLightSwitchOff, txLightSwitchOn,
 								0.05,0.05, 0 ,0.04);
 					buttonsId.push_back(btnLightSwitch.getId());
