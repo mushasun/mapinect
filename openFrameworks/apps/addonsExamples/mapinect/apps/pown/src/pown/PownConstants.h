@@ -18,8 +18,10 @@ namespace pown
 
 		static float				BOX_BEAT_TIME;
 
+		static int					WAVES_PER_BEAT;
 		static float				WAVE_INTENSITY_DECREASE_FACTOR;
 		static float				WAVE_RADIUS_INCREASE_TIME;
+		static bool					WAVE_REBOUND;
 
 		static void					LoadPownConstants();
 
