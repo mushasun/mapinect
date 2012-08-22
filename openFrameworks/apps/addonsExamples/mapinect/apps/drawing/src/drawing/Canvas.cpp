@@ -12,7 +12,7 @@ namespace drawing {
 		assert(vertexCount >= 3);
 		int origin = polygon->getBestOriginVertexIndex();
 
-		const double pxScale = 1200;
+		const double pxScale = 300;
 		dimensions.x = floor(polygon->getMathModel().getEdges()[origin].segmentLength() * pxScale);
 		dimensions.y = floor(polygon->getMathModel().getEdges()[(origin + vertexCount - 1) % vertexCount].segmentLength() * pxScale);
 
@@ -84,7 +84,7 @@ namespace drawing {
 
 		for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
 		{
-			//ofSetColor(kRGBBlue);
+			ofSetColor(kRGBBlue);
 			ofVec3f tp(t->second.getTouchPoint());
 			ofCircle(tp.x, tp.y, tp.z, 0.003);
 		}

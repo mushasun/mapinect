@@ -1,8 +1,6 @@
 #ifndef CANVAS_H__
 #define CANVAS_H__
 
-#include "IMapper.h"
-
 #include "DataTouch.h"
 #include "IDrawer.h"
 #include "IPolygon.h"
@@ -15,7 +13,7 @@ using namespace std;
 
 namespace drawing
 {
-	class Canvas : public IMapper
+	class Canvas
 	{
 	public:
 		Canvas(const IPolygonPtr& polygon, const ofColor& backColor, const ofColor& foreColor);
