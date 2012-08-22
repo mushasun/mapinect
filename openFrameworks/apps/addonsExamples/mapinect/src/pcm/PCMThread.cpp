@@ -415,6 +415,7 @@ namespace mapinect {
 							(*iter)->getObject(),
 							(*iter)->getDataTouch()));
 				}
+				(*iter)->removeMatching();
 			}
 			// Clear released touch points
 			p->second.remove_if(isStatusReleased);
