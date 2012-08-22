@@ -34,11 +34,11 @@ namespace mapinect {
 		virtual void				resetLod();
 		inline ofVec3f				getvMin() const						{ return vMin; }
 		inline ofVec3f				getvMax() const						{ return vMax; }
+		inline bool					isValid() const						{ return isvalid; }
 
 		virtual void				addToModel(const PCPtr& nuCloud);
 		virtual void				detectPrimitives();
 		virtual void				increaseLod(const PCPtr& nuCloud);
-
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 	protected:
 		bool						drawPointCloud;
@@ -50,7 +50,7 @@ namespace mapinect {
 		PCPtr						cloudScreenCoords;
 		ModelObjectPtr				modelObject;
 		int							lod;
-
+		bool						isvalid;
 	};
 }
 #endif	// MAPINECT_PC_MODEL_OBJECT_H__

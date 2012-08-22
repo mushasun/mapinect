@@ -45,6 +45,7 @@ namespace mapinect {
 		bool							needApplyTransformation;
 		bool							needRecalculateFaces;
 		ofVec3f							translationV;
+		int								invalidCounter;
 	};
 
 }

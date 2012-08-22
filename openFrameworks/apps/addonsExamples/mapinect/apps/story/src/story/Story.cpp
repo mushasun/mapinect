@@ -2,8 +2,6 @@
 
 #include "ObjectButton.h"
 #include "House.h"
-#include "Buildings/PowerPlant.h"
-#include "Buildings/WaterPlant.h"
 #include "River.h"
 #include "Road.h"
 #include "StoryConstants.h"
@@ -29,24 +27,14 @@ namespace story {
 		StoryConstants::LoadStoryConstants();
 		Spot::setup();
 		House::setup();
-		addingStreet = false;
-		addingRiver = false;
-		imgStreetButton = ofImage("data/texturas/road/road.jpg");
-		imgRiverButton = ofImage("data/texturas/river/river.jpg");
-		imgPowerPlantButton = ofImage("data/texturas/power/sign.jpg");
-		imgWaterPlantButton = ofImage("data/texturas/water/logo.jpg");
-		imgHouseButton = ofImage("data/texturas/house/top.jpg");
-		streetButtonId = -1;
-		riverButtonId = -1;
-		powerPlantButtonId = -1;
-		waterPlantButtonId = -1;
-		houseButtonId = -1;
+		
+		status = new StoryStatus();
+		status->setup();
+
+		menu.setup(status, btnManager);
+
+
 		modeManager->disableObjectTracking();
-		addingHouse = false;
-		addingPowePlant = false;
-		addingRiver = false;
-		addingStreet = false;
-		addingWaterPlant = false;
 		firstTouchDone = false;
 	}
 
@@ -78,20 +66,7 @@ namespace story {
 		}
 	}
 
-	void Story::removeMenu()
-	{
-		btnManager->removeButton(streetButtonId);
-		btnManager->removeButton(riverButtonId);
-		btnManager->removeButton(powerPlantButtonId);
-		btnManager->removeButton(waterPlantButtonId);
-		btnManager->removeButton(houseButtonId);
-		streetButtonId = -1;
-		riverButtonId = -1;
-		powerPlantButtonId = -1;
-		waterPlantButtonId = -1;
-		houseButtonId = -1;
-
-	}
+	
 
 	//--------------------------------------------------------------
 	void Story::update(float elapsedTime) 
@@ -108,24 +83,17 @@ namespace story {
 				keep.insert(make_pair(it->first, it->second));
 		}
 		touchPoints = keep;
-		if (timeMenuShown >= 0)
-		{
-			timeMenuShown += elapsedTime;
-			if (timeMenuShown > 10)
-			{
-				timeMenuShown = -1;
-				if (streetButtonId > 0) //con saber que existe uno me alcanza
-				{
-					removeMenu();
-				}
-			}
-		}
-		if (addingHouse || addingPowePlant || addingWaterPlant)
+
+		//Menu
+		menu.update(elapsedTime);
+
+		//Modo
+		if (status->getProperty(ADDING_HOUSE) || status->getProperty(ADDING_POWERPLANT) || status->getProperty(ADDING_WATERPLANT))
 		{
 			modeManager->enableObjectTracking();
 			modeManager->disableTouchTracking();
 		}
-		else if (addingRiver || addingStreet)
+		else if (status->getProperty(ADDING_RIVER) || status->getProperty(ADDING_STREET))
 		{
 			modeManager->disableObjectTracking();
 			modeManager->enableTouchTracking();
@@ -146,23 +114,19 @@ namespace story {
 		}
 		else
 		{
-			if (addingHouse)
+			if (status->getProperty(ADDING_HOUSE))
 			{
 				House* h  = new House(object, btnManager);
 				boxes.insert(pair<int, Box*>(object->getId(), h));
-				addingHouse = false;
+				status->setProperty(ADDING_HOUSE,false);
 				modeManager->disableObjectTracking();
 				modeManager->enableTouchTracking();
 			}
-			else if (addingPowePlant)
+			else if (status->getProperty(ADDING_POWERPLANT))
 			{
-				PowerPlant* plant  = new PowerPlant(object, btnManager);
-				boxes.insert(pair<int, Box*>(object->getId(), plant));
-				addingHouse = false;
-				modeManager->disableObjectTracking();
-				modeManager->enableTouchTracking();
+				//poner aca la creacion de la power plant
 			}
-			else if (addingWaterPlant)
+			else if (status->getProperty(ADDING_WATERPLANT))
 			{
 				//poner aca la creacion de la water plant
 			}
@@ -196,18 +160,6 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
-		//touchpoints
-		map<int, DataTouch>::iterator it = touchPoints.find(touchPoint.getId());
-		if (it == touchPoints.end())
-		{
-			//assert(touchPoint.getType() == kTouchTypeStarted);
-			touchPoints.insert(make_pair(touchPoint.getId(), touchPoint));
-		}
-		else
-		{
-			it->second = touchPoint;
-		}
-
 		if (object->getId() == TABLE_ID)
 		{
 			//reseteo seleccion de objetos
@@ -224,23 +176,23 @@ namespace story {
 
 	void Story::touchTable(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
-		if (addingRiver||addingStreet)
+		if (status->getProperty(ADDING_RIVER)||status->getProperty(ADDING_STREET))
 		{
 			if (firstTouchDone && firstTableTouch.distance(touchPoint.getTouchPoint())> 0.05)
 			{
-				if (addingRiver)
+				if (status->getProperty(ADDING_RIVER))
 				{
 					river = River(firstTableTouch, touchPoint.getTouchPoint());					
 				}
-				if (addingStreet)
+				if (status->getProperty(ADDING_STREET))
 				{
 					Road road = Road(firstTableTouch, touchPoint.getTouchPoint());
 					btnManager->addButton(road.button);
 					roads.push_back(road);
 				}
 				firstTouchDone = false;
-				addingRiver = false;
-				addingStreet = false;
+				status->setProperty(ADDING_RIVER,false);
+				status->setProperty(ADDING_STREET,false);
 			}
 			else
 			{
@@ -250,71 +202,7 @@ namespace story {
 		}
 		else
 		{
-			if (timeMenuShown <= 0 && streetButtonId < 0)
-			{
-				timeMenuShown = 0;			
-				//dibujo el menu de cosas a construir
-				ofVec3f begin = touchPoint.getTouchPoint();
-				ofVec3f arriba = ofVec3f(0.f, 0.f, BUTTON_SIDE);
-				ofVec3f costado = ofVec3f(BUTTON_SIDE, 0.f, 0.f);
-				vector<ofVec3f> button_vertex;
-				//primero casa
-				button_vertex.push_back(begin + arriba);
-				button_vertex.push_back(begin - arriba);
-				button_vertex.push_back(begin - arriba + costado);
-				button_vertex.push_back(begin + arriba + costado);
-				Polygon3D area = Polygon3D(button_vertex);
-				SimpleButton *houseButton = new SimpleButton(area, &imgHouseButton, &imgHouseButton);
-				houseButtonId = houseButton->getId();
-				btnManager->addButton(IButtonPtr(houseButton));
-				begin += costado;
-				button_vertex.clear();
-				//central electrica
-				button_vertex.push_back(begin + arriba);
-				button_vertex.push_back(begin - arriba);
-				button_vertex.push_back(begin - arriba + costado);
-				button_vertex.push_back(begin + arriba + costado);
-				area = Polygon3D(button_vertex);
-				SimpleButton *powerPlantButton = new SimpleButton(area, &imgPowerPlantButton, &imgPowerPlantButton);
-				powerPlantButtonId = powerPlantButton->getId();
-				btnManager->addButton(IButtonPtr(powerPlantButton));
-				begin += costado;
-				button_vertex.clear();
-				//water plant
-				button_vertex.push_back(begin + arriba);
-				button_vertex.push_back(begin - arriba);
-				button_vertex.push_back(begin - arriba + costado);
-				button_vertex.push_back(begin + arriba + costado);
-				area = Polygon3D(button_vertex);
-				SimpleButton *waterPlantButton = new SimpleButton(area, &imgWaterPlantButton, &imgWaterPlantButton);
-				waterPlantButtonId = waterPlantButton->getId();
-				btnManager->addButton(IButtonPtr(waterPlantButton));
-				begin += costado;
-				button_vertex.clear();
-				//calle
-				button_vertex.push_back(begin + arriba);
-				button_vertex.push_back(begin - arriba);
-				button_vertex.push_back(begin - arriba + costado);
-				button_vertex.push_back(begin + arriba + costado);
-				area = Polygon3D(button_vertex);
-				SimpleButton *streetButton = new SimpleButton(area, &imgStreetButton, &imgStreetButton);
-				streetButtonId = streetButton->getId();
-				btnManager->addButton(IButtonPtr(streetButton));
-				begin += costado;
-				button_vertex.clear();
-				//river
-				button_vertex.push_back(begin + arriba);
-				button_vertex.push_back(begin - arriba);
-				button_vertex.push_back(begin - arriba + costado);
-				button_vertex.push_back(begin + arriba + costado);
-				area = Polygon3D(button_vertex);
-				SimpleButton *riverButton = new SimpleButton(area, &imgRiverButton, &imgRiverButton);
-				riverButtonId = riverButton->getId();
-				btnManager->addButton(IButtonPtr(riverButton));
-				begin += costado;
-				button_vertex.clear();
-				//finished adding menu
-			}
+			menu.objectEvent(object, touchPoint);
 		}
 	}
 
@@ -337,39 +225,36 @@ namespace story {
 		}
 	}
 
-	void Story::buttonPressed(const IButtonPtr& btn)
+	void Story::buttonPressed(const IButtonPtr& btn, const DataTouch& touchPoint)
 	{
-		if (streetButtonId > 0) //con saber que existe uno me alcanza
-		{
-			addingStreet = (btn->getId() == streetButtonId);
-			addingRiver = (btn->getId() == riverButtonId);
-			addingPowePlant = (btn->getId() == powerPlantButtonId);
-			addingWaterPlant = (btn->getId() == waterPlantButtonId);
-			addingHouse = (btn->getId() == houseButtonId);
-			if (addingHouse || addingPowePlant || addingWaterPlant)
-			{
-				modeManager->enableObjectTracking();
-				modeManager->disableTouchTracking();
-			}
-			else if (addingRiver || addingStreet)
-			{
-				modeManager->disableObjectTracking();
-				modeManager->enableTouchTracking();
-			}
-			removeMenu();
-		}
-		else
-		{
-			for(map<int,Box*>::iterator it = boxes.begin(); it != boxes.end(); ++it)
+		menu.buttonEvent(btn,false);
+		for(map<int,Box*>::iterator it = boxes.begin(); it != boxes.end(); ++it)
 			it->second->buttonEvent(btn, false);
-		}
 	}
 
-	void Story::buttonReleased(const IButtonPtr& btn)
+	void Story::buttonReleased(const IButtonPtr& btn, const DataTouch& touchPoint)
 	{
+		
+		menu.buttonEvent(btn,true);
 		for(map<int,Box*>::iterator it = boxes.begin(); it != boxes.end(); ++it)
 		{
 			it->second->buttonEvent(btn,true);
 		}
 	}
+
+	void Story::pointTouched(const DataTouch& touchPoint)
+	{
+		//touchpoints
+		map<int, DataTouch>::iterator it = touchPoints.find(touchPoint.getId());
+		if (it == touchPoints.end())
+		{
+			//assert(touchPoint.getType() == kTouchTypeStarted);
+			touchPoints.insert(make_pair(touchPoint.getId(), touchPoint));
+		}
+		else
+		{
+			it->second = touchPoint;
+		}
+	}
+
 }

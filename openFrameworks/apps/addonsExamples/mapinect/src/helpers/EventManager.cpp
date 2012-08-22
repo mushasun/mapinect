@@ -32,12 +32,9 @@ namespace mapinect {
 
 		if (instance != NULL)
 		{
-			instance->eventsToFire.sort(compareEvents);
 			for (list<MapinectEvent>::iterator e = instance->eventsToFire.begin();
 				e != instance->eventsToFire.end(); ++e)
 			{
-				
-					
 					for (vector<INotification*>::iterator l = instance->object_listeners.begin();
 							l != instance->object_listeners.end(); ++l)
 					{
@@ -58,18 +55,16 @@ namespace mapinect {
 							listener->objectMoved(e->object, e->movement);
 							break;
 						case kMapinectEventTypeObjectTouched:
-							evnt = instance->eventsSended.find(e->touchPoint.getId());
-							if( evnt == instance->eventsSended.end() ||
-								evnt->second == kMapinectEventTypeObjectTouched)
-								listener->objectTouched(e->object, e->touchPoint);
+							listener->objectTouched(e->object, e->touchPoint);
 							break;
 						case kMapinectEventTypeButtonPressed:
-							listener->buttonPressed(e->button);
-							instance->eventsSended[e->touchPoint.getId()] = e->type;
+							listener->buttonPressed(e->button,e->touchPoint);
 							break;
 						case kMapinectEventTypeButtonReleased:
-							listener->buttonReleased(e->button);
-							instance->eventsSended[e->touchPoint.getId()] = e->type;
+							listener->buttonReleased(e->button,e->touchPoint);
+							break;
+						case kMapinectEventTypePointTouched:
+							listener->pointTouched(e->touchPoint);
 							break;
 						}
 					}

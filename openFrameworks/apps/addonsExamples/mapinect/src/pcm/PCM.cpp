@@ -12,10 +12,10 @@ using namespace std;
 
 namespace mapinect {
 	//--------------------------------------------------------------
-	void PCM::setup() {
+	void PCM::setup(ButtonManager* btnManager) {
 		CHECK_ACTIVE;
 
-		pcmThread.setup();
+		pcmThread.setup(btnManager);
 		drawPC = false;
 		calibratedTex.allocate(gKinect->width, gKinect->height,GL_RGB);
 
@@ -163,7 +163,7 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	void PCM::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
+	void PCM::pointTouched(const DataTouch& touchPoint)
 	{
 		switch (touchPoint.getType())
 		{

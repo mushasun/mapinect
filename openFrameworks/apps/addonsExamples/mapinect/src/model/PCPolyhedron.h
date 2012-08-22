@@ -56,6 +56,7 @@ namespace mapinect {
 			const PCPolygonPtr&				getPCPolygon(int index);
 			int								getPCPolygonSize();
 			virtual bool					validate();
+			virtual float					getVolume() = 0;
 
 			mutable ofxMutex				pcPolygonsMutex;
 

@@ -16,6 +16,7 @@ namespace mapinect {
 			PCBox(const PCPtr& cloud, int objId = -1);
 			
 			virtual void			detectPrimitives();
+			virtual float			getVolume();
 			//virtual void			addToModel(const PCPtr& nuCloud);
 
 			//BoxVertex&				getVertex(BoxVertexName v);

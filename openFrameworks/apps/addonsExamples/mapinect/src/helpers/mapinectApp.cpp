@@ -44,13 +44,15 @@ namespace mapinect {
 
 		gModel = new mapinect::Model();
 
+		ButtonManager* btnManager = new ButtonManager();
+		app->btnManager = btnManager;
+
 		ofSetWindowTitle("mapinect");
 		cv.setup();
-		pcm.setup();
+		pcm.setup(btnManager);
 		arduino.setup();
 
 		app->armController = new ArmController(&arduino);
-		app->btnManager = new ButtonManager();
 		app->modeManager = new ModeManager(&pcm);
 	}
 

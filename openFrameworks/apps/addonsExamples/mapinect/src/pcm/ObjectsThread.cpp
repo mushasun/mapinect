@@ -198,56 +198,62 @@ namespace mapinect {
 			octree.defineBoundingBox();
 			octree.addPointsFromInputCloud();
 
+			gModel->objectsMutex.lock();
 			for (list<TrackedCloudPtr>::const_iterator iter = potentialOcclusions.begin(); iter != potentialOcclusions.end(); iter++) 
 			{
 				if((*iter)->hasObject())
 				{
 					bool occludedPol = true;
 					PCPolyhedron* polyhedron = dynamic_cast<PCPolyhedron*>((*iter)->getTrackedObject().get());
-					polyhedron->resetOccludedFaces();
-
-					vector<IPolygon*> pols = polyhedron->getPolygons();
-					int occludedFaces = 0;
-					for(int i = 0; i < pols.size(); i++)
+					if(polyhedron->isValid())
 					{
-						vector<ofVec3f> vexs = pols.at(i)->getMathModel().getVertexs();
-						int occludedVertexs = 0;
-
-						for(int o = 0; o < vexs.size(); o++)
+						polyhedron->resetOccludedFaces();
+						vector<IPolygon*> pols = polyhedron->getPolygons();
+						int occludedFaces = 0;
+						for(int i = 0; i < pols.size(); i++)
 						{
-							bool occludedVertex = false;
-							ofVec3f end = vexs.at(o);
-							Eigen::Vector3f endPoint(end.x,end.y,end.z);
-							Eigen::Vector3f originPoint = PCXYZ_EIGEN3F(eyePos());
-							voxelList.clear();
+							vector<ofVec3f> vexs = pols.at(i)->getMathModel().getVertexs();
+							int occludedVertexs = 0;
 
-							int voxs = octree.getApproxIntersectedVoxelCentersBySegment(originPoint,endPoint,voxelList,Constants::CLOUD_VOXEL_SIZE*2);
-
-							for(int i = 0; i < voxelList.size(); i ++)
+							for(int o = 0; o < vexs.size(); o++)
 							{
-								if(octree.isVoxelOccupiedAtPoint(voxelList.at(i)))
+								bool occludedVertex = false;
+								ofVec3f end = vexs.at(o);
+								Eigen::Vector3f endPoint(end.x,end.y,end.z);
+								Eigen::Vector3f originPoint = PCXYZ_EIGEN3F(eyePos());
+								voxelList.clear();
+
+								int voxs = octree.getApproxIntersectedVoxelCentersBySegment(originPoint,endPoint,voxelList,Constants::CLOUD_VOXEL_SIZE*2);
+
+								for(int i = 0; i < voxelList.size(); i ++)
 								{
-									ofVec3f intersect (voxelList.at(i).x,voxelList.at(i).y,voxelList.at(i).z);
-									if(((intersect - end).length() > Constants::CLOUD_VOXEL_SIZE*5) &&
-										(intersect - origin).length() < (end - origin).length())
-										occludedVertexs++;
+									if(octree.isVoxelOccupiedAtPoint(voxelList.at(i)))
+									{
+										ofVec3f intersect (voxelList.at(i).x,voxelList.at(i).y,voxelList.at(i).z);
+										if(((intersect - end).length() > Constants::CLOUD_VOXEL_SIZE*5) &&
+											(intersect - origin).length() < (end - origin).length())
+											occludedVertexs++;
+									}
 								}
 							}
-						}
 
-						if(occludedVertexs > 3)
+							if(occludedVertexs > 3)
+							{
+								polyhedron->setOccludedFace(pols.at(i)->getName());
+								occludedFaces++;
+							}
+						}
+						if(occludedFaces > 1)
 						{
-							polyhedron->setOccludedFace(pols.at(i)->getName());
-							occludedFaces++;
+							occlusions.push_back((*iter));
+							//cout << "	occluded pol " << endl;
 						}
 					}
-					if(occludedFaces > 1)
-					{
-						occlusions.push_back((*iter));
-						//cout << "	occluded pol " << endl;
-					}
+					
 				}
 			}
+			gModel->objectsMutex.unlock();
+
 		}
 		return occlusions;
 	}

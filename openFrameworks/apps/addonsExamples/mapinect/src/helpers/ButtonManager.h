@@ -27,10 +27,11 @@ namespace mapinect
 		void					objectUpdated(const IObjectPtr&);
 		void					objectLost(const IObjectPtr&);
 		void					objectMoved(const IObjectPtr&, const DataMovement&);
-		void					objectTouched(const IObjectPtr&, const DataTouch&);
+		//void					objectTouched(const IObjectPtr&, const DataTouch&);
 
+		void					objectTouchedPCM(const IObjectPtr&, const DataTouch&);
 		void					draw();
-		void					fireButtonEvent(DataTouch touch);
+		//void					fireButtonEvent(DataTouch touch);
 
 	private:
 

@@ -390,11 +390,12 @@ namespace mapinect {
 
 	// ------------------------------------------------------------------------------
 	void PCBox::detectPrimitives() {
+		fullEstimation = false;
+		pcpolygons.clear();
 		PCPolyhedron::detectPrimitives();
 		pcPolygonsMutex.lock();
 		if(pcpolygons.size() == 6)
 		{
-			cout << "+++++++++++++++++ full estimation +++++++++++++++" << endl;
 			fullEstimation = true;
 			for(int i = 0; i < pcpolygons.size(); i ++)
 			{
@@ -422,14 +423,19 @@ namespace mapinect {
 				}
 			}
 			messures = messureBox();
-			cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
-			cout << "\tw: " << messures.x << endl;
-			cout << "\th: " << messures.y << endl;
-			cout << "\td: " << messures.z << endl;
+			
+
+			//Valido volumen del objeto
+			const float OBJECT_MIN_VOLUME = 0.000125;
+			isvalid = messures.x * messures.y * messures.z > OBJECT_MIN_VOLUME;
+			fullEstimation = isvalid;
+			if(fullEstimation)
+				cout << "+++++++++++++++++ full estimation +++++++++++++++" << endl;
+
 		}
 		else
 		{
-			cout << "--------------No full estimation--------------" << endl;
+			isvalid = false;
 		}
 		pcPolygonsMutex.unlock();
 	}
@@ -824,11 +830,21 @@ namespace mapinect {
 	bool PCBox::validate()
 	{
 		ofVec3f newMessure = messureBox();
-		cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+		/*cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
 		cout << "\tw: " << newMessure.x << endl;
 		cout << "\th: " << newMessure.y << endl;
-		cout << "\td: " << newMessure.z << endl;
-		return (newMessure - messures).length() < 0.05;
+		cout << "\td: " << newMessure.z << endl;*/
+
+		const float OBJECT_MIN_VOLUME = 0.000125;
+		bool volValid = newMessure.x * newMessure.y * newMessure.z > OBJECT_MIN_VOLUME;
+		bool vertexValid = this->vertexs.size() == 8;
+		bool prevMessureValid = (newMessure - messures).length() < 0.05;
+		return vertexValid && prevMessureValid && volValid;
+	}
+
+	float PCBox::getVolume()
+	{
+		return messures.x * messures.y * messures.z;
 	}
 
 	

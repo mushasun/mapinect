@@ -30,13 +30,14 @@ namespace mapinect {
 		Constants::LoadConstants();
 	}
 
-	void PCMThread::setup() {
+	void PCMThread::setup(ButtonManager* btnManager) {
 		reset();
 
 		tableClusterLastCentroid = ofVec3f(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
 
 		objectsThread.setup();
 
+		this->btnManager = btnManager;
 		// Start the cloud processing thread
 		startThread(true, false);
 	}
@@ -329,6 +330,7 @@ namespace mapinect {
 				int max_iter = 10;
 				setPCMThreadStatus("Matching touch points with existing ones...");
 				log(kLogFilePCMThread, "Matching touch points with existing ones...");
+			
 				do
 				{
 					for (list<TrackedTouchPtr>::iterator iter = newTouchPoints.begin(); iter != newTouchPoints.end(); iter++)
@@ -397,6 +399,7 @@ namespace mapinect {
 				wasRemoved = currentMatch->confirmMatch(tracked, removed);
 				result = true;
 			}
+			
 		}
 		return result;
 	}
@@ -410,10 +413,14 @@ namespace mapinect {
 			{
 				if ((*iter)->updateMatching())
 				{
+					//Notifico btnManager del touch, btnManager se encarga de elevar el touch si no cae en un boton
+					btnManager->objectTouchedPCM((*iter)->getObject(),
+							(*iter)->getDataTouch());
+					//Notifico al eventmanager que un touch point se actualizó
 					EventManager::addEvent(
-						MapinectEvent(kMapinectEventTypeObjectTouched,
-							(*iter)->getObject(),
+						MapinectEvent(kMapinectEventTypePointTouched,
 							(*iter)->getDataTouch()));
+					
 				}
 				(*iter)->removeMatching();
 			}

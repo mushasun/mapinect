@@ -16,7 +16,8 @@ namespace mapinect
 	{
 		kButtonEventPressed = 0,
 		kButtonEventReleased,
-		kButtonEventNoChange
+		kButtonEventHolding,
+		kButtonEventNotInButton
 	};
 
 	class IButton;

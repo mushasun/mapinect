@@ -37,7 +37,7 @@ namespace mapinect {
 	ButtonEvent BaseButton::updateTouchPoints(const DataTouch& touch)
 	{
 		int newLeader = leaderTouch;
-		ButtonEvent evnt = kButtonEventNoChange;
+		ButtonEvent evnt = kButtonEventNotInButton;
 		if(isInTouch(touch))
 		{
 			if(touch.getType() == kTouchTypeReleased &&
@@ -50,8 +50,6 @@ namespace mapinect {
 						newLeader = -1;
 					else
 						newLeader = contacts.begin()->second.getId();
-
-					//cout << "erease: " << touch.getId() << " - " << newLeader << endl;
 				}
 			}
 			else
@@ -59,11 +57,7 @@ namespace mapinect {
 				contacts[touch.getId()] = touch;
 				if(leaderTouch == -1)
 					newLeader = touch.getId();
-
-				//cout << "added: " << touch.getId() << " - " << newLeader << endl;
-
 			}
-				//contacts.insert(pair<int,DataTouch>(touch.getId(),touch));
 
 			if(contacts.size() == 0)
 			{
@@ -78,7 +72,7 @@ namespace mapinect {
 				touching = true;
 			}
 			else
-				evnt = kButtonEventNoChange;
+				evnt = kButtonEventHolding;
 		}
 		else
 		{
@@ -96,8 +90,9 @@ namespace mapinect {
 
 				//cout << "erease: " << touch.getId() << " - " << newLeader << endl;
 
-				if(contacts.size() == 0)
-					evnt = kButtonEventReleased;
+				/*if(contacts.size() == 0)
+					evnt = kButtonEventReleased;*/
+				evnt = kButtonEventNotInButton;
 			}
 		}
 

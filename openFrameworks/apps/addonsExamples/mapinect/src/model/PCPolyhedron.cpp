@@ -16,6 +16,8 @@
 #include <pcl/registration/icp.h>
 #include <pcl/sample_consensus/sac_model_perpendicular_plane.h>
 #include <pcl/filters/project_inliers.h>
+#include <pcl/surface/convex_hull.h>
+
 
 #include "ofUtils.h"
 
@@ -26,6 +28,7 @@
 #include "PCQuadrilateral.h"
 #include "pointUtils.h"
 #include "utils.h"
+#include "Feature.h"
 
 
 #define MAX_FACES		3
@@ -186,7 +189,6 @@ namespace mapinect {
 
 			saveCloud("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
 			
-			//TODO: Chequear un minimo de puntos
 			//Remove outliers by clustering	
 			vector<pcl::PointIndices> cluster_indices(findClusters(cloud_p, 0.02, 10, 10000));
 			int debuccount = 0;
@@ -246,6 +248,8 @@ namespace mapinect {
 	void PCPolyhedron::detectPrimitives() {
 		
 		pcPolygonsMutex.lock();
+		saveCloud("detectPrimitives.pcd", *cloud);
+
 		vector<PCPolygonPtr> nuevos = detectPolygons(cloud); 
 		nuevos = discardPolygonsOutOfBox(nuevos); 
 		namePolygons(nuevos);
@@ -256,6 +260,12 @@ namespace mapinect {
 			pcpolygons = nuevos;
 			pcpolygons.insert(pcpolygons.end(),estimated.begin(),estimated.end());		
 			unifyVertexs();
+
+			polygonsCache.clear();
+			for (vector<PCPolygonPtr>::iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
+			{
+				polygonsCache.push_back((*p)->getPolygonModelObject());
+			}
 
 			for(int i = 0; i < pcpolygons.size(); i ++)
 			{
@@ -519,11 +529,11 @@ namespace mapinect {
 			//Unifico vertices
 			unifyVertexs();
 
-			valid = validate();
+			isvalid = validate();
 		}
 
 		
-		if(estimationOK && valid)
+		if(estimationOK && isvalid)
 		{
 			polygonsCache.clear();
 			for (vector<PCPolygonPtr>::iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
@@ -540,13 +550,12 @@ namespace mapinect {
 			for(int i = 0; i < pcpolygons.size(); i++)
 				pcpolygons.at(i)->rollBackMatching();
 
-			if(!estimationOK)
-				cout << "FAILED ESTIMATION" << endl;
-			if(!valid)
+			if(!isvalid)
 			{
+				//Necesito unificar los vertices despues del rollback
 				unifyVertexs();
-				cout << "INVALID" << endl;
 			}
+			//isvalid = false;
 		}
 		
 
@@ -561,6 +570,19 @@ namespace mapinect {
 
 		setCloud(finalCloud);
 
+
+		//Chequeo volumenes
+		if(IsFeatureActive(FEATURE_INVALIDATE_OBJECT_BY_VOLUME))
+		{
+			float inVol = computeVolume(trimmedCloud);
+
+			if(getVolume() < inVol * 0.4)
+			{
+				cout << "[   INVALID VOLUME    ]" << endl;
+				cout << "need: " << inVol * 0.6 << "  --- has: " << getVolume() << endl;
+				isvalid = false;
+			}
+		}
 		pcPolygonsMutex.unlock();
 
 	}

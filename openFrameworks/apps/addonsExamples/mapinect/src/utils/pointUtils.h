@@ -113,6 +113,8 @@ vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int 
 vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int minClusterSize, int maxClusterSize);
 
 vector<ofVec3f>::const_iterator findCloser(const ofVec3f& v, const vector<ofVec3f>& vertexs);
+
+float computeVolume(const PCPtr& cloud);
 // -------------------------------------------------------------------------------------
 
 #endif // POINT_UTILS_H__

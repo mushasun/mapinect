@@ -15,6 +15,7 @@ namespace mapinect {
 		kMapinectEventTypeObjectLost,
 		kMapinectEventTypeObjectMoved,
 		kMapinectEventTypeObjectTouched,
+		kMapinectEventTypePointTouched,
 		kMapinectEventTypeButtonPressed,
 		kMapinectEventTypeButtonReleased
 	} MapinectEventType;
@@ -28,8 +29,8 @@ namespace mapinect {
 			: type(type), object(object), movement(movement) { }
 		MapinectEvent(const MapinectEventType& type, const IObjectPtr& object, const DataTouch& touchPoint)
 			: type(type), object(object), movement(ofVec3f(), ofVec3f()), touchPoint(touchPoint) { }
-		MapinectEvent(const MapinectEventType& type, const IButtonPtr& button)
-			: type(type), button(button), movement(ofVec3f(), ofVec3f()) { }
+		MapinectEvent(const MapinectEventType& type, const IButtonPtr& button, const DataTouch& touchPoint)
+			: type(type), button(button), movement(ofVec3f(), ofVec3f()), touchPoint(touchPoint) { }
 		MapinectEvent(const MapinectEventType& type, const DataTouch& touchPoint)
 			: type(type), movement(ofVec3f(), ofVec3f()), touchPoint(touchPoint) { }
 
@@ -56,7 +57,6 @@ namespace mapinect {
 		static ofxMutex					mutexInstance;
 
 		list<MapinectEvent>				eventsToFire;
-		map<int, MapinectEventType>		eventsSended;
 		vector<INotification*>			object_listeners;
 
 	};

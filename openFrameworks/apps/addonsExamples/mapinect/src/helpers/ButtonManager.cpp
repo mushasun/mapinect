@@ -83,7 +83,7 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	void ButtonManager::fireButtonEvent(DataTouch touch)
+	/*void ButtonManager::fireButtonEvent(DataTouch touch)
 	{
 		for (map<int, IButtonPtr>::iterator iter = buttons.begin(); iter != buttons.end(); iter++) {
 			
@@ -100,7 +100,7 @@ namespace mapinect {
 					break;
 			}
 		}
-	}
+	}*/
 
 	//// INotification Implementation
 	void ButtonManager::objectDetected(const IObjectPtr& object)
@@ -150,9 +150,40 @@ namespace mapinect {
 	}
 	
 	//--------------------------------------------------------------
-	void ButtonManager::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
+	//void ButtonManager::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
+	//{
+	//	//fireButtonEvent(touchPoint);
+	//}
+
+	//--------------------------------------------------------------
+	void ButtonManager::objectTouchedPCM(const IObjectPtr& object, const DataTouch& touch)
 	{
-		fireButtonEvent(touchPoint);
+		bool btnTouched = false;
+		for (map<int, IButtonPtr>::iterator iter = buttons.begin(); iter != buttons.end(); iter++) {
+			
+			ButtonEvent evnt = iter->second->updateTouchPoints(touch);
+			switch(evnt)
+			{
+				case kButtonEventPressed: 
+					EventManager::addEvent(MapinectEvent(kMapinectEventTypeButtonPressed, iter->second, touch));
+					btnTouched = true;
+					break;
+				case kButtonEventReleased:
+					EventManager::addEvent(MapinectEvent(kMapinectEventTypeButtonReleased, iter->second, touch));
+					btnTouched = true;
+					break;
+				case kButtonEventHolding:
+					btnTouched = true;
+					break;
+				case kButtonEventNotInButton:
+					break;
+			}
+		}
+		if(!btnTouched)
+		{
+			EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectTouched, object,touch));
+		}
 	}
+
 
 }

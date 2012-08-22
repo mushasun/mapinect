@@ -29,6 +29,9 @@ namespace mapinect
 
 	public:
 		static int					OBJECT_FRAMES_TO_ACCEPT;
+		static int					OBJECT_INVALID_FRAMES_TO_RESET;
+		static int					OBJECT_INVALID_FRAMES_TO_DELETE;
+		static int					OBJECT_VOLUME_TOLERANCE;
 		static int					OBJECT_LOD_MAX;
 	private:
 		static float				OBJECT_VERTEX_UNIFYING_DISTANCE_FACTOR;
