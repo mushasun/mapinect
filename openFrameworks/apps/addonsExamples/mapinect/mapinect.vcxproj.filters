@@ -193,6 +193,12 @@
     <ClCompile Include="src\arduino\Transformation.cpp">
       <Filter>arduino</Filter>
     </ClCompile>
+    <ClCompile Include="src\canvas\Canvas.cpp">
+      <Filter>canvas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\canvas\Trace.cpp">
+      <Filter>canvas</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -450,6 +456,15 @@
     <ClInclude Include="src\helpers\ModeManager.h">
       <Filter>helpers</Filter>
     </ClInclude>
+    <ClInclude Include="src\canvas\Canvas.h">
+      <Filter>canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="src\canvas\IDrawer.h">
+      <Filter>canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="src\canvas\Trace.h">
+      <Filter>canvas</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="addons">
@@ -523,6 +538,9 @@
     </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{0bf778b9-4834-4812-b354-0785ba61bc9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="canvas">
+      <UniqueIdentifier>{7432db53-8223-4c28-b9e3-d9c6f88b7d15}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

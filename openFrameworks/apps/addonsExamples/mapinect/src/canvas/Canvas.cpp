@@ -3,8 +3,8 @@
 #include <assert.h>
 #include "ofGraphicsUtils.h"
 
-namespace drawing {
-	
+namespace mapinect
+{
 	Canvas::Canvas(const IPolygonPtr& polygon, const ofColor& backColor, const ofColor& foreColor)
 		: polygon(polygon), backColor(backColor), foreColor(foreColor), needsToRedraw(true)
 	{
