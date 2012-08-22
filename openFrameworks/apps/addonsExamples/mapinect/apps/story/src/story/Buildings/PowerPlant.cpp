@@ -27,7 +27,7 @@ namespace story
 		working = true;
 		this->btnManager = btnManager;
 
-		associateTextures();
+		//associateTextures();
 		buildType = BuildType::kPowerPlant;
 		/*Button in floor of box*/
 		ObjectButton btnOnOff(object, kPolygonNameSideA, true, txSwitchOff, txSwitchOn,
@@ -101,12 +101,12 @@ namespace story
 	}
 
 	/*-------------------------------------------------------------*/
-	void PowerPlant::associateTextures()
+	/*void PowerPlant::associateTextures()
 	{
 		textureTop = txTop;
 		textureA = txSide;
 		textureD = txSide;
-	}
+	}*/
 
 	/* Sounds */
 	/*-------------------------------------------------------------*/

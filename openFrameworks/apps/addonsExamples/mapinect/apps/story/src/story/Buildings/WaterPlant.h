@@ -34,7 +34,7 @@ namespace story
 
 		private:
 			static void				loadTextures();
-			void					associateTextures();
+			//void					associateTextures();
 			static void				loadSounds();
 
 			//control

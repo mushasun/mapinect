@@ -27,11 +27,11 @@ namespace story
 		working = true;
 		this->btnManager = btnManager;
 
-		associateTextures();
+		//associateTextures();
 		buildType = BuildType::kPowerPlant;
 		/*Button in floor of box*/
 		ObjectButton btnOnOff(object, kPolygonNameSideA, true, txSwitchOff, txSwitchOn,
-								0.05,0.05, 0 ,0.04);
+								0.05, 0.05, 0, 0.04);
 
 		btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnOnOff)));
 		buttonsId.push_back(btnOnOff.getId());
@@ -101,12 +101,12 @@ namespace story
 	}
 
 	/*-------------------------------------------------------------*/
-	void WaterPlant::associateTextures()
+	/*void WaterPlant::associateTextures()
 	{
 		textureTop = txTop;
 		textureA = txSide;
 		textureD = txSide;
-	}
+	}*/
 
 	/* Sounds */
 	/*-------------------------------------------------------------*/
