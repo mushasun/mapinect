@@ -16,8 +16,9 @@
 #include "Spot.h"
 #include "ofImage.h"
 #include "SimpleButton.h"
+#include "Menu.h"
+#include "StoryStatus.h"
 
-#define BUTTON_SIDE 0.05f
 
 namespace story
 {
@@ -40,8 +41,9 @@ namespace story
 		virtual void objectLost(const IObjectPtr&);
 		virtual void objectMoved(const IObjectPtr&, const DataMovement&);
 		virtual void objectTouched(const IObjectPtr&, const DataTouch&);
-		virtual void buttonPressed(const IButtonPtr&);
-		virtual void buttonReleased(const IButtonPtr&);
+		virtual void buttonPressed(const IButtonPtr&, const DataTouch&);
+		virtual void buttonReleased(const IButtonPtr&, const DataTouch&);
+		virtual void pointTouched(const DataTouch&);
 
 	private:
 		void						removeMenu();
@@ -54,6 +56,8 @@ namespace story
 		std::list<Road>				roads;
 		std::list<Park>				parks;
 		River						river; //por ahora, solo un río
+		Menu						menu;
+		StoryStatus*				status;
 
 		IObjectPtr					floor;
 		ofVec3f						firstTableTouch;
@@ -64,23 +68,8 @@ namespace story
 		map<int,Box*>::iterator		selectedBoxIdx;
 		Spot						spot;
 
-		int							streetButtonId;
-		int							powerPlantButtonId;
-		int							waterPlantButtonId;
-		int							houseButtonId;
-		int							riverButtonId;
-		bool						addingStreet;
-		bool						addingRiver;
-		bool						addingPowePlant;
-		bool						addingWaterPlant;
-		bool						addingHouse;
-		float						timeMenuShown;
+		
 
-		ofImage						imgStreetButton;
-		ofImage						imgRiverButton;
-		ofImage						imgPowerPlantButton;
-		ofImage						imgWaterPlantButton;
-		ofImage						imgHouseButton;
 
 	};
 }

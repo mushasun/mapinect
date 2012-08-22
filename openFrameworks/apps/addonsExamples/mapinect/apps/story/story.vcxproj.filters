@@ -32,6 +32,12 @@
     <ClCompile Include="src\story\Buildings\WaterPlant.cpp">
       <Filter>story\Buildings</Filter>
     </ClCompile>
+    <ClCompile Include="src\story\Menu.cpp">
+      <Filter>story</Filter>
+    </ClCompile>
+    <ClCompile Include="src\story\StoryStatus.cpp">
+      <Filter>story</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="story">
@@ -74,6 +80,12 @@
     </ClInclude>
     <ClInclude Include="src\story\Buildings\WaterPlant.h">
       <Filter>story\Buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\Menu.h">
+      <Filter>story</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\StoryStatus.h">
+      <Filter>story</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

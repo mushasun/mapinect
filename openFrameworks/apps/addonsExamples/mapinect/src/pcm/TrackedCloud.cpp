@@ -29,6 +29,7 @@ namespace mapinect {
 		minPointDif = numeric_limits<int>::max();
 		needApplyTransformation = false;
 		needRecalculateFaces = false;
+		invalidCounter = 0;
 	}
 
 	TrackedCloud::TrackedCloud()
@@ -78,7 +79,10 @@ namespace mapinect {
 			if(objType != UNRECOGNIZED)
 			{
 				objectInModel->detectPrimitives();
-				gModel->addObject(objectInModel);
+				if(objectInModel->isValid())
+					gModel->addObject(objectInModel);
+				else
+					objectInModel.reset();
 			}
 		}
 	}
@@ -131,14 +135,12 @@ namespace mapinect {
 			int difCount = getDifferencesCount(newObjectCloud, cluster, Constants::OBJECT_RECALCULATE_TOLERANCE());
 			int maxDif = newObjectCloud->points.size() * Constants::OBJECT_CLOUD_DIFF_PERCENT;
 
-			//cout << "dif: " << difCount << "necesita: " << maxDif << endl;
 
 			if(difCount > maxDif)
 				needRecalculateFaces = true;
 			else
 				needRecalculateFaces = false;
-			////////////////////////////////////////////////////////
-			//cout << "nearest: " << nearest << "necesita: " << Constants::OBJECT_TRANSLATION_TOLERANCE() << endl;
+			
 			if(nearest > Constants::OBJECT_TRANSLATION_TOLERANCE())
 			{
 				translationV = translation;
@@ -157,24 +159,65 @@ namespace mapinect {
 	
 	void TrackedCloud::updateMatching()
 	{
+		const int OBJECT_INVALID_FRAMES_TO_RESET = 20;
+		const int OBJECT_INVALID_FRAMES_TO_DELETE = 80;
+		//Chequeo validez del objeto
 		bool sendUpdate = false;
+		
+		gModel->objectsMutex.lock();
+		if(objectInModel.get() != NULL)
+		{
+			if(!objectInModel->isValid() && hasMatching())
+			{
+				cloud = matchingCloud->getTrackedCloud();
+				objectInModel->resetLod();
+				objectInModel->setCloud(cloud);
+				invalidCounter++;
+				if(invalidCounter >= OBJECT_INVALID_FRAMES_TO_RESET)
+				{
+					// Si supera el limite, lo reseteo
+					cout << "[     RECALCULATING     ]" << endl;
+					objectInModel->detectPrimitives();
+					if(objectInModel->isValid())
+					{
+						sendUpdate = true;
+						invalidCounter = 0;
+					}
+				}
+				if(invalidCounter >= OBJECT_INVALID_FRAMES_TO_DELETE)
+				{
+					cout << "[     DELETED     ]" << endl;
+					gModel->removeObject(objectInModel);
+					objectInModel.reset();
+				}
+			}
+			else
+				invalidCounter = 0;
+		}
+		gModel->objectsMutex.unlock();
+
 		if(needApplyTransformation || needRecalculateFaces || objectInModel.get() == NULL)		//Necesito recalcular algo
 		{ 
 			if(hasMatching())
 			{
 				gModel->objectsMutex.lock();
 				cloud = matchingCloud->getTrackedCloud();
-				if(objectInModel.get() != NULL)
+				if(objectInModel.get() != NULL && objectInModel->isValid())
 				{
-					sendUpdate = true;
 					objectInModel->resetLod();
 					objectInModel->addToModel(cloud);
-					if(needApplyTransformation && objectInModel.get() != NULL)
+
+					if(objectInModel->isValid())
 					{
-						DataMovement dm(translationV, ofVec3f());
-						EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectMoved, 
-						objectInModel->getMathModelApproximation(), dm));
-						translationV = ofVec3f();
+						sendUpdate = true;
+
+						if(needApplyTransformation && objectInModel.get() != NULL)
+						{
+							DataMovement dm(translationV, ofVec3f());
+							EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectMoved, 
+							objectInModel->getMathModelApproximation(), dm));
+							translationV = ofVec3f();
+						}
 					}
 
 				}
@@ -182,7 +225,7 @@ namespace mapinect {
 			}
 			
 		}
-		else if(objectInModel.get() != NULL && objectInModel->getLod() < Constants::OBJECT_LOD_MAX)
+		else if(objectInModel.get() != NULL && objectInModel->getLod() < Constants::OBJECT_LOD_MAX && objectInModel->isValid())
 		//Si no llegue al nivel maximo de detalle, aumento
 		{
 			sendUpdate = true;

@@ -8,6 +8,7 @@
 #include "ofxMutex.h"
 #include "ObjectsThread.h"
 #include "TrackedTouch.h"
+#include "ButtonManager.h"
 
 namespace mapinect
 {
@@ -17,7 +18,7 @@ namespace mapinect
 		PCMThread();
 
 		void						reset();
-		void						setup();
+		void						setup(ButtonManager* btnManager);
 		void						exit();
 		virtual void				threadedFunction();
 		inline void					startDetection()					{ detectMode = true; }
@@ -50,6 +51,7 @@ namespace mapinect
 		ofVec3f						tableClusterLastCentroid;
 
 		ObjectsThread				objectsThread;
+		ButtonManager*				btnManager;
 	};
 }
 

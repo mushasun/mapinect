@@ -206,6 +206,7 @@ namespace visualizer {
 	//--------------------------------------------------------------
 	void VisualizerApp::objectDetected(const IObjectPtr& object)
 	{
+		cout << "		&&&&&& OBJECT &&&&&&&&&" << endl;
 		if (object->getId() == TABLE_ID)
 		{
 			if (floor != NULL)
@@ -315,7 +316,7 @@ namespace visualizer {
 					//Load buttons
 					/*Button in floor of box*/
 					ObjectButton oButton1(object, kPolygonNameSideA, true, btnNext, btnNextOn,
-											0.05,0.05,- 0.05 ,0.04);
+											0.1,0.1,- 0.05 ,0.04);
 					this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton1)));
 
 					ObjectButton oButton2(object, kPolygonNameSideA, true, btnPlay, btnPlayOn,
