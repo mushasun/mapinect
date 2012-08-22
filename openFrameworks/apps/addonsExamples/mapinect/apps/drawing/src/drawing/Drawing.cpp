@@ -24,7 +24,7 @@ namespace drawing {
 	void Drawing::update(float elapsedTime)
 	{
 		static float redrawTime = 0;
-		const float redrawTimeLimit = 0.1f;
+		const float redrawTimeLimit = 100.0f;
 		redrawTime += elapsedTime;
 		if (redrawTime > redrawTimeLimit)
 		{
@@ -46,6 +46,7 @@ namespace drawing {
 		{
 			for (map<int, Canvas*>::iterator p = ob->second.begin(); p != ob->second.end(); ++p)
 			{
+				p->second->redrawIfNecessary();
 				p->second->draw();
 			}
 		}
@@ -61,7 +62,7 @@ namespace drawing {
 			map<int, Canvas*> objectCanvas;
 			for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 			{
-				objectCanvas[(*p)->getName()] = new Canvas(*p, backColor, foreColor);
+				objectCanvas[(*p)->getName()] = new Canvas((*p)->getId(), (*p)->getMathModel(), 300, 300, backColor, foreColor);
 				backColor = ofRandomColor();
 			}
 			canvas[object->getId()] = objectCanvas;
@@ -79,7 +80,7 @@ namespace drawing {
 				map<int, Canvas*>::iterator c = ob->second.find((*p)->getName());
 				if (c != ob->second.end())
 				{
-					c->second->update(*p);
+					c->second->update((*p)->getMathModel());
 				}
 			}
 		}

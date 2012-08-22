@@ -12,6 +12,7 @@ namespace mapinect
 		TextureMapper2D(const Polygon3D& polygon, const vector<ofVec2f>& texCoords, int originVertex);
 		virtual ~TextureMapper2D() { }
 
+		bool				willMap(const ofVec3f& p) const;
 		ofVec2f				map(const ofVec3f& p) const;
 
 	private:

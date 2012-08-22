@@ -15,14 +15,12 @@ namespace mapinect
 	class Canvas
 	{
 	public:
-		Canvas(const IPolygonPtr& polygon, const ofColor& backColor, const ofColor& foreColor);
+		Canvas(int polygonId, const Polygon3D& polygon, int width, int height, const ofColor& backColor, const ofColor& foreColor);
 		virtual ~Canvas();
 
-		void					update(const IPolygonPtr& polygon);
+		void					update(const Polygon3D& polygon);
 		void					draw();
 		void					touchEvent(const DataTouch&);
-
-		inline ofVec2f			mapToTexture(const ofVec3f& p) const	{ return texMapper.map(p); }
 
 		inline const ofColor&	getBackColor() const					{ return backColor; }
 		void					setBackColor(const ofColor&);
@@ -34,11 +32,13 @@ namespace mapinect
 		void					redraw();
 		bool					needsToRedraw;
 
-		IPolygonPtr				polygon;
-		ofxCairoTexture			texture;
+		int						polygonId;
+		Polygon3D				polygon;
+		int						width;
+		int						height;
 		ofColor					backColor;
 		ofColor					foreColor;
-		ofVec2f					dimensions;
+		ofxCairoTexture			texture;
 		vector<ofVec2f>			texCoords;
 		TextureMapper2D			texMapper;
 

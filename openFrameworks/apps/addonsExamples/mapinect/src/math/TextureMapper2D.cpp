@@ -15,6 +15,11 @@ namespace mapinect
 		}
 	}
 
+	bool TextureMapper2D::willMap(const ofVec3f& p) const
+	{
+		return polygon.isInPolygon(p);
+	}
+
 	ofVec2f TextureMapper2D::map(const ofVec3f& p) const
 	{
 		float k[2] = { 0, 0 };
@@ -39,7 +44,7 @@ namespace mapinect
 		}
 		else
 		{
-			return ofVec2f();
+			return BAD_OFVEC2F;
 		}
 	}
 
