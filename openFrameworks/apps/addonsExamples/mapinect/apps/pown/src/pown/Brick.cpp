@@ -64,7 +64,7 @@ namespace pown
 		{
 			if (nb->inRange())
 				result.insert(*nb);
-			else
+			else if (PownConstants::WAVE_REBOUND)
 			{
 				int note = nb->note;
 				if (!nb->inRangeNote())
@@ -160,8 +160,8 @@ namespace pown
 		{
 			if (box->second->getNoteBeat().beat == beat)
 			{
-				const float kWavesPerBeat = 8.0f;
-				;
+				const float kWavesPerBeat = (float)PownConstants::WAVES_PER_BEAT;
+
 				for (float i = 1.0f; i <= kWavesPerBeat; i += 1.0f)
 					waves.push_back(new Wave(
 						box->second->getNoteBeat(),
