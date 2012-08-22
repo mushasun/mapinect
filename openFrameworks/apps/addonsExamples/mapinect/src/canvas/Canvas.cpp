@@ -5,18 +5,15 @@
 
 namespace mapinect
 {
-	Canvas::Canvas(const IPolygonPtr& polygon, const ofColor& backColor, const ofColor& foreColor)
-		: polygon(polygon), backColor(backColor), foreColor(foreColor), needsToRedraw(true)
+	const int kMappingOriginVertex = 1;
+
+	Canvas::Canvas(int polygonId, const Polygon3D& polygon, int width, int height, const ofColor& backColor, const ofColor& foreColor)
+		: polygonId(polygonId), polygon(polygon), width(width), height(height), backColor(backColor), foreColor(foreColor), needsToRedraw(true)
 	{
-		int vertexCount = polygon->getMathModel().getVertexs().size();
+		int vertexCount = polygon.getVertexs().size();
 		assert(vertexCount >= 3);
-		int origin = polygon->getBestOriginVertexIndex();
 
-		const double pxScale = 300;
-		dimensions.x = floor(polygon->getMathModel().getEdges()[origin].segmentLength() * pxScale);
-		dimensions.y = floor(polygon->getMathModel().getEdges()[(origin + vertexCount - 1) % vertexCount].segmentLength() * pxScale);
-
-		texture.setup((int)dimensions.x, (int)dimensions.y);
+		texture.setup(width, height);
 		texture.background(backColor);
 
 		update(polygon);
@@ -37,21 +34,20 @@ namespace mapinect
 		foreColor = color;
 	}
 
-	void Canvas::update(const IPolygonPtr& polygon)
+	void Canvas::update(const Polygon3D& polygon)
 	{
 		this->polygon = polygon;
 
-		int vertexCount = polygon->getMathModel().getVertexs().size();
+		int vertexCount = polygon.getVertexs().size();
 		assert(vertexCount >= 3);
-		int origin = polygon->getBestOriginVertexIndex();
 
 		texCoords.clear();
 		texCoords.push_back(ofVec2f(0, 0));
-		texCoords.push_back(ofVec2f(dimensions.x, 0));
-		texCoords.push_back(ofVec2f(dimensions.x, dimensions.y));
-		texCoords.push_back(ofVec2f(0, dimensions.y));
+		texCoords.push_back(ofVec2f(width, 0));
+		texCoords.push_back(ofVec2f(width, height));
+		texCoords.push_back(ofVec2f(0, height));
 
-		texMapper = TextureMapper2D(polygon->getMathModel(), texCoords, origin);
+		texMapper = TextureMapper2D(polygon, texCoords, kMappingOriginVertex);
 	}
 
 	void Canvas::redraw()
@@ -79,7 +75,7 @@ namespace mapinect
 	{
 		ofImage* cairoTexture = texture.getTextureRef();
 		cairoTexture->bind();
-		ofDrawQuadTextured(polygon->getMathModel().getVertexs(), texCoords);
+		ofDrawQuadTextured(polygon.getVertexs(), texCoords);
 		cairoTexture->unbind();
 
 		for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
@@ -92,28 +88,31 @@ namespace mapinect
 
 	void Canvas::touchEvent(const DataTouch& touchPoint)
 	{
-		assert(touchPoint.getPolygon()->getId() == polygon->getId());
-		int id = touchPoint.getId();
-		map<int, IDrawer*>::iterator d = drawers.find(id);
-		switch (touchPoint.getType())
+		assert(touchPoint.getPolygon()->getId() == polygonId);
+		if (texMapper.willMap(touchPoint.getTouchPoint()))
 		{
-		case kTouchTypeStarted:
-			touchPoints[id] = touchPoint;
-			drawers[id] = IDrawer::SCreate(mapToTexture(touchPoint.getTouchPoint()), foreColor);
-			setForeColor(ofRandomColor());
-			break;
-		case kTouchTypeHolding:
-			touchPoints[id] = touchPoint;
-			if (d != drawers.end())
+			ofVec3f mapped(texMapper.map(touchPoint.getTouchPoint()));
+			int id = touchPoint.getId();
+			map<int, IDrawer*>::iterator d = drawers.find(id);
+			switch (touchPoint.getType())
 			{
-				d->second->update(mapToTexture(touchPoint.getTouchPoint()));
-				d->second->draw(texture);
-				redraw();
+			case kTouchTypeStarted:
+				touchPoints[id] = touchPoint;
+				drawers[id] = IDrawer::SCreate(mapped, foreColor);
+				setForeColor(ofRandomColor());
+				break;
+			case kTouchTypeHolding:
+				touchPoints[id] = touchPoint;
+				if (d != drawers.end())
+				{
+					d->second->update(mapped);
+					redraw();
+				}
+				break;
+			case kTouchTypeReleased:
+				touchPoints.erase(id);
+				break;
 			}
-			break;
-		case kTouchTypeReleased:
-			touchPoints.erase(id);
-			break;
 		}
 	}
 }
