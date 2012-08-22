@@ -8,10 +8,9 @@
 #include "ofxCairoTexture.h"
 #include <map>
 
-using namespace mapinect;
 using namespace std;
 
-namespace drawing
+namespace mapinect
 {
 	class Canvas
 	{

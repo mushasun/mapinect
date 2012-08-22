@@ -3,7 +3,7 @@
 
 #include "ofxCairoTexture.h"
 
-namespace drawing
+namespace mapinect
 {
 	class IDrawer
 	{

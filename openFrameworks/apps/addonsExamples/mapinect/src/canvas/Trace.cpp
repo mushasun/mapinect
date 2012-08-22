@@ -1,8 +1,6 @@
 #include "Trace.h"
 
-#include "ofSoundPlayer.h"
-
-namespace drawing
+namespace mapinect
 {
 
 	IDrawer* IDrawer::SCreate(const ofVec2f& startPoint, const ofColor& color)

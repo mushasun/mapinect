@@ -200,6 +200,8 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\buttons\DraggableButton.cpp" />
     <ClCompile Include="src\buttons\ObjectButton.cpp" />
     <ClCompile Include="src\buttons\SimpleButton.cpp" />
+    <ClCompile Include="src\canvas\Canvas.cpp" />
+    <ClCompile Include="src\canvas\Trace.cpp" />
     <ClCompile Include="src\helpers\ArmController.cpp" />
     <ClCompile Include="src\helpers\ButtonManager.cpp" />
     <ClCompile Include="src\helpers\Constants.cpp" />
@@ -270,6 +272,9 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\buttons\DraggableButton.h" />
     <ClInclude Include="src\buttons\ObjectButton.h" />
     <ClInclude Include="src\buttons\SimpleButton.h" />
+    <ClInclude Include="src\canvas\Canvas.h" />
+    <ClInclude Include="src\canvas\IDrawer.h" />
+    <ClInclude Include="src\canvas\Trace.h" />
     <ClInclude Include="src\helpers\ArmController.h" />
     <ClInclude Include="src\helpers\ButtonManager.h" />
     <ClInclude Include="src\helpers\Constants.h" />

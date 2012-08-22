@@ -5,7 +5,7 @@
 
 #include "ofxCairoTexture.h"
 
-namespace drawing
+namespace mapinect
 {
 	class Trace : public IDrawer
 	{
