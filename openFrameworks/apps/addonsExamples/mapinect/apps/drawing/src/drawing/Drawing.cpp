@@ -24,7 +24,7 @@ namespace drawing {
 	void Drawing::update(float elapsedTime)
 	{
 		static float redrawTime = 0;
-		const float redrawTimeLimit = 500.0f;
+		const float redrawTimeLimit = 0.1f;
 		redrawTime += elapsedTime;
 		if (redrawTime > redrawTimeLimit)
 		{
@@ -62,7 +62,7 @@ namespace drawing {
 			for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 			{
 				objectCanvas[(*p)->getName()] = new Canvas(*p, backColor, foreColor);
-				backColor = ofColor(rand() % 255, rand() % 255, rand() % 255);
+				backColor = ofRandomColor();
 			}
 			canvas[object->getId()] = objectCanvas;
 		}
