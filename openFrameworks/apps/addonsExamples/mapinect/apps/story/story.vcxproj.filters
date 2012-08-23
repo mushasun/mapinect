@@ -2,28 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\story\Box.cpp">
-      <Filter>story</Filter>
-    </ClCompile>
     <ClCompile Include="src\story\Story.cpp">
-      <Filter>story</Filter>
-    </ClCompile>
-    <ClCompile Include="src\story\Road.cpp">
-      <Filter>story</Filter>
-    </ClCompile>
-    <ClCompile Include="src\story\Park.cpp">
-      <Filter>story</Filter>
-    </ClCompile>
-    <ClCompile Include="src\story\House.cpp">
       <Filter>story</Filter>
     </ClCompile>
     <ClCompile Include="src\story\Spot.cpp">
       <Filter>story</Filter>
     </ClCompile>
     <ClCompile Include="src\story\StoryConstants.cpp">
-      <Filter>story</Filter>
-    </ClCompile>
-    <ClCompile Include="src\story\River.cpp">
       <Filter>story</Filter>
     </ClCompile>
     <ClCompile Include="src\story\Buildings\PowerPlant.cpp">
@@ -38,6 +23,21 @@
     <ClCompile Include="src\story\StoryStatus.cpp">
       <Filter>story</Filter>
     </ClCompile>
+    <ClCompile Include="src\story\House.cpp">
+      <Filter>story\Buildings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\story\Box.cpp">
+      <Filter>story\Buildings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\story\Park.cpp">
+      <Filter>story\Buildings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\story\River.cpp">
+      <Filter>story\Buildings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\story\Road.cpp">
+      <Filter>story\Buildings</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="story">
@@ -48,28 +48,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\story\Box.h">
-      <Filter>story</Filter>
-    </ClInclude>
     <ClInclude Include="src\story\Story.h">
-      <Filter>story</Filter>
-    </ClInclude>
-    <ClInclude Include="src\story\Road.h">
-      <Filter>story</Filter>
-    </ClInclude>
-    <ClInclude Include="src\story\Park.h">
-      <Filter>story</Filter>
-    </ClInclude>
-    <ClInclude Include="src\story\House.h">
       <Filter>story</Filter>
     </ClInclude>
     <ClInclude Include="src\story\Spot.h">
       <Filter>story</Filter>
     </ClInclude>
     <ClInclude Include="src\story\StoryConstants.h">
-      <Filter>story</Filter>
-    </ClInclude>
-    <ClInclude Include="src\story\River.h">
       <Filter>story</Filter>
     </ClInclude>
     <ClInclude Include="src\story\StatusChangedData.h">
@@ -86,6 +71,21 @@
     </ClInclude>
     <ClInclude Include="src\story\StoryStatus.h">
       <Filter>story</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\House.h">
+      <Filter>story\Buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\Box.h">
+      <Filter>story\Buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\Park.h">
+      <Filter>story\Buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\Road.h">
+      <Filter>story\Buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\River.h">
+      <Filter>story\Buildings</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
