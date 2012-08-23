@@ -98,6 +98,11 @@ namespace story {
 			modeManager->disableObjectTracking();
 			modeManager->enableTouchTracking();
 		}
+
+		//Buildings
+		for (map<int, Box*>::const_iterator it = boxes.begin(); it != boxes.end(); ++it)
+			it->second->update(elapsedTime);
+
 	}
 
 	//--------------------------------------------------------------
@@ -234,7 +239,6 @@ namespace story {
 
 	void Story::buttonReleased(const IButtonPtr& btn, const DataTouch& touchPoint)
 	{
-		
 		menu.buttonEvent(btn,true);
 		for(map<int,Box*>::iterator it = boxes.begin(); it != boxes.end(); ++it)
 		{

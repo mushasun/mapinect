@@ -24,6 +24,7 @@ namespace story
 	void Spot::draw()
 	{
 		ofSetColor(kRGBWhite);
+		glDisable(GL_DEPTH_TEST);
 
 		ofPushMatrix();
 			ofTranslate(position);
@@ -32,6 +33,8 @@ namespace story
 				ofDrawQuadTextured(area.getVertexs(), ofTexCoordsFor(*texture));
 			texture->unbind();
 		ofPopMatrix();
+		glEnable(GL_DEPTH_TEST);
+
 	}
 
 	void Spot::update(float elapsedTime)

@@ -88,8 +88,11 @@ namespace story
 	/*-------------------------------------------------------------*/
 	void House::buttonEvent(const IButtonPtr& btn, bool released)
 	{
+		cout << "BOton  press enn house! " << endl;
 		if(actionsMap.find(btn->getId()) == actionsMap.end())
 			return; // no es un boton de la casa
+
+		cout << "{ boton de casa }" << endl;
 
 		HouseAction action = actionsMap[btn->getId()];
 		switch(action)
