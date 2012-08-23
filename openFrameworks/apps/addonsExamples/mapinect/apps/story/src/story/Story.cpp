@@ -27,7 +27,9 @@ namespace story {
 		StoryConstants::LoadStoryConstants();
 		Spot::setup();
 		House::setup();
-		
+		WaterPlant::setup();
+		PowerPlant::setup();
+
 		status = new StoryStatus();
 		status->setup();
 
