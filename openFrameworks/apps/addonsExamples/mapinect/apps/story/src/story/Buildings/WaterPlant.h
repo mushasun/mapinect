@@ -22,7 +22,6 @@ namespace story
 	{
 		public:
 			WaterPlant(const IObjectPtr& object, IButtonManager* btnManager);
-			//virtual ~House(); 
 			
 			static void				setup();
 			

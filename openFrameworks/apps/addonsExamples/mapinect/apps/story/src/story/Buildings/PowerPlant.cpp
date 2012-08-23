@@ -116,11 +116,5 @@ namespace story
 		onSound->loadSound("data/sonidos/house/ding.wav");
 		offSound = new ofSoundPlayer();
 		offSound->loadSound("data/sonidos/house/knock.wav");
-
-		/*esto se hacia para la casa peor no se para que, lo dejo por si no anda
-		offSound->play();
-		offSound->setPaused(true);
-		offSound->setLoop(true);
-		*/
 	}
 }

@@ -28,7 +28,7 @@ namespace story
 		this->btnManager = btnManager;
 
 		//associateTextures();
-		buildType = BuildType::kPowerPlant;
+		buildType = BuildType::kWaterPlant;
 		/*Button in floor of box*/
 		ObjectButton btnOnOff(object, kPolygonNameSideA, true, txSwitchOff, txSwitchOn,
 								0.05, 0.05, 0, 0.04);
@@ -50,16 +50,21 @@ namespace story
 		WaterPlantAction action = actionsMap[btn->getId()];
 		switch(action)
 		{
-		case WATER_SWITCH:
+			case WATER_SWITCH:
 				if(!released)
 					if (working)
-						{
-							offSound->play();
-						}
+					{
+						btnManager->setPressed(txSwitchOn, btn->getId());
+						btnManager->setIdle(txSwitchOn, btn->getId());
+						offSound->play();
+					}
 					else
-						{
-							onSound->play();
-						}
+					{
+						btnManager->setPressed(txSwitchOn, btn->getId());
+						btnManager->setIdle(txSwitchOn, btn->getId());
+						offSound->play();
+						onSound->play();
+					}
 					working = !working;
 				break;
 		}
