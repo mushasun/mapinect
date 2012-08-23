@@ -36,6 +36,8 @@ namespace story
 		btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnOnOff)));
 		buttonsId.push_back(btnOnOff.getId());
 		actionsMap[btnOnOff.getId()] = WATER_SWITCH;
+
+		associateTextures();
 	}
 
 	/* Events */
@@ -83,12 +85,6 @@ namespace story
 
 	}
 
-	/*-------------------------------------------------------------*/
-	void WaterPlant::draw()
-	{
-
-	}
-
 
 	/* Textures */
 	/*-------------------------------------------------------------*/
@@ -101,12 +97,14 @@ namespace story
 	}
 
 	/*-------------------------------------------------------------*/
-	/*void WaterPlant::associateTextures()
+	void WaterPlant::associateTextures()
 	{
 		textureTop = txTop;
 		textureA = txSide;
+		textureB = txSide;
+		textureC = txSide;
 		textureD = txSide;
-	}*/
+	}
 
 	/* Sounds */
 	/*-------------------------------------------------------------*/
