@@ -67,8 +67,8 @@ namespace pown
 	public:
 		BrickManager(const IPolygonPtr& floor);
 
-		void					update(float elapsedTime, const Light& light);
-		void					draw() const;
+		void					update(float elapsedTime);
+		void					draw(const Light& light);
 		Brick*					getBrick(int note, int beat) const;
 
 		void					doBeat(map<int, Box*>& boxes);

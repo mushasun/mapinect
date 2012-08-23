@@ -181,15 +181,23 @@ namespace pown
 		return result;
 	}
 
-	void BrickManager::update(float elapsedTime, const Light& light)
+	void BrickManager::update(float elapsedTime)
 	{
-		map<Wave*, set<NoteBeat> > waveNoteBeats;
-
 		for (vector<Brick*>::iterator brick = bricks.begin(); brick != bricks.end(); brick++)
 			(*brick)->update(elapsedTime);
 		for (list<Wave*>::iterator wave = waves.begin(); wave != waves.end(); wave++)
 		{
 			(*wave)->update(elapsedTime);
+		}
+
+		waves.remove_if(removeWaveIfNotAlive);
+	}
+
+	void BrickManager::draw(const Light& light)
+	{
+		map<Wave*, set<NoteBeat> > waveNoteBeats;
+		for (list<Wave*>::iterator wave = waves.begin(); wave != waves.end(); wave++)
+		{
 			waveNoteBeats.insert(make_pair(*wave, (*wave)->getNoteBeats()));
 		}
 
@@ -212,11 +220,6 @@ namespace pown
 			}
 		}
 
-		waves.remove_if(removeWaveIfNotAlive);
-	}
-
-	void BrickManager::draw() const
-	{
 		for (int i = 0; i < bricks.size(); i++)
 			bricks[i]->draw();
 	}
