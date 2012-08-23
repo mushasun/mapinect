@@ -129,11 +129,19 @@ namespace story {
 			}
 			else if (status->getProperty(ADDING_POWERPLANT))
 			{
-				//poner aca la creacion de la power plant
+				PowerPlant* plant  = new PowerPlant(object, btnManager);
+                boxes.insert(pair<int, Box*>(object->getId(), plant));
+                status->setProperty(ADDING_POWERPLANT, false);
+                modeManager->disableObjectTracking();
+                modeManager->enableTouchTracking();
 			}
 			else if (status->getProperty(ADDING_WATERPLANT))
 			{
-				//poner aca la creacion de la water plant
+				WaterPlant* plant  = new WaterPlant(object, btnManager);
+                boxes.insert(pair<int, Box*>(object->getId(), plant));
+                status->setProperty(ADDING_WATERPLANT, false);
+                modeManager->disableObjectTracking();
+                modeManager->enableTouchTracking();
 			}
 		}
 	}
