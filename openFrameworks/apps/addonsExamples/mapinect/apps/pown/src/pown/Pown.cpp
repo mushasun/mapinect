@@ -43,7 +43,7 @@ namespace pown
 		debugLight.draw();
 
 		if (brickManager != NULL)
-			brickManager->draw();
+			brickManager->draw(light);
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
 			(*spot)->draw();
 		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
@@ -107,7 +107,7 @@ namespace pown
 	{
 		// update all existing objects
 		if (brickManager != NULL)
-			brickManager->update(elapsedTime, light);
+			brickManager->update(elapsedTime);
 		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
 			(*spot)->update(elapsedTime);
 		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
