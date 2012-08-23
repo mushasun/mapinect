@@ -13,6 +13,9 @@ namespace pown
 		static float				EMIT_TIME;
 		static float				BEAT_TIME;
 
+		static float				MENU_SHOW_TIME;
+		static float				MENU_BUTTON_SIZE;
+
 		static float				SPOT_PERIOD_TIME;
 		static float				SPOT_SEED_TIME;
 

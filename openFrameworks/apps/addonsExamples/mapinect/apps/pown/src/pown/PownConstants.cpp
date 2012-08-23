@@ -12,6 +12,9 @@ namespace pown
 	float				PownConstants::EMIT_TIME							= 2.0f;
 	float				PownConstants::BEAT_TIME							= EMIT_TIME / (float)BEATS;
 
+	float				PownConstants::MENU_SHOW_TIME						= 5.0f;
+	float				PownConstants::MENU_BUTTON_SIZE						= 0.05f;
+
 	float				PownConstants::SPOT_PERIOD_TIME						= 2.0f;
 	float				PownConstants::SPOT_SEED_TIME						= 5.0f;
 
@@ -31,6 +34,7 @@ namespace pown
 			BEATS							= XML.getValue(POWN_CONFIG "BEATS", BEATS);
 			EMIT_TIME						= XML.getValue(POWN_CONFIG "EMIT_TIME", EMIT_TIME);
 			BEAT_TIME						= EMIT_TIME / (float)BEATS;
+			MENU_BUTTON_SIZE				= XML.getValue(POWN_CONFIG "MENU_BUTTON_SIZE", MENU_BUTTON_SIZE);
 			SPOT_PERIOD_TIME				= XML.getValue(POWN_CONFIG "SPOT_PERIOD_TIME", SPOT_PERIOD_TIME);
 			SPOT_SEED_TIME					= XML.getValue(POWN_CONFIG "SPOT_SEED_TIME", SPOT_SEED_TIME);
 			WAVES_PER_BEAT					= XML.getValue(POWN_CONFIG "WAVES_PER_BEAT", WAVES_PER_BEAT);

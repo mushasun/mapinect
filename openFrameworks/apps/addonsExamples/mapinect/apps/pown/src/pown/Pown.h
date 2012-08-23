@@ -8,6 +8,7 @@
 #include "Brick.h"
 #include "Box.h"
 #include "Light.h"
+#include "Menu.h"
 #include "Spot.h"
 
 namespace pown
@@ -27,8 +28,9 @@ namespace pown
 		virtual void		objectLost(const IObjectPtr&);
 		virtual void		objectMoved(const IObjectPtr&, const DataMovement&);
 		virtual void		objectTouched(const IObjectPtr&, const DataTouch&);
-		virtual void		buttonPressed(const IButtonPtr&);
-		virtual void		buttonReleased(const IButtonPtr&);
+		virtual void		buttonPressed(const IButtonPtr&, const DataTouch&);
+		virtual void		buttonReleased(const IButtonPtr&, const DataTouch&);
+		virtual void		pointTouched(const DataTouch&);
 
 		virtual void		keyPressed(int key);
 
@@ -43,6 +45,7 @@ namespace pown
 		map<int, Box*>		boxes;
 		set<Spot*>			spots;
 
+		Menu				menu;
 		Light				light;
 	};
 }

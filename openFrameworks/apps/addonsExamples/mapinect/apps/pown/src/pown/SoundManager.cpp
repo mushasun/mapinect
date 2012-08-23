@@ -102,7 +102,7 @@ namespace pown
 	void SoundManager::myPlayNoteNow(int note, int program)
 	{
 		int saveProgram = this->program;
-		mySetProgram(programs[program]);
+		//mySetProgram(programs[program]);
 		midiOut.sendNoteOn(channel, scale[note], VELOCITY);
 		mySetProgram(saveProgram);
 	}

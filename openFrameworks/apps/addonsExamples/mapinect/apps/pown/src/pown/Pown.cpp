@@ -32,11 +32,14 @@ namespace pown
 		PownConstants::LoadPownConstants();
 		SoundManager::setup();
 		Spot::setup();
+		menu.setup(btnManager);
 	}
 
 	void Pown::draw()
 	{
 		ofEnableAlphaBlending();
+
+		menu.draw();
 
 		static ofLight debugLight;
 		debugLight.setPosition(light.getPos());
@@ -105,6 +108,9 @@ namespace pown
 
 	void Pown::update(float elapsedTime)
 	{
+		// update menu
+		menu.update(elapsedTime);
+
 		// update all existing objects
 		if (brickManager != NULL)
 			brickManager->update(elapsedTime);
@@ -174,15 +180,29 @@ namespace pown
 	
 	void Pown::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
-		map<int, Box*>::iterator b = boxes.find(object->getId());
-		if (b != boxes.end())
-			b->second->objectTouched(object, touchPoint);
+		if (object->getId() == TABLE_ID)
+		{
+			menu.objectEvent(object, touchPoint);
+		}
+		else
+		{
+			map<int, Box*>::iterator b = boxes.find(object->getId());
+			if (b != boxes.end())
+				b->second->objectTouched(object, touchPoint);
+		}
 	}
 
-	void Pown::buttonPressed(const IButtonPtr& btn)
+	void Pown::buttonPressed(const IButtonPtr& btn, const DataTouch& touchPoint)
 	{
+		menu.buttonEvent(btn, false);
 	}
-	void Pown::buttonReleased(const IButtonPtr& btn)
+
+	void Pown::buttonReleased(const IButtonPtr& btn, const DataTouch& touchPoint)
+	{
+		menu.buttonEvent(btn, true);
+	}
+
+	void Pown::pointTouched(const DataTouch& touch)
 	{
 	}
 

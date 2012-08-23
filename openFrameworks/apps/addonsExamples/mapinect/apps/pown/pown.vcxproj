@@ -138,6 +138,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\pown\Box.cpp" />
     <ClCompile Include="src\pown\Brick.cpp" />
     <ClCompile Include="src\pown\Light.cpp" />
+    <ClCompile Include="src\pown\Menu.cpp" />
     <ClCompile Include="src\pown\NoteBeat.cpp" />
     <ClCompile Include="src\pown\Pown.cpp" />
     <ClCompile Include="src\pown\PownConstants.cpp" />
@@ -159,6 +160,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\pown\Box.h" />
     <ClInclude Include="src\pown\Brick.h" />
     <ClInclude Include="src\pown\Light.h" />
+    <ClInclude Include="src\pown\Menu.h" />
     <ClInclude Include="src\pown\NoteBeat.h" />
     <ClInclude Include="src\pown\Pown.h" />
     <ClInclude Include="src\pown\PownConstants.h" />
