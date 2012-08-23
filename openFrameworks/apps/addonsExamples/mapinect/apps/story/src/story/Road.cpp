@@ -3,7 +3,7 @@
 #include "ofGraphicsUtils.h"
 #include "DraggableButton.h"
 #include "DraggableButton.h"
-#define NORMAL_FACTOR 0.04
+#define NORMAL_FACTOR 0.08
 
 namespace story
 {
