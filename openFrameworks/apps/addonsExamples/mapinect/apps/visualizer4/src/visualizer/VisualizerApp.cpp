@@ -301,7 +301,7 @@ namespace visualizer {
 								btnLyric,
 								btnLyric);
 
-				//this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d2)));
+				this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d2)));
 			}
 		}
 		else
@@ -405,6 +405,12 @@ namespace visualizer {
 	//--------------------------------------------------------------
 	void VisualizerApp::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
+		
+	}
+
+	//--------------------------------------------------------------
+	void VisualizerApp::pointTouched(const DataTouch& touchPoint)
+	{
 		map<int, DataTouch>::iterator it = touchPoints.find(touchPoint.getId());
 		if (it == touchPoints.end())
 		{
@@ -417,8 +423,9 @@ namespace visualizer {
 		}
 	}
 
-	void VisualizerApp::buttonPressed(const IButtonPtr& btn)
+	void VisualizerApp::buttonPressed(const IButtonPtr& btn, const DataTouch& touch)
 	{
+		cout << "pressed: " << btn->getId() << endl;
 		/*music.setSpeed(btn->getId());
 		if(btn->getId() == 1 && !music.getIsPlaying())
 			music.play();
@@ -454,7 +461,7 @@ namespace visualizer {
 				break;
 		}*/
 	}
-	void VisualizerApp::buttonReleased(const IButtonPtr& btn)
+	void VisualizerApp::buttonReleased(const IButtonPtr& btn, const DataTouch& touch)
 	{
 		cout << "release: " << btn->getId() << endl;
 		switch(btn->getId())

@@ -46,7 +46,9 @@ namespace story
 			
 			//textures
 			static ofImage*			txTop;
-			static ofImage*			txSide;
+			static ofImage*			txSideA;
+			static ofImage*			txSideB;
+			static ofImage*			txSideC;
 			static ofImage*			txSwitchOn;
 			static ofImage*			txSwitchOff;
 

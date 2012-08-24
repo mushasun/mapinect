@@ -178,6 +178,7 @@ namespace story {
 		if (object->getId() == TABLE_ID)
 		{
 			//reseteo seleccion de objetos
+			cout << " no selecciono mas" << endl;
 			selectedBoxIdx = boxes.end(); 
 			spot.setActive(false);
 
@@ -228,14 +229,18 @@ namespace story {
 		{
 			if(selectedBoxIdx == boxes.end())
 			{
+				cout << "seleccione: " << touchedIdx->second->getBuildType() << endl;
 				selectedBoxIdx = touchedIdx;
 				ofVec3f spotCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(object->getCenter());
 				spotCenter.y -= 0.001f;
 				spot.setPosition(spotCenter);
 			}
-			else
+			else if(selectedBoxIdx != touchedIdx)
 			{
+				cout << "mando evento a: " << touchedIdx->second->getBuildType() << endl;
 				touchedIdx->second->objectEvent(touchPoint,selectedBoxIdx->second->getBuildType());
+				selectedBoxIdx = boxes.end(); 
+				spot.setActive(false);
 			}
 		}
 	}

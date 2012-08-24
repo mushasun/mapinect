@@ -35,7 +35,7 @@ namespace mapinect {
 		inline virtual vector<ofVec3f>		getVertexs() { return polygon.getVertexs(); }
 
 	protected:
-		virtual bool isInTouch(const DataTouch& touch);
+		virtual bool isInTouch(const IObjectPtr& object, const DataTouch& touch);
 		Polygon3D polygon;
 
 	private:
@@ -43,8 +43,8 @@ namespace mapinect {
 		void calculateFloorPolygon();
 		void calculateFacePolygon();
 
-		bool checkInFullObject(const DataTouch& touch);
-		bool checkInFace(const DataTouch& touch);
+		bool checkInFullObject(const DataTouch& touch, const IObjectPtr& object);
+		bool checkInFace(const DataTouch& touch, const IObjectPtr& object);
 		bool checkInFloor(const DataTouch& touch);
 		
 		void drawInFullObject();

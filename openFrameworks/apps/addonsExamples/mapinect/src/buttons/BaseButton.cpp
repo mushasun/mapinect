@@ -34,11 +34,11 @@ namespace mapinect {
 		mode = kButtonDrawModeTextured;
 	}
 		
-	ButtonEvent BaseButton::updateTouchPoints(const DataTouch& touch)
+	ButtonEvent BaseButton::updateTouchPoints(const IObjectPtr& object, const DataTouch& touch)
 	{
 		int newLeader = leaderTouch;
 		ButtonEvent evnt = kButtonEventNotInButton;
-		if(isInTouch(touch))
+		if(isInTouch(object, touch))
 		{
 			if(touch.getType() == kTouchTypeReleased &&
 				contacts.size() > 0)

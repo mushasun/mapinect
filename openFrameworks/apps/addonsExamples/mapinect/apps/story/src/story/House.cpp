@@ -116,13 +116,19 @@ namespace story
 			case GARDEN:
 				if (connected_to_water)
 				{
+					cout << "{ boton water }" << endl;
 					isWatering = !released;
 					if(isWatering)
 						water->setPaused(false);
 					else
 						water->setPaused(true);
-					break;
 				}
+				else
+					cout << "no conectaste el agua... gil" << endl;
+				break;
+			default:
+				cout << "no hay accion" << endl; 
+
 		}
 	}
 
@@ -131,22 +137,26 @@ namespace story
 	{
 		if(selection != NULL)
 		{
+			cout << "llega evento de " << selection << endl;
 			switch(selection)
 			{
 				case BuildType::kHouse:
 					call->play();
 					break;
 				case BuildType::kWaterPlant:
-					connected_to_water = !connected_to_water;
+					cout << " ++++ conecta el agua " << endl;
+					connected_to_water = true;
 					break;
 				case BuildType::kPowerPlant:
 					//dejar este case al final
+					cout << " ++++ conecta la luz " << endl;
 
 					connected_to_energy = !connected_to_energy;
-					ObjectButton btnLightSwitch(object, kPolygonNameSideB, true, txLightSwitchOff, txLightSwitchOn,
-								0.05,0.05, 0 ,0.04);
+					ObjectButton btnLightSwitch(object, kPolygonNameSideA, true, txLightSwitchOff, txLightSwitchOn,
+								0.05,0.05, 0.06 ,0.04);
 					buttonsId.push_back(btnLightSwitch.getId());
-					actionsMap[btnLightSwitch.getId()] = CONNECT;
+					actionsMap[btnLightSwitch.getId()] = LIGHT_SWITCH;
+					btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnLightSwitch)));
 					break;
 			}
 		}

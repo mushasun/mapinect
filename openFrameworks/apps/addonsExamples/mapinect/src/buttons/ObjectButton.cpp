@@ -135,19 +135,20 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	bool ObjectButton::isInTouch(const DataTouch& touch)
+	bool ObjectButton::isInTouch(const IObjectPtr& object, const DataTouch& touch)
 	{
-		switch(buttonType)
-		{
-			case kObjectButtonTypeFullObject:
-				return checkInFullObject(touch);
-			case kObjectButtonTypeOnFace:
-				return checkInFace(touch);
-			case kObjectButtonTypeOnTable:
-				return checkInFloor(touch);
-			default:
-				return checkInFullObject(touch);
-		}
+			switch(buttonType)
+			{
+				case kObjectButtonTypeFullObject:
+					return checkInFullObject(touch,object);
+				case kObjectButtonTypeOnFace:
+					return checkInFace(touch,object);
+				case kObjectButtonTypeOnTable:
+					return checkInFloor(touch);
+				default:
+					return checkInFullObject(touch, object);
+			}
+	
 	}
 
 	//--------------------------------------------------------------
@@ -231,22 +232,40 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	bool ObjectButton::checkInFullObject(const DataTouch& touch)
+	bool ObjectButton::checkInFullObject(const DataTouch& touch, const IObjectPtr& object)
 	{
-		bool touched = false;
-		for (vector<IPolygonPtr>::const_iterator p = obj->getPolygons().begin(); p != obj->getPolygons().end() && !touched; ++p)
-			touched = (*p)->getMathModel().isInPolygon(touch.getTouchPoint());
+		if(object->getId() == obj->getId())
+		{
+	
+			bool touched = false;
+			for (vector<IPolygonPtr>::const_iterator p = obj->getPolygons().begin(); p != obj->getPolygons().end() && !touched; ++p)
+				touched = (*p)->getMathModel().isInPolygon(touch.getTouchPoint());
 
-		return touched;
+			return touched;
+		}
+		else
+			return false;
 	}
 	
 	//--------------------------------------------------------------
-	bool ObjectButton::checkInFace(const DataTouch& touch)
+	bool ObjectButton::checkInFace(const DataTouch& touch, const IObjectPtr& object)
 	{
-		if(calculatedPolygon)
-			return polygon.isInPolygon(touch.getTouchPoint());
+		if(object->getId() == obj->getId())
+		{
+			bool sameFace = face == touch.getPolygon()->getName();
+
+			if(sameFace)
+			{
+				if(calculatedPolygon)
+					return polygon.isInPolygon(touch.getTouchPoint());
+				else
+					return true;
+			}
+			else
+				return false;
+		}
 		else
-			return face == touch.getPolygon()->getName();
+			return false;
 	}
 
 	//--------------------------------------------------------------

@@ -17,10 +17,14 @@ namespace mapinect {
 	{
 	}
 
-	ButtonEvent DraggableButton::updateTouchPoints(const DataTouch& touch)
+	ButtonEvent DraggableButton::updateTouchPoints(const IObjectPtr& object, const DataTouch& touch)
 	{
+		if(isInTouch(object, touch))
+			cout << "[ drag in TOUCH ]" << endl;
+		else
+			cout << "		[ NO TOUCH ] " << endl;
 		map<int,DataTouch> prevContacts = this->getContacts();
-		ButtonEvent evnt = SimpleButton::updateTouchPoints(touch);
+		ButtonEvent evnt = SimpleButton::updateTouchPoints(object, touch);
 		map<int,DataTouch> postContacts = this->getContacts();
 
 		//cout << "t: " << touch.getId() << " l: " << leaderTouch << endl;

@@ -20,7 +20,7 @@ namespace mapinect {
 		BaseButton(const ofColor& idle, const ofColor& pressed);
 		BaseButton(ofImage* idle, ofImage* pressed);
 
-		virtual ButtonEvent	updateTouchPoints(const DataTouch& touch);
+		virtual ButtonEvent	updateTouchPoints(const IObjectPtr& object, const DataTouch& touch);
 		inline int			getId() const						{ return id; }													
 		inline int			getZIndex()							{ return zIndex; }
 		inline void			setIdle(const ofColor& color)		{ idleColor = color; }
@@ -36,7 +36,7 @@ namespace mapinect {
 		inline bool			isPressed() const					{ return contacts.size() > 0; } 
 
 	protected:
-		virtual bool		isInTouch(const DataTouch& touch) = 0;
+		virtual bool		isInTouch(const IObjectPtr& object, const DataTouch& touch) = 0;
 
 		inline
 		map<int, DataTouch>	getContacts()						{ return contacts; }

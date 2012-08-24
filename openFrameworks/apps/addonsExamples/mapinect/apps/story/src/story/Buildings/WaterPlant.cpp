@@ -8,7 +8,9 @@
 namespace story
 {
 	ofImage* WaterPlant::txTop = NULL;
-	ofImage* WaterPlant::txSide = NULL;
+	ofImage* WaterPlant::txSideA = NULL;
+	ofImage* WaterPlant::txSideB = NULL;
+	ofImage* WaterPlant::txSideC = NULL;
 	ofImage* WaterPlant::txSwitchOn = NULL;
 	ofImage* WaterPlant::txSwitchOff = NULL;
 	ofSoundPlayer*	WaterPlant::onSound = NULL;
@@ -24,13 +26,13 @@ namespace story
 	/*-------------------------------------------------------------*/
 	WaterPlant::WaterPlant(const IObjectPtr& object, IButtonManager* btnManager):Box(object,btnManager)
 	{
-		working = true;
+		working = false;
 		this->btnManager = btnManager;
 
 		//associateTextures();
 		buildType = BuildType::kWaterPlant;
 		/*Button in floor of box*/
-		ObjectButton btnOnOff(object, kPolygonNameSideA, true, txSwitchOff, txSwitchOn,
+		ObjectButton btnOnOff(object, kPolygonNameSideA, true, txSwitchOff, txSwitchOff,
 								0.05, 0.05, 0, 0.04);
 
 		btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnOnOff)));
@@ -52,20 +54,22 @@ namespace story
 		{
 			case WATER_SWITCH:
 				if(!released)
+				{
 					if (working)
 					{
-						btnManager->setPressed(txSwitchOn, btn->getId());
-						btnManager->setIdle(txSwitchOn, btn->getId());
+						btnManager->setPressed(txSwitchOff, btn->getId());
+						btnManager->setIdle(txSwitchOff, btn->getId());
 						offSound->play();
+						onSound->stop();
 					}
 					else
 					{
 						btnManager->setPressed(txSwitchOn, btn->getId());
 						btnManager->setIdle(txSwitchOn, btn->getId());
-						offSound->play();
 						onSound->play();
 					}
 					working = !working;
+				}
 				break;
 		}
 	}
@@ -96,7 +100,9 @@ namespace story
 	void WaterPlant::loadTextures()
 	{
 			txTop = new ofImage("data/texturas/water/top.jpg");
-			txSide = new ofImage("data/texturas/water/wall.jpg");
+			txSideA = new ofImage("data/texturas/water/SideA.jpg");
+			txSideB = new ofImage("data/texturas/water/SideB.jpg");
+			txSideC = new ofImage("data/texturas/water/SideC.jpg");
 			txSwitchOn = new ofImage("data/texturas/water/on.jpg");
 			txSwitchOff = new ofImage("data/texturas/water/off.jpg");
 	}
@@ -105,10 +111,10 @@ namespace story
 	void WaterPlant::associateTextures()
 	{
 		textureTop = txTop;
-		textureA = txSide;
-		textureB = txSide;
-		textureC = txSide;
-		textureD = txSide;
+		textureA = txSideA;
+		textureB = txSideB;
+		textureC = txSideB;
+		textureD = txSideC;
 	}
 
 	/* Sounds */
@@ -116,7 +122,9 @@ namespace story
 	void WaterPlant::loadSounds()
 	{
 		onSound = new ofSoundPlayer();
-		onSound->loadSound("data/sonidos/water/water_on.wav");
+		onSound->loadSound("data/sonidos/water/water_on.mp3");
+		onSound->setLoop(true);
+		onSound->setVolume(0.5);
 		offSound = new ofSoundPlayer();
 		offSound->loadSound("data/sonidos/water/water_off.wav");
 	}
