@@ -15,7 +15,7 @@ namespace pown
 	class Box
 	{
 	public:
-		Box(const IObjectPtr& object, const NoteBeat& noteBeat);
+		Box(const IObjectPtr& object, const NoteBeat& noteBeat, int program);
 		virtual ~Box();
 
 		inline void					updateModelObject(const IObjectPtr& ob)	{ object = ob; }
@@ -25,6 +25,7 @@ namespace pown
 		inline const ofFloatColor&	getColor() const						{ return color; }
 		inline const NoteBeat&		getNoteBeat() const						{ return noteBeat; }
 		inline void					setNoteBeat(const NoteBeat& nb)			{ noteBeat = nb; }
+		inline void					setProgram(int program)					{ this->program = program; }
 
 		void						update(float elapsedTime);
 		void						draw(const Light& light) const;

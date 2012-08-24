@@ -8,8 +8,6 @@
 #include "Brick.h"
 #include "Box.h"
 #include "Light.h"
-#include "Menu.h"
-#include "Spot.h"
 
 namespace pown
 {
@@ -35,7 +33,6 @@ namespace pown
 		virtual void		keyPressed(int key);
 
 	private:
-		void				testCollisions();
 		void				updateBeat(float elapsedTime);
 
 		void				handleCreateSpot(float elapsedTime);
@@ -43,9 +40,7 @@ namespace pown
 		IPolygonPtr			floor;
 		BrickManager*		brickManager;
 		map<int, Box*>		boxes;
-		set<Spot*>			spots;
 
-		Menu				menu;
 		Light				light;
 	};
 }

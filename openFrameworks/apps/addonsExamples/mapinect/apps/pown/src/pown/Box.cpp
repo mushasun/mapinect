@@ -8,11 +8,10 @@ namespace pown
 {
 	const ofFloatColor kBaseBoostColor = kRGBMidGray;
 
-	Box::Box(const IObjectPtr& object, const NoteBeat& noteBeat)
-		: object(object), noteBeat(noteBeat), boostColor(0)
+	Box::Box(const IObjectPtr& object, const NoteBeat& noteBeat, int program)
+		: object(object), noteBeat(noteBeat), program(program), boostColor(0)
 	{
 		color = ofRandomColor();
-		program = ofRandom(PROGRAMS);
 	}
 
 	Box::~Box()
@@ -51,7 +50,6 @@ namespace pown
 	{
 		if (touchPoint.getType() == kTouchTypeStarted)
 		{
-			program = ofRandom(PROGRAMS);
 			color = ofRandomColor();
 		}
 	}
