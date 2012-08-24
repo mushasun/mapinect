@@ -31,15 +31,11 @@ namespace pown
 	{
 		PownConstants::LoadPownConstants();
 		SoundManager::setup();
-		Spot::setup();
-		menu.setup(btnManager);
 	}
 
 	void Pown::draw()
 	{
 		ofEnableAlphaBlending();
-
-		menu.draw();
 
 		static ofLight debugLight;
 		debugLight.setPosition(light.getPos());
@@ -47,8 +43,6 @@ namespace pown
 
 		if (brickManager != NULL)
 			brickManager->draw(light);
-		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
-			(*spot)->draw();
 		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
 			(box->second)->draw(light);
 		
@@ -69,15 +63,6 @@ namespace pown
 			spots.insert(spot);
 			*/
 		}
-	}
-
-	void Pown::testCollisions()
-	{
-		// test spots with boxes
-		for (set<Spot*>::iterator spot = spots.begin(); spot != spots.end(); spot++)
-			for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
-				if ((*spot)->testHit(box->second))
-					;
 	}
 
 	void Pown::updateBeat(float elapsedTime)
@@ -108,19 +93,12 @@ namespace pown
 
 	void Pown::update(float elapsedTime)
 	{
-		// update menu
-		menu.update(elapsedTime);
-
 		// update all existing objects
 		if (brickManager != NULL)
 			brickManager->update(elapsedTime);
-		for (set<Spot*>::const_iterator spot = spots.begin(); spot != spots.end(); spot++)
-			(*spot)->update(elapsedTime);
 		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
 			(box->second)->update(elapsedTime);
 		
-		testCollisions();
-
 		// update beats
 		updateBeat(elapsedTime);
 
@@ -137,7 +115,7 @@ namespace pown
 		{
 			if (boxes.find(object->getId()) == boxes.end())
 			{
-				Box* box = new Box(object, NoteBeat(-1, -1));
+				Box* box = new Box(object, NoteBeat(-1, -1), SoundManager::getProgram());
 				brickManager->updateBox(box);
 				boxes[object->getId()] = box;
 			}
@@ -180,26 +158,22 @@ namespace pown
 	
 	void Pown::objectTouched(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
-		if (object->getId() == TABLE_ID)
-		{
-			menu.objectEvent(object, touchPoint);
-		}
-		else
+		if (object->getId() != TABLE_ID)
 		{
 			map<int, Box*>::iterator b = boxes.find(object->getId());
 			if (b != boxes.end())
 				b->second->objectTouched(object, touchPoint);
+			if (touchPoint.getType() == kTouchTypeStarted)
+				SoundManager::setProgram(ofRandom(PROGRAMS));
 		}
 	}
 
 	void Pown::buttonPressed(const IButtonPtr& btn, const DataTouch& touchPoint)
 	{
-		menu.buttonEvent(btn, false);
 	}
 
 	void Pown::buttonReleased(const IButtonPtr& btn, const DataTouch& touchPoint)
 	{
-		menu.buttonEvent(btn, true);
 	}
 
 	void Pown::pointTouched(const DataTouch& touch)

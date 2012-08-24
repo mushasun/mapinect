@@ -76,6 +76,11 @@ namespace pown
 		instance->mySetProgram(program);
 	}
 
+	int SoundManager::getProgram()
+	{
+		return instance->program;
+	}
+
 	void SoundManager::myBeat()
 	{
 		for (int i = 0; i < PownConstants::NOTES; i++)
@@ -102,7 +107,7 @@ namespace pown
 	void SoundManager::myPlayNoteNow(int note, int program)
 	{
 		int saveProgram = this->program;
-		//mySetProgram(programs[program]);
+		mySetProgram(programs[program]);
 		midiOut.sendNoteOn(channel, scale[note], VELOCITY);
 		mySetProgram(saveProgram);
 	}

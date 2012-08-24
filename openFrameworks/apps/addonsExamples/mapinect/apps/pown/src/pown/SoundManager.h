@@ -15,6 +15,7 @@ namespace pown
 		static void				beat();
 		static void				playNote(int note, int program = -1);
 		static void				setProgram(int program);
+		static int				getProgram();
 
 	private:
 		SoundManager();
