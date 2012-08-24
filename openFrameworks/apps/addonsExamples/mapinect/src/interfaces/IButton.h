@@ -26,7 +26,7 @@ namespace mapinect
 	class IButton
 	{
 	public:
-		virtual ButtonEvent updateTouchPoints(const DataTouch&)		= 0;
+		virtual ButtonEvent updateTouchPoints(const IObjectPtr& object, const DataTouch&)		= 0;
 		virtual int getId() const									= 0;
 
 		virtual void setIdle(ofImage*)								= 0;

@@ -30,11 +30,10 @@ namespace story
 			virtual void			objectEvent(const DataTouch& touchPoint, const BuildType& selection);
 
 			virtual void			update(float elapsedTime);
-			virtual void			draw();
 
 		private:
 			static void				loadTextures();
-			//void					associateTextures();
+			void					associateTextures();
 			static void				loadSounds();
 
 			//control
@@ -48,7 +47,8 @@ namespace story
 			
 			//textures
 			static ofImage*			txTop;
-			static ofImage*			txSide;
+			static ofImage*			txSideA;
+			static ofImage*			txSideB;
 			static ofImage*			txSwitchOn;
 			static ofImage*			txSwitchOff;
 

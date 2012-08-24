@@ -24,12 +24,12 @@ namespace mapinect {
 		init();
 	}
 
-	ButtonEvent SimpleButton::updateTouchPoints(const DataTouch& touch)
+	ButtonEvent SimpleButton::updateTouchPoints(const IObjectPtr& object, const DataTouch& touch)
 	{
-		return BaseButton::updateTouchPoints(touch);
+		return BaseButton::updateTouchPoints(object, touch);
 	}
 
-	bool SimpleButton::isInTouch(const DataTouch& touch)
+	bool SimpleButton::isInTouch(const IObjectPtr& object, const DataTouch& touch)
 	{
 		return polygon.isInPolygon(touch.getTouchPoint());
 	}

@@ -28,8 +28,9 @@ namespace visualizer {
 		virtual void objectLost(const IObjectPtr&);
 		virtual void objectMoved(const IObjectPtr&, const DataMovement&);
 		virtual void objectTouched(const IObjectPtr&, const DataTouch&);
-		virtual void buttonPressed(const IButtonPtr&);
-		virtual void buttonReleased(const IButtonPtr&);
+		virtual void buttonPressed(const IButtonPtr&, const DataTouch&);
+		virtual void buttonReleased(const IButtonPtr&, const DataTouch&);
+		virtual void pointTouched(const DataTouch&);
 
 	private:
 		std::map<int, Box*>	boxes;

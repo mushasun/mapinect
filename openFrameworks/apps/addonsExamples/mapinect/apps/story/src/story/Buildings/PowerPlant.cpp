@@ -8,7 +8,8 @@
 namespace story
 {
 	ofImage* PowerPlant::txTop = NULL;
-	ofImage* PowerPlant::txSide = NULL;
+	ofImage* PowerPlant::txSideA = NULL;
+	ofImage* PowerPlant::txSideB = NULL;
 	ofImage* PowerPlant::txSwitchOn = NULL;
 	ofImage* PowerPlant::txSwitchOff = NULL;
 	ofSoundPlayer*	PowerPlant::onSound = NULL;
@@ -24,18 +25,20 @@ namespace story
 	/*-------------------------------------------------------------*/
 	PowerPlant::PowerPlant(const IObjectPtr& object, IButtonManager* btnManager):Box(object,btnManager)
 	{
-		working = true;
+		working = false;
 		this->btnManager = btnManager;
 
 		//associateTextures();
 		buildType = BuildType::kPowerPlant;
 		/*Button in floor of box*/
-		ObjectButton btnOnOff(object, kPolygonNameSideA, true, txSwitchOff, txSwitchOn,
+		ObjectButton btnOnOff(object, kPolygonNameSideA, true, txSwitchOff, txSwitchOff,
 								0.05,0.05, 0 ,0.04);
 
 		btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnOnOff)));
 		buttonsId.push_back(btnOnOff.getId());
 		actionsMap[btnOnOff.getId()] = POWER_SWITCH;
+
+		associateTextures();
 	}
 
 	/* Events */
@@ -45,21 +48,31 @@ namespace story
 		if(actionsMap.find(btn->getId()) == actionsMap.end())
 			return; // no es un boton de la casa
 
+		cout << "accion de power" << endl;
 		PowerPlantAction action = actionsMap[btn->getId()];
 		switch(action)
 		{
-		case POWER_SWITCH:
+			case POWER_SWITCH:
 				if(!released)
+				{
 					if (working)
-						{
-							offSound->play();
-						}
+					{
+						btnManager->setPressed(txSwitchOff, btn->getId());
+						btnManager->setIdle(txSwitchOff, btn->getId());
+						offSound->play();
+						onSound->stop();
+					}
 					else
-						{
-							onSound->play();
-						}
+					{
+						onSound->play();
+						btnManager->setPressed(txSwitchOn, btn->getId());
+						btnManager->setIdle(txSwitchOn, btn->getId());
+					}
 					working = !working;
+				}
 				break;
+			default:
+				cout << "[NO action]" << endl;
 		}
 	}
 
@@ -83,38 +96,38 @@ namespace story
 
 	}
 
-	/*-------------------------------------------------------------*/
-	void PowerPlant::draw()
-	{
-
-	}
 
 
 	/* Textures */
 	/*-------------------------------------------------------------*/
 	void PowerPlant::loadTextures()
 	{
-			txTop = new ofImage("data/texturas/house/top.jpg");
-			txSide = new ofImage("data/texturas/house/Side.jpg");
-			txSwitchOn = new ofImage("data/texturas/house/LightSwitchOn.jpg");
-			txSwitchOff = new ofImage("data/texturas/house/LightSwitchOff.jpg");
+			txTop = new ofImage("data/texturas/power/top.jpg");
+			txSideA = new ofImage("data/texturas/power/SideA.jpg");
+			txSideB = new ofImage("data/texturas/power/SideB.jpg");
+			txSwitchOn = new ofImage("data/texturas/power/btnon.jpg");
+			txSwitchOff = new ofImage("data/texturas/power/btnOff.jpg");
 	}
 
 	/*-------------------------------------------------------------*/
-	/*void PowerPlant::associateTextures()
+	void PowerPlant::associateTextures()
 	{
 		textureTop = txTop;
-		textureA = txSide;
-		textureD = txSide;
-	}*/
+		textureA = txSideA;
+		textureB = txSideB;
+		textureC = txSideB;
+		textureD = txSideB;
+	}
 
 	/* Sounds */
 	/*-------------------------------------------------------------*/
 	void PowerPlant::loadSounds()
 	{
 		onSound = new ofSoundPlayer();
-		onSound->loadSound("data/sonidos/house/ding.wav");
+		onSound->loadSound("data/sonidos/power/power-up.wav");
+		onSound->setLoop(true);
+		onSound->setVolume(0.5);
 		offSound = new ofSoundPlayer();
-		offSound->loadSound("data/sonidos/house/knock.wav");
+		offSound->loadSound("data/sonidos/power/generator-off.wav");
 	}
 }

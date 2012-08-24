@@ -645,17 +645,17 @@ float boxProbability(const PCPtr& cloud)
 			if(table != NULL)
 			{
 				float dot = abs(tableNormal.dot(norm));
-				if( dot > 0.1 && dot < 0.9)
+				if( dot > 0.2 && dot < 0.8)
 					return 0;
 				//si es paralela a la mesa, chequeo que esté sobre la mesa
-				if(dot > 0.9)
+				if(dot > 0.8)
 					if(!table->isOverTable(cloud_p))
 						return 0;
 			}
 			for(int i = 0; i < normals.size(); i++)
 			{
 				float dot = abs(normals[i].dot(norm));
-				if( dot > 0.1)
+				if( dot > 0.2)
 					return 0;
 			}
 

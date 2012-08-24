@@ -15,10 +15,10 @@ namespace mapinect
 		SimpleButton(const Polygon3D& polygon, const ofColor& idle, const ofColor& pressed);
 		SimpleButton(const Polygon3D& polygon, ofImage* idle, ofImage* pressed);
 		virtual void draw();
-		virtual ButtonEvent updateTouchPoints(const DataTouch& touch);
+		virtual ButtonEvent updateTouchPoints(const IObjectPtr& object, const DataTouch& touch);
 		inline virtual vector<ofVec3f>		getVertexs() { return polygon.getVertexs(); }
 	protected:
-		virtual bool isInTouch(const DataTouch& touch);
+		virtual bool isInTouch(const IObjectPtr& object, const DataTouch& touch);
 		Polygon3D polygon;
 	private:
 		void init();

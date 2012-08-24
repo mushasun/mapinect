@@ -161,7 +161,7 @@ namespace mapinect {
 		bool btnTouched = false;
 		for (map<int, IButtonPtr>::iterator iter = buttons.begin(); iter != buttons.end(); iter++) {
 			
-			ButtonEvent evnt = iter->second->updateTouchPoints(touch);
+			ButtonEvent evnt = iter->second->updateTouchPoints(object, touch);
 			switch(evnt)
 			{
 				case kButtonEventPressed: 

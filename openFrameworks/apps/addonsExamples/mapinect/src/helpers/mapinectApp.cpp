@@ -39,7 +39,7 @@ namespace mapinect {
 			gKinect->open();
 			// set Kinect looking down on startup
 			angle = -28;
-			gKinect->setCameraTiltAngle(angle);
+			//gKinect->setCameraTiltAngle(angle);
 		}
 
 		gModel = new mapinect::Model();
