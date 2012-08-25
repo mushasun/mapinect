@@ -1,0 +1,27 @@
+<VMConfig>
+
+    <NEAR_PLANE></NEAR_PLANE>
+    <FAR_PLANE></FAR_PLANE>
+    
+	<PROJ_CALIB>
+        <![CDATA[data/calib/fileName.yml]]>
+	</PROJ_CALIB>
+    <KINECT_CALIB>
+        <![CDATA[data/calib/fileName.yml]]>
+	</KINECT_CALIB>
+ 
+	<PROJ_WIDTH></PROJ_WIDTH>
+    <PROJ_HEIGHT></PROJ_HEIGHT>
+
+    <!-- If different calib parameters are needed -->
+    <PROJ_FX></PROJ_FX>
+    <PROJ_FY></PROJ_FY>
+ 
+	<PROJ_CX></PROJ_CX>
+    <PROJ_CY></PROJ_CY>
+	
+    <TRANS_X></TRANS_X>
+    <TRANS_Y></TRANS_Y>
+    <TRANS_Z></TRANS_Z>
+
+</VMConfig>
