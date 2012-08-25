@@ -182,29 +182,64 @@ ofVec3f getScreenCoords(const ofVec3f& transformedWorldPoint)
 }
 
 bool isInViewField(ofVec3f vec)
-{
-	// initial values
+{	// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-extracting-the-planes/
+
+	// p es la posicion de la camara, en coordenadas de mundo
+	ofVec3f p =  ofVec3f(gTransformation->getKinectEyeCoordinates());
+
+	// direction es la dirección hacia la cuál está mirando el Kinect. Se debe normalizar.
+	ofVec3f direction(gTransformation->getKinectDirectionCoordinates());
+	direction = direction - p;
+	direction.normalize();
+
+	// up es en coordenadas de mundo, normalizado
+	Eigen::Vector3f upEigen (0.0, -1.0, 0.0);		// Posicion inicial, en Sist. de Coord Local del Kinect
+	upEigen = gTransformation->getWorldTransformation() * upEigen;
+	ofVec3f up = ofVec3f(upEigen.x(), upEigen.y(), upEigen.z());	
+	up = up - p;
+	up.normalize();
+
+	ofVec3f rightInit = ofVec3f(0,0,1).crossed(ofVec3f(0,1,0));
+	// right es el producto cross entre direction y up
+	ofVec3f right = direction.crossed(up);
+
+	// fc es el punto intersección entre direction y el plano far
+	ofVec3f fc = p + direction * mapinect::Constants::CLOUD_Z_MAX;
+
+	// nc es el punto intersección entre direction y el plano near
+	ofVec3f nc = p + direction * mapinect::Constants::NDISTANCE;
+
+	// Se definen los 8 puntos del cono de visión
 	ofVec3f ftl, ftr, fbl, fbr, ntl, ntr, nbl, nbr;
-	ofVec3f direction(0,0,1);
-	ofVec3f up(0,1,0);
-	ofVec3f right(1,0,0);
-	ofVec3f p(0,0,0);
+	// La primer letra es si es en el plano far o near
+	// La segunda letra es si es top o bottom
+	// La tercer letra es si es left o right
+	ftl = fc + (up * mapinect::Constants::HFAR_2) - (right * mapinect::Constants::WFAR_2);
+	ftr = fc + (up * mapinect::Constants::HFAR_2) + (right * mapinect::Constants::WFAR_2);
+	fbl = fc - (up * mapinect::Constants::HFAR_2) - (right * mapinect::Constants::WFAR_2);
+	fbr = fc - (up * mapinect::Constants::HFAR_2) + (right * mapinect::Constants::WFAR_2);
 
-	ofVec3f fc = direction * mapinect::Constants::CLOUD_Z_MAX;
+	ntl = nc + (up * mapinect::Constants::HNEAR_2) - (right * mapinect::Constants::WNEAR_2);
+	ntr = nc + (up * mapinect::Constants::HNEAR_2) + (right * mapinect::Constants::WNEAR_2);
+	nbl = nc - (up * mapinect::Constants::HNEAR_2) - (right * mapinect::Constants::WNEAR_2);
+	nbr = nc - (up * mapinect::Constants::HNEAR_2) + (right * mapinect::Constants::WNEAR_2);
 
-	/*ftl = fc + (up * HFAR_2) - (right * WFAR_2);
-	ftr = fc + (up * HFAR_2) + (right * WFAR_2);
-	fbl = fc - (up * HFAR_2) - (right * WFAR_2);
-	fbr = fc - (up * HFAR_2) + (right * WFAR_2);*/
+	// Crear los planos que limitan al cono de visión
+	//	Pasar los vértices siempre en el mismo orden, sentido horario, visto desde afuera del cono, para que todas las normales apunten adentro	
+	//	No se va a controlar para los planos near y far
+	//	La nube en el getCloud ya se limita al CLOUD_MAX_Z, q es lo q estamos tomando como far
+	mapinect::Plane3D coneBottom = mapinect::Plane3D(nbl,nbr,fbr);
+	mapinect::Plane3D coneRightSide = mapinect::Plane3D(fbr,nbr,ntr);
+	mapinect::Plane3D coneTop = mapinect::Plane3D(ftl,ftr,ntr);
+	mapinect::Plane3D coneLeftSide = mapinect::Plane3D(ftl,ntl,nbl);
 
-	ofVec3f nc = direction * mapinect::Constants::NDISTANCE;
+	bool vecInsideConeBottom = coneBottom.signedDistance(vec) < 0;
+	bool vecInsideConeRightSide = coneRightSide.signedDistance(vec) < 0;
+	bool vecInsideConeTop = coneTop.signedDistance(vec) < 0;
+	bool vecInsideConeLeftSide = coneLeftSide.signedDistance(vec) < 0;
 
-	//ntl = nc + (up * HNEAR_2) - (right * WNEAR_2);
-	//ntr = nc + (up * HNEAR_2) + (right * WNEAR_2);
-	//nbl = nc - (up * HNEAR_2) - (right * WNEAR_2);
-	//nbr = nc - (up * HNEAR_2) + (right * WNEAR_2);
 
-	ofVec3f a = (nc + right * mapinect::Constants::WNEAR_2) - p;
+/*	ofVec3f a = (nc + right * mapinect::Constants::WNEAR_2) - p;
 	a.normalize();
 	ofVec3f normalRight = up.crossed(a);
 
@@ -238,7 +273,7 @@ bool isInViewField(ofVec3f vec)
 	pl = mapinect::Plane3D(bt,normalLeftTransformed);
 	pt = mapinect::Plane3D(ct,normalTopTransformed);
 	pb = mapinect::Plane3D(dt,normalBottomTransformed);
-
+*/
 	////debug
 	//vector<ofVec3f> ptos;
 	//ptos.push_back(at);
@@ -252,10 +287,17 @@ bool isInViewField(ofVec3f vec)
 	retVal = retVal && pt.signedDistance(vec) < 0;
 	retVal = retVal && pb.signedDistance(vec) < 0;
 */
-	return pr.signedDistance(vec) < 0 &&
-		   pl.signedDistance(vec) < 0 &&
-		   pt.signedDistance(vec) < 0 &&
-		   pb.signedDistance(vec) < 0;
+
+	bool inViewField = vecInsideConeBottom
+		   && vecInsideConeTop
+		   && vecInsideConeLeftSide
+		   && vecInsideConeRightSide;
+	if(!inViewField)
+		cout << " NOT IN VIEW !" << endl;
+	else 
+		cout << " IN VIEW" << endl;
+
+	return inViewField;
 }
 
 // -------------------------------------------------------------------------------------

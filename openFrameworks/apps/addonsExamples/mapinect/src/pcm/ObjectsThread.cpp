@@ -72,7 +72,8 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	bool countIsLessThanZero(const TrackedCloudPtr &trackedCloud)
 	{
-		return trackedCloud->getCounter() <= 0;
+		bool condition = trackedCloud->getCounter() <= 0;
+		return condition;
 	}
 
 	//--------------------------------------------------------------
@@ -87,14 +88,18 @@ namespace mapinect {
 		}
 
 		// Updating temporal detections
-		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
+		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {			
 			if(!(*iter)->hasObject() ||
 				isInViewField((*iter)->getTrackedObject()->getCenter()))
 				(*iter)->addCounter(-1);
 		}
 
+		int size = trackedClouds.size();
 		trackedClouds.remove_if(countIsLessThanZero);
-		//cout << "trackedCloudsCount: " << trackedClouds.size() << endl;
+		int dif = size - trackedClouds.size(); 
+		if (dif > 0) {
+			cout << "Se eliminaron " << dif << "trackedClouds" << endl;
+		}
 		if(cloud->empty())
 		{
 			updateDetectedObjects();
@@ -290,7 +295,7 @@ namespace mapinect {
 			}
 			/*else 
 			{
-//				cout << "		no matching! " << (*iter)->getCounter() << endl;
+				cout << "		no matching! " << (*iter)->getCounter() << endl;
 				saveCloud("noMatched.pcd",*(*iter)->getTrackedCloud());
 			}*/
 		}

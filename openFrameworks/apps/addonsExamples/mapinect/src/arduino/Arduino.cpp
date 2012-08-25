@@ -588,7 +588,8 @@ namespace mapinect {
 		//y luego la traslacion a lo largo del brazo
 		
 		Eigen::Affine3f composedMatrix;
-		composedMatrix = translationY3 * (rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (translationZ * (rotationX * translationY2)))))));
+//		composedMatrix = translationY3 * (rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (translationZ * (rotationX * translationY2)))))));
+		composedMatrix = rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (rotationX * translationY2)))));
 
 		gTransformation->setWorldTransformation(composedMatrix);
 
@@ -612,7 +613,7 @@ namespace mapinect {
 	{
 		idObjectToFollow = object->getId();
 		centerOfFollowingObject = object->getCenter();
-		//lookAt(object->getCenter());
+		lookAt(object->getCenter());
 	}
 
 	void Arduino::armStartedMoving()
@@ -666,7 +667,7 @@ namespace mapinect {
 			KEY_RESET = XML.getValue(ARDUINO_CONFIG "KEY_RESET", KEY_UNDEFINED).c_str()[0];
 			KEY_PRINT_STATUS = XML.getValue(ARDUINO_CONFIG "KEY_PRINT_STATUS", KEY_UNDEFINED).c_str()[0];
 
-			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "ANGLE_STEP", 2);
+			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "ANGLE_STEP", 10);
 
 			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "HEIGHT", 2);
 			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "LENGTH", 2);

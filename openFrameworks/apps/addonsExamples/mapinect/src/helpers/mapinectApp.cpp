@@ -38,8 +38,9 @@ namespace mapinect {
 			gKinect->setVerbose(true);
 			gKinect->open();
 			// set Kinect looking down on startup
-			angle = -28;
-			//gKinect->setCameraTiltAngle(angle);
+//No se debe cambiar el ángulo de tilt, debe quedar fijo
+/*			angle = -28;
+			gKinect->setCameraTiltAngle(angle);	*/
 		}
 
 		gModel = new mapinect::Model();

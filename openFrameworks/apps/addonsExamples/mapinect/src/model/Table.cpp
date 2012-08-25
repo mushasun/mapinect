@@ -136,6 +136,7 @@ namespace mapinect
 			// D fue estimado, entonces se debe calcular el nuevo D' con el largo de mesa 
 			nuevoVerticeD = lineAD.calculateValue(TABLE_LENGTH_AD / distanceAD);
 			cout << "El vertice D fue modificado" << endl;
+			distanceAD=pWorldA.distance(nuevoVerticeD);
 		}
 
 		if (nuevoVerticeB != pWorldB || nuevoVerticeD != pWorldD ) 

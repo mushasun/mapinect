@@ -17,7 +17,7 @@ namespace mapinect
 	int					Constants::CLOUD_POINTS_MAX							= KINECT_DEFAULT_WIDTH * KINECT_DEFAULT_HEIGHT;
 	float				Constants::CLOUD_DENSITY							= 0.2f;
 	float				Constants::CLOUD_VOXEL_SIZE							= 0.01f;
-	float				Constants::CLOUD_Z_MAX								= 2.0f;
+	float				Constants::CLOUD_Z_MAX								= 0.8;//2.0f;
 
 	int					Constants::CLOUD_POINTS								= CLOUD_POINTS_MAX * CLOUD_DENSITY;
 
@@ -47,15 +47,17 @@ namespace mapinect
 	int					Constants::TOUCH_MAX_PER_FACE						= 4;
 
 	//contsantes de view field
-	float				Constants::WFAR										= (0.87 * CLOUD_Z_MAX)/0.7;
-	float				Constants::HFAR										= (0.63 * CLOUD_Z_MAX)/0.7;
-	float				Constants::WFAR_2									= WFAR / 2;
-	float				Constants::HFAR_2									= HFAR / 2;
-	float				Constants::WNEAR									= 0.87;
-	float				Constants::HNEAR									= 0.63;
-	float				Constants::WNEAR_2									= 0.435;
-	float				Constants::HNEAR_2									= 0.315;
 	float				Constants::NDISTANCE								= 0.2;
+	float				Constants::FOV_HORIZONTAL							= 57.0f;
+	float				Constants::FOV_VERTICAL								= 43.0f;	
+	float				Constants::WFAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
+	float				Constants::WFAR										= WFAR_2 * 2;
+	float				Constants::HFAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
+	float				Constants::HFAR										= HFAR_2 * 2;
+	float				Constants::WNEAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * NDISTANCE; 
+	float				Constants::WNEAR									= WNEAR_2 * 2;
+	float				Constants::HNEAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * NDISTANCE;
+	float				Constants::HNEAR									= HNEAR_2 * 2;
 
 	// Para la calibración inicial de la mesa
 	int					Constants::PIXEL_TOLERANCE_ESTIMATED_VERTEX			= 40;
@@ -109,6 +111,19 @@ namespace mapinect
 			TOUCH_CLUSTER_MIN_PERCENT				= XML.getValue(PCM_CONFIG "TOUCH_CLUSTER_MIN_PERCENT", TOUCH_CLUSTER_MIN_PERCENT);
 			TOUCH_TRANSLATION_TOLERANCE_FACTOR		= XML.getValue(PCM_CONFIG "TOUCH_TRANSLATION_TOLERANCE_FACTOR", TOUCH_TRANSLATION_TOLERANCE_FACTOR);
 			TOUCH_MAX_PER_FACE						= XML.getValue(PCM_CONFIG "TOUCH_MAX_PER_FACE", TOUCH_MAX_PER_FACE);
+
+			// Para el IsInViewField
+			NDISTANCE								= XML.getValue(PCM_CONFIG "NDISTANCE",0.2);
+			FOV_HORIZONTAL							= XML.getValue(PCM_CONFIG "FOV_HORIZONTAL",57.0f);
+			FOV_VERTICAL							= XML.getValue(PCM_CONFIG "FOV_VERTICAL",43.0f);
+			WFAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
+			WFAR									= WFAR_2 * 2;
+			HFAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
+			HFAR									= HFAR_2 * 2;
+			WNEAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * NDISTANCE; 
+			WNEAR									= WNEAR_2 * 2;
+			HNEAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * NDISTANCE;
+			HNEAR									= HNEAR_2 * 2;
 
 			// Para la calibración inicial de la mesa
 			PIXEL_TOLERANCE_ESTIMATED_VERTEX		= XML.getValue(PCM_CONFIG "PIXEL_TOLERANCE_ESTIMATED_VERTEX", PIXEL_TOLERANCE_ESTIMATED_VERTEX);
