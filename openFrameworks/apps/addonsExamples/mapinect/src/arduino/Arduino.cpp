@@ -42,7 +42,7 @@ namespace mapinect {
 	static int		MIN_ANGLE_4;
 	static int		MAX_ANGLE_8;
 	static int		MIN_ANGLE_8;
-	static int		ELAPSED_TIME_ARM_STOPPED_MOVING;
+	static int		ARM_TIMEOUT;
 	static int		ICP_CLOUD_DENSITY;
 	static int		ICP_MAX_ITERATIONS;
 
@@ -59,6 +59,8 @@ namespace mapinect {
 		angleMotor4 = 0;
 		angleMotor8 = 0;
 		stoppedMoving = true;
+		startedMoving = false;
+		isMoving = false;
 	}
 
 	Arduino::~Arduino()
@@ -89,10 +91,10 @@ namespace mapinect {
 		EventManager::suscribe(this);
 
 		stoppedMoving = false;
-		armMoving = false;
+		startedMoving = false;
 		
 		if (IsFeatureMoveArmActive()) {
-			armMoving = true;
+			startedMoving = true;
 			// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
 			gTransformation->cloudMutex.lock();
 			// No se debe aplicar ICP en el setup
@@ -135,13 +137,31 @@ namespace mapinect {
 
 		if (IsFeatureMoveArmActive()) {
 
-			if (armMoving)
+			if(startedMoving)
+			{
+				ofPoint accel = gKinect->getMksAccel();
+				ofVec3f vecAccel = ofVec3f(accel.x, accel.y, accel.z);
+				ofVec3f vecDiff = vecAccel - acceleration;
+				float length = vecDiff.length();
+				
+				unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
+
+				if (vecDiff.length() > 0.2 || elapsedTime >= ARM_TIMEOUT)
+				{
+					//empezó a moverse
+					startedMoving = false;
+					isMoving = true;
+					startTime = ofGetSystemTime();
+				}
+			}
+
+			if (isMoving)
 			{
 				//la logica es la siguiente:
-				//si el vector no se ha movido durante ELAPSED_TIME_ARM_STOPPED_MOVING segundos
+				//si el vector no se ha movido durante ARM_TIMEOUT segundos
 				//se toma como que se ha dejado de mover
 				unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
-				if (elapsedTime >= ELAPSED_TIME_ARM_STOPPED_MOVING)		// Cantidad de milisegundos para considerar que el brazo se terminó de mover
+				if (elapsedTime >= ARM_TIMEOUT)		// Cantidad de milisegundos para considerar que el brazo se terminó de mover
 				{
 					armStoppedMoving();
 				}
@@ -242,7 +262,7 @@ namespace mapinect {
 		loadXMLSettings();
 
 		if (IsFeatureMoveArmActive()) {
-			armMoving = true;
+			startedMoving = true;
 			// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
 			gTransformation->cloudMutex.lock();
 			// No se debe aplicar ICP en el reset; sirve para "volver a una posición segura"
@@ -619,7 +639,9 @@ namespace mapinect {
 	void Arduino::armStartedMoving()
 	{		
 		if (IsFeatureMoveArmActive()) {
-			armMoving = true;
+			startedMoving = true;
+			ofPoint accel = gKinect->getMksAccel();
+			acceleration = ofVec3f(accel.x, accel.y, accel.z);
 			gTransformation->setIsWorldTransformationStable(false);
 
 			// Obtener nube antes de mover los motores
@@ -638,7 +660,8 @@ namespace mapinect {
 			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
 			cout << "Brazo se dejo de mover luego de " << elapsedTime << "ms" << endl ;	
 
-			armMoving = false;
+			startedMoving = false;
+			isMoving = false;
 			stoppedMoving = true;
 		}
 	}
@@ -688,7 +711,7 @@ namespace mapinect {
 			MAX_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_8", 0);
 			MIN_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_8", 0);
 
-			ELAPSED_TIME_ARM_STOPPED_MOVING = XML.getValue(ARDUINO_CONFIG "ELAPSED_TIME_ARM_STOPPED_MOVING", 2000);
+			ARM_TIMEOUT = XML.getValue(ARDUINO_CONFIG "ARM_TIMEOUT", 2000);
 			ICP_CLOUD_DENSITY = XML.getValue(ARDUINO_CONFIG "ICP_CLOUD_DENSITY", 5);
 			ICP_MAX_ITERATIONS = XML.getValue(ARDUINO_CONFIG "ICP_MAX_ITERATIONS", 20);
 		}

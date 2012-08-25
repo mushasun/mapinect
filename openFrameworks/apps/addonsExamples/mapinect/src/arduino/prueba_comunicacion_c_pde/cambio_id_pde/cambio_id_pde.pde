@@ -33,9 +33,9 @@ void loop() {
     int pos = motor.getPos(); 
     int vel = motor.getSpeed(); 
     int load = motor.getLoad();
-    motor.changeID(8);
+    motor.changeID(4);
     motor.setVel (30);
-    motor.setPos (512);
+    motor.setPos (700);
   
     Serial.println (" ");
     Serial.print (" posicion: ");
