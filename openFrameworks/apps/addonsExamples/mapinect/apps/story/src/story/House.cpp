@@ -175,7 +175,7 @@ namespace story
 	void House::draw()
 	{
 		Box::draw();
-		vector<ofVec3f> gardenVexs = btnManager->getVertexs(gardenBtnId);
+		vector<ofVec3f> gardenVexs = btnManager->getButton(gardenBtnId)->getVertexs();
 		if(gardenVexs.size() > 0)
 		{
 			float factor1 = min((lastWateringInSeconds / StoryConstants::HOUSE_GARDEN_1_TIME)*255, 255.0f);
@@ -210,14 +210,14 @@ namespace story
 	void House::loadTextures()
 	{
 			txHouseTop = new ofImage("data/texturas/house/top.jpg");
-			txHouseSide = new ofImage("data/texturas/house/Side.jpg");
-			txHouseSideWindowOn = new ofImage("data/texturas/house/SideWindowOn.jpg");
-			txHouseSideWindowOff = new ofImage("data/texturas/house/SideWindowOff.jpg");
+			txHouseSide = new ofImage("data/texturas/house/Side.png");
+			txHouseSideWindowOn = new ofImage("data/texturas/house/SideWindowOn.png");
+			txHouseSideWindowOff = new ofImage("data/texturas/house/SideWindowOff.png");
 			txHouseDoorBellOn = new ofImage("data/texturas/house/DoorBellOn.jpg");
 			txHouseDoorBellOff = new ofImage("data/texturas/house/DoorBellOff.jpg");
 			txLightSwitchOn = new ofImage("data/texturas/house/LightSwitchOn.jpg");
 			txLightSwitchOff = new ofImage("data/texturas/house/LightSwitchOff.jpg");
-			txHouseDoor = new ofImage("data/texturas/house/Door.jpg");
+			txHouseDoor = new ofImage("data/texturas/house/Door.png");
 			txHouseGarden1 = new ofImage("data/texturas/house/garden1.jpg");
 			txHouseGarden2 = new ofImage("data/texturas/house/garden2.jpg");
 			txHouseGarden3 = new ofImage("data/texturas/house/garden3.jpg");

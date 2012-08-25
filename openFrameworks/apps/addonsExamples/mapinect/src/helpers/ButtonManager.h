@@ -3,11 +3,12 @@
 
 #include "IButtonManager.h"
 
+#include "INotification.h"
 #include <map>
 
 namespace mapinect
 {
-	class ButtonManager: public IButtonManager
+	class ButtonManager: public IButtonManager, public INotification
 	{
 	public:
 		ButtonManager();
@@ -15,13 +16,8 @@ namespace mapinect
 		//// IButtonManager implementation
 		int						addButton(const IButtonPtr& btn);
 		void					removeButton(int id);
+		const IButtonPtr&		getButton(int id);
 		
-		virtual void			setIdle(const ofColor& color, int id);
-		virtual void			setIdle(ofImage* img, int id);
-		virtual void			setPressed(const ofColor& color, int id);
-		virtual void			setPressed(ofImage* img, int id);
-		virtual vector<ofVec3f> getVertexs(int id);
-
 		//// INotification implementation
 		void					objectDetected(const IObjectPtr&);
 		void					objectUpdated(const IObjectPtr&);
