@@ -71,4 +71,17 @@ namespace mapinect
 		isWorldTransformationStable = isStable;
 	}
 
+	ofVec3f Transformation::getKinectEyeCoordinates()
+	{
+		Eigen::Vector3f kinectPos (0.0, 0.0, 0.0);		// Posicion inicial, en Sist. de Coord Local del Kinect
+		kinectPos = getWorldTransformation() * kinectPos;
+		return ofVec3f(kinectPos.x(), kinectPos.y(), kinectPos.z());		
+	}
+
+	ofVec3f Transformation::getKinectDirectionCoordinates()
+	{
+		Eigen::Vector3f kinectMira (0.0, 0.0, 0.10);		// Mira inicial, en Sist. de Coord Local del Kinect
+		kinectMira = getWorldTransformation() * kinectMira;
+		return ofVec3f(kinectMira.x(), kinectMira.y(), kinectMira.z());
+	}
 }

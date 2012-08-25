@@ -73,6 +73,8 @@ namespace mapinect
 		static float				TOUCH_TRANSLATION_TOLERANCE();
 
 		//contsantes de view field
+		static float				FOV_HORIZONTAL;
+		static float				FOV_VERTICAL;
 		static float				WFAR;
 		static float				HFAR;
 		static float				WFAR_2;

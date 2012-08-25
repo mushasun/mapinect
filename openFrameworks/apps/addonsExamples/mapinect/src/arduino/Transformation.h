@@ -2,6 +2,7 @@
 #define MAPINECT_TRANSFORMATION_MATRIX_H__
 
 #include "ofxMutex.h"
+#include "ofVec3f.h"
 #include <Eigen/Geometry>
 
 namespace mapinect
@@ -24,6 +25,9 @@ namespace mapinect
 
 		bool									getIsWorldTransformationStable() const;
 		void									setIsWorldTransformationStable(bool isStable); 
+
+		ofVec3f									getKinectEyeCoordinates();
+		ofVec3f									getKinectDirectionCoordinates();
 
 	private:
 		bool									isWorldTransformationStable;
