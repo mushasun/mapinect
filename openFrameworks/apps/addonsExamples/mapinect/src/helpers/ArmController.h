@@ -10,7 +10,7 @@
 
 namespace mapinect {
 
-	class ArmController : public IArmController, public INotification
+	class ArmController : public IArmController
 	{
 	public:
 		ArmController(Arduino* f);
@@ -26,13 +26,6 @@ namespace mapinect {
 		ofVec3f			getKinect3dCoordinates();
 		ofVec3f			moveMotor(int motor_id, signed int degrees);
 		void			stopFollowing();
-
-		//INotification methods
-		void			objectDetected(const IObjectPtr&);
-		void			objectUpdated(const IObjectPtr&);
-		void			objectLost(const IObjectPtr&);
-		void			objectMoved(const IObjectPtr&, const DataMovement&);
-		void			objectTouched(const IObjectPtr&, const DataTouch&);
 
 	private:
 		map<int, int>	jointIdMapping;
