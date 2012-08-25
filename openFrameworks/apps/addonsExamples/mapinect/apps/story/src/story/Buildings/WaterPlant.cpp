@@ -53,19 +53,19 @@ namespace story
 		switch(action)
 		{
 			case WATER_SWITCH:
-				if(!released){
+				if(!released)
 				{
 					if (working)
 					{
-						btnManager->setPressed(txSwitchOff, btn->getId());
-						btnManager->setIdle(txSwitchOff, btn->getId());
+						btn->setPressed(txSwitchOff);
+						btn->setIdle(txSwitchOff);
 						offSound->play();
 						onSound->stop();
 					}
 					else
 					{
-						btnManager->setPressed(txSwitchOn, btn->getId());
-						btnManager->setIdle(txSwitchOn, btn->getId());
+						btn->setPressed(txSwitchOn);
+						btn->setIdle(txSwitchOn);
 						onSound->play();
 					}
 					working = !working;

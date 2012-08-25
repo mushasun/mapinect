@@ -34,40 +34,12 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	void ButtonManager::setIdle(const ofColor& color, int id)
+	const IButtonPtr& ButtonManager::getButton(int id)
 	{
 		if (buttons.find(id) != buttons.end())
-			buttons[id]->setIdle(color);
-	}
-
-	//--------------------------------------------------------------
-	void ButtonManager::setIdle(ofImage* img, int id)
-	{
-		if (buttons.find(id) != buttons.end())
-				buttons[id]->setIdle(img);
-	}
-
-	//--------------------------------------------------------------
-	void ButtonManager::setPressed(const ofColor& color, int id)
-	{
-		if (buttons.find(id) != buttons.end())
-				buttons[id]->setPressed(color);
-	}
-
-	//--------------------------------------------------------------
-	void ButtonManager::setPressed(ofImage* img, int id)
-	{
-		if (buttons.find(id) != buttons.end())
-				buttons[id]->setPressed(img);
-	}
-
-	//--------------------------------------------------------------
-	vector<ofVec3f> ButtonManager::getVertexs(int id)
-	{
-		vector<ofVec3f> vex;
-		if (buttons.find(id) != buttons.end())
-			vex = buttons[id]->getVertexs();
-		return vex;
+		{
+			return buttons.find(id)->second;
+		}
 	}
 
 	//--------------------------------------------------------------
