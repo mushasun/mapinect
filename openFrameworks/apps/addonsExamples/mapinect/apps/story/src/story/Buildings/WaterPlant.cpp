@@ -53,7 +53,7 @@ namespace story
 		switch(action)
 		{
 			case WATER_SWITCH:
-				if(!released)
+				if(!released){
 				{
 					if (working)
 					{
