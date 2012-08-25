@@ -58,7 +58,7 @@ namespace mapinect
 		static float		KINECT_HEIGHT;
 		static float		MOTORS_HEIGHT;
 
-		inline bool			isArmMoving()	{	return armMoving;	}
+		inline bool			isArmMoving()	{	return startedMoving;	}
 
 	private:
 		bool				isActive();
@@ -74,8 +74,9 @@ namespace mapinect
 		ofVec3f				posicion;
 		ofVec3f				mira;
 		ofVec3f				miraActual;
+		bool				startedMoving;
 		bool				stoppedMoving;
-		bool				armMoving;
+		bool				isMoving;
 		PCPtr				cloudBeforeMoving;
 		PCPtr				cloudAfterMoving;
 		int					idObjectToFollow;

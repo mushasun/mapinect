@@ -65,7 +65,7 @@ namespace mapinect {
 				touching = false;
 			}
 			else if(contacts.size() == 1 &&
-					(touch.getType() == kTouchTypeStarted || touch.getType() == kTouchTypeHolding) &&
+					(touch.getType() == kTouchTypeStarted) &&
 					touching == false)
 			{
 				evnt = kButtonEventPressed;
