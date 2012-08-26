@@ -199,6 +199,9 @@
     <ClCompile Include="src\canvas\Trace.cpp">
       <Filter>canvas</Filter>
     </ClCompile>
+    <ClCompile Include="src\helpers\Frustum.cpp">
+      <Filter>helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h">
@@ -464,6 +467,9 @@
     </ClInclude>
     <ClInclude Include="src\canvas\Trace.h">
       <Filter>canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\Frustum.h">
+      <Filter>helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

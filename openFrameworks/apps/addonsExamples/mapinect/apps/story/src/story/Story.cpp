@@ -108,6 +108,17 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::keyPressed(int key)
 	{
+		cout << "key pressed" << endl;
+		switch(key)
+		{
+			case 'c':
+				setStoryMode(STORY_ACTION_MODE);
+				break;
+			case 'm':
+				setStoryMode(STORY_MOVE_MODE);
+				break;
+
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -123,25 +134,19 @@ namespace story {
 			{
 				House* h  = new House(object, btnManager);
 				boxes.insert(pair<int, Box*>(object->getId(), h));
-				StoryStatus::setProperty(ADDING_HOUSE,false);
-				modeManager->disableObjectTracking();
-				modeManager->enableTouchTracking();
+				setStoryMode(STORY_ACTION_MODE);
 			}
 			else if (StoryStatus::getProperty(ADDING_POWERPLANT))
 			{
 				PowerPlant* plant  = new PowerPlant(object, btnManager);
                 boxes.insert(pair<int, Box*>(object->getId(), plant));
-                StoryStatus::setProperty(ADDING_POWERPLANT, false);
-                modeManager->disableObjectTracking();
-                modeManager->enableTouchTracking();
+                setStoryMode(STORY_ACTION_MODE);
 			}
 			else if (StoryStatus::getProperty(ADDING_WATERPLANT))
 			{
 				WaterPlant* plant  = new WaterPlant(object, btnManager);
                 boxes.insert(pair<int, Box*>(object->getId(), plant));
-                StoryStatus::setProperty(ADDING_WATERPLANT, false);
-                modeManager->disableObjectTracking();
-                modeManager->enableTouchTracking();
+                setStoryMode(STORY_ACTION_MODE);
 			}
 		}
 	}
@@ -278,5 +283,40 @@ namespace story {
 			it->second = touchPoint;
 		}
 	}
+
+	void Story::setStoryMode(StoryMode mode)
+	{
+		switch(mode)
+		{
+			case STORY_ACTION_MODE:
+                StoryStatus::setProperty(ADDING_POWERPLANT, false);
+                StoryStatus::setProperty(ADDING_WATERPLANT, false);
+				StoryStatus::setProperty(ADDING_HOUSE,false);
+				StoryStatus::setProperty(ADDING_RIVER,false);
+				StoryStatus::setProperty(ADDING_STREET,false);
+				modeManager->disableObjectTracking();
+				modeManager->enableTouchTracking();
+				break;
+			case STORY_MOVE_MODE:
+				StoryStatus::setProperty(ADDING_POWERPLANT, false);
+                StoryStatus::setProperty(ADDING_WATERPLANT, false);
+				StoryStatus::setProperty(ADDING_HOUSE,false);
+				StoryStatus::setProperty(ADDING_RIVER,false);
+				StoryStatus::setProperty(ADDING_STREET,false);
+				modeManager->enableObjectTracking();
+				modeManager->disableTouchTracking();
+				break;
+			case STORY_MOVE_AND_ACTION_MODE:
+				StoryStatus::setProperty(ADDING_POWERPLANT, false);
+                StoryStatus::setProperty(ADDING_WATERPLANT, false);
+				StoryStatus::setProperty(ADDING_HOUSE,false);
+				StoryStatus::setProperty(ADDING_RIVER,false);
+				StoryStatus::setProperty(ADDING_STREET,false);
+				modeManager->enableObjectTracking();
+				modeManager->enableTouchTracking();
+				break;
+		}
+	}
+
 
 }

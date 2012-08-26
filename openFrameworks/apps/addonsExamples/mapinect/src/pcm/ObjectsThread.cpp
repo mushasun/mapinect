@@ -5,6 +5,7 @@
 #include "log.h"
 #include "pointUtils.h"
 #include "PCPolyhedron.h"
+#include "Frustum.h"
 #include <pcl/octree/octree.h>
 
 using namespace std;
@@ -89,8 +90,9 @@ namespace mapinect {
 
 		// Updating temporal detections
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {			
-			if(!(*iter)->hasObject() ||
-				isInViewField((*iter)->getTrackedObject()->getCenter()))
+			if((*iter)->hasObject())
+				(*iter)->setInViewField(Frustum::IsInFrustum((*iter)->getTrackedObject()->getCenter()));
+			if(!(*iter)->hasObject() || (*iter)->isInViewField())
 				(*iter)->addCounter(-1);
 		}
 
@@ -167,11 +169,14 @@ namespace mapinect {
 		TrackedCloudPtr currentMatch;
 		removed = false;
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			float dist = (*iter)->matchingTrackedObjects(trackedCloud);
-			if (dist != -1 && dist < currentDist)
+			if((*iter)->isInViewField()) // Si está fuera del viewfield no chequea el matching
 			{
-				currentMatch = (*iter);
-				currentDist = dist;
+				float dist = (*iter)->matchingTrackedObjects(trackedCloud);
+				if (dist != -1 && dist < currentDist)
+				{
+					currentMatch = (*iter);
+					currentDist = dist;
+				}
 			}
 		}
 		if(currentDist != numeric_limits<float>::max())
@@ -278,7 +283,7 @@ namespace mapinect {
 		}
 
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			if ((*iter)->hasMatching())
+			if ((*iter)->hasMatching() && (*iter)->isInViewField())
 			{
 				saveCloud("objPreMatched.pcd",*(*iter)->getTrackedCloud());
 				(*iter)->updateMatching();

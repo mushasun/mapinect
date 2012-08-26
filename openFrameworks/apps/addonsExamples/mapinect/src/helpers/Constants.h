@@ -84,6 +84,7 @@ namespace mapinect
 		static float				WNEAR_2;
 		static float				HNEAR_2;
 		static float				NDISTANCE;
+		static float				FOV_MIN_DIST_CENTROID;
 
 		// Para la calibración inicial de la mesa
 		static int					PIXEL_TOLERANCE_ESTIMATED_VERTEX;

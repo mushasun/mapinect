@@ -58,6 +58,7 @@ namespace mapinect
 	float				Constants::WNEAR									= WNEAR_2 * 2;
 	float				Constants::HNEAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * NDISTANCE;
 	float				Constants::HNEAR									= HNEAR_2 * 2;
+	float				Constants::FOV_MIN_DIST_CENTROID					= 0.1;
 
 	// Para la calibración inicial de la mesa
 	int					Constants::PIXEL_TOLERANCE_ESTIMATED_VERTEX			= 40;
@@ -116,6 +117,7 @@ namespace mapinect
 			NDISTANCE								= XML.getValue(PCM_CONFIG "NDISTANCE",0.2);
 			FOV_HORIZONTAL							= XML.getValue(PCM_CONFIG "FOV_HORIZONTAL",57.0f);
 			FOV_VERTICAL							= XML.getValue(PCM_CONFIG "FOV_VERTICAL",43.0f);
+			FOV_MIN_DIST_CENTROID					= XML.getValue(PCM_CONFIG "FOV_MIN_DIST_CENTROID",0.1f);
 			WFAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
 			WFAR									= WFAR_2 * 2;
 			HFAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
