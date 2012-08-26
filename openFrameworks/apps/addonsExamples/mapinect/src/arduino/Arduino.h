@@ -42,7 +42,7 @@ namespace mapinect
 
 		ofVec3f				getKinect3dCoordinates();
 		ofVec3f				setArm3dCoordinates(const ofVec3f& position);
-		ofVec3f				moveMotor(int motor_id, signed int degrees);
+		ofVec3f				moveMotor(int motorId, signed int degrees);
 		ofVec3f				lookAt(const ofVec3f& point);
 		ofVec3f				lookingAt();
 		Eigen::Affine3f		calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8);

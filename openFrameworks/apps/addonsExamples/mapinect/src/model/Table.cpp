@@ -242,20 +242,20 @@ namespace mapinect
 	bool Table::isOnTable(const PCPtr& cloud)
 	{
 		//Busco el mayor y
-		int idx_max = -1;
+		int indexMax = -1;
 		float max = -1;
 		for(int i = 0; i < cloud->points.size(); i++)
 		{
 			if(cloud->points.at(i).y > max)
 			{
-				idx_max = i;
+				indexMax = i;
 				max = cloud->points.at(i).y;
 			}
 		}
 
-		if (idx_max >= 0)
+		if (indexMax >= 0)
 		{
-			return abs(evaluatePoint(getCoefficients(), PCXYZ_OFVEC3F(cloud->points.at(idx_max))))
+			return abs(evaluatePoint(getCoefficients(), PCXYZ_OFVEC3F(cloud->points.at(indexMax))))
 				< Constants::TABLE_HEIGHT_TOLERANCE() * 2.0f;
 		}
 		else

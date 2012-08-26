@@ -150,7 +150,7 @@ namespace mapinect {
 		////Clustering de los puntos del plano
 		//pcl::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::KdTreeFLANN<pcl::PointXYZ>);
 		//tree->setInputCloud (nuPointsOfFace);
-		//std::vector<pcl::PointIndices> cluster_indices;
+		//std::vector<pcl::PointIndices> clusterIndices;
 		//pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
 		//ec.setClusterTolerance (0.02); 
 		//ec.setMinClusterSize (5);
@@ -158,7 +158,7 @@ namespace mapinect {
 		//ec.setSearchMethod (tree);
 		//ec.setInputCloud(nuPointsOfFace);
 
-		//ec.extract (cluster_indices);
+		//ec.extract (clusterIndices);
 		//int debuccount = 0;
 		//ofVec3f center = this->getCenter();
 		//Eigen::Vector4f partialCenter;
@@ -166,21 +166,21 @@ namespace mapinect {
 		//PCPtr closest (new pcl::PointCloud<pcl::PointXYZ>());
 
 		////Tomo el cluster más cercano al actual
-		//if(cluster_indices.size() > 0)
+		//if(clusterIndices.size() > 0)
 		//{
-		//	for(int i = 0; i < cluster_indices.size(); i++)
+		//	for(int i = 0; i < clusterIndices.size(); i++)
 		//	{
-		//		PCPtr cloud_p_filtered (new pcl::PointCloud<pcl::PointXYZ>());
-		//		cloud_p_filtered->resize(cluster_indices.at(i).indices.size());
-		//		for (std::vector<int>::const_iterator pit = cluster_indices.at(i).indices.begin (); pit != cluster_indices.at(i).indices.end (); pit++)
-		//			cloud_p_filtered->points.push_back (nuPointsOfFace->points[*pit]); //*
-		//		pcl::compute3DCentroid(*cloud_p_filtered,partialCenter);
+		//		PCPtr cloudPFiltered (new pcl::PointCloud<pcl::PointXYZ>());
+		//		cloudPFiltered->resize(clusterIndices.at(i).indices.size());
+		//		for (std::vector<int>::const_iterator pit = clusterIndices.at(i).indices.begin (); pit != clusterIndices.at(i).indices.end (); pit++)
+		//			cloudPFiltered->points.push_back (nuPointsOfFace->points[*pit]); //*
+		//		pcl::compute3DCentroid(*cloudPFiltered,partialCenter);
 		//		ofVec3f vPartialCenter(partialCenter.x(),partialCenter.y(),partialCenter.z());
 
 		//		if(abs((center - vPartialCenter).length()) < mindist)
 		//		{
 		//			mindist = abs((center - vPartialCenter).length());
-		//			closest = cloud_p_filtered;
+		//			closest = cloudPFiltered;
 		//		}
 		//	}
 		//}

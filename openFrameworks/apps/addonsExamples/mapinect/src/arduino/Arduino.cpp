@@ -296,20 +296,6 @@ namespace mapinect {
 		gTransformation->cloudMutex.unlock();
 	}
 
-	const char *my_byte_to_binary(int x)
-	{
-		static char b[9];
-		b[0] = '\0';
-
-		int z;
-		for (z = 256; z > 0; z >>= 1)
-		{
-			strcat(b, ((x & z) == z) ? "1" : "0");
-		}
-
-		return b;
-	}
-
 	void Arduino::sendMotor(int value, int id)
 	{
 		//value += MOTOR_ANGLE_OFFSET;
@@ -337,13 +323,13 @@ namespace mapinect {
 	char* Arduino::read()
 	{
 		char* result;
-		int cantidad_bytes = serial.available();
-		if (cantidad_bytes > 0) {
-			result = new char[cantidad_bytes];
-			unsigned char lectura = 0;
+		int byteCount = serial.available();
+		if (byteCount > 0) {
+			result = new char[byteCount];
+			unsigned char byteRead = 0;
 			int i = 0;
-			while(serial.readBytes(&lectura, 1) > 0) {
-				result[i] = lectura;
+			while(serial.readBytes(&byteRead, 1) > 0) {
+				result[i] = byteRead;
 				i++;
 			}
 			result[i] = 0;
@@ -372,11 +358,11 @@ namespace mapinect {
 		if (y != 0) {
 			if (y > 0)
 			{
-				_angleMotor1 = (int)round(asin(y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
+				_angleMotor1 = (int)round(asin(y/ARM_LENGTH) * 180.0f / M_PI);
 			}
 			else
 			{
-				_angleMotor1 = -(int)round(asin(-y/ARM_LENGTH) * 180.0f / M_PI); // estaba mal, era el asin
+				_angleMotor1 = -(int)round(asin(-y/ARM_LENGTH) * 180.0f / M_PI);
 			}
 		} else {
 			_angleMotor1 = 0;
@@ -453,90 +439,96 @@ namespace mapinect {
 		Eigen::Affine3f composedMatrix;
 		composedMatrix = rotationY * rotationZ;
 		
-		Eigen::Vector3f e_point = Eigen::Vector3f(point.x, point.y, point.z);
-		Eigen::Vector3f e_mira = Eigen::Vector3f(miraHorizonte.x, miraHorizonte.y, miraHorizonte.z);
-		Eigen::Vector3f e_posicion = Eigen::Vector3f(posInicialKinect.x, posInicialKinect.y, posInicialKinect.z);
+		Eigen::Vector3f ePoint = Eigen::Vector3f(point.x, point.y, point.z);
+		Eigen::Vector3f eMira = Eigen::Vector3f(miraHorizonte.x, miraHorizonte.y, miraHorizonte.z);
+		Eigen::Vector3f ePosicion = Eigen::Vector3f(posInicialKinect.x, posInicialKinect.y, posInicialKinect.z);
 
-		Eigen::Vector3f et_point = composedMatrix * e_point;
-		Eigen::Vector3f et_mira = /*composedMatrix * */ e_mira;
-		Eigen::Vector3f et_posicion = /*composedMatrix * */ e_posicion;
+		Eigen::Vector3f etPoint = composedMatrix * ePoint;
+		Eigen::Vector3f etMira = /*composedMatrix * */ eMira;
+		Eigen::Vector3f etPosicion = /*composedMatrix * */ ePosicion;
 
-		ofVec3f t_point = ofVec3f(et_point.x(), et_point.y(), et_point.z());
-		ofVec3f t_mira = ofVec3f(et_mira.x(), et_mira.y(), et_mira.z());
-		ofVec3f t_posicion = ofVec3f(et_posicion.x(), et_posicion.y(), et_posicion.z());
+		ofVec3f tPoint = ofVec3f(etPoint.x(), etPoint.y(), etPoint.z());
+		ofVec3f tMira = ofVec3f(etMira.x(), etMira.y(), etMira.z());
+		ofVec3f tPosicion = ofVec3f(etPosicion.x(), etPosicion.y(), etPosicion.z());
 
 		ofVec3f origen = ofVec3f(0, 0, 0);
-		ofVec3f eje_y = ofVec3f(0, 1, 0);
-		Plane3D horizontal = Plane3D(origen, eje_y); //lo defino con el plano que xz y normal y
+		ofVec3f ejeY = ofVec3f(0, 1, 0);
+		Plane3D horizontal = Plane3D(origen, ejeY); //lo defino con el plano que xz y normal y
 
-		ofVec3f pht_point = horizontal.project(t_point);
-		ofVec3f pht_mira = horizontal.project(t_mira);
-		ofVec3f pht_posicion = horizontal.project(t_posicion);
+		ofVec3f phtPoint = horizontal.project(tPoint);
+		ofVec3f phtMira = horizontal.project(tMira);
+		ofVec3f phtPosicion = horizontal.project(tPosicion);
 
-		ofVec3f hv_mira = pht_mira - pht_posicion;
-		ofVec3f hv_point = pht_point - pht_posicion;
+		ofVec3f hvMira = phtMira - phtPosicion;
+		ofVec3f hvPoint = phtPoint - phtPosicion;
 
-		float angulo_h = 0;
+		float anguloH = 0;
 
-		ofVec3f h_normal = horizontal.getNormal();
-		if (!(abs(hv_mira.length()) <= MATH_EPSILON || abs(hv_point.length()) <= MATH_EPSILON	
-				|| (abs(hv_mira.dot(h_normal) - hv_mira.length()*h_normal.length()) <= MATH_EPSILON)
-				|| (abs(hv_point.dot(h_normal) - hv_point.length()*h_normal.length()) <= MATH_EPSILON) )) {
+		ofVec3f hNormal = horizontal.getNormal();
+		if (!(abs(hvMira.length()) <= MATH_EPSILON || abs(hvPoint.length()) <= MATH_EPSILON	
+				|| (abs(hvMira.dot(hNormal) - hvMira.length()*hNormal.length()) <= MATH_EPSILON)
+				|| (abs(hvPoint.dot(hNormal) - hvPoint.length()*hNormal.length()) <= MATH_EPSILON) ))
+		{
 				//if (length de alguno de los vectores < MATH_EPSILON || alguno de los vectores es "casi" paralelo a la normal del plano)
-				angulo_h = hv_mira.angle(hv_point);//motor 8
+				anguloH = hvMira.angle(hvPoint);//motor 8
 				if (point.z < 0)
 				{
-					angulo_h *= -1;
+					anguloH *= -1;
 				}
 		}		 
 
-		ofVec3f eje_z = ofVec3f(0, 0, 1);
-		eje_z = eje_z.rotate(-angulo_h, eje_y);
-		Plane3D vertical = Plane3D(t_posicion, eje_z);
+		ofVec3f ejeZ = ofVec3f(0, 0, 1);
+		ejeZ = ejeZ.rotate(-anguloH, ejeY);
+		Plane3D vertical = Plane3D(tPosicion, ejeZ);
 
-		ofVec3f mira_trans = ofVec3f(t_mira.x - posInicialKinect.x, t_mira.y - posInicialKinect.y, t_mira.z - posInicialKinect.z); 
-		mira_trans = mira_trans.rotate(-angulo_h, eje_y);
-		t_mira = ofVec3f(mira_trans.x + posInicialKinect.x, mira_trans.y + posInicialKinect.y, mira_trans.z + posInicialKinect.z);
+		ofVec3f miraTrans = ofVec3f(tMira.x - posInicialKinect.x, tMira.y - posInicialKinect.y, tMira.z - posInicialKinect.z); 
+		miraTrans = miraTrans.rotate(-anguloH, ejeY);
+		tMira = ofVec3f(miraTrans.x + posInicialKinect.x, miraTrans.y + posInicialKinect.y, miraTrans.z + posInicialKinect.z);
 
-		ofVec3f pvt_point = vertical.project(t_point);
-		ofVec3f pvt_mira = vertical.project(t_mira);
-		ofVec3f pvt_posicion = vertical.project(t_posicion);
+		ofVec3f pvtPoint = vertical.project(tPoint);
+		ofVec3f pvtMira = vertical.project(tMira);
+		ofVec3f pvtPosicion = vertical.project(tPosicion);
 
-		ofVec3f vv_mira = pvt_mira - pvt_posicion;
-		ofVec3f vv_point = pvt_point - pvt_posicion;
+		ofVec3f vvMira = pvtMira - pvtPosicion;
+		ofVec3f vvPoint = pvtPoint - pvtPosicion;
 
-		float angulo_v = 0;
-		ofVec3f v_normal = vertical.getNormal();
-		if (!(abs(vv_mira.length()) <= MATH_EPSILON || abs(vv_point.length()) <= MATH_EPSILON	
-				|| (abs(vv_mira.dot(v_normal) - vv_mira.length()*v_normal.length()) <= MATH_EPSILON)
-				|| (abs(vv_point.dot(v_normal) - vv_point.length()*v_normal.length()) <= MATH_EPSILON) )) {
+		float anguloV = 0;
+		ofVec3f vNormal = vertical.getNormal();
+		if (!(abs(vvMira.length()) <= MATH_EPSILON || abs(vvPoint.length()) <= MATH_EPSILON	
+				|| (abs(vvMira.dot(vNormal) - vvMira.length()*vNormal.length()) <= MATH_EPSILON)
+				|| (abs(vvPoint.dot(vNormal) - vvPoint.length()*vNormal.length()) <= MATH_EPSILON) ))
+		{
 				//if (length de alguno de los vectores < MATH_EPSILON || alguno de los vectores es "casi" paralelo a la normal del plano)	
-				angulo_v = vv_mira.angle(vv_point);//motor 4
+				anguloV = vvMira.angle(vvPoint);//motor 4
 				if (point.y > (- KINECT_HEIGHT - MOTORS_HEIGHT) )
 				{
-					angulo_v *= -1;
+					anguloV *= -1;
 				}
 		}		 	
 
-		if (!inRange(int(angulo_v), MIN_ANGLE_4, MAX_ANGLE_4))
+		if (!inRange(int(anguloV), MIN_ANGLE_4, MAX_ANGLE_4))
 		{
 			return NULL;
 		}
-		if (!inRange(int(angulo_h), MIN_ANGLE_8, MAX_ANGLE_8))
+		if (!inRange(int(anguloH), MIN_ANGLE_8, MAX_ANGLE_8))
 		{
 			return NULL;
 		}
 
-		if (IsFeatureMoveArmActive()) {
-			if (gTransformation->getIsWorldTransformationStable()) {
+		if (IsFeatureMoveArmActive())
+		{
+			if (gTransformation->getIsWorldTransformationStable())
+			{
 				armStartedMoving();
-			} else {
+			}
+			else
+			{
 				return posicion = getKinect3dCoordinates();
 			}
 		}
 
-		angleMotor4 = angulo_v;
-		angleMotor8 = angulo_h;
+		angleMotor4 = anguloV;
+		angleMotor8 = anguloH;
 
 		//mira_actual = point;
 		mira = point;
@@ -717,48 +709,68 @@ namespace mapinect {
 		}
 	}
 
-	ofVec3f Arduino::moveMotor(int motor_id, signed int degrees)
+	ofVec3f Arduino::moveMotor(int motorId, signed int degrees)
 	{
 		ofVec3f error = ofVec3f(INT_MAX, INT_MAX, INT_MAX);
 		signed int angle1 = angleMotor1, angle2 = angleMotor2, angle4 = angleMotor4, angle8 = angleMotor8;
 
-		if (motor_id == ID_MOTOR_1)	{
-			if (!inRange(degrees, MIN_ANGLE_1, MAX_ANGLE_1)) {
+		if (motorId == ID_MOTOR_1)
+		{
+			if (!inRange(degrees, MIN_ANGLE_1, MAX_ANGLE_1))
+			{
 				return error;
-			} else {
+			}
+			else
+			{
 				angle1 = degrees;
 			}
 		}
-		if (motor_id == ID_MOTOR_2) {
-			if (!inRange(degrees, MIN_ANGLE_2, MAX_ANGLE_2)) {
+		if (motorId == ID_MOTOR_2)
+		{
+			if (!inRange(degrees, MIN_ANGLE_2, MAX_ANGLE_2))
+			{
 				return error;
-			} else {
+			}
+			else
+			{
 				angle2 = degrees;
 			}
 		}
-		if (motor_id == ID_MOTOR_4) {
-			if (!inRange(degrees, MIN_ANGLE_4, MAX_ANGLE_4)) {
+		if (motorId == ID_MOTOR_4)
+		{
+			if (!inRange(degrees, MIN_ANGLE_4, MAX_ANGLE_4))
+			{
 				return error;
-			} else {
+			}
+			else
+			{
 				angle4 = degrees;
 			}
 		}
-		if (motor_id == ID_MOTOR_8) {
-			if (!inRange(degrees, MIN_ANGLE_8, MAX_ANGLE_8)) {
+		if (motorId == ID_MOTOR_8)
+		{
+			if (!inRange(degrees, MIN_ANGLE_8, MAX_ANGLE_8))
+			{
 				return error;
-			} else {
+			}
+			else
+			{
 				angle8 = degrees;
 			}
 		}
 		
-		if (IsFeatureMoveArmActive()) {
-			if (gTransformation->getIsWorldTransformationStable()) {
+		if (IsFeatureMoveArmActive())
+		{
+			if (gTransformation->getIsWorldTransformationStable())
+			{
 				angleMotor1 = angle1;
 				angleMotor2 = angle2;
 				angleMotor4 = angle4;
 				angleMotor8 = angle8;
 				armStartedMoving();
-			} else {
+			}
+			else
+			{
 				return posicion = getKinect3dCoordinates();
 			}
 		}
@@ -768,7 +780,8 @@ namespace mapinect {
 		sendMotor(angleMotor4, ID_MOTOR_4);
 		sendMotor(angleMotor8, ID_MOTOR_8);
 
-		if (IsFeatureMoveArmActive()) {
+		if (IsFeatureMoveArmActive())
+		{
 			calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
 		}
 		posicion = getKinect3dCoordinates(); //ofVec3f(x, y, z);

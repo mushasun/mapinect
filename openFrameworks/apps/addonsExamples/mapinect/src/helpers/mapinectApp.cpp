@@ -195,14 +195,19 @@ namespace mapinect {
 
 		if (IsFeatureKinectActive())
 		{
-			double fx_d, fy_d, fx_rgb, fy_rgb; 
-			float  cx_d, cy_d, cx_rgb, cy_rgb;
-			ofVec3f T_rgb;
-			ofMatrix4x4 R_rgb;
-			getKinectCalibData(vm->getKinectCalibFile(), fx_d, fy_d, cx_d, cy_d,
-										fx_rgb, fy_rgb, cx_rgb, cy_rgb, T_rgb, R_rgb);
-			gKinect->getCalibration().setCalibValues( fx_d, fy_d, cx_d, cy_d,
-										fx_rgb, fy_rgb, cx_rgb, cy_rgb, T_rgb, R_rgb);
+			double fxD, fyD, fxRGB, fyRGB; 
+			float  cxD, cyD, cxRGB, cyRGB;
+			ofVec3f TRGB;
+			ofMatrix4x4 RRGB;
+			getKinectCalibData(
+				vm->getKinectCalibFile(),
+				fxD, fyD, cxD, cyD,
+				fxRGB, fyRGB, cxRGB, cyRGB,
+				TRGB, RRGB);
+			gKinect->getCalibration().setCalibValues(
+				fxD, fyD, cxD, cyD,
+				fxRGB, fyRGB, cxRGB, cyRGB,
+				TRGB, RRGB);
 		}
 
 		//Habilita usar texturas transparentes

@@ -119,19 +119,19 @@ namespace mapinect {
 		{
 			setPCMThreadStatus("Scanning table cluster...");
 			log(kLogFilePCMThread, "Scanning table cluster...");
-			std::vector<pcl::PointIndices> cluster_indices =
+			std::vector<pcl::PointIndices> clusterIndices =
 				findClusters(cloud, Constants::TABLE_CLUSTER_TOLERANCE(), Constants::TABLE_CLUSTER_MIN_SIZE());
 
 			PCPtr tableCluster;
 			float minDistanceToCentroid = MAX_FLOAT;
-			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+			for (std::vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it)
 			{
-				PCPtr cloud_cluster = getCloudFromIndices(cloud, *it);
-				ofVec3f ptoCentroid = computeCentroid(cloud_cluster);
+				PCPtr cloudCluster = getCloudFromIndices(cloud, *it);
+				ofVec3f ptoCentroid = computeCentroid(cloudCluster);
 				if (ptoCentroid.squareLength() < minDistanceToCentroid)
 				{
 					minDistanceToCentroid = ptoCentroid.squareLength();
-					tableCluster = cloud_cluster;
+					tableCluster = cloudCluster;
 				}
 			}
 
@@ -280,18 +280,18 @@ namespace mapinect {
 						const int minClusterSize = 1;
 						if (usePCL)
 						{
-							std::vector<pcl::PointIndices> cluster_indices;
+							std::vector<pcl::PointIndices> clusterIndices;
 							if (polygonTouchPointsCloud->size() == minClusterSize)
 							{
-								cluster_indices.push_back(pcl::PointIndices());
-								cluster_indices[0].indices.push_back(0);
+								clusterIndices.push_back(pcl::PointIndices());
+								clusterIndices[0].indices.push_back(0);
 							}
 							else
 							{
-								cluster_indices = findClusters(polygonTouchPointsCloud, tolerance, minClusterSize);
+								clusterIndices = findClusters(polygonTouchPointsCloud, tolerance, minClusterSize);
 							}
 
-							for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+							for (vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it)
 							{
 								PCPtr cloudCluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
 								ofVec3f touchPoint(computeCentroid(cloudCluster));
@@ -327,7 +327,7 @@ namespace mapinect {
 				list<TrackedTouchPtr> touchPointsToMatch;
 				list<TrackedTouchPtr> touchPointsToAdd;
 
-				int max_iter = 10;
+				int maxIter = 10;
 				setPCMThreadStatus("Matching touch points with existing ones...");
 				log(kLogFilePCMThread, "Matching touch points with existing ones...");
 			
@@ -346,9 +346,9 @@ namespace mapinect {
 					}
 					newTouchPoints = touchPointsToMatch;
 					touchPointsToMatch.clear();
-					max_iter--;
+					maxIter--;
 				}
-				while (newTouchPoints.size() > 0 && max_iter > 0);
+				while (newTouchPoints.size() > 0 && maxIter > 0);
 				
 				for (list<TrackedTouchPtr>::iterator tt = touchPointsToAdd.begin(); tt != touchPointsToAdd.end(); tt++)
 				{

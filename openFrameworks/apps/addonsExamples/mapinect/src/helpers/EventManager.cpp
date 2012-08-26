@@ -35,8 +35,8 @@ namespace mapinect {
 			for (list<MapinectEvent>::iterator e = instance->eventsToFire.begin();
 				e != instance->eventsToFire.end(); ++e)
 			{
-					for (vector<INotification*>::iterator l = instance->object_listeners.begin();
-							l != instance->object_listeners.end(); ++l)
+					for (vector<INotification*>::iterator l = instance->objectListeners.begin();
+							l != instance->objectListeners.end(); ++l)
 					{
 						INotification* listener = *l;
 						map<int,MapinectEventType>::iterator evnt;
@@ -85,7 +85,7 @@ namespace mapinect {
 			instance = new EventManager();
 		}
 
-		instance->object_listeners.push_back(listener);
+		instance->objectListeners.push_back(listener);
 
 		EventManager::mutexInstance.unlock();
 	}
