@@ -422,12 +422,12 @@ namespace mapinect {
 						break;
 				}
 			}
-			messures = messureBox();
+			measures = measureBox();
 			
 
 			//Valido volumen del objeto
 			const float OBJECT_MIN_VOLUME = 0.000125;
-			isvalid = messures.x * messures.y * messures.z > OBJECT_MIN_VOLUME;
+			isvalid = measures.x * measures.y * measures.z > OBJECT_MIN_VOLUME;
 			fullEstimation = isvalid;
 			if(fullEstimation)
 				cout << "+++++++++++++++++ full estimation +++++++++++++++" << endl;
@@ -696,11 +696,11 @@ namespace mapinect {
 			ofVec3f traslation;
 			
 			if(polFatherName == kPolygonNameTop || polFatherName == kPolygonNameBottom)
-				traslation = normal * (-messures.y); 
+				traslation = normal * (-measures.y); 
 			else if(polFatherName == kPolygonNameSideA || polFatherName == kPolygonNameSideC)
-				traslation = normal * (-messures.z); 
+				traslation = normal * (-measures.z); 
 			else if(polFatherName == kPolygonNameSideB || polFatherName == kPolygonNameSideD)
-				traslation = normal * (-messures.x); 
+				traslation = normal * (-measures.x); 
 
 			Eigen::Transform<float,3,Eigen::Affine> transformation;
 			transformation = Eigen::Translation<float,3>(traslation.x, traslation.y, traslation.z);
@@ -797,10 +797,10 @@ namespace mapinect {
 	}
 
 	// ------------------------------------------------------------------------------
-	ofVec3f PCBox::messureBox()
+	ofVec3f PCBox::measureBox()
 	{
 		float w,h,d;
-	//	cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+	//	cout << "Measures of: " << sideA->getPolygonModelObject()->getName() << endl; 
 		vector<ofVec3f> sideAVex = getPCPolygon(kPolygonNameSideA, pcpolygons)->getPolygonModelObject()->getMathModel().getVertexs();
 		vector<ofVec3f> sideBVex = getPCPolygon(kPolygonNameSideB, pcpolygons)->getPolygonModelObject()->getMathModel().getVertexs();
 		w = abs((sideAVex.at(1) - sideAVex.at(2)).length());
@@ -829,22 +829,22 @@ namespace mapinect {
 
 	bool PCBox::validate()
 	{
-		ofVec3f newMessure = messureBox();
-		/*cout << "Messures of: " << sideA->getPolygonModelObject()->getName() << endl; 
-		cout << "\tw: " << newMessure.x << endl;
-		cout << "\th: " << newMessure.y << endl;
-		cout << "\td: " << newMessure.z << endl;*/
+		ofVec3f newMeasure = measureBox();
+		/*cout << "Measures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+		cout << "\tw: " << newMeasure.x << endl;
+		cout << "\th: " << newMeasure.y << endl;
+		cout << "\td: " << newMeasure.z << endl;*/
 
 		const float OBJECT_MIN_VOLUME = 0.000125;
-		bool volValid = newMessure.x * newMessure.y * newMessure.z > OBJECT_MIN_VOLUME;
+		bool volValid = newMeasure.x * newMeasure.y * newMeasure.z > OBJECT_MIN_VOLUME;
 		bool vertexValid = this->vertexs.size() == 8;
-		bool prevMessureValid = (newMessure - messures).length() < 0.05;
-		return vertexValid && prevMessureValid && volValid;
+		bool prevMeasureValid = (newMeasure - measures).length() < 0.05;
+		return vertexValid && prevMeasureValid && volValid;
 	}
 
 	float PCBox::getVolume()
 	{
-		return messures.x * messures.y * messures.z;
+		return measures.x * measures.y * measures.z;
 	}
 
 	
