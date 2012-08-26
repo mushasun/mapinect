@@ -30,6 +30,7 @@ namespace mapinect {
 		needApplyTransformation = false;
 		needRecalculateFaces = false;
 		invalidCounter = 0;
+		inViewField = true;
 	}
 
 	TrackedCloud::TrackedCloud()

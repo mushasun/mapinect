@@ -22,6 +22,12 @@
 
 namespace story
 {
+	enum StoryMode{
+		STORY_ACTION_MODE = 0,
+		STORY_MOVE_MODE,
+		STORY_MOVE_AND_ACTION_MODE
+	};
+
 	class Story : public IApplication
 	{
 	public:
@@ -46,7 +52,7 @@ namespace story
 		virtual void pointTouched(const DataTouch&);
 
 	private:
-		void						removeMenu();
+		void						setStoryMode(StoryMode mode);
 		std::map<int, Box*>			boxes;
 		std::map<int, Box*>			houses;
 		PowerPlant*					power_plant;

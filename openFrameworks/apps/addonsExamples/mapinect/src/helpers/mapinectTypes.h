@@ -24,6 +24,10 @@ namespace mapinect
 	class Table;
 	
 	typedef boost::shared_ptr<Table> TablePtr;
+
+	class TrackedCloud;
+
+	typedef boost::shared_ptr<TrackedCloud> TrackedCloudPtr;
 }
 
 #endif	// MAPINECT_TYPES_H__

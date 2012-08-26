@@ -7,6 +7,7 @@
 #include "ofPoint.h"
 #include "objectTypesEnum.h"
 #include "Polygon3D.h"
+#include <list>
 
 // -------------------------------------------------------------------------------------
 // pcl <--> ofVec3f and other conversion utils
@@ -44,7 +45,6 @@ vector<ofVec3f>	getScreenCoords(const vector<ofVec3f>& transformedWorldCloud);
 PCXYZ			getScreenCoords(const PCXYZ& transformedWorldPoint);
 ofVec3f			getScreenCoords(const ofVec3f& transformedWorldPoint);
 
-bool			isInViewField(ofVec3f vec);
 // -------------------------------------------------------------------------------------
 // i/o utils
 // -------------------------------------------------------------------------------------

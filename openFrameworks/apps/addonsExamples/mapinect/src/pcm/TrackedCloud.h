@@ -7,9 +7,9 @@ using namespace pcl;
 
 namespace mapinect {
 
-	class TrackedCloud;
+	//class TrackedCloud;
 
-	typedef boost::shared_ptr<TrackedCloud> TrackedCloudPtr;
+	//typedef boost::shared_ptr<TrackedCloud> TrackedCloudPtr;
 
 	class TrackedCloud {
 	
@@ -33,6 +33,8 @@ namespace mapinect {
 		bool							operator==(const TrackedCloudPtr& other) const;
 		inline const PCModelObjectPtr&	getTrackedObject()		{ return objectInModel; }
 
+		inline bool						isInViewField() const		{ return inViewField; }
+		inline void						setInViewField(bool val)    { inViewField = val; }
 	private:
 		void							init();
 
@@ -46,6 +48,7 @@ namespace mapinect {
 		bool							needRecalculateFaces;
 		ofVec3f							translationV;
 		int								invalidCounter;
+		bool							inViewField;
 	};
 
 }

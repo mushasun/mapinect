@@ -1,4 +1,5 @@
 #include "Transformation.h"
+#include "Frustum.h"
 
 namespace mapinect
 {
@@ -41,6 +42,7 @@ namespace mapinect
 			worldTransformation = newTransformation;
 			inverseWorldTransformation = newTransformation.inverse();
 			transformationMatrixMutex.unlock();
+			Frustum::RecalculateFrustum();
 		}
 	}
 
@@ -58,6 +60,7 @@ namespace mapinect
 			transformationMatrixMutex.lock();
 			initialWorldTransformation = newTransformation;
 			transformationMatrixMutex.unlock();
+			Frustum::RecalculateFrustum();
 	}
 
 
