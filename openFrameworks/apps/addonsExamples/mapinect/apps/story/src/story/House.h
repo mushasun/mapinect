@@ -57,7 +57,8 @@ namespace story
 			static ofSoundPlayer*	click;
 			static ofSoundPlayer*	call;
 			static ofSoundPlayer*	water;
-			
+			static ofSoundPlayer*	error;
+
 			//textures
 			static ofImage*		txHouseTop;
 			static ofImage*		txHouseSide;

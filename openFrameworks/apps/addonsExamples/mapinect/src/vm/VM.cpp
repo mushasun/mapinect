@@ -235,8 +235,8 @@ namespace mapinect {
 	void VM::keyPressed(int key) {
 		CHECK_ACTIVE;
 				
-		float varProj = 1.0f;
-		float varTrans = 0.001f;
+		float varProj = 2.0f;
+		float varTrans = 0.01f;
 
 		switch (key) {
 			/*********************

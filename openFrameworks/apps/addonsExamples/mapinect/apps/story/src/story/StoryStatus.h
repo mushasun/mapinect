@@ -2,6 +2,7 @@
 #define SORYSTATUS_H__
 
 #include <map>
+#include "ofMain.h"
 
 namespace story
 {
@@ -11,20 +12,21 @@ namespace story
 		ADDING_RIVER,
 		ADDING_POWERPLANT,
 		ADDING_WATERPLANT,
-		ADDING_HOUSE
+		ADDING_HOUSE,
+		POWERPLANT_ACTIVE,
+		WATERPLANT_ACTIVE
 	};
-
+	
 	class StoryStatus
 	{
 		private:
-			std::map<StoryStatusProperty, bool> properties;
+			static std::map<StoryStatusProperty, bool> properties;
 		public:
-			inline			StoryStatus(){};
-			void			setup();
-			inline void		setProperty(StoryStatusProperty prop, bool val) { properties[prop] = val; }
-			inline bool		getProperty(StoryStatusProperty prop) { return properties[prop]; }
-		
+		static void			setup();
+		static void			setProperty(StoryStatusProperty prop, bool val);
+		static bool			getProperty(StoryStatusProperty prop);
 	};
+
 }
 
 #endif	// SORYSTATUS_H__

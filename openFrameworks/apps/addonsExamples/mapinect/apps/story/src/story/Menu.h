@@ -27,7 +27,7 @@ namespace story
 		Menu();
 		~Menu();
 
-		void			setup(StoryStatus* storyStatus, IButtonManager* btnManager);
+		void			setup(IButtonManager* btnManager);
 		void			update(float elapsedTime);
 		void			draw();
 		void			buttonEvent(const IButtonPtr& btn, bool released);
@@ -41,7 +41,6 @@ namespace story
 		map<int, MenuAction>	actions;
 		float					timeMenuShown;
 		IButtonManager*			btnManager;
-		StoryStatus*			storyStatus;
 
 		static ofImage*			imgStreetButton;
 		static ofImage*			imgStreetButtonOn;

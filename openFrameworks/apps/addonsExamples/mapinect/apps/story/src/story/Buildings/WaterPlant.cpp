@@ -3,6 +3,7 @@
 #include "ofGraphicsUtils.h"
 #include "ObjectButton.h"
 #include "../StoryConstants.h"
+#include "../StoryStatus.h"
 #include <cmath>
 
 namespace story
@@ -53,22 +54,25 @@ namespace story
 		switch(action)
 		{
 			case WATER_SWITCH:
-				if(!released)
+				if(released)
 				{
+					working = !working;
+
 					if (working)
+					{
+						btn->setPressed(txSwitchOn);
+						btn->setIdle(txSwitchOn);
+						onSound->play();
+						StoryStatus::setProperty(WATERPLANT_ACTIVE,true);
+					}
+					else
 					{
 						btn->setPressed(txSwitchOff);
 						btn->setIdle(txSwitchOff);
 						offSound->play();
 						onSound->stop();
+						StoryStatus::setProperty(WATERPLANT_ACTIVE,false);
 					}
-					else
-					{
-						btn->setPressed(txSwitchOn);
-						btn->setIdle(txSwitchOn);
-						onSound->play();
-					}
-					working = !working;
 				}
 				break;
 		}
@@ -103,8 +107,8 @@ namespace story
 			txSideA = new ofImage("data/texturas/water/SideA.jpg");
 			txSideB = new ofImage("data/texturas/water/SideB.jpg");
 			txSideC = new ofImage("data/texturas/water/SideC.jpg");
-			txSwitchOn = new ofImage("data/texturas/water/on.jpg");
-			txSwitchOff = new ofImage("data/texturas/water/off.jpg");
+			txSwitchOn = new ofImage("data/texturas/water/on.png");
+			txSwitchOff = new ofImage("data/texturas/water/off.png");
 	}
 
 	/*-------------------------------------------------------------*/
