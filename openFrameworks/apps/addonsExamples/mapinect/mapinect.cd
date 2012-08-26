@@ -1,0 +1,362 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ofxKinect" Collapsed="true">
+    <Position X="7.5" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>aMKEIiIEAAAAoCwEQaLgRAIWICFASAoAAImICAgEQQA=</HashCode>
+      <FileName>D:\fac\proygrado\openFrameworks\addons\ofxKinect\src\ofxKinect.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ofxKinectCalibration" Collapsed="true">
+    <Position X="9.25" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>SkDMAABEQAgAAIQCUBEhQQAU+AEQCEIAAAAEAAgmAAg=</HashCode>
+      <FileName>D:\fac\proygrado\openFrameworks\addons\ofxKinect\src\ofxKinectCalibration.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ofxFensterListener" Collapsed="true">
+    <Position X="13.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ECgACAAAAAAAAAgAAAIAAAAAAgAAAAAAIEAAAGAEAAA=</HashCode>
+      <FileName>D:\fac\proygrado\openFrameworks\addons\ofxFenster\src\ofxFenster.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::DataObject" Collapsed="true">
+    <Position X="0.5" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EggAAIAAABAAAAAAAACAAAACAAEgIDAAAAAAAAAAAgA=</HashCode>
+      <FileName>src\model\DataObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::Model" Collapsed="true">
+    <Position X="4" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAVAABAAAABAAAAEAGgAAQAQAAAAAAgAAKAAAAA=</HashCode>
+      <FileName>src\model\Model.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::ModelObject" Collapsed="true">
+    <Position X="5.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAEIAIAAAAABAAACIAAAAAiAAiACCCAEAAgACIAAA=</HashCode>
+      <FileName>src\model\ModelObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::PCBox" Collapsed="true">
+    <Position X="5.75" Y="13.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QECCCIgAAAAAABAKAAABEIgAAAAAEAAAAAoJSCBQAAQ=</HashCode>
+      <FileName>src\model\PCBox.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::PCModelObject" Collapsed="true">
+    <Position X="5.75" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAACAAAABMAHAlAAACAAAgAYAIJBCAACBA=</HashCode>
+      <FileName>src\model\PCModelObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::PCPolygon" Collapsed="true">
+    <Position X="4" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAARACAQaAAAUACUABIgQgAAAAAAAIgAAAAgAAAgCAw=</HashCode>
+      <FileName>src\model\PCPolygon.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::PCPolyhedron" Collapsed="true">
+    <Position X="5.75" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>YUAKCogAAABAAAACACIAAAkiAAAQAxgAKAoAAABACAA=</HashCode>
+      <FileName>src\model\PCPolyhedron.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::PCQuadrilateral" Collapsed="true">
+    <Position X="4" Y="13.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQQAABAAAAAAAAAAAAAgAAAAAAAAAAAQ=</HashCode>
+      <FileName>src\model\PCQuadrilateral.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::Polygon" Collapsed="true">
+    <Position X="2.25" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BgAAAgQAEAABGBEAQAIAAAAAAAAEAABAAAAEEAAABCA=</HashCode>
+      <FileName>src\model\Polygon.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::Table" Collapsed="true">
+    <Position X="4" Y="14.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAAAAAAAQCAQQAgAIAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>src\model\Table.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::Arduino" Collapsed="true">
+    <Position X="7.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AMICAiAUggICwCiJgiIQEBAAgACBAYUABFAAASAEECA=</HashCode>
+      <FileName>src\arduino\Arduino.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::ICPThread" Collapsed="true">
+    <Position X="7.5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAIAAAAMgAgCAAgBAAAAAAAAAACBAAAAAAAAACACACA=</HashCode>
+      <FileName>src\arduino\ICPThread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::Transformation" Collapsed="true">
+    <Position X="7.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACEAABASEAEgAQGAAAAAAAAAACAAAAAQAAAAAAAAAAw=</HashCode>
+      <FileName>src\arduino\Transformation.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::VM" Collapsed="true">
+    <Position X="9.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ECgAAAAQAAAAQAgABAIAAJAACgAAARQEIGAgAGYEBIE=</HashCode>
+      <FileName>src\vm\VM.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::ArmController" Collapsed="true">
+    <Position X="8.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAiAAIAIAwBKAIAAQAAAAAAAAAAAQABAQAAAAQAA=</HashCode>
+      <FileName>src\helpers\ArmController.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::ButtonManager" Collapsed="true">
+    <Position X="11" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAJAAAAAQQACAAAAIAIAAABAQAAAAAAAgAAAAAAABAA=</HashCode>
+      <FileName>src\helpers\ButtonManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::EventManager" Collapsed="true">
+    <Position X="15.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAABAAAAQAIAAAAAAAQAAAAABAAAAAIAABAAAAAAA=</HashCode>
+      <FileName>src\helpers\EventManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::userApp" Collapsed="true">
+    <Position X="13.25" Y="5" Width="1.5" />
+    <InheritanceLine Type="ofxFensterListener" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="13.938" Y="6.25" />
+        <Point X="13.938" Y="5.691" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>ECwAAAAAAAAgQAgAAAIAAAAAAggAAAAIIGAAAGAEAAA=</HashCode>
+      <FileName>src\helpers\mapinectApp.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::mapinectApp" Collapsed="true">
+    <Position X="13.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ECgAAAAAAAEgAAgAAAIAAAAAggAAAAAIIGAQAGBEAAg=</HashCode>
+      <FileName>src\helpers\mapinectApp.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::ModeManager" Collapsed="true">
+    <Position X="4" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAlAAAQAAAAAEAAAAICAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\helpers\ModeManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::IButtonManager" Collapsed="true">
+    <Position X="11" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>src\interfaces\IButtonManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::IApplication" Collapsed="true">
+    <Position X="10" Y="0.5" Width="1.5" />
+    <InheritanceLine Type="mapinect::INotification" FixedToPoint="true">
+      <Path>
+        <Point X="8.5" Y="0.875" />
+        <Point X="10" Y="0.875" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>ECggAAAAAAAAAAgAAAIAAAAAAgAABBAAIEAAEGAEAAA=</HashCode>
+      <FileName>src\interfaces\IApplication.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::IArmController" Collapsed="true">
+    <Position X="8.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAiAAAAIAwBKAAAAAAAAAAAAAAAAQABAAAAAAAAA=</HashCode>
+      <FileName>src\interfaces\IArmController.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::IButton" Collapsed="true">
+    <Position X="11" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CgAAAAAAAAAAAAAAAAAAAABgAAAAAIAAAABAAAAAAAA=</HashCode>
+      <FileName>src\interfaces\IButton.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::IModeManager" Collapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAlAAAAAAAAAAAAAAICAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\interfaces\IModeManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::INotification" Collapsed="true">
+    <Position X="7" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAIAAAAAAAAGAAAAAAAAAABAAAAAAAAAAAAAAAAAZAA=</HashCode>
+      <FileName>src\interfaces\INotification.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::IObject" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAIAAAAAAAAAAAAAAAAAAAAAgIDAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\interfaces\IObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::IPolygon" Collapsed="true">
+    <Position X="2.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAEAAAAAEAAAAAAAAAAAAAAAAAAAAEAAAABAA=</HashCode>
+      <FileName>src\interfaces\IPolygon.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::ObjectsThread" Collapsed="true">
+    <Position X="5.75" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAEAAAEAAgAAAEAAAAIAAAAAAAQCAAQACABAAg=</HashCode>
+      <FileName>src\pcm\ObjectsThread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::PCM" Collapsed="true">
+    <Position X="5.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAEAAiAAAIAABAAgAAAQAECAEACACIEAQE=</HashCode>
+      <FileName>src\pcm\PCM.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::PCMThread" Collapsed="true">
+    <Position X="5.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACKBAAAEAgEUCAggAAABQAAgAAAAAZACCAAIASAgABQ=</HashCode>
+      <FileName>src\pcm\PCMThread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::TrackedCloud" Collapsed="true">
+    <Position X="5.75" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEBAEAqAIIAECCQAFAAAQEAIAAAABMgAAAAAEAAAgA=</HashCode>
+      <FileName>src\pcm\TrackedCloud.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::TrackedTouch" Collapsed="true">
+    <Position X="4" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgQBIEGAACgAAECQACAAAAAgAAoCIAAAAAAAAUAAAgA=</HashCode>
+      <FileName>src\pcm\TrackedTouch.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::BaseButton" Collapsed="true">
+    <Position X="11" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CkAAAAQAAAQAAQCQAAIsAABgAAEQAoIAEARACAAAAgA=</HashCode>
+      <FileName>src\buttons\BaseButton.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::DraggableButton" Collapsed="true">
+    <Position X="13.25" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAABAAgAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\buttons\DraggableButton.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::ObjectButton" Collapsed="true">
+    <Position X="11" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>oAACIAEAAAAAIASAQQIBIEIgCgQQAAIAAIAAAAAACAA=</HashCode>
+      <FileName>src\buttons\ObjectButton.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::SimpleButton" Collapsed="true">
+    <Position X="13.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAIAAAAgAAAQAIIAAAAAAAAABAA=</HashCode>
+      <FileName>src\buttons\SimpleButton.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::Plane3D" Collapsed="true">
+    <Position X="2.25" Y="14.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAACQAAAAAAAAggAAEggQAAEAAACAAAAAAA=</HashCode>
+      <FileName>src\math\Plane3D.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="mapinect::Polygon3D" Collapsed="true">
+    <Position X="2.25" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIBgACgICACBAAACCAAQAlIEgAAiIIoCAAAAAAAAA=</HashCode>
+      <FileName>src\math\Polygon3D.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="mapinect::MapinectEvent" Collapsed="true">
+    <Position X="15.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAACCEAAAAAAAAAAAAAAABAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>src\helpers\EventManager.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="mapinect::DataMovement" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAIAAAAAAACAAAAAACAAAAAAAAAAAAAAACA=</HashCode>
+      <FileName>src\interfaces\DataMovement.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="mapinect::DataTouch" Collapsed="true">
+    <Position X="2.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAIAAAAAAAAAAAAAAQAAAAAQABIAAAAQAAAAAAAgA=</HashCode>
+      <FileName>src\interfaces\DataTouch.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Typedef Name="PCXYZ" Collapsed="true">
+    <Position X="9.25" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\helpers\mapinectTypes.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="PC" Collapsed="true">
+    <Position X="7.5" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\helpers\mapinectTypes.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="mapinect::IPolygonName" Collapsed="true">
+    <Position X="2.25" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\interfaces\IPolygon.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Enum Name="mapinect::ButtonEvent" Collapsed="true">
+    <Position X="15.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAgAAAAAAAABAAAAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>src\interfaces\IButton.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
