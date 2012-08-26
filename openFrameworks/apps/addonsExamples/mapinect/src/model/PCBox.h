@@ -51,12 +51,12 @@ namespace mapinect {
 			PCPolygonPtr					sideD;
 			PCPolygonPtr					bottom;
 
-			ofVec3f							messureBox();
-			ofVec3f							messures; // x = width , y = height, z = depth
+			ofVec3f							measureBox();
+			ofVec3f							measures; // x = width , y = height, z = depth
 			//float							width;			//Respecto a la cara A
 			//float							height;			//Respecto a la cara A
 			//float							depth;			//Respecto a la cara B
-			bool							messured;
+			bool							measured;
 
 	};
 }
