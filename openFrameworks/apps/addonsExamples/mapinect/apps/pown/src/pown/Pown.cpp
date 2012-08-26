@@ -39,7 +39,7 @@ namespace pown
 
 		static ofLight debugLight;
 		debugLight.setPosition(light.getPos());
-		debugLight.draw();
+		//debugLight.draw();
 
 		if (brickManager != NULL)
 			brickManager->draw(light);
@@ -47,22 +47,6 @@ namespace pown
 			(box->second)->draw(light);
 		
 		ofDisableAlphaBlending();
-	}
-
-	void Pown::handleCreateSpot(float elapsedTime)
-	{
-		static float spotTimer = 0.0f;
-		spotTimer += elapsedTime;
-		if (spotTimer >= PownConstants::SPOT_SEED_TIME)
-		{
-			spotTimer -= PownConstants::SPOT_SEED_TIME;
-			/*
-			ofVec3f spotCenter = floor->getMathModel().getPlane().project(box->getCenter());
-			spotCenter.y -= 0.001f;
-			Spot* spot = new Spot(spotCenter);
-			spots.insert(spot);
-			*/
-		}
 	}
 
 	void Pown::updateBeat(float elapsedTime)
