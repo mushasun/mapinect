@@ -543,4 +543,7 @@
       <UniqueIdentifier>{7432db53-8223-4c28-b9e3-d9c6f88b7d15}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="mapinect.cd" />
+  </ItemGroup>
 </Project>
