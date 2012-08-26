@@ -35,8 +35,6 @@ namespace pown
 	private:
 		void				updateBeat(float elapsedTime);
 
-		void				handleCreateSpot(float elapsedTime);
-
 		IPolygonPtr			floor;
 		BrickManager*		brickManager;
 		map<int, Box*>		boxes;
