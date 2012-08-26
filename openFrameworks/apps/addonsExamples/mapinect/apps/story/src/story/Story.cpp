@@ -29,11 +29,9 @@ namespace story {
 		House::setup();
 		WaterPlant::setup();
 		PowerPlant::setup();
+		StoryStatus::setup();
 
-		status = new StoryStatus();
-		status->setup();
-
-		menu.setup(status, btnManager);
+		menu.setup(btnManager);
 
 
 		modeManager->disableObjectTracking();
@@ -90,12 +88,12 @@ namespace story {
 		menu.update(elapsedTime);
 
 		//Modo
-		if (status->getProperty(ADDING_HOUSE) || status->getProperty(ADDING_POWERPLANT) || status->getProperty(ADDING_WATERPLANT))
+		if (StoryStatus::getProperty(ADDING_HOUSE) || StoryStatus::getProperty(ADDING_POWERPLANT) || StoryStatus::getProperty(ADDING_WATERPLANT))
 		{
 			modeManager->enableObjectTracking();
 			modeManager->disableTouchTracking();
 		}
-		else if (status->getProperty(ADDING_RIVER) || status->getProperty(ADDING_STREET))
+		else if (StoryStatus::getProperty(ADDING_RIVER) || StoryStatus::getProperty(ADDING_STREET))
 		{
 			modeManager->disableObjectTracking();
 			modeManager->enableTouchTracking();
@@ -121,27 +119,27 @@ namespace story {
 		}
 		else
 		{
-			if (status->getProperty(ADDING_HOUSE))
+			if (StoryStatus::getProperty(ADDING_HOUSE))
 			{
 				House* h  = new House(object, btnManager);
 				boxes.insert(pair<int, Box*>(object->getId(), h));
-				status->setProperty(ADDING_HOUSE,false);
+				StoryStatus::setProperty(ADDING_HOUSE,false);
 				modeManager->disableObjectTracking();
 				modeManager->enableTouchTracking();
 			}
-			else if (status->getProperty(ADDING_POWERPLANT))
+			else if (StoryStatus::getProperty(ADDING_POWERPLANT))
 			{
 				PowerPlant* plant  = new PowerPlant(object, btnManager);
                 boxes.insert(pair<int, Box*>(object->getId(), plant));
-                status->setProperty(ADDING_POWERPLANT, false);
+                StoryStatus::setProperty(ADDING_POWERPLANT, false);
                 modeManager->disableObjectTracking();
                 modeManager->enableTouchTracking();
 			}
-			else if (status->getProperty(ADDING_WATERPLANT))
+			else if (StoryStatus::getProperty(ADDING_WATERPLANT))
 			{
 				WaterPlant* plant  = new WaterPlant(object, btnManager);
                 boxes.insert(pair<int, Box*>(object->getId(), plant));
-                status->setProperty(ADDING_WATERPLANT, false);
+                StoryStatus::setProperty(ADDING_WATERPLANT, false);
                 modeManager->disableObjectTracking();
                 modeManager->enableTouchTracking();
 			}
@@ -192,23 +190,23 @@ namespace story {
 
 	void Story::touchTable(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
-		if (status->getProperty(ADDING_RIVER)||status->getProperty(ADDING_STREET))
+		if (StoryStatus::getProperty(ADDING_RIVER)||StoryStatus::getProperty(ADDING_STREET))
 		{
 			if (firstTouchDone && firstTableTouch.distance(touchPoint.getTouchPoint())> 0.05)
 			{
-				if (status->getProperty(ADDING_RIVER))
+				if (StoryStatus::getProperty(ADDING_RIVER))
 				{
 					river = River(firstTableTouch, touchPoint.getTouchPoint());					
 				}
-				if (status->getProperty(ADDING_STREET))
+				if (StoryStatus::getProperty(ADDING_STREET))
 				{
 					Road road = Road(firstTableTouch, touchPoint.getTouchPoint());
 					btnManager->addButton(road.button);
 					roads.push_back(road);
 				}
 				firstTouchDone = false;
-				status->setProperty(ADDING_RIVER,false);
-				status->setProperty(ADDING_STREET,false);
+				StoryStatus::setProperty(ADDING_RIVER,false);
+				StoryStatus::setProperty(ADDING_STREET,false);
 			}
 			else
 			{
@@ -233,6 +231,11 @@ namespace story {
 				selectedBoxIdx = touchedIdx;
 				ofVec3f spotCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(object->getCenter());
 				spotCenter.y -= 0.001f;
+				
+				vector<ofVec3f> vexs1 = object->getPolygon(kPolygonNameSideA)->getMathModel().getVertexs();
+				vector<ofVec3f> vexs2 = object->getPolygon(kPolygonNameSideB)->getMathModel().getVertexs();
+				float size = max(abs((vexs1[1] - vexs1[2]).length()),abs((vexs2[1] - vexs2[2]).length()))  + 0.03;
+				spot.setSize(size);
 				spot.setPosition(spotCenter);
 			}
 			else if(selectedBoxIdx != touchedIdx)

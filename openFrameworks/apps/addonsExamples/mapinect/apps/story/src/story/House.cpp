@@ -3,6 +3,7 @@
 #include "ofGraphicsUtils.h"
 #include "ObjectButton.h"
 #include "StoryConstants.h"
+#include "StoryStatus.h"
 #include <cmath>
 
 namespace story
@@ -25,7 +26,7 @@ namespace story
 	ofSoundPlayer*	House::click = NULL;
 	ofSoundPlayer*	House::call = NULL;
 	ofSoundPlayer*	House::water = NULL;
-	
+	ofSoundPlayer*	House::error = NULL;
 
 	/*-------------------------------------------------------------*/
 	void House::setup()
@@ -102,11 +103,26 @@ namespace story
 					ding->play();
 				break;
 			case LIGHT_SWITCH:
-				if(released)
+				if(released )
 				{
-					lightsOn = !lightsOn;
-					click->play();
-					assosiateTextures();
+					if(StoryStatus::getProperty(POWERPLANT_ACTIVE))
+					{
+						lightsOn = !lightsOn;
+						if(lightsOn)
+						{
+							btn->setPressed(txLightSwitchOn);
+							btn->setIdle(txLightSwitchOn);
+						}
+						else
+						{
+							btn->setPressed(txLightSwitchOff);
+							btn->setIdle(txLightSwitchOff);
+						}
+						click->play();
+						assosiateTextures();
+					}
+					else
+						error->play();
 				}
 				break;
 			case KNOCK:
@@ -114,17 +130,17 @@ namespace story
 					knock->play();
 				break;
 			case GARDEN:
-				if (connected_to_water)
+				if (connected_to_water && StoryStatus::getProperty(WATERPLANT_ACTIVE))
 				{
 					cout << "{ boton water }" << endl;
-					isWatering = !released;
+					isWatering = !isWatering;
 					if(isWatering)
 						water->setPaused(false);
 					else
 						water->setPaused(true);
 				}
-				else
-					cout << "no conectaste el agua... gil" << endl;
+				else if(released)
+					error->play();
 				break;
 			default:
 				cout << "no hay accion" << endl; 
@@ -152,10 +168,11 @@ namespace story
 					cout << " ++++ conecta la luz " << endl;
 
 					connected_to_energy = !connected_to_energy;
-					ObjectButton btnLightSwitch(object, kPolygonNameSideA, true, txLightSwitchOff, txLightSwitchOn,
+					ObjectButton btnLightSwitch(object, kPolygonNameSideA, true, txLightSwitchOff, txLightSwitchOff,
 								0.05,0.05, 0.06 ,0.04);
-					buttonsId.push_back(btnLightSwitch.getId());
-					actionsMap[btnLightSwitch.getId()] = LIGHT_SWITCH;
+					int btnLightId = btnLightSwitch.getId();
+					buttonsId.push_back(btnLightId);
+					actionsMap[btnLightId] = LIGHT_SWITCH;
 					btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnLightSwitch)));
 					break;
 			}
@@ -210,14 +227,14 @@ namespace story
 	void House::loadTextures()
 	{
 			txHouseTop = new ofImage("data/texturas/house/top.jpg");
-			txHouseSide = new ofImage("data/texturas/house/Side.png");
-			txHouseSideWindowOn = new ofImage("data/texturas/house/SideWindowOn.png");
-			txHouseSideWindowOff = new ofImage("data/texturas/house/SideWindowOff.png");
-			txHouseDoorBellOn = new ofImage("data/texturas/house/DoorBellOn.jpg");
-			txHouseDoorBellOff = new ofImage("data/texturas/house/DoorBellOff.jpg");
-			txLightSwitchOn = new ofImage("data/texturas/house/LightSwitchOn.jpg");
-			txLightSwitchOff = new ofImage("data/texturas/house/LightSwitchOff.jpg");
-			txHouseDoor = new ofImage("data/texturas/house/Door.png");
+			txHouseSide = new ofImage("data/texturas/house/Side.jpg");
+			txHouseSideWindowOn = new ofImage("data/texturas/house/SideWindowOn.jpg");
+			txHouseSideWindowOff = new ofImage("data/texturas/house/SideWindowOff.jpg");
+			txHouseDoorBellOn = new ofImage("data/texturas/house/DoorBellOn.png");
+			txHouseDoorBellOff = new ofImage("data/texturas/house/DoorBellOff.png");
+			txLightSwitchOn = new ofImage("data/texturas/house/LightSwitchOn.png");
+			txLightSwitchOff = new ofImage("data/texturas/house/LightSwitchOff.png");
+			txHouseDoor = new ofImage("data/texturas/house/Door.jpg");
 			txHouseGarden1 = new ofImage("data/texturas/house/garden1.jpg");
 			txHouseGarden2 = new ofImage("data/texturas/house/garden2.jpg");
 			txHouseGarden3 = new ofImage("data/texturas/house/garden3.jpg");
@@ -251,5 +268,7 @@ namespace story
 		water->play();
 		water->setPaused(true);
 		water->setLoop(true);
+		error = new ofSoundPlayer();
+		error->loadSound("data/sonidos/house/error.wav");
 	}
 }

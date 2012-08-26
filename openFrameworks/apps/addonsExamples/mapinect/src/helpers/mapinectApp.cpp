@@ -205,6 +205,10 @@ namespace mapinect {
 										fx_rgb, fy_rgb, cx_rgb, cy_rgb, T_rgb, R_rgb);
 		}
 
+		//Habilita usar texturas transparentes
+		glAlphaFunc(GL_GREATER, 0.02);
+		glEnable(GL_ALPHA_TEST);
+
 		app->setup();
 		EventManager::suscribe(app);
 		timer.start();

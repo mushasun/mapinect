@@ -3,6 +3,7 @@
 #include "ofGraphicsUtils.h"
 #include "ObjectButton.h"
 #include "../StoryConstants.h"
+#include "../StoryStatus.h"
 #include <cmath>
 
 namespace story
@@ -53,22 +54,25 @@ namespace story
 		switch(action)
 		{
 			case POWER_SWITCH:
-				if(!released)
+				if(released)
 				{
+					working = !working;
 					if (working)
+					{
+						onSound->play();
+						btn->setPressed(txSwitchOn);
+						btn->setIdle(txSwitchOn);
+						StoryStatus::setProperty(POWERPLANT_ACTIVE,true);
+					}
+					else
 					{
 						btn->setPressed(txSwitchOff);
 						btn->setIdle(txSwitchOff);
 						offSound->play();
 						onSound->stop();
+						StoryStatus::setProperty(POWERPLANT_ACTIVE,false);
 					}
-					else
-					{
-						onSound->play();
-						btn->setPressed(txSwitchOn);
-						btn->setIdle(txSwitchOn);
-					}
-					working = !working;
+					
 				}
 				break;
 			default:
@@ -105,8 +109,8 @@ namespace story
 			txTop = new ofImage("data/texturas/power/top.jpg");
 			txSideA = new ofImage("data/texturas/power/SideA.jpg");
 			txSideB = new ofImage("data/texturas/power/SideB.jpg");
-			txSwitchOn = new ofImage("data/texturas/power/btnon.jpg");
-			txSwitchOff = new ofImage("data/texturas/power/btnOff.jpg");
+			txSwitchOn = new ofImage("data/texturas/power/btnon.png");
+			txSwitchOff = new ofImage("data/texturas/power/btnOff.png");
 	}
 
 	/*-------------------------------------------------------------*/

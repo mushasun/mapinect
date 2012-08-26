@@ -24,10 +24,9 @@ namespace story
 	
 
 	/*-------------------------------------------------------------*/
-	void Menu::setup(StoryStatus* storyStatus, IButtonManager* btnManager)
+	void Menu::setup(IButtonManager* btnManager)
 	{
 		this->btnManager = btnManager;
-		this->storyStatus = storyStatus;
 
 		loadSounds();
 		loadTextures();
@@ -69,19 +68,19 @@ namespace story
 			switch(action)
 			{
 				case STREET:
-					storyStatus->setProperty(ADDING_STREET,true);
+					StoryStatus::setProperty(ADDING_STREET,true);
 					break;
 				case RIVER:
-					storyStatus->setProperty(ADDING_RIVER,true);
+					StoryStatus::setProperty(ADDING_RIVER,true);
 					break;
 				case HOUSE:
-					storyStatus->setProperty(ADDING_HOUSE,true);
+					StoryStatus::setProperty(ADDING_HOUSE,true);
 					break;
 				case POWERPLANT:
-					storyStatus->setProperty(ADDING_POWERPLANT,true);
+					StoryStatus::setProperty(ADDING_POWERPLANT,true);
 					break;
 				case WATERPLANT:
-					storyStatus->setProperty(ADDING_WATERPLANT,true);
+					StoryStatus::setProperty(ADDING_WATERPLANT,true);
 					break;
 			}
 			
@@ -177,7 +176,7 @@ namespace story
 		if (timeMenuShown >= 0)
 		{
 			timeMenuShown += elapsedTime;
-			if (timeMenuShown > 10)
+			if (timeMenuShown > StoryConstants::MENU_LIVE_TIME)
 			{
 				timeMenuShown = -1;
 				if (active) 

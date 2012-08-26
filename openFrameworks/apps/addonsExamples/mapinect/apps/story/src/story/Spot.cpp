@@ -7,9 +7,8 @@ namespace story
 {
 	ofImage* Spot::texture = NULL;
 
-	Spot::Spot() : rotation(0.0f)
+	Spot::Spot() : rotation(0.0f), size(0.05), active(false)
 	{
-		active = false;
 	}
 
 	Spot::~Spot()
@@ -26,7 +25,6 @@ namespace story
 		if(active)
 		{
 			ofSetColor(kRGBWhite);
-			glDisable(GL_DEPTH_TEST);
 
 			ofPushMatrix();
 				ofTranslate(position);
@@ -35,7 +33,6 @@ namespace story
 					ofDrawQuadTextured(area.getVertexs(), ofTexCoordsFor(*texture));
 				texture->unbind();
 			ofPopMatrix();
-			glEnable(GL_DEPTH_TEST);
 		}
 
 	}
@@ -53,7 +50,7 @@ namespace story
 	{ 
 		active = true;
 		position = pos; 
-		const float size = StoryConstants::SPOT_BASE_RADIUS;
+		
 		vector<ofVec3f> vertexs;
 		vertexs.push_back(ofVec3f(-size * 0.5f, 0, -size * 0.5f));
 		vertexs.push_back(ofVec3f(size * 0.5f, 0, -size * 0.5f));

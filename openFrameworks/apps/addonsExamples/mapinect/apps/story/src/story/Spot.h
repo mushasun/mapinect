@@ -19,11 +19,13 @@ namespace story
 		void			update(float elapsedTime);
 		void			draw();
 
-		inline void		setActive(bool active) { active = active; }
+		inline void		setActive(bool isActive) { active = isActive; }
+		inline void		setSize(float radius) { size = radius; }
 		void			setPosition(const ofVec3f& position);
 		inline bool		isActive() { return active; }
 	private:
 		ofVec3f			position;
+		float			size;
 		Polygon3D		area;
 		float			rotation;
 		bool			active;

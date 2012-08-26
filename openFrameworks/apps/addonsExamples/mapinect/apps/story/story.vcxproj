@@ -148,7 +148,6 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\story\River.h" />
     <ClInclude Include="src\story\Road.h" />
     <ClInclude Include="src\story\Spot.h" />
-    <ClInclude Include="src\story\StatusChangedData.h" />
     <ClInclude Include="src\story\Story.h" />
     <ClInclude Include="src\story\StoryConstants.h" />
     <ClInclude Include="src\story\StoryStatus.h" />
