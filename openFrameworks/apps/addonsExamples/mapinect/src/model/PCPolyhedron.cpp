@@ -131,7 +131,7 @@ namespace mapinect {
 		
 		vector<PCPolygonPtr> nuevos;
 		
-		PCPtr cloud_p (new PC());
+		PCPtr cloudP (new PC());
 		pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
 		pcl::SACSegmentation<pcl::PointXYZ> seg;
 		pcl::ExtractIndices<pcl::PointXYZ> extract;
@@ -145,12 +145,12 @@ namespace mapinect {
 		seg.setMaxIterations (50);
 		seg.setDistanceThreshold (planeTolerance); //original: 0.01
 		// Create the filtering object
-		int i = 0, nr_points = cloudTemp->points.size ();
+		int i = 0, nrPoints = cloudTemp->points.size ();
 		// mientras 7% de la nube no se haya procesad+o
 
 		int numFaces = 0;
 		
-		while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < maxFaces)
+		while (cloudTemp->points.size () > 0.07 * nrPoints && numFaces < maxFaces)
 		{
 			pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
 			// Segment the largest planar component from the remaining cloud
@@ -162,19 +162,19 @@ namespace mapinect {
 			}
 
 			//FIX
-			PCPtr cloud_filtered_temp_inliers (new PC());
-			PCPtr cloud_filtered_temp_outliers (new PC());
+			PCPtr cloudFilteredTempInliers (new PC());
+			PCPtr cloudFilteredTempOutliers (new PC());
 			if(inliers->indices.size() != cloudTemp->size())
 			{
 				// Extract the inliers
 				extract.setInputCloud (cloudTemp);
 				extract.setIndices (inliers);
 				extract.setNegative (false);
-				extract.filter (*cloud_filtered_temp_inliers);
-				cloud_p = cloud_filtered_temp_inliers;
+				extract.filter (*cloudFilteredTempInliers);
+				cloudP = cloudFilteredTempInliers;
 			}
 			else
-				cloud_p = cloudTemp;
+				cloudP = cloudTemp;
 		
 			// Create the filtering object
 			extract.setInputCloud (cloudTemp);
@@ -182,38 +182,38 @@ namespace mapinect {
 			extract.setNegative (true);
 
 		
-			if(cloud_p->size() != cloudTemp->size())
-				extract.filter (*cloud_filtered_temp_outliers);
+			if(cloudP->size() != cloudTemp->size())
+				extract.filter (*cloudFilteredTempOutliers);
 
-			cloudTemp = cloud_filtered_temp_outliers;
+			cloudTemp = cloudFilteredTempOutliers;
 
-			saveCloud("prefilter_pol" + ofToString(i) + ".pcd",*cloud_p);
+			saveCloud("prefilter_pol" + ofToString(i) + ".pcd", *cloudP);
 			
 			//Remove outliers by clustering	
-			vector<pcl::PointIndices> cluster_indices(findClusters(cloud_p, 0.02, 10, 10000));
+			vector<pcl::PointIndices> clusterIndices(findClusters(cloudP, 0.02, 10, 10000));
 			int debuccount = 0;
 
-			PCPtr cloud_p_filtered (new PC());
-			if(cluster_indices.size() > 0)
+			PCPtr cloudPFiltered (new PC());
+			if(clusterIndices.size() > 0)
 			{
-				cloud_p_filtered = getCloudFromIndices(cloud_p, cluster_indices.at(0));
+				cloudPFiltered = getCloudFromIndices(cloudP, clusterIndices.at(0));
 			}
 
-			saveCloud("postfilter_pol" + ofToString(i) + ".pcd",*cloud_p_filtered);
-			if (cloud_p_filtered->size() < 4)
+			saveCloud("postfilter_pol" + ofToString(i) + ".pcd",*cloudPFiltered);
+			if (cloudPFiltered->size() < 4)
 				break;
 
 			//proyecto los puntos sobre el plano
 			pcl::ProjectInliers<pcl::PointXYZ> proj; 
 			proj.setModelType(pcl::SACMODEL_PLANE); 
-			PCPtr projected_cloud (new PC()); 
-			proj.setInputCloud(cloud_p_filtered); 
+			PCPtr projectedCloud (new PC()); 
+			proj.setInputCloud(cloudPFiltered); 
 			proj.setModelCoefficients(coefficients); 
-			proj.filter(*projected_cloud);
+			proj.filter(*projectedCloud);
 
-			saveCloud("postfilter_pol_proy" + ofToString(i) + ".pcd",*projected_cloud);
+			saveCloud("postfilter_pol_proy" + ofToString(i) + ".pcd",*projectedCloud);
 
-			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projected_cloud));
+			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projectedCloud));
 			pcp->detectPolygon();
 			
 			nuevos.push_back(pcp);

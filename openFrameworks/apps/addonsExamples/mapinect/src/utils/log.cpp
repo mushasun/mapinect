@@ -13,14 +13,14 @@ void enableCout(bool enable)
 	enabledMutex.lock();
 		if (enable != isEnabled)
 		{
-			static streambuf* cout_sbuf = NULL;
+			static streambuf* coutSbuf = NULL;
 			if (enable)
 			{
-				cout.rdbuf(cout_sbuf); // restore the original stream buffer
+				cout.rdbuf(coutSbuf); // restore the original stream buffer
 			}
 			else
 			{
-				cout_sbuf = std::cout.rdbuf(); // save original sbuf
+				coutSbuf = std::cout.rdbuf(); // save original sbuf
 				ofstream   fout("/dev/null");
 				cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'
 			}

@@ -57,7 +57,7 @@ namespace mapinect {
 		static ofxMutex					mutexInstance;
 
 		list<MapinectEvent>				eventsToFire;
-		vector<INotification*>			object_listeners;
+		vector<INotification*>			objectListeners;
 
 	};
 }

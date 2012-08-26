@@ -386,19 +386,19 @@ PCPtr getCloudWithoutMutex(const ofVec3f& min, const ofVec3f& max, int stride)
 	partialCloud->height   = ceil((max.y - min.y) / vStride);
 	partialCloud->is_dense = false;
 	partialCloud->points.resize(partialCloud->width * partialCloud->height);
-	register float* depth_map = gKinect->getDistancePixels();
+	register float* depthMap = gKinect->getDistancePixels();
 	// Iterate over the image's rectangle with step = stride
-	register int depth_idx = 0;
-	int cloud_idx = 0;
+	register int depthIndex = 0;
+	int cloudIndex = 0;
 	for(int v = min.y; v < max.y; v += vStride) {
 		for(register int u = min.x; u < max.x; u += hStride) {
-			depth_idx = v * KINECT_DEFAULT_WIDTH + u;
+			depthIndex = v * KINECT_DEFAULT_WIDTH + u;
 
-			PCXYZ& pt = partialCloud->points[cloud_idx];
-			cloud_idx++;
+			PCXYZ& pt = partialCloud->points[cloudIndex];
+			cloudIndex++;
 
 			// Check for invalid measures
-			if(depth_map[depth_idx] == 0)
+			if(depthMap[depthIndex] == 0)
 			{
 				pt.x = pt.y = pt.z = 0;
 			}
@@ -510,7 +510,7 @@ PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficien
 
 	// Create the filtering object
 	int i = 0;
-	int nr_points = cloud->points.size ();
+	int nrPoints = cloud->points.size ();
 	seg.setInputCloud(cloud);
 	seg.segment(*inliers, coefficients);
 	if (inliers->indices.size () == 0)
@@ -609,11 +609,11 @@ vector<ofVec3f> projectPointsInPlane(const vector<Eigen::Vector3f>& points, cons
 
 ObjectType getObjectType(const PCPtr& cloud)
 {
-	float box_prob = boxProbability(cloud);
+	float boxProb = boxProbability(cloud);
 
 	ObjectType ret;
 	
-	if(box_prob > .50)
+	if(boxProb > .50)
 		return ret = BOX;
 	else
 		return ret = UNRECOGNIZED;
@@ -640,7 +640,7 @@ float boxProbability(const PCPtr& cloud)
 		pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
 		pcl::SACSegmentation<PCXYZ> seg;
 		pcl::ExtractIndices<PCXYZ> extract;
-		PCPtr cloud_p (new PC());
+		PCPtr cloudP (new PC());
 		PCPtr cloudTemp (new PC(*cloud));
 	
 		seg.setOptimizeCoefficients (true);
@@ -651,10 +651,10 @@ float boxProbability(const PCPtr& cloud)
 		seg.setDistanceThreshold (0.009); //original: 0.01
 
 		// Create the filtering object
-		int nr_points = cloud->points.size ();
+		int nrPoints = cloud->points.size ();
 
 		int numFaces = 0;
-		while (cloudTemp->points.size () > 0.07 * nr_points && numFaces < 8)
+		while (cloudTemp->points.size () > 0.07 * nrPoints && numFaces < 8)
 		{
 			pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
 			// Segment the largest planar component from the remaining cloud
@@ -668,19 +668,19 @@ float boxProbability(const PCPtr& cloud)
 			pointsInPlanes += inliers->indices.size();
 
 			//FIX
-			PCPtr cloud_filtered_temp_inliers (new PC());
-			PCPtr cloud_filtered_temp_outliers (new PC());
+			PCPtr cloudFilteredTempInliers (new PC());
+			PCPtr cloudFilteredTempOutliers (new PC());
 			if(inliers->indices.size() != cloudTemp->size())
 			{
 				// Extract the inliers
 				extract.setInputCloud (cloudTemp);
 				extract.setIndices (inliers);
 				extract.setNegative (false);
-				extract.filter (*cloud_filtered_temp_inliers);
-				cloud_p = cloud_filtered_temp_inliers;
+				extract.filter (*cloudFilteredTempInliers);
+				cloudP = cloudFilteredTempInliers;
 			}
 			else
-				cloud_p = cloudTemp;
+				cloudP = cloudTemp;
 		
 			ofVec3f norm (coefficients->values[0],coefficients->values[1],coefficients->values[2]);
 			//Chequeo que las normales sean perpendiculares entre si y paraleas o perpendiculares a la mesa.
@@ -691,7 +691,7 @@ float boxProbability(const PCPtr& cloud)
 					return 0;
 				//si es paralela a la mesa, chequeo que esté sobre la mesa
 				if(dot > 0.8)
-					if(!table->isOverTable(cloud_p))
+					if(!table->isOverTable(cloudP))
 						return 0;
 			}
 			for(int i = 0; i < normals.size(); i++)
@@ -708,10 +708,10 @@ float boxProbability(const PCPtr& cloud)
 			extract.setNegative (true);
 
 		
-			if(cloud_p->size() != cloudTemp->size())
-				extract.filter (*cloud_filtered_temp_outliers);
+			if(cloudP->size() != cloudTemp->size())
+				extract.filter (*cloudFilteredTempOutliers);
 
-			cloudTemp = cloud_filtered_temp_outliers;
+			cloudTemp = cloudFilteredTempOutliers;
 
 			numFaces++;
 		}
@@ -735,9 +735,9 @@ vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& 
 	pcl::ModelCoefficients::Ptr coeff (new pcl::ModelCoefficients(coefficients));
 	// Project points onto the table plane 
 
-	PC projected_cloud = *cloud; 
+	PC projectedCloud = *cloud; 
 
-	//saveCloudAsFile("projected.pcd",projected_cloud);
+	//saveCloudAsFile("projected.pcd",projectedCloud);
 
 	PCXYZ pto = cloud->at(1);
 	float val = coefficients.values[0] * pto.x + 
@@ -749,31 +749,31 @@ vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& 
 		;;
 
 	// store the table top plane parameters 
-	Eigen::Vector3f plane_normal; 
-	plane_normal.x() = coeff->values[0]; 
-	plane_normal.y() = coeff->values[1]; 
-	plane_normal.z() = coeff->values[2]; 
+	Eigen::Vector3f planeNormal; 
+	planeNormal.x() = coeff->values[0]; 
+	planeNormal.y() = coeff->values[1]; 
+	planeNormal.z() = coeff->values[2]; 
 	
 	// compute an orthogonal normal to the plane normal 
-	Eigen::Vector3f v = plane_normal.unitOrthogonal(); 
+	Eigen::Vector3f v = planeNormal.unitOrthogonal(); 
 	
 	// take the cross product of the two normals to get 
 	// a thirds normal, on the plane 
-	Eigen::Vector3f u = plane_normal.cross(v); 
+	Eigen::Vector3f u = planeNormal.cross(v); 
 
 	// project the 3D point onto a 2D plane 
 	std::vector<cv::Point2f> points; 
 	
 	// choose a point on the plane 
-	Eigen::Vector3f p0(projected_cloud.points[0].x, 
-						projected_cloud.points[0].y, 
-						projected_cloud.points[0].z); 
+	Eigen::Vector3f p0(projectedCloud.points[0].x, 
+						projectedCloud.points[0].y, 
+						projectedCloud.points[0].z); 
 	
-	for(unsigned int ii=0; ii<projected_cloud.points.size(); ii++) 
+	for(unsigned int ii=0; ii<projectedCloud.points.size(); ii++) 
 	{ 
-		Eigen::Vector3f p3d(projected_cloud.points[ii].x, 
-								projected_cloud.points[ii].y, 
-								projected_cloud.points[ii].z); 
+		Eigen::Vector3f p3d(projectedCloud.points[ii].x, 
+								projectedCloud.points[ii].y, 
+								projectedCloud.points[ii].z); 
 
 		// subtract all 3D points with a point in the plane 
 		// this will move the origin of the 3D coordinate system 
@@ -786,8 +786,8 @@ vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& 
 		points.push_back(p2d); 
 	} 
 
-	cv::Mat points_mat(points); 
-	cv::RotatedRect rrect = cv::minAreaRect(points_mat); 
+	cv::Mat pointsMat(points); 
+	cv::RotatedRect rrect = cv::minAreaRect(pointsMat); 
 	cv::Point2f rrPts[4]; 
 	rrect.points(rrPts); 
 
@@ -901,19 +901,19 @@ int getDifferencesCount(const PCPtr& src,
 	pcl::ExtractIndices<PCXYZ> extract;
 	pcl::PointIndices::Ptr repeatedPoints (new pcl::PointIndices ());
 	pcl::KdTreeFLANN<PCXYZ>::Ptr kdTree (new pcl::KdTreeFLANN<PCXYZ> (false));
-	std::vector<int> k_indices (1);
-	std::vector<float> k_distances (1);
+	std::vector<int> kIndices (1);
+	std::vector<float> kDistances (1);
 	std::vector<int> indicesToRemove;
 	int foundedPoints = 0;
 
 	kdTree->setInputCloud(big);
 
 	for (size_t i = 0; i < small->points.size (); ++i){
-		foundedPoints = kdTree->nearestKSearch(small->at(i),1,k_indices,k_distances);
+		foundedPoints = kdTree->nearestKSearch(small->at(i),1,kIndices,kDistances);
 		if(foundedPoints > 0)
 		{
-			if(k_distances.at(0) < distanceThreshold)
-				indicesToRemove.push_back(k_indices.at(0));
+			if(kDistances.at(0) < distanceThreshold)
+				indicesToRemove.push_back(kIndices.at(0));
 		}
 	}
 
@@ -967,12 +967,12 @@ vector<ofVec3f>::const_iterator findCloser(const ofVec3f& v, const vector<ofVec3
 float computeVolume(const PCPtr& cloud)
 {
 	enableCout(false);
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull (new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudHull (new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::ConvexHull<pcl::PointXYZ> chull;
 	chull.setInputCloud (cloud);
 	chull.setDimension(3);
 	chull.setComputeAreaVolume(true);
-	chull.reconstruct (*cloud_hull);
+	chull.reconstruct (*cloudHull);
 	enableCout(true);
 	return chull.getTotalVolume();
 }

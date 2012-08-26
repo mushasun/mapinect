@@ -24,7 +24,7 @@ namespace mapinect {
 		void			followObject(const IObjectPtr&);
 		ofVec3f			setArm3dCoordinates(const ofVec3f& position);
 		ofVec3f			getKinect3dCoordinates();
-		ofVec3f			moveMotor(int motor_id, signed int degrees);
+		ofVec3f			moveMotor(int motorId, signed int degrees);
 		void			stopFollowing();
 
 	private:
@@ -32,7 +32,7 @@ namespace mapinect {
 		Arduino*		arduino;
 		ofVec3f			eye;
 		ofVec3f			target;
-		IObjectPtr		object_to_follow;
+		IObjectPtr		objectToFollow;
 
 	};
 }

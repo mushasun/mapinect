@@ -112,16 +112,16 @@ namespace mapinect {
 		{
 				setObjectsThreadStatus("Detecting clusters...");
 				saveCloud("rawClusters.pcd", *cloud);
-				std::vector<pcl::PointIndices> cluster_indices =
+				std::vector<pcl::PointIndices> clusterIndices =
 				findClusters(cloud, Constants::OBJECT_CLUSTER_TOLERANCE(), Constants::OBJECT_CLUSTER_MIN_SIZE());
 
-			for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+			for (std::vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it)
 			{
-				PCPtr cloud_cluster = getCloudFromIndices(cloud, *it);
+				PCPtr cloudCluster = getCloudFromIndices(cloud, *it);
 
-				saveCloud("objectsCluster" + ofToString(debugCounter) + ".pcd", *cloud_cluster);
+				saveCloud("objectsCluster" + ofToString(debugCounter) + ".pcd", *cloudCluster);
 
-				newClouds.push_back(TrackedCloudPtr(new TrackedCloud(cloud_cluster)));
+				newClouds.push_back(TrackedCloudPtr(new TrackedCloud(cloudCluster)));
 				debugCounter++;
 			}
 		}
@@ -131,7 +131,7 @@ namespace mapinect {
 		list<TrackedCloudPtr> cloudsToAdd;
 
 		debugCounter = 0;
-		int max_iter = 10;
+		int maxIter = 10;
 		setObjectsThreadStatus("Matching clusters with existing ones...");
 		do
 		{
@@ -150,9 +150,9 @@ namespace mapinect {
 			}
 			newClouds = cloudsToMatch;
 			cloudsToMatch.clear();
-			max_iter--;
+			maxIter--;
 		}
-		while (newClouds.size() > 0 && max_iter > 0);
+		while (newClouds.size() > 0 && maxIter > 0);
 
 		// Effectuate the update of the tracked cloud with the new ones
 		setObjectsThreadStatus("Update existing and new data...");
