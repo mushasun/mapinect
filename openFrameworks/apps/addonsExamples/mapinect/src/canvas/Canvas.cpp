@@ -7,15 +7,15 @@ namespace mapinect
 {
 	const int kMappingOriginVertex = 1;
 
-	Canvas::Canvas(int polygonId, const Polygon3D& polygon, int width, int height, const ofColor& backColor, const ofColor& foreColor)
-		: polygonId(polygonId), polygon(polygon), width(width), height(height), backColor(backColor), foreColor(foreColor), needsToRedraw(true)
+	Canvas::Canvas(int polygonId, const Polygon3D& polygon, int width, int height, const ofColor& backColor, const ofColor& foreColor, float lineWidth)
+		: polygonId(polygonId), polygon(polygon), width(width), height(height), backColor(backColor), foreColor(foreColor), needsToRedraw(true), lineWidth(lineWidth)
 	{
 		int vertexCount = polygon.getVertexs().size();
 		assert(vertexCount >= 3);
 
 		texture.setup(width, height);
 		texture.background(backColor);
-
+		texture.setLineWidth(lineWidth);
 		update(polygon);
 	}
 
@@ -32,6 +32,12 @@ namespace mapinect
 	void Canvas::setForeColor(const ofColor& color)
 	{
 		foreColor = color;
+	}
+
+	void Canvas::setLineWidth(float width)
+	{
+		lineWidth = width;
+		texture.setLineWidth(lineWidth);
 	}
 
 	void Canvas::update(const Polygon3D& polygon)
@@ -73,6 +79,7 @@ namespace mapinect
 
 	void Canvas::draw()
 	{
+		redrawIfNecessary();
 		ofImage* cairoTexture = texture.getTextureRef();
 		cairoTexture->bind();
 		ofDrawQuadTextured(polygon.getVertexs(), texCoords);
@@ -99,7 +106,7 @@ namespace mapinect
 			case kTouchTypeStarted:
 				touchPoints[id] = touchPoint;
 				drawers[id] = IDrawer::SCreate(mapped, foreColor);
-				setForeColor(ofRandomColor());
+				//setForeColor(ofRandomColor());
 				break;
 			case kTouchTypeHolding:
 				touchPoints[id] = touchPoint;

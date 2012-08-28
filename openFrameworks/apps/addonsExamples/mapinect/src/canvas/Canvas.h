@@ -15,7 +15,7 @@ namespace mapinect
 	class Canvas
 	{
 	public:
-		Canvas(int polygonId, const Polygon3D& polygon, int width, int height, const ofColor& backColor, const ofColor& foreColor);
+		Canvas(int polygonId, const Polygon3D& polygon, int width, int height, const ofColor& backColor, const ofColor& foreColor, float lineWidth);
 		virtual ~Canvas();
 
 		void					update(const Polygon3D& polygon);
@@ -26,6 +26,8 @@ namespace mapinect
 		void					setBackColor(const ofColor&);
 		inline const ofColor&	getForeColor() const					{ return foreColor; }
 		void					setForeColor(const ofColor&);
+		inline float			getLineWidth() const					{ return lineWidth; }
+		void					setLineWidth(float);
 
 		void					redrawIfNecessary();
 	private:
@@ -36,6 +38,7 @@ namespace mapinect
 		Polygon3D				polygon;
 		int						width;
 		int						height;
+		float					lineWidth;
 		ofColor					backColor;
 		ofColor					foreColor;
 		ofxCairoTexture			texture;

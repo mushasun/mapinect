@@ -2,6 +2,7 @@
 #include "ofGraphicsUtils.h"
 #include "pointUtils.h"
 #include "ofMain.h"
+#include "Globals.h"
 
 namespace mapinect {
 
@@ -88,10 +89,17 @@ namespace mapinect {
 		v2 = v1 + normV1V2 * width;
 
 		
-		vertexs.push_back(v2);
-		vertexs.push_back(v2 + norm * height);
-		vertexs.push_back(v1 + norm * height);
-		vertexs.push_back(v1);
+		
+
+		gModel->tableMutex.lock();
+		TablePtr table = gModel->getTable();
+		Plane3D plane (table->getCoefficients());
+		gModel->tableMutex.unlock();
+
+		vertexs.push_back(plane.project(v2));
+		vertexs.push_back(plane.project(v2 + norm * height));
+		vertexs.push_back(plane.project(v1 + norm * height));
+		vertexs.push_back(plane.project(v1));
 
 		polygon = Polygon3D(vertexs);
 	}

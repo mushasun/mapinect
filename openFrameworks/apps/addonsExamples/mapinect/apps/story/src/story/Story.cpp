@@ -6,6 +6,7 @@
 #include "Road.h"
 #include "StoryConstants.h"
 
+
 namespace story {
 	
 	//--------------------------------------------------------------
@@ -33,9 +34,9 @@ namespace story {
 
 		menu.setup(btnManager);
 
-
 		modeManager->disableObjectTracking();
 		firstTouchDone = false;
+		river = NULL;
 	}
 
 	//--------------------------------------------------------------
@@ -51,6 +52,9 @@ namespace story {
 			it->second->draw();
 		if(spot.isActive())
 			spot.draw();
+
+		if(river != NULL)
+			river->draw();
 
 		for (map<int, DataTouch>::const_iterator it = touchPoints.begin(); it != touchPoints.end(); ++it)
 		{
@@ -127,6 +131,16 @@ namespace story {
 		if (object->getId() == TABLE_ID)
 		{
 			floor = object;
+			Polygon3D table = object->getPolygons().at(0)->getMathModel();
+			ofVec3f tableNormal = table.getPlane().getNormal();
+			ofVec3f translateCanvas = tableNormal * -0.009;
+			vector<ofVec3f> oldVexs = table.getVertexs();
+			vector<ofVec3f> newVexs;
+			for(int i = 0; i < 4; i++)
+				newVexs.push_back(oldVexs.at(i)+translateCanvas);
+
+			table.setVertexs(newVexs);
+			river = new Canvas(object->getId(),table, 300,300,ofColor(220,110,50),ofColor(75,140,250),50);
 		}
 		else
 		{
@@ -154,9 +168,14 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::objectUpdated(const IObjectPtr& object)
 	{
-		map<int,Box*>::iterator box = boxes.find(object->getId());
-		if(box != boxes.end())
-			box->second->updateModelObject(object);
+		if (object->getId() == TABLE_ID)
+			river->update(object->getPolygons().at(0)->getMathModel());
+		else
+		{
+			map<int,Box*>::iterator box = boxes.find(object->getId());
+			if(box != boxes.end())
+				box->second->updateModelObject(object);
+		}
 		/*Box* b = new Box(object);
 		boxes.insert(pair<int, Box*>(1, b));*/
 	}
@@ -195,14 +214,16 @@ namespace story {
 
 	void Story::touchTable(const IObjectPtr& object, const DataTouch& touchPoint)
 	{
-		if (StoryStatus::getProperty(ADDING_RIVER)||StoryStatus::getProperty(ADDING_STREET))
+		if (StoryStatus::getProperty(ADDING_RIVER))
+		{
+			cout << "touchRiver" << endl;
+			river->touchEvent(touchPoint);
+		}
+		else if (StoryStatus::getProperty(ADDING_STREET))
 		{
 			if (firstTouchDone && firstTableTouch.distance(touchPoint.getTouchPoint())> 0.05)
 			{
-				if (StoryStatus::getProperty(ADDING_RIVER))
-				{
-					river = River(firstTableTouch, touchPoint.getTouchPoint());					
-				}
+				
 				if (StoryStatus::getProperty(ADDING_STREET))
 				{
 					Road road = Road(firstTableTouch, touchPoint.getTouchPoint());
@@ -210,7 +231,6 @@ namespace story {
 					roads.push_back(road);
 				}
 				firstTouchDone = false;
-				StoryStatus::setProperty(ADDING_RIVER,false);
 				StoryStatus::setProperty(ADDING_STREET,false);
 			}
 			else

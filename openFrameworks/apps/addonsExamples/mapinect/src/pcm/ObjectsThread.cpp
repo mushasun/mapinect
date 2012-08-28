@@ -99,9 +99,7 @@ namespace mapinect {
 		int size = trackedClouds.size();
 		trackedClouds.remove_if(countIsLessThanZero);
 		int dif = size - trackedClouds.size(); 
-		if (dif > 0) {
-			cout << "Se eliminaron " << dif << "trackedClouds" << endl;
-		}
+		
 		if(cloud->empty())
 		{
 			updateDetectedObjects();
