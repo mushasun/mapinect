@@ -18,6 +18,7 @@
 #include "SimpleButton.h"
 #include "Menu.h"
 #include "StoryStatus.h"
+#include "Canvas.h"
 
 
 namespace story
@@ -61,7 +62,8 @@ namespace story
 
 		std::list<Road>				roads;
 		std::list<Park>				parks;
-		River						river; //por ahora, solo un río
+		Canvas*						river;
+		//River						river; //por ahora, solo un río
 		Menu						menu;
 		StoryStatus*				status;
 

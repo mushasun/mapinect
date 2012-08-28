@@ -19,10 +19,6 @@ namespace mapinect {
 
 	ButtonEvent DraggableButton::updateTouchPoints(const IObjectPtr& object, const DataTouch& touch)
 	{
-		if(isInTouch(object, touch))
-			cout << "[ drag in TOUCH ]" << endl;
-		else
-			cout << "		[ NO TOUCH ] " << endl;
 		map<int,DataTouch> prevContacts = this->getContacts();
 		ButtonEvent evnt = SimpleButton::updateTouchPoints(object, touch);
 		map<int,DataTouch> postContacts = this->getContacts();
@@ -64,16 +60,23 @@ namespace mapinect {
 			{
 				ofVec3f leaderTouch = leaderTouchIter->second.getTouchPoint();
 				ofVec3f postTouch = postTouchIter->second.getTouchPoint();
-				float scale = (postTouch - leaderTouch).length();
+				ofVec3f scaleVector = postTouch - leaderTouch;
+				float scale = abs(scaleVector.length());
 
 				if(lastScale != numeric_limits<float>::min() &&
 					fabs(lastScale - scale) > 0.008)
 				{		
-					float scaleFactor = lastScale < scale ? 1.1 : 0.9;
+					scaleVector.x = abs(scaleVector.x);
+					scaleVector.y = abs(scaleVector.y);
+					scaleVector.z = abs(scaleVector.z);
+
+					ofVec3f unit = ofVec3f(1.0,1.0,1.0);
+
+					ofVec3f scaleFactor = lastScale < scale ? unit + scaleVector : unit - scaleVector;
 					cout << scale << endl;
 
 					Eigen::Affine3f scaleMatrix;
-					scaleMatrix = Eigen::Scaling<float>(scaleFactor,scaleFactor,scaleFactor);
+					scaleMatrix = Eigen::Scaling<float>(scaleFactor.x,scaleFactor.y,scaleFactor.z);
 					polygon = transformPolygon3D(polygon, scaleMatrix);
 				}
 				lastScale = scale;

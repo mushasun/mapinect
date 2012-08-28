@@ -46,7 +46,7 @@ namespace drawing {
 		{
 			for (map<int, Canvas*>::iterator p = ob->second.begin(); p != ob->second.end(); ++p)
 			{
-				p->second->redrawIfNecessary();
+				//p->second->redrawIfNecessary();
 				p->second->draw();
 			}
 		}
