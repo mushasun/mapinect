@@ -30,7 +30,7 @@ namespace mapinect
 			gFeatures[FEATURE_UNIFORM_DENSITY] = XML.getValue(FEATURE_CONFIG "UNIFORM_DENSITY",true);
 			gFeatures[FEATURE_CALIBRATE_TABLE] = XML.getValue(FEATURE_CONFIG "CALIBRATE_TABLE",false);
 			gFeatures[FEATURE_INVALIDATE_OBJECT_BY_VOLUME] = XML.getValue(FEATURE_CONFIG "INVALIDATE_OBJECT_BY_VOLUME",true);
-			
+			gFeatures[FEATURE_ENABLE_MAPPING_WHILE_MOVING] = XML.getValue(FEATURE_CONFIG "FEATURE_ENABLE_MAPPING_WHILE_MOVING", true);
 		}
 
 	}
@@ -83,6 +83,11 @@ namespace mapinect
 	bool IsFeatureCalibrateTableActive() 
 	{
 		return IsFeatureActive(FEATURE_CALIBRATE_TABLE);
+	}
+
+	bool IsFeatureEnableMappingWhileMovingActive() 
+	{
+		return IsFeatureActive(FEATURE_ENABLE_MAPPING_WHILE_MOVING);
 	}
 
 }
