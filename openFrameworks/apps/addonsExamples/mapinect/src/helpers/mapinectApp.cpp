@@ -226,7 +226,9 @@ namespace mapinect {
 		window->setBackgroundColor(0, 0, 0);
 		ofSetColor(255);
 		
-		if (gTransformation->getIsWorldTransformationStable()) 
+		// No se proyecta cuando el feature ENABLE_MAPPING_WHILE_MOVING está desactivado y la transformación no está estable (brazo en movimiento)
+		if ( IsFeatureEnableMappingWhileMovingActive() || 
+			 ( (!IsFeatureEnableMappingWhileMovingActive()) && gTransformation->getIsWorldTransformationStable() ) ) 
 		{
 			// Dibujar mesa y objetos detectados
 			vm->setupView();
