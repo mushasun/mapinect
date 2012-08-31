@@ -108,26 +108,6 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void mapinectApp::keyPressed (int key) {
 
-		bool debug = true;
-		if (debug) {
-			int angleVariation = 0;
-			switch (key) {
-			case OF_KEY_UP:
-				angleVariation++;
-				break;
-			case OF_KEY_DOWN:
-				angleVariation--;
-				break;
-			}
-			if (angleVariation != 0) {
-				angle = ofClamp(angle + angleVariation, -30, 30);
-				if (IsFeatureKinectActive())
-				{
-					gKinect->setCameraTiltAngle(angle);
-					printf("Current Kinect tilt angle: %d\n", angle);
-				}
-			}
-		}		
 		cv.keyPressed(key);
 		pcm.keyPressed(key);
 		arduino.keyPressed(key);
