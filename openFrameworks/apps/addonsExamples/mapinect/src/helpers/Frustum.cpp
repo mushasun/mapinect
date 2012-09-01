@@ -1,6 +1,7 @@
 #include "Frustum.h"
 #include "Constants.h"
 #include "Globals.h"
+#include "pointUtils.h"
 #include <pcl/common/transforms.h>
 
 namespace mapinect
@@ -9,7 +10,6 @@ namespace mapinect
 
 	Frustum::Frustum()
 	{
-		;
 	}
 	
 	void Frustum::RecalculateFrustum()
@@ -50,14 +50,30 @@ namespace mapinect
 		// La segunda letra es si es top o bottom
 		// La tercer letra es si es left o right
 		ftl = fc + (up * Constants::HFAR_2) - (right * Constants::WFAR_2);
+		instance->sftl = getScreenCoords(ftl);
+//		instance->sftl.z = 0;
 		ftr = fc + (up * Constants::HFAR_2) + (right * Constants::WFAR_2);
+		instance->sftr = getScreenCoords(ftr); 
+//		instance->sftr.z = 0;
 		fbl = fc - (up * Constants::HFAR_2) - (right * Constants::WFAR_2);
+		instance->sfbl = getScreenCoords(fbl);  
+//		instance->sfbl.z = 0;
 		fbr = fc - (up * Constants::HFAR_2) + (right * Constants::WFAR_2);
+		instance->sfbr = getScreenCoords(fbr);
+//		instance->sfbr.z = 0;
 
 		ntl = nc + (up * Constants::HNEAR_2) - (right * Constants::WNEAR_2);
+		instance->sntl = getScreenCoords(ntl);  
+//		instance->sntl.z = 0; 
 		ntr = nc + (up * Constants::HNEAR_2) + (right * Constants::WNEAR_2);
+		instance->sntr = getScreenCoords(ntr);  
+//		instance->sntr.z = 0;
 		nbl = nc - (up * Constants::HNEAR_2) - (right * Constants::WNEAR_2);
+		instance->snbl = getScreenCoords(nbl);  
+//		instance->snbl.z = 0;
 		nbr = nc - (up * Constants::HNEAR_2) + (right * Constants::WNEAR_2);
+		instance->snbr = getScreenCoords(nbr);
+//		instance->snbr.z = 0;
 
 		// Crear los planos que limitan al cono de visión
 		//	Pasar los vértices siempre en el mismo orden, sentido horario, visto desde afuera del cono, para que todas las normales apunten adentro	
@@ -69,7 +85,7 @@ namespace mapinect
 		instance->coneLeftSide = Plane3D(ftl,ntl,nbl);
 	}
 
-	bool Frustum::IsInFrustum(ofVec3f vec)
+	bool Frustum::IsInFrustum(const ofVec3f& vec)
 	{
 		if (instance == NULL)
 		{
@@ -92,7 +108,49 @@ namespace mapinect
 			   && vecInsideConeLeftSide
 			   && vecInsideConeRightSide;
 
+//		if (inViewField == false)
+//			cout << "objecto fuera del frustum" << endl; 
+//		else 
+//			cout << "objeto dentro del cono de vision" << endl;
+
 		return inViewField;
+	}
+
+	bool Frustum::IsInFrustum(const vector<ofVec3f>& vertices)
+	{
+		bool verticesInFrustum = true;
+		for (int i = 0; i < vertices.size(); i++) {
+			verticesInFrustum = verticesInFrustum && IsInFrustum(vertices.at(i));
+		}
+		
+//		if (verticesInFrustum == false)
+//			cout << "objecto dentro del frustum" << endl; 
+//		else 
+//			cout << "objeto fuera" << endl;
+
+		return verticesInFrustum;
+	}
+
+	void Frustum::drawFrustum()
+	{
+		if (instance != NULL)
+		{	
+			ofSetColor(255,255,255);
+			ofLine(instance->sftl, instance->sntl);
+			ofLine(instance->sftl, instance->sfbl);
+			ofLine(instance->sftr, instance->sntr);				
+			ofLine(instance->sftr, instance->sfbr);				
+			ofLine(instance->sfbl, instance->snbl);
+			ofLine(instance->sntl, instance->snbl);
+			ofLine(instance->sfbr, instance->snbr);
+			ofLine(instance->sntr, instance->snbr);
+
+			ofLine(instance->snbl, instance->snbr);
+			ofLine(instance->sntl, instance->sntr);
+
+			ofLine(instance->sfbl, instance->sfbr);
+			ofLine(instance->sftl, instance->sftr);
+		}	
 	}
 
 }
