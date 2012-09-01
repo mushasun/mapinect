@@ -91,7 +91,14 @@ namespace mapinect {
 		// Updating temporal detections
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {			
 			if((*iter)->hasObject())
-				(*iter)->setInViewField(Frustum::IsInFrustum((*iter)->getTrackedObject()->getCenter()));
+			{
+				PCPolyhedron* polyhedron = dynamic_cast<PCPolyhedron*>((*iter)->getTrackedObject().get());
+				if (polyhedron != NULL)
+				{
+					// Está dentro del frustum si todos sus vértices lo están
+					(*iter)->setInViewField(Frustum::IsInFrustum(polyhedron->getVertexs()));
+				}
+			}
 			if(!(*iter)->hasObject() || (*iter)->isInViewField())
 				(*iter)->addCounter(-1);
 		}
@@ -121,7 +128,7 @@ namespace mapinect {
 
 				saveCloud("objectsCluster" + ofToString(debugCounter) + ".pcd", *cloudCluster);
 
-				newClouds.push_back(TrackedCloudPtr(new TrackedCloud(cloudCluster)));
+				newClouds.push_back(TrackedCloudPtr (new TrackedCloud(cloudCluster)));
 				debugCounter++;
 			}
 		}
@@ -167,19 +174,19 @@ namespace mapinect {
 		TrackedCloudPtr currentMatch;
 		removed = false;
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
-			if((*iter)->isInViewField()) // Si está fuera del viewfield no chequea el matching
+			// Chequea el matching contra todas las trackedClouds, estén o no dentro del frustum
+			float dist = (*iter)->matchingTrackedObjects(trackedCloud);
+			if (dist != -1 && dist < currentDist)
 			{
-				float dist = (*iter)->matchingTrackedObjects(trackedCloud);
-				if (dist != -1 && dist < currentDist)
-				{
-					currentMatch = (*iter);
-					currentDist = dist;
-				}
+				currentMatch = (*iter);
+				currentDist = dist;
 			}
 		}
 		if(currentDist != numeric_limits<float>::max())
 		{
-			removed = currentMatch->confirmMatch(trackedCloud,removedCloud);
+			// Solo se confirma el matching, y se hace el update cuando el objeto que se viene trackeando esté dentro del cono de visión
+			if(currentMatch->isInViewField())
+				removed = currentMatch->confirmMatch(trackedCloud,removedCloud);
 			return true;
 		}
 		return false;
