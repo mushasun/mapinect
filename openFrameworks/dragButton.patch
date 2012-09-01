@@ -1,0 +1,965 @@
+Index: apps/addonsExamples/mapinect/apps/story/src/story/Box.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/apps/story/src/story/Box.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/apps/story/src/story/Box.cpp	(working copy)
+@@ -45,7 +45,7 @@
+ 			}
+ 
+ 			texture->bind();
+-			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(*texture));
++			ofDrawQuad((*p)->getMathModel().getVertexs());
+ 			texture->unbind();
+ 		}
+ 	}
+Index: apps/addonsExamples/mapinect/apps/story/src/story/Road.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/apps/story/src/story/Road.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/apps/story/src/story/Road.cpp	(working copy)
+@@ -19,9 +19,9 @@
+ 		draggable.push_back(begin - direccion);
+ 				draggable.push_back(end - direccion);
+ 		Polygon3D area = Polygon3D(draggable);
+-		button = IButtonPtr(new DraggableButton ( draggable,
+-							texture,
+-							texture));
++		DraggableButton* btn = new DraggableButton(draggable, texture, texture);
++		btn->setRepeatBehavior(ofTexCoordsFor(), false, true);
++		button = IButtonPtr(btn);
+ 	}
+ 
+ 	Road::~Road()
+Index: apps/addonsExamples/mapinect/apps/story/src/story/Spot.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/apps/story/src/story/Spot.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/apps/story/src/story/Spot.cpp	(working copy)
+@@ -30,7 +30,7 @@
+ 				ofTranslate(position);
+ 				ofRotateY(RAD2DEG(rotation));
+ 				texture->bind();
+-					ofDrawQuadTextured(area.getVertexs(), ofTexCoordsFor(*texture));
++					ofDrawQuad(area.getVertexs());
+ 				texture->unbind();
+ 			ofPopMatrix();
+ 		}
+Index: apps/addonsExamples/mapinect/apps/story/src/story/Story.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/apps/story/src/story/Story.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/apps/story/src/story/Story.cpp	(working copy)
+@@ -140,7 +140,7 @@
+ 				newVexs.push_back(oldVexs.at(i)+translateCanvas);
+ 
+ 			table.setVertexs(newVexs);
+-			river = new Canvas(object->getId(),table, 300,300,ofColor(220,110,50),ofColor(75,140,250),50);
++			river = new Canvas(object->getId(),table, 512,512,ofColor(220,110,50),ofColor(75,140,250),50);
+ 		}
+ 		else
+ 		{
+Index: apps/addonsExamples/mapinect/mapinect.vcxproj
+===================================================================
+--- apps/addonsExamples/mapinect/mapinect.vcxproj	(revision 412)
++++ apps/addonsExamples/mapinect/mapinect.vcxproj	(working copy)
+@@ -237,6 +237,7 @@
+     <ClCompile Include="src\utils\ofVecUtils.cpp" />
+     <ClCompile Include="src\utils\pointUtils.cpp" />
+     <ClCompile Include="src\utils\Timer.cpp" />
++    <ClCompile Include="src\utils\transformationUtils.cpp" />
+     <ClCompile Include="src\utils\utils.cpp" />
+     <ClCompile Include="src\vm\VM.cpp" />
+   </ItemGroup>
+@@ -328,6 +329,7 @@
+     <ClInclude Include="src\utils\ofVecUtils.h" />
+     <ClInclude Include="src\utils\pointUtils.h" />
+     <ClInclude Include="src\utils\Timer.h" />
++    <ClInclude Include="src\utils\transformationUtils.h" />
+     <ClInclude Include="src\utils\utils.h" />
+     <ClInclude Include="src\vm\VM.h" />
+   </ItemGroup>
+Index: apps/addonsExamples/mapinect/mapinect.vcxproj.filters
+===================================================================
+--- apps/addonsExamples/mapinect/mapinect.vcxproj.filters	(revision 412)
++++ apps/addonsExamples/mapinect/mapinect.vcxproj.filters	(working copy)
+@@ -199,8 +199,9 @@
+     <ClCompile Include="src\canvas\Trace.cpp">
+       <Filter>canvas</Filter>
+     </ClCompile>
+-    <ClCompile Include="src\helpers\Frustum.cpp">
+-      <Filter>helpers</Filter>
++    <ClCompile Include="src\helpers\Frustum.cpp" />
++    <ClCompile Include="src\utils\transformationUtils.cpp">
++      <Filter>utils</Filter>
+     </ClCompile>
+   </ItemGroup>
+   <ItemGroup>
+@@ -468,8 +469,9 @@
+     <ClInclude Include="src\canvas\Trace.h">
+       <Filter>canvas</Filter>
+     </ClInclude>
+-    <ClInclude Include="src\helpers\Frustum.h">
+-      <Filter>helpers</Filter>
++    <ClInclude Include="src\helpers\Frustum.h" />
++    <ClInclude Include="src\utils\transformationUtils.h">
++      <Filter>utils</Filter>
+     </ClInclude>
+   </ItemGroup>
+   <ItemGroup>
+@@ -512,9 +514,6 @@
+     <Filter Include="utils">
+       <UniqueIdentifier>{954b758c-e7fc-490b-b7cd-a4f889ca4a31}</UniqueIdentifier>
+     </Filter>
+-    <Filter Include="arduino">
+-      <UniqueIdentifier>{9605fff1-8eeb-4d38-bef1-e2f58f931ec9}</UniqueIdentifier>
+-    </Filter>
+     <Filter Include="vm">
+       <UniqueIdentifier>{89e6d4e9-6520-433b-967b-9913157b32d1}</UniqueIdentifier>
+     </Filter>
+@@ -548,6 +547,9 @@
+     <Filter Include="canvas">
+       <UniqueIdentifier>{7432db53-8223-4c28-b9e3-d9c6f88b7d15}</UniqueIdentifier>
+     </Filter>
++    <Filter Include="arduino">
++      <UniqueIdentifier>{9605fff1-8eeb-4d38-bef1-e2f58f931ec9}</UniqueIdentifier>
++    </Filter>
+   </ItemGroup>
+   <ItemGroup>
+     <None Include="mapinect.cd" />
+Index: apps/addonsExamples/mapinect/src/arduino/ICPThread.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/arduino/ICPThread.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/arduino/ICPThread.cpp	(working copy)
+@@ -4,6 +4,7 @@
+ #include <pcl/segmentation/sac_segmentation.h>
+ #include "Globals.h"
+ #include "pointUtils.h"
++#include "transformationUtils.h"
+ #include "Constants.h"
+ #include "Plane3D.h"
+ 
+Index: apps/addonsExamples/mapinect/src/buttons/BaseButton.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/buttons/BaseButton.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/buttons/BaseButton.cpp	(working copy)
+@@ -1,5 +1,6 @@
+ #include "BaseButton.h"
+ 
++#include "ofGraphicsUtils.h"
+ #include "pointUtils.h"
+ 
+ namespace mapinect {
+@@ -18,6 +19,7 @@
+ 		leaderChanged = false;
+ 		zIndex = 1;
+ 		touching = false;
++		texCoords = ofTexCoordsFor();
+ 	}
+ 
+ 	BaseButton::BaseButton(const ofColor& idle, const ofColor& pressed)
+Index: apps/addonsExamples/mapinect/src/buttons/BaseButton.h
+===================================================================
+--- apps/addonsExamples/mapinect/src/buttons/BaseButton.h	(revision 412)
++++ apps/addonsExamples/mapinect/src/buttons/BaseButton.h	(working copy)
+@@ -28,6 +28,7 @@
+ 		inline void			setPressed(const ofColor& color)	{ pressedColor = color; }
+ 		inline void			setPressed(ofImage* img)			{ pressedTexture = img; }
+ 		inline void			setDrawMode(const ButtonDrawMode& m){ mode = m; }
++		inline void			setTexCoords(const vector<ofVec2f>& coords) { texCoords = coords; }
+ 		inline void			setZIndex(int index)				{ zIndex = index; }
+ 		
+ 		virtual void				draw() = 0;
+@@ -50,6 +51,7 @@
+ 		ofColor				pressedColor;
+ 		ofImage*			idleTexture;
+ 		ofImage*			pressedTexture;
++		vector<ofVec2f>		texCoords;
+ 
+ 		int					zIndex;
+ 	private:
+Index: apps/addonsExamples/mapinect/src/buttons/DraggableButton.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/buttons/DraggableButton.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/buttons/DraggableButton.cpp	(working copy)
+@@ -1,15 +1,23 @@
+ #include "DraggableButton.h"
++
++#include "ofGraphicsUtils.h"
+ #include "pointUtils.h"
++#include "transformationUtils.h"
+ 
+ namespace mapinect {
+-	DraggableButton::DraggableButton(Polygon3D polygon, ofColor idle, ofColor pressed):SimpleButton(polygon, idle, pressed)
++	DraggableButton::DraggableButton(Polygon3D polygon, ofColor idle, ofColor pressed)
++		: SimpleButton(polygon, idle, pressed),
++			translationBase(BAD_OFVEC3F), resizeLineBase(BAD_OFVEC3F, BAD_OFVEC3F)
+ 	{
+-		lastScale = numeric_limits<float>::min();
++		setRepeatBehavior(ofTexCoordsFor(), false, false);
++		//lastScale = numeric_limits<float>::min();
+ 	}
+ 
+-	DraggableButton::DraggableButton(Polygon3D polygon, ofImage* idle, ofImage* pressed):SimpleButton(polygon, idle, pressed)
++	DraggableButton::DraggableButton(Polygon3D polygon, ofImage* idle, ofImage* pressed)
++		: SimpleButton(polygon, idle, pressed),
++			translationBase(BAD_OFVEC3F), resizeLineBase(BAD_OFVEC3F, BAD_OFVEC3F)
+ 	{
+-		lastScale = numeric_limits<float>::min();
++		//lastScale = numeric_limits<float>::min();
+ 	}
+ 
+ 
+@@ -17,79 +25,163 @@
+ 	{
+ 	}
+ 
++	void DraggableButton::setRepeatBehavior(const vector<ofVec2f>& baseTexCoords, bool repeatS, bool repeatT)
++	{
++		this->baseTexCoords = baseTexCoords;
++		this->repeatS = repeatS;
++		this->repeatT = repeatT;
++	}
++
+ 	ButtonEvent DraggableButton::updateTouchPoints(const IObjectPtr& object, const DataTouch& touch)
+ 	{
+ 		map<int,DataTouch> prevContacts = this->getContacts();
+ 		ButtonEvent evnt = SimpleButton::updateTouchPoints(object, touch);
+ 		map<int,DataTouch> postContacts = this->getContacts();
+ 
+-		//cout << "t: " << touch.getId() << " l: " << leaderTouch << endl;
+-
+-		if(prevContacts.size() >= 1 &&
+-			postContacts.size() >= 1 &&
+-			!leaderChanged &&
+-			leaderTouch == touch.getId())
++		if (!leaderChanged)
+ 		{
+-			map<int,DataTouch>::iterator prevTouchIter = prevContacts.find(touch.getId());
+-			map<int,DataTouch>::iterator postTouchIter = postContacts.find(touch.getId());
+ 
+-			if (prevTouchIter != prevContacts.end() &&
+-				postTouchIter != postContacts.end())
+-			{
+-				ofVec3f prevTouch = prevTouchIter->second.getTouchPoint();
+-				ofVec3f postTouch = postTouchIter->second.getTouchPoint();
++			isTranslating = prevContacts.size() == 1 && postContacts.size() == 1;
+ 
+-				ofVec3f translation = postTouch - prevTouch;
++			bool wasResizing = isResizing;
++			bool willResize = prevContacts.size() == 1 && postContacts.size() == 2;
++			isResizing = prevContacts.size() == 2 && postContacts.size() == 2;
+ 
+-				Eigen::Affine3f traslation;
+-				traslation = Eigen::Translation<float,3>(translation.x,translation.y,translation.z);
++			ofVec3f leaderPrevPos = prevContacts.find(leaderTouch)->second.getTouchPoint();
++			ofVec3f leaderPostPos = postContacts.find(leaderTouch)->second.getTouchPoint();
+ 
+-				polygon = transformPolygon3D(polygon, traslation);
++			if (isTranslating)
++			{
++				ofVec3f translation = leaderPostPos - leaderPrevPos;
++
++				polygon = transformPolygon3D(polygon, getTranslationMatrix(translation));
+ 			}
+-		}
+ 		
+-		if(prevContacts.size() == 2 &&
+-				postContacts.size() == 2 &&
+-				!leaderChanged &&
+-				leaderTouch != touch.getId())
+-		{
+-			map<int,DataTouch>::iterator leaderTouchIter = postContacts.find(leaderTouch);
+-			map<int,DataTouch>::iterator postTouchIter = postContacts.find(touch.getId());
+-			if (postContacts.count(leaderTouch) > 0 &&
+-				postContacts.count(touch.getId()) > 0)
++			if (leaderTouch != touch.getId())
+ 			{
+-				ofVec3f leaderTouch = leaderTouchIter->second.getTouchPoint();
+-				ofVec3f postTouch = postTouchIter->second.getTouchPoint();
+-				ofVec3f scaleVector = postTouch - leaderTouch;
+-				float scale = abs(scaleVector.length());
++				ofVec3f followerPostPos = postContacts.find(touch.getId())->second.getTouchPoint();
++				if (willResize)
++				{
++					resizeLineBase = Line3D(leaderPostPos, followerPostPos);
++					resizePolygonBase = Polygon3D(polygon);
+ 
+-				if(lastScale != numeric_limits<float>::min() &&
+-					fabs(lastScale - scale) > 0.008)
+-				{		
+-					scaleVector.x = abs(scaleVector.x);
+-					scaleVector.y = abs(scaleVector.y);
+-					scaleVector.z = abs(scaleVector.z);
++					const float angleArea = 20.0f;
++					float angle = resizePolygonBase.getEdges()[0].getDirection()
++						.angle(resizeLineBase.getDirection());
++					if (inRange(angle, -angleArea, +angleArea))
++						resizeScalingDirection = kHorizontalScaling;
++					else if (inRange(90 - angle, -angleArea, +angleArea))
++						resizeScalingDirection = kVerticalScaling;
++					else
++						resizeScalingDirection = kUniformScaling;
+ 
+-					ofVec3f unit = ofVec3f(1.0,1.0,1.0);
++					cout << "scaling direction: " << resizeScalingDirection << endl;
++				}
++				else if (isResizing)
++				{
++					Line3D currentLine(leaderPostPos, followerPostPos);
++					
++					float rotation = resizeLineBase.getDirection().angle(currentLine.getDirection());
++					const float rotationLimit = 1.0f;
+ 
+-					ofVec3f scaleFactor = lastScale < scale ? unit + scaleVector : unit - scaleVector;
+-					cout << scale << endl;
++					float scale = currentLine.segmentLength() / resizeLineBase.segmentLength();
++					cout << "scale: " << scale << endl;
++					const int sAxisIx = 0;
++					const int tAxisIx = 3;
++					const float scaleLimit = 0.008;
+ 
+-					Eigen::Affine3f scaleMatrix;
+-					scaleMatrix = Eigen::Scaling<float>(scaleFactor.x,scaleFactor.y,scaleFactor.z);
+-					polygon = transformPolygon3D(polygon, scaleMatrix);
++					{
++						Eigen::Affine3f transformation = getTranslationMatrix(resizePolygonBase.getCentroid());
++						if (abs(scale - 1.0f) > scaleLimit)
++						{
++							if (resizeScalingDirection == kUniformScaling)
++							{
++								transformation = transformation * getScaleMatrix(scale);
++							}
++							else if (resizeScalingDirection == kHorizontalScaling)
++							{
++								const Line3D& sAxis(resizePolygonBase.getEdges()[sAxisIx]);
++								transformation = transformation * getScaleMatrix(sAxis.getDirection().getNormalized() * scale);
++							}
++							else if (resizeScalingDirection == kVerticalScaling)
++							{
++								const Line3D& tAxis(resizePolygonBase.getEdges()[tAxisIx]);
++								transformation = transformation * getScaleMatrix(tAxis.getDirection().getNormalized() * scale);
++							}
++						}
++						if (abs(rotation) > rotationLimit)
++						{
++							transformation = transformation * getRotationMatrix(
++								resizePolygonBase.getPlane().getNormal(),
++								ofDegToRad(-rotation));
++						}
++						transformation = transformation * getTranslationMatrix(-resizePolygonBase.getCentroid());
++
++						polygon = transformPolygon3D(resizePolygonBase, transformation);
++					}
++					{
++						/*
++						setTexCoords(ofTexCoordsFor(
++							repeatS ? sScale : 1.0f,
++							repeatT ? tScale : 1.0f,
++							baseTexCoords[3].x,
++							baseTexCoords[3].y));
++						*/
++					}
+ 				}
+-				lastScale = scale;
++				else if (wasResizing)
++				{
++					// nothing to do here
++				}
++			}
++			/*
++			if(isResizing && leaderTouch != touch.getId())
++			{
++				map<int,DataTouch>::iterator leaderTouchIter = postContacts.find(leaderTouch);
++				map<int,DataTouch>::iterator postTouchIter = postContacts.find(touch.getId());
++				if (postContacts.count(leaderTouch) > 0 &&
++					postContacts.count(touch.getId()) > 0)
++				{
++					ofVec3f leaderTouch = leaderTouchIter->second.getTouchPoint();
++					ofVec3f postTouch = postTouchIter->second.getTouchPoint();
++					ofVec3f scaleVector = postTouch - leaderTouch;
++					float scale = abs(scaleVector.length());
+ 
++					if(lastScale != numeric_limits<float>::min() &&
++						fabs(lastScale - scale) > 0.008)
++					{		
++						scaleVector.x = abs(scaleVector.x);
++						scaleVector.y = abs(scaleVector.y);
++						scaleVector.z = abs(scaleVector.z);
+ 
+-			}
+-		}
++						ofVec3f unit = ofVec3f(1.0,1.0,1.0);
+ 
+-		if(postContacts.size() != 2)
+-		{
+-			lastScale = numeric_limits<float>::min();
+-		}
++						ofVec3f scaleFactor = lastScale < scale ? unit + scaleVector : unit - scaleVector;
++						cout << scale << endl;
++					
++						const int sLine = 0;
++						const int tLine = 3;
++						float sLen = polygon.getEdges()[sLine].segmentLength();
++						float tLen = polygon.getEdges()[tLine].segmentLength();
+ 
++						polygon = transformPolygon3D(polygon,
++							getTranslationMatrix(polygon.getCentroid()) *
++							getScaleMatrix(scaleFactor) *
++							getTranslationMatrix(-polygon.getCentroid()));
++
++					}
++					lastScale = scale;
++
++
++				}
++				*/
++			}
++			/*
++			if(postContacts.size() != 2)
++			{
++				lastScale = numeric_limits<float>::min();
++			}
++			*/
+ 		return evnt;
+ 	}
+ }
+\ No newline at end of file
+Index: apps/addonsExamples/mapinect/src/buttons/DraggableButton.h
+===================================================================
+--- apps/addonsExamples/mapinect/src/buttons/DraggableButton.h	(revision 412)
++++ apps/addonsExamples/mapinect/src/buttons/DraggableButton.h	(working copy)
+@@ -3,6 +3,8 @@
+ 
+ #include "SimpleButton.h"
+ 
++#include "Line3D.h"
++
+ namespace mapinect {
+ 	class DraggableButton;
+ 	typedef boost::shared_ptr<DraggableButton> DraggableButtonPtr;
+@@ -14,9 +16,28 @@
+ 			DraggableButton(Polygon3D polygon, ofImage* idle, ofImage* pressed);
+ 			~DraggableButton(void);
+ 
++			void	setRepeatBehavior(const vector<ofVec2f>& baseTexCoords, bool repeatS, bool repeatT);
++
+ 			virtual ButtonEvent updateTouchPoints(const IObjectPtr& object, const DataTouch& touch);	
+ 		private:
+-			float lastScale;
++			bool				isTranslating;
++			bool				isResizing;
++
++			ofVec3f				translationBase;
++			Line3D				resizeLineBase;
++			Polygon3D			resizePolygonBase;
++			
++			enum ScalingDirection
++			{
++				kUniformScaling = 0,
++				kHorizontalScaling,
++				kVerticalScaling
++			};
++			ScalingDirection	resizeScalingDirection;
++
++			vector<ofVec2f>		baseTexCoords;
++			bool				repeatS;
++			bool				repeatT;
+ 	};
+ }
+ #endif
+\ No newline at end of file
+Index: apps/addonsExamples/mapinect/src/buttons/ObjectButton.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/buttons/ObjectButton.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/buttons/ObjectButton.cpp	(working copy)
+@@ -219,7 +219,7 @@
+ 			ofSetColor(kRGBWhite);
+ 			ofImage* tex = isPressed() ? pressedTexture : idleTexture;
+ 			tex->bind();
+-			ofDrawQuadTextured(pol.getVertexs(), ofTexCoordsFor(*tex));
++			ofDrawQuadTextured(pol.getVertexs(), texCoords);
+ 			tex->unbind();
+ 		}
+ 		else if (mode == kButtonDrawModePlain)
+@@ -230,12 +230,7 @@
+ 				ofSetColor(idleColor);
+ 			
+ 			vector<ofVec3f> vertexs = pol.getVertexs();
+-			glBegin(GL_QUADS);      
+-				glVertex3f(vertexs.at(0).x, vertexs.at(0).y, vertexs.at(0).z); 
+-				glVertex3f(vertexs.at(1).x, vertexs.at(1).y, vertexs.at(1).z);
+-				glVertex3f(vertexs.at(2).x, vertexs.at(2).y, vertexs.at(2).z);
+-				glVertex3f(vertexs.at(3).x, vertexs.at(3).y, vertexs.at(3).z);
+-			glEnd();
++			ofDrawQuad(vertexs);
+ 		}
+ 	}
+ 
+Index: apps/addonsExamples/mapinect/src/buttons/SimpleButton.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/buttons/SimpleButton.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/buttons/SimpleButton.cpp	(working copy)
+@@ -46,18 +46,12 @@
+ 				else
+ 					ofSetColor(idleColor);
+ 
+-				glBegin(GL_QUADS);      
+-					glVertex3f(vertexs.at(0).x, vertexs.at(0).y, vertexs.at(0).z); 
+-					glVertex3f(vertexs.at(1).x, vertexs.at(1).y, vertexs.at(1).z);
+-					glVertex3f(vertexs.at(2).x, vertexs.at(2).y, vertexs.at(2).z);
+-					glVertex3f(vertexs.at(3).x, vertexs.at(3).y, vertexs.at(3).z);
+-				glEnd();
++				ofDrawQuad(vertexs);
+ 				break;
+ 			case kButtonDrawModeTextured:
+ 				ofSetColor(kRGBWhite);
+ 				ofImage* tex = isPressed() ? pressedTexture: idleTexture;
+ 				tex->bind();
+-				vector<ofVec2f> texCoords(ofTexCoordsFor(*tex));
+ 				ofDrawQuadTextured(vertexs, texCoords);
+ 				tex->unbind();
+ 				break;
+Index: apps/addonsExamples/mapinect/src/helpers/mapinectApp.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/helpers/mapinectApp.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/helpers/mapinectApp.cpp	(working copy)
+@@ -210,6 +210,11 @@
+ 				TRGB, RRGB);
+ 		}
+ 
++		// Use traditional TEXTURE_2D for GL_REPEAT and normalized textures
++		ofDisableArbTex();
++		ofEnableNormalizedTexCoords();
++		ofSetTextureWrap(GL_CLAMP, GL_CLAMP);
++
+ 		//Habilita usar texturas transparentes
+ 		glAlphaFunc(GL_GREATER, 0.02);
+ 		glEnable(GL_ALPHA_TEST);
+Index: apps/addonsExamples/mapinect/src/interfaces/IButton.h
+===================================================================
+--- apps/addonsExamples/mapinect/src/interfaces/IButton.h	(revision 412)
++++ apps/addonsExamples/mapinect/src/interfaces/IButton.h	(working copy)
+@@ -34,6 +34,7 @@
+ 		virtual void setPressed(ofImage*)							= 0;
+ 		virtual void setPressed(const ofColor&)						= 0;
+ 		virtual void setDrawMode(const ButtonDrawMode&)				= 0;
++		virtual void setTexCoords(const vector<ofVec2f>& texCoords) = 0;
+ 		virtual vector<ofVec3f>		getVertexs()					= 0;
+ 
+ 	};
+Index: apps/addonsExamples/mapinect/src/model/PCModelObject.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/model/PCModelObject.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/model/PCModelObject.cpp	(working copy)
+@@ -6,6 +6,7 @@
+ #include "Globals.h"
+ #include "ofGraphicsUtils.h"
+ #include "pointUtils.h"
++#include "transformationUtils.h"
+ #include "utils.h"
+ 
+ 
+Index: apps/addonsExamples/mapinect/src/model/PCPolygon.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/model/PCPolygon.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/model/PCPolygon.cpp	(working copy)
+@@ -10,6 +10,7 @@
+ #include "utils.h"
+ #include "pointUtils.h"
+ #include "Plane3D.h"
++#include "transformationUtils.h"
+ 
+ 
+ namespace mapinect {
+Index: apps/addonsExamples/mapinect/src/model/PCPolyhedron.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/model/PCPolyhedron.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/model/PCPolyhedron.cpp	(working copy)
+@@ -27,6 +27,7 @@
+ #include "ofVecUtils.h"
+ #include "PCQuadrilateral.h"
+ #include "pointUtils.h"
++#include "transformationUtils.h"
+ #include "utils.h"
+ #include "Feature.h"
+ 
+Index: apps/addonsExamples/mapinect/src/model/Polygon.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/model/Polygon.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/model/Polygon.cpp	(working copy)
+@@ -8,6 +8,7 @@
+ #include "SortPolar.h"
+ #include "utils.h"
+ #include "pointUtils.h"
++#include "transformationUtils.h"
+ 
+ namespace mapinect {
+ 
+Index: apps/addonsExamples/mapinect/src/model/Table.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/model/Table.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/model/Table.cpp	(working copy)
+@@ -6,6 +6,7 @@
+ #include "Globals.h"
+ #include "mapinectTypes.h"
+ #include "pointUtils.h"
++#include "transformationUtils.h"
+ #include <algorithm>
+ #include "SortPolar.h"
+ #include <cmath>
+Index: apps/addonsExamples/mapinect/src/pcm/ObjectsThread.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/pcm/ObjectsThread.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/pcm/ObjectsThread.cpp	(working copy)
+@@ -4,6 +4,7 @@
+ #include "Globals.h"
+ #include "log.h"
+ #include "pointUtils.h"
++#include "transformationUtils.h"
+ #include "PCPolyhedron.h"
+ #include "Frustum.h"
+ #include <pcl/octree/octree.h>
+Index: apps/addonsExamples/mapinect/src/pcm/PCM.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/pcm/PCM.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/pcm/PCM.cpp	(working copy)
+@@ -6,8 +6,8 @@
+ #include "Globals.h"
+ #include "log.h"
+ #include "pointUtils.h"
++#include "transformationUtils.h"
+ 
+-
+ using namespace std;
+ 
+ namespace mapinect {
+Index: apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.cpp	(working copy)
+@@ -36,13 +36,13 @@
+ 						texCoords[2].x, texCoords[2].y, texCoords[3].x, texCoords[3].y);
+ }
+ 
+-vector<ofVec2f> ofTexCoordsFor(ofBaseDraws& d)
++vector<ofVec2f> ofTexCoordsFor(float sEnd, float tEnd, float sBegin, float tBegin)
+ {
+ 	vector<ofVec2f> result;
+-	result.push_back(ofVec2f(d.getWidth(), 0));
+-	result.push_back(ofVec2f(d.getWidth(), d.getHeight()));
+-	result.push_back(ofVec2f(0, d.getHeight()));
+-	result.push_back(ofVec2f(0, 0));
++	result.push_back(ofVec2f(sEnd, tBegin));
++	result.push_back(ofVec2f(sEnd, tEnd));
++	result.push_back(ofVec2f(sBegin, tEnd));
++	result.push_back(ofVec2f(sBegin, tBegin));
+ 	
+ 	return result;
+ }
+Index: apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.h
+===================================================================
+--- apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.h	(revision 412)
++++ apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.h	(working copy)
+@@ -32,6 +32,6 @@
+ 	float sA = 0, float tA = 0, float sB = 1, float tB = 0, float sC = 1, float tC = 1, float sD = 0, float tD = 1);
+ void ofDrawQuad(const vector<ofVec3f>& vertexs);
+ void ofDrawQuadTextured(const vector<ofVec3f>& vertexs, const vector<ofVec2f>& texCoords);
+-vector<ofVec2f> ofTexCoordsFor(ofBaseDraws& d);
++vector<ofVec2f> ofTexCoordsFor(float sEnd = 1.0f, float tEnd = 1.0f, float sBegin = 0.0f, float tBegin = 0.0f);
+ 
+ #endif	// OFGRAPHICS_UTILS_H__
+Index: apps/addonsExamples/mapinect/src/utils/pointUtils.cpp
+===================================================================
+--- apps/addonsExamples/mapinect/src/utils/pointUtils.cpp	(revision 412)
++++ apps/addonsExamples/mapinect/src/utils/pointUtils.cpp	(working copy)
+@@ -33,6 +33,7 @@
+ #include "utils.h"
+ #include "Feature.h"
+ #include "Plane3D.h"
++#include "transformationUtils.h"
+ #include "log.h"
+ 
+ // -------------------------------------------------------------------------------------
+@@ -66,17 +67,6 @@
+ 	return result;
+ }
+ 
+-vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v)
+-{
+-	vector<ofVec3f> vec;
+-	for(int i = 0; i < v.size(); i++)
+-	{
+-		Eigen::Vector3f ev = v.at(i);
+-		vec.push_back(ofVec3f(ev.x(),ev.y(),ev.z()));
+-	}
+-	return vec;
+-}
+-
+ PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi)
+ {
+ 	PCPtr newCloud(new PC());
+@@ -87,100 +77,7 @@
+ 	return newCloud;
+ }
+ 
+-// -------------------------------------------------------------------------------------
+-// transformation utils
+-// -------------------------------------------------------------------------------------
+ 
+-
+-PCXYZ eyePos()
+-{
+-	return transformPoint(PCXYZ(0, 0, 0),  gTransformation->getWorldTransformation());
+-}
+-
+-PCXYZ transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform)
+-{
+-	return pcl::transformPoint(p, transform);
+-}
+-
+-ofVec3f transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform)
+-{
+-	PCXYZ transformedPoint(transformPoint(OFVEC3F_PCXYZ(v), transform));
+-	return PCXYZ_OFVEC3F(transformedPoint);
+-}
+-
+-PCPtr transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform)
+-{
+-	PCPtr transformedCloud(new PC());
+-	pcl::transformPointCloud(*cloud, *transformedCloud, transform);
+-	return transformedCloud;
+-}
+-
+-mapinect::Polygon3D scalePolygon3D(const mapinect::Polygon3D& polygon, const float& scale)
+-{
+-	vector<ofVec3f> vertexs = polygon.getVertexs();
+-	vector<ofVec3f> newVertexs;
+-	ofVec3f center = computeCentroid(vertexs);
+-	for(int i = 0; i < vertexs.size(); i++)
+-	{
+-		ofVec3f vec = vertexs.at(i);
+-		ofVec3f scaleV = center - vec;
+-		scaleV += scaleV * scale;
+-		newVertexs.push_back(center + scaleV);
+-	}
+-	return mapinect::Polygon3D(newVertexs);
+-}
+-
+-
+-mapinect::Polygon3D transformPolygon3D(const mapinect::Polygon3D& polygon, const Eigen::Affine3f& transform)
+-{
+-	mapinect::Polygon3D pol(polygon);
+-	vector<ofVec3f> vertexs = pol.getVertexs();
+-	vector<ofVec3f> transVertexs;
+-
+-	for(int i = 0; i < vertexs.size(); i++)
+-	{
+-		transVertexs.push_back(transformPoint(vertexs.at(i),transform));
+-	}
+-
+-	pol.setVertexs(transVertexs);
+-	return pol;
+-}
+-
+-PCPtr getScreenCoords(const PCPtr& transformedWorldCloud)
+-{
+-	PCPtr screenCloud(new PC());
+-	for (PC::const_iterator p = transformedWorldCloud->begin(); p != transformedWorldCloud->end(); ++p)
+-	{
+-		screenCloud->push_back(getScreenCoords(*p));
+-	}
+-	return screenCloud;
+-}
+-
+-vector<ofVec3f> getScreenCoords(const vector<ofVec3f>& transformedWorldCloud)
+-{
+-	vector<ofVec3f> screenPoints;
+-	for (vector<ofVec3f>::const_iterator v = transformedWorldCloud.begin(); v != transformedWorldCloud.end(); ++v)
+-	{
+-		screenPoints.push_back(getScreenCoords(*v));
+-	}
+-	return screenPoints;
+-}
+-
+-PCXYZ getScreenCoords(const PCXYZ& transformedWorldPoint)
+-{
+-	// Apply to world point the inverse transformation
+-	PCXYZ transf = pcl::transformPoint(transformedWorldPoint, gTransformation->getInverseWorldTransformation());
+-	// Then, we call the depth device instance to transform to the depth image coordinates
+-	ofVec3f screenCoord = gKinect->getScreenCoordsFromWorldCoords(PCXYZ_OFVEC3F(transf));
+-	return OFVEC3F_PCXYZ(screenCoord);
+-}
+-
+-ofVec3f getScreenCoords(const ofVec3f& transformedWorldPoint)
+-{
+-	PCXYZ screenPoint(getScreenCoords(OFVEC3F_PCXYZ(transformedWorldPoint)));
+-	return PCXYZ_OFVEC3F(screenPoint);
+-}
+-
+ // -------------------------------------------------------------------------------------
+ // i/o utils
+ // -------------------------------------------------------------------------------------
+Index: apps/addonsExamples/mapinect/src/utils/pointUtils.h
+===================================================================
+--- apps/addonsExamples/mapinect/src/utils/pointUtils.h	(revision 412)
++++ apps/addonsExamples/mapinect/src/utils/pointUtils.h	(working copy)
+@@ -13,108 +13,91 @@
+ // pcl <--> ofVec3f and other conversion utils
+ // -------------------------------------------------------------------------------------
+ 
+-#define PCXYZ_OFVEC3F(p)			ofVec3f(p.x, p.y, p.z)
+-#define PCLNORMAL_OFVEC3F(p)		ofVec3f(p.normal_x, p.normal_y, p.normal_z)
+-#define OFVEC3F_PCXYZ(v)			PCXYZ(v.x, v.y, v.z)
+-#define PCXYZ_EIGEN3F(v)			Eigen::Vector3f(v.x, v.y, v.z)
+-#define OFVEC3F_EIGEN3F(v)			Eigen::Vector3f(v.x, v.y, v.z)
++#define PCXYZ_OFVEC3F(p)		ofVec3f(p.x, p.y, p.z)
++#define PCLNORMAL_OFVEC3F(p)	ofVec3f(p.normal_x, p.normal_y, p.normal_z)
++#define OFVEC3F_PCXYZ(v)		PCXYZ(v.x, v.y, v.z)
+ 
+-void setPCXYZ(PCXYZ& p, float x, float y, float z);
++void			setPCXYZ(PCXYZ& p, float x, float y, float z);
+ 
+ vector<ofVec3f>	pointCloudToOfVecVector(const PCPtr& cloud);
+ PCPtr			ofVecVectorToPointCloud(const vector<ofVec3f>& v);
+-vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v);
+ 
+-PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi);
++PCPtr			getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi);
+ 
+ // -------------------------------------------------------------------------------------
+-// transformation utils
+-// -------------------------------------------------------------------------------------
+-
+-PCXYZ	eyePos();
+-mapinect::Polygon3D transformPolygon3D(const mapinect::Polygon3D& polygon, const Eigen::Affine3f& transform);
+-mapinect::Polygon3D scalePolygon3D(const mapinect::Polygon3D& polygon, const float& scale);
+-
+-PCXYZ	transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform);
+-ofVec3f	transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform);
+-PCPtr	transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform);
+-
+-// maps points in world coordinates back to depth image coordinates
+-PCPtr			getScreenCoords(const PCPtr& transformedWorldCloud);
+-vector<ofVec3f>	getScreenCoords(const vector<ofVec3f>& transformedWorldCloud);
+-PCXYZ			getScreenCoords(const PCXYZ& transformedWorldPoint);
+-ofVec3f			getScreenCoords(const ofVec3f& transformedWorldPoint);
+-
+-// -------------------------------------------------------------------------------------
+ // i/o utils
+ // -------------------------------------------------------------------------------------
+ 
+-bool saveCloud(const string& filename, const PC& cloud);
+-void saveCloud(const string& filename, const ofVec3f& p);
+-void saveCloud(const string& filename, const vector<ofVec3f>& v);
++bool			saveCloud(const string& filename, const PC& cloud);
++void			saveCloud(const string& filename, const ofVec3f& p);
++void			saveCloud(const string& filename, const vector<ofVec3f>& v);
+ 
+-PCPtr loadCloud(const string& filename);
++PCPtr			loadCloud(const string& filename);
+ 
+ // retrieves the depth from the device and creates a transformed point cloud
+-PCPtr getCloud(const ofPoint& min, const ofPoint& max, int stride);
+-PCPtr getCloud(int stride);
+-PCPtr getCloud();
++PCPtr			getCloud(const ofPoint& min, const ofPoint& max, int stride);
++PCPtr			getCloud(int stride);
++PCPtr			getCloud();
+ 
+-PCPtr getCloudWithoutMutex(const ofPoint& min, const ofPoint& max, int stride);
+-PCPtr getCloudWithoutMutex(int stride);
+-PCPtr getCloudWithoutMutex();
++PCPtr			getCloudWithoutMutex(const ofPoint& min, const ofPoint& max, int stride);
++PCPtr			getCloudWithoutMutex(int stride);
++PCPtr			getCloudWithoutMutex();
+ 
+ // -------------------------------------------------------------------------------------
+ // plane utils
+ // -------------------------------------------------------------------------------------
+ 
+-ofVec3f getNormal(const pcl::ModelCoefficients&);
++ofVec3f			getNormal(const pcl::ModelCoefficients&);
+ 
+-PCPtr findPlaneGivenNormal(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, 
++PCPtr			findPlaneGivenNormal(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, 
+ 							ofVec3f normal, float angleThreshold, float distanceThreshold, int maxIterations = 50);
+ 
+-PCPtr extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& remainingCloud,
++PCPtr			extractBiggestPlane(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& remainingCloud,
+ 							float distanceThreshold, int maxIterations = 50);
+ 
+-pcl::PointIndices::Ptr adjustPlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloudToAdjust);
++pcl::PointIndices::Ptr
++				adjustPlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloudToAdjust);
+ 
+-float evaluatePoint(const pcl::ModelCoefficients& coefficients, const PCXYZ& pto);
+-float evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& pto);
++float			evaluatePoint(const pcl::ModelCoefficients& coefficients, const PCXYZ& pto);
++float			evaluatePoint(const pcl::ModelCoefficients& coefficients, const ofVec3f& pto);
+ 
+-PCPtr projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& plane);
+-vector<ofVec3f> projectPointsInPlane(const vector<Eigen::Vector3f>& points, const pcl::ModelCoefficients& plane);
++PCPtr			projectPointsInPlane(const PCPtr& points, const pcl::ModelCoefficients& plane);
++vector<ofVec3f>	projectPointsInPlane(const vector<Eigen::Vector3f>& points, const pcl::ModelCoefficients& plane);
+ 
+ // -------------------------------------------------------------------------------------
+ // objects recognition utils
+ // -------------------------------------------------------------------------------------
+ 
+-ObjectType getObjectType(const PCPtr& src);
++ObjectType		getObjectType(const PCPtr& src);
+ 
+-float boxProbability(const PCPtr& cloud);
++float			boxProbability(const PCPtr& cloud);
+ 
+-vector<ofVec3f> findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& coefficients);
++vector<ofVec3f>	findRectangle(const PCPtr& cloud, const pcl::ModelCoefficients& coefficients);
+ 
+ // -------------------------------------------------------------------------------------
+ // misc utils
+ // -------------------------------------------------------------------------------------
+ 
+-void computeBoundingBox(const PCPtr& cloud, PCXYZ& min, PCXYZ& max);
+-void computeBoundingBox(const PCPtr& cloud, ofVec3f& min, ofVec3f& max);
+-PCPtr getHalo(const ofVec3f& min, const ofVec3f& max, const float& haloSize, const PCPtr& cloudSrc);
++void			computeBoundingBox(const PCPtr& cloud, PCXYZ& min, PCXYZ& max);
++void			computeBoundingBox(const PCPtr& cloud, ofVec3f& min, ofVec3f& max);
++PCPtr			getHalo(const ofVec3f& min, const ofVec3f& max, const float& haloSize, const PCPtr& cloudSrc);
+ 
+-ofVec3f computeCentroid(const PCPtr& cloud);
++ofVec3f			computeCentroid(const PCPtr& cloud);
+ 
+ // Returns in diff the difference cloud between cloud1 and cloud2, and the count of different points found
+-int getDifferencesCloud(const PCPtr& cloud1, const PCPtr& cloud2, PCPtr &diff, float distThreshold);
++int				getDifferencesCloud(const PCPtr& cloud1, const PCPtr& cloud2, PCPtr &diff, float distThreshold);
+ 
+-int getDifferencesCount(const PCPtr& src, const PCPtr& tgt, float distanceThreshold);
++int				getDifferencesCount(const PCPtr& src, const PCPtr& tgt, float distanceThreshold);
+ 
+-vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int minClusterSize);
+-vector<pcl::PointIndices> findClusters(const PCPtr& cloud, float tolerance, int minClusterSize, int maxClusterSize);
++vector<pcl::PointIndices>
++				findClusters(const PCPtr& cloud, float tolerance, int minClusterSize);
++vector<pcl::PointIndices>
++				findClusters(const PCPtr& cloud, float tolerance, int minClusterSize, int maxClusterSize);
+ 
+-vector<ofVec3f>::const_iterator findCloser(const ofVec3f& v, const vector<ofVec3f>& vertexs);
++vector<ofVec3f>::const_iterator
++				findCloser(const ofVec3f& v, const vector<ofVec3f>& vertexs);
+ 
+-float computeVolume(const PCPtr& cloud);
++float			computeVolume(const PCPtr& cloud);
+ // -------------------------------------------------------------------------------------
+ 
+ #endif // POINT_UTILS_H__
+Index: libs/openFrameworks/gl/ofTexture.cpp
+===================================================================
+--- libs/openFrameworks/gl/ofTexture.cpp	(revision 412)
++++ libs/openFrameworks/gl/ofTexture.cpp	(working copy)
+@@ -374,8 +374,8 @@
+ 	
+ 	glTexParameterf(texData.textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ 	glTexParameterf(texData.textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+-	glTexParameterf(texData.textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+-	glTexParameterf(texData.textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
++	glTexParameterf(texData.textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
++	glTexParameterf(texData.textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+ 	
+ 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+ 	
