@@ -65,7 +65,6 @@ namespace mapinect
 
 	float Polygon3D::distance(const ofVec3f& p) const
 	{
-		//return plane.distance(p);
 		return p.distance(project(p));
 	}
 
