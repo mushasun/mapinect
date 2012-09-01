@@ -21,9 +21,9 @@ namespace mapinect
 	}
 
 	Polygon3D::Polygon3D(const Polygon3D& polygon)
-		: vertexs(polygon.vertexs), vertexs2d(polygon.vertexs2d), discardCoord(polygon.discardCoord),
-			plane(polygon.plane), edges(polygon.edges), edges2d(polygon.edges2d)
+		: vertexs(polygon.vertexs), plane(polygon.plane)
 	{
+		init();
 	}
 
 	void Polygon3D::init()
@@ -65,10 +65,8 @@ namespace mapinect
 
 	float Polygon3D::distance(const ofVec3f& p) const
 	{
-		if(isInPolygon(p))
-			return plane.distance(p);
-		else
-			return p.distance(project(p));
+		//return plane.distance(p);
+		return p.distance(project(p));
 	}
 
 	ofVec3f Polygon3D::project(const ofVec3f& p) const
@@ -106,62 +104,14 @@ namespace mapinect
 
 	bool Polygon3D::isInPolygon(const ofVec3f& point) const
 	{
-		if(true)
-		{
-			ofVec3f p;
-			p = plane.project(point);
-
-			int i;
-			double m1,m2;
-			double anglesum=0,costheta;
-			ofVec3f p1,p2;
-			int n = vertexs.size();
-			for (i = 0; i < n; i++) {
-
-				p1.x = vertexs[i].x - p.x;
-				p1.y = vertexs[i].y - p.y;
-				p1.z = vertexs[i].z - p.z;
-				p2.x = vertexs[(i+1)%n].x - p.x;
-				p2.y = vertexs[(i+1)%n].y - p.y;
-				p2.z = vertexs[(i+1)%n].z - p.z;
-
-				m1 = p1.length();
-				m2 = p2.length();
-				if (m1 <= MATH_EPSILON ||
-					m2 <= MATH_EPSILON)
-					return true; /* We are on a node, consider this inside */
-				else
-					costheta = (p1.x*p2.x + p1.y*p2.y + p1.z*p2.z) / (m1*m2);
-
-				anglesum += acos(costheta);
-			}
-			return fabs(anglesum - TWO_PI) < MATH_EPSILON;
-		}
-		/*else
-		{
-			if (plane.distance(p) < MATH_EPSILON)
-			{
-				ofVec3f projected(plane.project(p));
-				PositionToLine position = edges2d[0].positionTo(discardCoordinateOfVec3f(projected, discardCoord));
-				for (int i = 1; i < edges2d.size(); i++)
-				{
-					PositionToLine positionI = edges2d[i].positionTo(discardCoordinateOfVec3f(projected, discardCoord));
-					if (positionI != position)
-					{
-						if (position == kPositionedInLine)
-						{
-							position = positionI;
-						}
-						else
-						{
-							return false;
-						}
-					}
-				}
-				return true;
-			}
-			return false;
-		}*/
+		bool result = true;
+		
+		result = plane.distance(point) <= MATH_EPSILON;
+		
+		for (int i = 0; result && i < edges.size(); i++)
+			result = edges[i].isInSegment(edges[i].projectedK(point));
+		
+		return result;
 	}
 
 	bool Polygon3D::isInPolygon(const Line3D& l) const

@@ -100,7 +100,9 @@ namespace mapinect {
 				}
 			}
 			if(!(*iter)->hasObject() || (*iter)->isInViewField())
+			{
 				(*iter)->addCounter(-1);
+			}
 		}
 
 		int size = trackedClouds.size();

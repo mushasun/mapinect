@@ -24,6 +24,7 @@
 #include "PCQuadrilateral.h"
 #include "pointUtils.h"
 #include "utils.h"
+#include "Feature.h"
 
 
 #define MAX_FACES		3
@@ -149,6 +150,7 @@ namespace mapinect {
 		}
 	}
 
+
 	// ------------------------------------------------------------------------------
 	vector<PCPolygonPtr> PCBox::estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons, bool& estimationOk)
 	{
@@ -216,6 +218,8 @@ namespace mapinect {
 				nextVec = next->getPolygonModelObject()->getMathModel().getVertexs();
 				prevVec = prev->getPolygonModelObject()->getMathModel().getVertexs();
 
+				
+
 				if(toEstimate == kPolygonNameBottom)
 				{
 					if(fullEstimation)
@@ -228,9 +232,21 @@ namespace mapinect {
 					}
 					else
 					{
+						if(IsFeatureMoveArmActive())
+						{
+							nextVec = transformVector(nextVec, gTransformation->getInverseWorldTransformation());
+							prevVec = transformVector(prevVec, gTransformation->getInverseWorldTransformation());
+						}
+
 						sort(nextVec.begin(), nextVec.end(), sortOnYDesc<ofVec3f>);
 						sort(prevVec.begin(), prevVec.end(), sortOnYDesc<ofVec3f>);
 						
+						if(IsFeatureMoveArmActive())
+						{
+							nextVec = transformVector(nextVec, gTransformation->getWorldTransformation());
+							prevVec = transformVector(prevVec, gTransformation->getWorldTransformation());
+						}
+
 						nextVecToEstimate.push_back(nextVec.at(0));
 						nextVecToEstimate.push_back(nextVec.at(1));
 
@@ -250,9 +266,19 @@ namespace mapinect {
 					}
 					else
 					{
+						if(IsFeatureMoveArmActive())
+						{
+							nextVec = transformVector(nextVec, gTransformation->getInverseWorldTransformation());
+							prevVec = transformVector(prevVec, gTransformation->getInverseWorldTransformation());
+						}
 						sort(nextVec.begin(), nextVec.end(), sortOnYAsc<ofVec3f>);
 						sort(prevVec.begin(), prevVec.end(), sortOnYAsc<ofVec3f>);
-						
+						if(IsFeatureMoveArmActive())
+						{
+							nextVec = transformVector(nextVec, gTransformation->getWorldTransformation());
+							prevVec = transformVector(prevVec, gTransformation->getWorldTransformation());
+						}
+
 						nextVecToEstimate.push_back(nextVec.at(0));
 						nextVecToEstimate.push_back(nextVec.at(1));
 
@@ -287,6 +313,12 @@ namespace mapinect {
 				}
 				else
 				{
+					if(IsFeatureMoveArmActive())
+					{
+						cout << "acctivo" << endl;
+						nextVec = transformVector(nextVec, gTransformation->getInverseWorldTransformation());
+						prevVec = transformVector(prevVec, gTransformation->getInverseWorldTransformation());
+					}
 					if(toEstimate == kPolygonNameSideA)
 					{
 						sort(nextVec.begin(), nextVec.end(), sortOnZDesc<ofVec3f>);
@@ -308,6 +340,11 @@ namespace mapinect {
 						sort(prevVec.begin(), prevVec.end(), sortOnXAsc<ofVec3f>);
 					}
 
+					if(IsFeatureMoveArmActive())
+					{
+						nextVec = transformVector(nextVec, gTransformation->getWorldTransformation());
+						prevVec = transformVector(prevVec, gTransformation->getWorldTransformation());
+					}
 					nextVecToEstimate.push_back(nextVec.at(0));
 					nextVecToEstimate.push_back(nextVec.at(1));
 
@@ -726,6 +763,10 @@ namespace mapinect {
 					return PCPolygonPtr();
 
 				vector<ofVec3f> vex = f1->getPolygonModelObject()->getMathModel().getVertexs();
+				
+				if(IsFeatureMoveArmActive())
+					vex = transformVector(vex, gTransformation->getInverseWorldTransformation());
+
 				if(useTop)
 				{
 					// Busco los 2 puntos con menor 'x'
@@ -737,6 +778,9 @@ namespace mapinect {
 					sort(vex.begin(), vex.end(), sortOnYDesc<ofVec3f>);
 				}
 				
+				if(IsFeatureMoveArmActive())
+					vex = transformVector(vex, gTransformation->getWorldTransformation());
+
 				ofVec3f min1 = vex.at(0);
 				ofVec3f min2 = vex.at(1);
 

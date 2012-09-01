@@ -20,7 +20,7 @@ namespace mapinect
 
 	void Trace::update(const ofVec2f& mappedPoint)
 	{
-		polyline.curveTo(mappedPoint.x, mappedPoint.y);
+		polyline.lineTo(mappedPoint.x, mappedPoint.y);
 		lastPoint = mappedPoint;
 	}
 

@@ -38,6 +38,7 @@ mapinect::Polygon3D scalePolygon3D(const mapinect::Polygon3D& polygon, const flo
 PCXYZ	transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform);
 ofVec3f	transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform);
 PCPtr	transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform);
+vector<ofVec3f> transformVector(const vector<ofVec3f>& vec, const Eigen::Affine3f& transform);
 
 // maps points in world coordinates back to depth image coordinates
 PCPtr			getScreenCoords(const PCPtr& transformedWorldCloud);

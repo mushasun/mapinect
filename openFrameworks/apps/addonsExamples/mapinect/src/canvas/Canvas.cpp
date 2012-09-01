@@ -17,6 +17,7 @@ namespace mapinect
 		texture.background(backColor);
 		texture.setLineWidth(lineWidth);
 		update(polygon);
+		lastPoint = ofVec3f(numeric_limits<float>::min(),numeric_limits<float>::min(),numeric_limits<float>::min());
 	}
 
 	Canvas::~Canvas()
@@ -85,20 +86,21 @@ namespace mapinect
 		ofDrawQuadTextured(polygon.getVertexs(), texCoords);
 		cairoTexture->unbind();
 
-		for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
+		/*for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
 		{
 			ofSetColor(kRGBBlue);
 			ofVec3f tp(t->second.getTouchPoint());
 			ofCircle(tp.x, tp.y, tp.z, 0.003);
-		}
+		}*/
 	}
 
 	void Canvas::touchEvent(const DataTouch& touchPoint)
 	{
 		assert(touchPoint.getPolygon()->getId() == polygonId);
-		if (texMapper.willMap(touchPoint.getTouchPoint()))
-		{
-			ofVec3f mapped(texMapper.map(touchPoint.getTouchPoint()));
+		ofVec3f pto = touchPoint.getTouchPoint();
+		/*if (texMapper.willMap(pto))			Con esta condicion no toma bien los bordes
+		{*/
+			ofVec3f mapped(texMapper.map(pto));
 			int id = touchPoint.getId();
 			map<int, IDrawer*>::iterator d = drawers.find(id);
 			switch (touchPoint.getType())
@@ -109,17 +111,21 @@ namespace mapinect
 				//setForeColor(ofRandomColor());
 				break;
 			case kTouchTypeHolding:
-				touchPoints[id] = touchPoint;
-				if (d != drawers.end())
+				if(pto.distanceSquared(touchPoints[id].getTouchPoint()) > 0.0001)
 				{
-					d->second->update(mapped);
-					redraw();
+					touchPoints[id] = touchPoint;
+					if (d != drawers.end())
+					{
+						d->second->update(mapped);
+						redraw();
+					}
 				}
 				break;
 			case kTouchTypeReleased:
 				touchPoints.erase(id);
 				break;
 			}
-		}
+		//}
+		
 	}
 }

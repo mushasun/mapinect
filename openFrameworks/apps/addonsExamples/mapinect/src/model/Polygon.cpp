@@ -14,11 +14,13 @@ namespace mapinect {
 	Polygon::Polygon(const Polygon& polygon)
 		: name(polygon.name), container(polygon.container), mathModel(polygon.mathModel)
 	{
+		this->setId(polygon.getId());
 	}
 
 	IPolygonPtr Polygon::clone() const
 	{
-		return IPolygonPtr(new Polygon(*this));
+		IPolygonPtr p (new Polygon(*this));
+		return p;
 	}
 
 	int Polygon::getBestOriginVertexIndex() const

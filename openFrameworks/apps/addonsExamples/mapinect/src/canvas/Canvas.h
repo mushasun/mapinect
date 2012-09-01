@@ -44,6 +44,7 @@ namespace mapinect
 		ofxCairoTexture			texture;
 		vector<ofVec2f>			texCoords;
 		TextureMapper2D			texMapper;
+		ofVec3f					lastPoint;
 
 		map<int, IDrawer*>		drawers;
 		map<int, DataTouch>		touchPoints;
