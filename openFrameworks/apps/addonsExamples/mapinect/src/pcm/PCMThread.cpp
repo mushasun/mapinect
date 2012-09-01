@@ -23,6 +23,8 @@ namespace mapinect {
 		detectMode = false;
 		isNewFrameAvailable = false;
 		isNewForcedFrameAvailable = false;
+		touchDetection = true;
+		objectDetection = true;
 	}
 
 	void PCMThread::reset()
@@ -216,12 +218,12 @@ namespace mapinect {
 
 				// touch detection and tracking
 
-			setPCMThreadStatus("Detecting touch points...");
-			log(kLogFilePCMThread, "Detecting touch points...");
-			const float touchDistance = Constants::TOUCH_DISTANCE();
-			const float clusterTolerance = Constants::OBJECT_CLUSTER_TOLERANCE();
-			const int clusterMinSize = Constants::TOUCH_CLUSTER_MIN_SIZE();
-			vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, clusterTolerance, clusterMinSize);
+				setPCMThreadStatus("Detecting touch points...");
+				log(kLogFilePCMThread, "Detecting touch points...");
+				const float touchDistance = Constants::TOUCH_DISTANCE();
+				const float clusterTolerance = Constants::OBJECT_CLUSTER_TOLERANCE();
+				const int clusterMinSize = Constants::TOUCH_CLUSTER_MIN_SIZE();
+				vector<pcl::PointIndices> clusterIndices = findClusters(differenceCloud, clusterTolerance, clusterMinSize);
 		
 				map<IPolygonPtr, vector<ofVec3f> > pointsCloserToModel;
 
@@ -237,6 +239,8 @@ namespace mapinect {
 						bool found = false;
 						for (vector<IObjectPtr>::const_iterator ob = mathModel.begin(); !found && ob != mathModel.end(); ++ob)
 						{
+							if((*ob)->getId() != 0)
+								int a = 0;
 							float minDistance = MAX_FLOAT;
 							IPolygonPtr polygon;
 							for (vector<IPolygonPtr>::const_iterator p = (*ob)->getPolygons().begin(); p != (*ob)->getPolygons().end(); ++p)
@@ -260,6 +264,7 @@ namespace mapinect {
 								{
 									vector<ofVec3f> points;
 									pointsCloserToModel.insert(make_pair(polygon, points));
+									cout << "touch en: " << polygon->getName() << endl;
 									it = pointsCloserToModel.find(polygon);
 								}
 								it->second.push_back((polygon)->getMathModel().getPlane().project(*v));

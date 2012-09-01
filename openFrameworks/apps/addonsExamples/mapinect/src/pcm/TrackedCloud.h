@@ -34,7 +34,7 @@ namespace mapinect {
 		inline const PCModelObjectPtr&	getTrackedObject()		{ return objectInModel; }
 
 		inline bool						isInViewField() const		{ return inViewField; }
-		inline void						setInViewField(bool val)    { inViewField = val; }
+		inline void						setInViewField(bool val)    { inViewField = val;}
 	private:
 		void							init();
 

@@ -115,6 +115,14 @@ PCPtr transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform)
 	return transformedCloud;
 }
 
+vector<ofVec3f> transformVector(const vector<ofVec3f>& vec, const Eigen::Affine3f& transform)
+{
+	vector<ofVec3f> transformed;
+	for(int i = 0; i < vec.size(); i ++)
+		transformed.push_back(transformPoint(vec.at(i), transform));
+	return transformed;
+}
+
 mapinect::Polygon3D scalePolygon3D(const mapinect::Polygon3D& polygon, const float& scale)
 {
 	vector<ofVec3f> vertexs = polygon.getVertexs();
