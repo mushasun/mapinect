@@ -1,62 +1,6 @@
-Index: apps/addonsExamples/mapinect/apps/story/src/story/Box.cpp
-===================================================================
---- apps/addonsExamples/mapinect/apps/story/src/story/Box.cpp	(revision 412)
-+++ apps/addonsExamples/mapinect/apps/story/src/story/Box.cpp	(working copy)
-@@ -45,7 +45,7 @@
- 			}
- 
- 			texture->bind();
--			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(*texture));
-+			ofDrawQuad((*p)->getMathModel().getVertexs());
- 			texture->unbind();
- 		}
- 	}
-Index: apps/addonsExamples/mapinect/apps/story/src/story/Road.cpp
-===================================================================
---- apps/addonsExamples/mapinect/apps/story/src/story/Road.cpp	(revision 412)
-+++ apps/addonsExamples/mapinect/apps/story/src/story/Road.cpp	(working copy)
-@@ -19,9 +19,9 @@
- 		draggable.push_back(begin - direccion);
- 				draggable.push_back(end - direccion);
- 		Polygon3D area = Polygon3D(draggable);
--		button = IButtonPtr(new DraggableButton ( draggable,
--							texture,
--							texture));
-+		DraggableButton* btn = new DraggableButton(draggable, texture, texture);
-+		btn->setRepeatBehavior(ofTexCoordsFor(), false, true);
-+		button = IButtonPtr(btn);
- 	}
- 
- 	Road::~Road()
-Index: apps/addonsExamples/mapinect/apps/story/src/story/Spot.cpp
-===================================================================
---- apps/addonsExamples/mapinect/apps/story/src/story/Spot.cpp	(revision 412)
-+++ apps/addonsExamples/mapinect/apps/story/src/story/Spot.cpp	(working copy)
-@@ -30,7 +30,7 @@
- 				ofTranslate(position);
- 				ofRotateY(RAD2DEG(rotation));
- 				texture->bind();
--					ofDrawQuadTextured(area.getVertexs(), ofTexCoordsFor(*texture));
-+					ofDrawQuad(area.getVertexs());
- 				texture->unbind();
- 			ofPopMatrix();
- 		}
-Index: apps/addonsExamples/mapinect/apps/story/src/story/Story.cpp
-===================================================================
---- apps/addonsExamples/mapinect/apps/story/src/story/Story.cpp	(revision 412)
-+++ apps/addonsExamples/mapinect/apps/story/src/story/Story.cpp	(working copy)
-@@ -140,7 +140,7 @@
- 				newVexs.push_back(oldVexs.at(i)+translateCanvas);
- 
- 			table.setVertexs(newVexs);
--			river = new Canvas(object->getId(),table, 300,300,ofColor(220,110,50),ofColor(75,140,250),50);
-+			river = new Canvas(object->getId(),table, 512,512,ofColor(220,110,50),ofColor(75,140,250),50);
- 		}
- 		else
- 		{
 Index: apps/addonsExamples/mapinect/mapinect.vcxproj
 ===================================================================
---- apps/addonsExamples/mapinect/mapinect.vcxproj	(revision 412)
+--- apps/addonsExamples/mapinect/mapinect.vcxproj	(revision 422)
 +++ apps/addonsExamples/mapinect/mapinect.vcxproj	(working copy)
 @@ -237,6 +237,7 @@
      <ClCompile Include="src\utils\ofVecUtils.cpp" />
@@ -76,7 +20,7 @@ Index: apps/addonsExamples/mapinect/mapinect.vcxproj
    </ItemGroup>
 Index: apps/addonsExamples/mapinect/mapinect.vcxproj.filters
 ===================================================================
---- apps/addonsExamples/mapinect/mapinect.vcxproj.filters	(revision 412)
+--- apps/addonsExamples/mapinect/mapinect.vcxproj.filters	(revision 422)
 +++ apps/addonsExamples/mapinect/mapinect.vcxproj.filters	(working copy)
 @@ -199,8 +199,9 @@
      <ClCompile Include="src\canvas\Trace.cpp">
@@ -124,7 +68,7 @@ Index: apps/addonsExamples/mapinect/mapinect.vcxproj.filters
      <None Include="mapinect.cd" />
 Index: apps/addonsExamples/mapinect/src/arduino/ICPThread.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/arduino/ICPThread.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/arduino/ICPThread.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/arduino/ICPThread.cpp	(working copy)
 @@ -4,6 +4,7 @@
  #include <pcl/segmentation/sac_segmentation.h>
@@ -136,7 +80,7 @@ Index: apps/addonsExamples/mapinect/src/arduino/ICPThread.cpp
  
 Index: apps/addonsExamples/mapinect/src/buttons/BaseButton.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/buttons/BaseButton.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/buttons/BaseButton.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/buttons/BaseButton.cpp	(working copy)
 @@ -1,5 +1,6 @@
  #include "BaseButton.h"
@@ -155,7 +99,7 @@ Index: apps/addonsExamples/mapinect/src/buttons/BaseButton.cpp
  	BaseButton::BaseButton(const ofColor& idle, const ofColor& pressed)
 Index: apps/addonsExamples/mapinect/src/buttons/BaseButton.h
 ===================================================================
---- apps/addonsExamples/mapinect/src/buttons/BaseButton.h	(revision 412)
+--- apps/addonsExamples/mapinect/src/buttons/BaseButton.h	(revision 422)
 +++ apps/addonsExamples/mapinect/src/buttons/BaseButton.h	(working copy)
 @@ -28,6 +28,7 @@
  		inline void			setPressed(const ofColor& color)	{ pressedColor = color; }
@@ -175,7 +119,7 @@ Index: apps/addonsExamples/mapinect/src/buttons/BaseButton.h
  	private:
 Index: apps/addonsExamples/mapinect/src/buttons/DraggableButton.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/buttons/DraggableButton.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/buttons/DraggableButton.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/buttons/DraggableButton.cpp	(working copy)
 @@ -1,15 +1,23 @@
  #include "DraggableButton.h"
@@ -422,7 +366,7 @@ Index: apps/addonsExamples/mapinect/src/buttons/DraggableButton.cpp
 \ No newline at end of file
 Index: apps/addonsExamples/mapinect/src/buttons/DraggableButton.h
 ===================================================================
---- apps/addonsExamples/mapinect/src/buttons/DraggableButton.h	(revision 412)
+--- apps/addonsExamples/mapinect/src/buttons/DraggableButton.h	(revision 422)
 +++ apps/addonsExamples/mapinect/src/buttons/DraggableButton.h	(working copy)
 @@ -3,6 +3,8 @@
  
@@ -466,7 +410,7 @@ Index: apps/addonsExamples/mapinect/src/buttons/DraggableButton.h
 \ No newline at end of file
 Index: apps/addonsExamples/mapinect/src/buttons/ObjectButton.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/buttons/ObjectButton.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/buttons/ObjectButton.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/buttons/ObjectButton.cpp	(working copy)
 @@ -219,7 +219,7 @@
  			ofSetColor(kRGBWhite);
@@ -493,7 +437,7 @@ Index: apps/addonsExamples/mapinect/src/buttons/ObjectButton.cpp
  
 Index: apps/addonsExamples/mapinect/src/buttons/SimpleButton.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/buttons/SimpleButton.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/buttons/SimpleButton.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/buttons/SimpleButton.cpp	(working copy)
 @@ -46,18 +46,12 @@
  				else
@@ -517,9 +461,9 @@ Index: apps/addonsExamples/mapinect/src/buttons/SimpleButton.cpp
  				break;
 Index: apps/addonsExamples/mapinect/src/helpers/mapinectApp.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/helpers/mapinectApp.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/helpers/mapinectApp.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/helpers/mapinectApp.cpp	(working copy)
-@@ -210,6 +210,11 @@
+@@ -190,6 +190,11 @@
  				TRGB, RRGB);
  		}
  
@@ -533,7 +477,7 @@ Index: apps/addonsExamples/mapinect/src/helpers/mapinectApp.cpp
  		glEnable(GL_ALPHA_TEST);
 Index: apps/addonsExamples/mapinect/src/interfaces/IButton.h
 ===================================================================
---- apps/addonsExamples/mapinect/src/interfaces/IButton.h	(revision 412)
+--- apps/addonsExamples/mapinect/src/interfaces/IButton.h	(revision 422)
 +++ apps/addonsExamples/mapinect/src/interfaces/IButton.h	(working copy)
 @@ -34,6 +34,7 @@
  		virtual void setPressed(ofImage*)							= 0;
@@ -545,7 +489,7 @@ Index: apps/addonsExamples/mapinect/src/interfaces/IButton.h
  	};
 Index: apps/addonsExamples/mapinect/src/model/PCModelObject.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/model/PCModelObject.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/model/PCModelObject.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/model/PCModelObject.cpp	(working copy)
 @@ -6,6 +6,7 @@
  #include "Globals.h"
@@ -557,7 +501,7 @@ Index: apps/addonsExamples/mapinect/src/model/PCModelObject.cpp
  
 Index: apps/addonsExamples/mapinect/src/model/PCPolygon.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/model/PCPolygon.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/model/PCPolygon.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/model/PCPolygon.cpp	(working copy)
 @@ -10,6 +10,7 @@
  #include "utils.h"
@@ -569,7 +513,7 @@ Index: apps/addonsExamples/mapinect/src/model/PCPolygon.cpp
  namespace mapinect {
 Index: apps/addonsExamples/mapinect/src/model/PCPolyhedron.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/model/PCPolyhedron.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/model/PCPolyhedron.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/model/PCPolyhedron.cpp	(working copy)
 @@ -27,6 +27,7 @@
  #include "ofVecUtils.h"
@@ -581,7 +525,7 @@ Index: apps/addonsExamples/mapinect/src/model/PCPolyhedron.cpp
  
 Index: apps/addonsExamples/mapinect/src/model/Polygon.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/model/Polygon.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/model/Polygon.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/model/Polygon.cpp	(working copy)
 @@ -8,6 +8,7 @@
  #include "SortPolar.h"
@@ -593,7 +537,7 @@ Index: apps/addonsExamples/mapinect/src/model/Polygon.cpp
  
 Index: apps/addonsExamples/mapinect/src/model/Table.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/model/Table.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/model/Table.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/model/Table.cpp	(working copy)
 @@ -6,6 +6,7 @@
  #include "Globals.h"
@@ -605,7 +549,7 @@ Index: apps/addonsExamples/mapinect/src/model/Table.cpp
  #include <cmath>
 Index: apps/addonsExamples/mapinect/src/pcm/ObjectsThread.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/pcm/ObjectsThread.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/pcm/ObjectsThread.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/pcm/ObjectsThread.cpp	(working copy)
 @@ -4,6 +4,7 @@
  #include "Globals.h"
@@ -617,9 +561,9 @@ Index: apps/addonsExamples/mapinect/src/pcm/ObjectsThread.cpp
  #include <pcl/octree/octree.h>
 Index: apps/addonsExamples/mapinect/src/pcm/PCM.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/pcm/PCM.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/pcm/PCM.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/pcm/PCM.cpp	(working copy)
-@@ -6,8 +6,8 @@
+@@ -7,8 +7,8 @@
  #include "Globals.h"
  #include "log.h"
  #include "pointUtils.h"
@@ -631,7 +575,7 @@ Index: apps/addonsExamples/mapinect/src/pcm/PCM.cpp
  namespace mapinect {
 Index: apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.cpp	(working copy)
 @@ -36,13 +36,13 @@
  						texCoords[2].x, texCoords[2].y, texCoords[3].x, texCoords[3].y);
@@ -654,7 +598,7 @@ Index: apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.cpp
  }
 Index: apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.h
 ===================================================================
---- apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.h	(revision 412)
+--- apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.h	(revision 422)
 +++ apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.h	(working copy)
 @@ -32,6 +32,6 @@
  	float sA = 0, float tA = 0, float sB = 1, float tB = 0, float sC = 1, float tC = 1, float sD = 0, float tD = 1);
@@ -666,7 +610,7 @@ Index: apps/addonsExamples/mapinect/src/utils/ofGraphicsUtils.h
  #endif	// OFGRAPHICS_UTILS_H__
 Index: apps/addonsExamples/mapinect/src/utils/pointUtils.cpp
 ===================================================================
---- apps/addonsExamples/mapinect/src/utils/pointUtils.cpp	(revision 412)
+--- apps/addonsExamples/mapinect/src/utils/pointUtils.cpp	(revision 422)
 +++ apps/addonsExamples/mapinect/src/utils/pointUtils.cpp	(working copy)
 @@ -33,6 +33,7 @@
  #include "utils.h"
@@ -694,7 +638,7 @@ Index: apps/addonsExamples/mapinect/src/utils/pointUtils.cpp
  PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi)
  {
  	PCPtr newCloud(new PC());
-@@ -87,100 +77,7 @@
+@@ -87,108 +77,7 @@
  	return newCloud;
  }
  
@@ -724,6 +668,14 @@ Index: apps/addonsExamples/mapinect/src/utils/pointUtils.cpp
 -	PCPtr transformedCloud(new PC());
 -	pcl::transformPointCloud(*cloud, *transformedCloud, transform);
 -	return transformedCloud;
+-}
+-
+-vector<ofVec3f> transformVector(const vector<ofVec3f>& vec, const Eigen::Affine3f& transform)
+-{
+-	vector<ofVec3f> transformed;
+-	for(int i = 0; i < vec.size(); i ++)
+-		transformed.push_back(transformPoint(vec.at(i), transform));
+-	return transformed;
 -}
 -
 -mapinect::Polygon3D scalePolygon3D(const mapinect::Polygon3D& polygon, const float& scale)
@@ -797,9 +749,9 @@ Index: apps/addonsExamples/mapinect/src/utils/pointUtils.cpp
  // -------------------------------------------------------------------------------------
 Index: apps/addonsExamples/mapinect/src/utils/pointUtils.h
 ===================================================================
---- apps/addonsExamples/mapinect/src/utils/pointUtils.h	(revision 412)
+--- apps/addonsExamples/mapinect/src/utils/pointUtils.h	(revision 422)
 +++ apps/addonsExamples/mapinect/src/utils/pointUtils.h	(working copy)
-@@ -13,108 +13,91 @@
+@@ -13,109 +13,91 @@
  // pcl <--> ofVec3f and other conversion utils
  // -------------------------------------------------------------------------------------
  
@@ -833,6 +785,7 @@ Index: apps/addonsExamples/mapinect/src/utils/pointUtils.h
 -PCXYZ	transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform);
 -ofVec3f	transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform);
 -PCPtr	transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform);
+-vector<ofVec3f> transformVector(const vector<ofVec3f>& vec, const Eigen::Affine3f& transform);
 -
 -// maps points in world coordinates back to depth image coordinates
 -PCPtr			getScreenCoords(const PCPtr& transformedWorldCloud);
@@ -1113,7 +1066,7 @@ Index: apps/addonsExamples/mapinect/src/utils/transformationUtils.h
 +#endif // TRANSFORMATION_UTILS_H__
 Index: libs/openFrameworks/gl/ofTexture.cpp
 ===================================================================
---- libs/openFrameworks/gl/ofTexture.cpp	(revision 412)
+--- libs/openFrameworks/gl/ofTexture.cpp	(revision 422)
 +++ libs/openFrameworks/gl/ofTexture.cpp	(working copy)
 @@ -374,8 +374,8 @@
  	
