@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include "EventManager.h"
 #include "Feature.h"
+#include "Frustum.h"
 #include "Globals.h"
 #include "log.h"
 #include "pointUtils.h"
@@ -88,6 +89,9 @@ namespace mapinect {
 			}
 
 			ofPopMatrix();
+
+			// dibujar Frustum
+			Frustum::drawFrustum();
 
 			for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
 			{
