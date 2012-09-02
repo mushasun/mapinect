@@ -385,8 +385,10 @@ namespace mapinect {
 			ofVec3f w = getScreenCoords(vertexs.at(i));
 			ofCircle(w.x, w.y, 5, 4);
 		}
+		ofSetColor(0,0,255);
+		ofVec3f sAvg = getScreenCoords(this->getCenter());
+		ofDrawBitmapString(ofToString(this->getId()), sAvg.x, sAvg.y, 0);
 		pcPolygonsMutex.unlock();
-
 	}
 
 	const PCPolygonPtr& PCPolyhedron::getPCPolygon(int index)
