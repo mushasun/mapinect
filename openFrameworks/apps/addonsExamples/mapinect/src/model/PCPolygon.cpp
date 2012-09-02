@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "pointUtils.h"
 #include "Plane3D.h"
+#include "transformationUtils.h"
 
 
 namespace mapinect {

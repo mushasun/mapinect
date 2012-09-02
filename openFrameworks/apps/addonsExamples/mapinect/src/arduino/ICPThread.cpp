@@ -4,6 +4,7 @@
 #include <pcl/segmentation/sac_segmentation.h>
 #include "Globals.h"
 #include "pointUtils.h"
+#include "transformationUtils.h"
 #include "Constants.h"
 #include "Plane3D.h"
 

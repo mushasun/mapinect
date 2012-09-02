@@ -6,6 +6,7 @@
 #include "Globals.h"
 #include "mapinectTypes.h"
 #include "pointUtils.h"
+#include "transformationUtils.h"
 #include <algorithm>
 #include "SortPolar.h"
 #include <cmath>

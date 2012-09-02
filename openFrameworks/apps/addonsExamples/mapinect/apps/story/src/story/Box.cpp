@@ -6,18 +6,39 @@
 
 namespace story
 {
+	vector<ofImage*> Box::fireImgs;
+
 	Box::Box(const IObjectPtr& object, IButtonManager* btnManager)
 		: object(object)
 	{
-		//texture = new ofImage("spot.png");
+		fireSpriteA = new AnimatedSprite(fireImgs,0.2,object->getPolygon(kPolygonNameSideA)->getMathModel());
+		fireSpriteB = new AnimatedSprite(fireImgs,0.2,object->getPolygon(kPolygonNameSideB)->getMathModel());
+		fireSpriteC = new AnimatedSprite(fireImgs,0.2,object->getPolygon(kPolygonNameSideC)->getMathModel());
+		fireSpriteD = new AnimatedSprite(fireImgs,0.2,object->getPolygon(kPolygonNameSideD)->getMathModel());
+
+		isBurning = false;
 	}
 
 	Box::~Box()
 	{
+		delete(fireSpriteA);
+		delete(fireSpriteB);
+		delete(fireSpriteC);
+		delete(fireSpriteD);
 		object.reset();
 	}
 
-	void Box::draw()
+	void Box::setup()
+	{
+		for(int i = 0; i < 104; i++)
+		{
+			ofImage* img = new ofImage("data/texturas/fire/f" + ofToString(i) + ".png");
+			fireImgs.push_back(img);
+		}
+	}
+
+
+	void Box::draw()	
 	{
 		ofSetColor(kRGBWhite);
 
@@ -47,25 +68,63 @@ namespace story
 			}
 
 			texture->bind();
-			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(*texture));
+			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor());
 			texture->unbind();
+
+			
+			
+			//ofSetColor(kRGBWhite);
+			//glLineWidth(0.01);
+			//	for(int i = 0; i < (*p)->getMathModel().getVertexs().size() ; i ++)
+			//	{
+			//		ofVec3f v = (*p)->getMathModel().getVertexs().at(i);
+			//		/*ofCircle(v.x,v.y,v.z, 0.005);*/
+			//		ofVec3f c = (*p)->getMathModel().getCentroid();
+			//		glBegin(GL_LINES); 
+			//		glVertex3f(c.x,c.y,c.z);
+			//		ofVec3f pointer = c + (*p)->getMathModel().getPlane().getNormal();
+			//		glVertex3f( pointer.x,pointer.y,pointer.z); 
+			//		glEnd(); 
+			//	}
+			//ofSetColor(kRGBGreen);
+			//ofCircle((*p)->getMathModel().getCentroid().x,(*p)->getMathModel().getCentroid().y,(*p)->getMathModel().getCentroid().z,
+			//				0.005);
+
+			//ofSetColor(kRGBWhite);
 		}
+		if(isBurning)
+		{
+			fireSpriteA->draw();
+			fireSpriteB->draw();
+			fireSpriteC->draw();
+			fireSpriteD->draw();
+		}
+	}
+
+	void Box::updateModelObject(const IObjectPtr& ob)
+	{
+		object = ob;
+		fireSpriteA->setPolygon(object->getPolygon(kPolygonNameSideA)->getMathModel());
+		fireSpriteB->setPolygon(object->getPolygon(kPolygonNameSideA)->getMathModel());
+		fireSpriteC->setPolygon(object->getPolygon(kPolygonNameSideA)->getMathModel());
+		fireSpriteD->setPolygon(object->getPolygon(kPolygonNameSideA)->getMathModel());
 	}
 
 	void Box::update(float elapsedTime)
 	{
-		if (burnSound!=NULL)
+		if (isBurning)
 		{
+			fireSpriteA->update(elapsedTime);
+			fireSpriteB->update(elapsedTime);
+			fireSpriteC->update(elapsedTime);
+			fireSpriteD->update(elapsedTime);
 			if(StoryStatus::getProperty(FIREMAN_FINISHED))
 			{
 				burnSound->stop();
 				delete burnSound;
+				isBurning = false;
 			}
 		}
-	}
-
-	void Box::setup()
-	{
 	}
 
 	void Box::stopBurn()
@@ -83,6 +142,7 @@ namespace story
 			burnSound->setLoop(true);
 			StoryStatus::setProperty(CENTROID_BURNING_HOUSE, this->object->getCenter());
 			cout << " ++++ se prende fuego! " << endl;
+			isBurning = true;
 		}
 	}
 }

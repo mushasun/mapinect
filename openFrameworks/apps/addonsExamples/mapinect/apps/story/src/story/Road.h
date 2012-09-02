@@ -13,7 +13,7 @@ namespace story
 	class Road
 	{
 	public:
-		Road(const ofVec3f begin, const ofVec3f end);
+		Road(const ofVec3f begin, const ofVec3f end, const Polygon3D& table);
 		virtual ~Road();
 
 		void			update(float elapsedTime);

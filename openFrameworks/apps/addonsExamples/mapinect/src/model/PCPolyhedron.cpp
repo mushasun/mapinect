@@ -27,6 +27,7 @@
 #include "ofVecUtils.h"
 #include "PCQuadrilateral.h"
 #include "pointUtils.h"
+#include "transformationUtils.h"
 #include "utils.h"
 #include "Feature.h"
 

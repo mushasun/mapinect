@@ -97,7 +97,7 @@ namespace story
 	/*-------------------------------------------------------------*/
 	void PowerPlant::update(float elapsedTime)
 	{
-
+		Box::update(elapsedTime);
 	}
 
 

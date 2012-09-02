@@ -32,6 +32,6 @@ void ofDrawQuadTextured(const ofPoint& vA, const ofPoint& vB, const ofPoint& vC,
 	float sA = 0, float tA = 0, float sB = 1, float tB = 0, float sC = 1, float tC = 1, float sD = 0, float tD = 1);
 void ofDrawQuad(const vector<ofVec3f>& vertexs);
 void ofDrawQuadTextured(const vector<ofVec3f>& vertexs, const vector<ofVec2f>& texCoords);
-vector<ofVec2f> ofTexCoordsFor(ofBaseDraws& d);
+vector<ofVec2f> ofTexCoordsFor(float sEnd = 1.0f, float tEnd = 1.0f, float sBegin = 0.0f, float tBegin = 0.0f);
 
 #endif	// OFGRAPHICS_UTILS_H__

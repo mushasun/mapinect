@@ -5,6 +5,7 @@
 #include "ofImage.h"
 #include "IButtonManager.h"
 #include "DataTouch.h"
+#include "AnimatedSprite.h"
 #include "ofSoundPlayer.h"
 
 using namespace mapinect;
@@ -23,7 +24,9 @@ namespace story
 		Box(const IObjectPtr& object, IButtonManager* btnManager);
 		virtual ~Box();
 
-		inline void				updateModelObject(const IObjectPtr& ob)		{ object = ob; }
+		static void				setup();
+
+		void					updateModelObject(const IObjectPtr& ob);		
 
 		virtual void			update(float elapsedTime);
 		virtual void			draw();
@@ -36,7 +39,6 @@ namespace story
 		virtual void			buttonEvent(const IButtonPtr& btn, bool released) = 0;
 		virtual void			objectEvent(const DataTouch& touchPoint, const BuildType& selection) = 0;
 		ofSoundPlayer*			burnSound;
-		void					setup();
 
 	protected:
 		IObjectPtr				object;
@@ -48,6 +50,14 @@ namespace story
 		vector<int>				buttonsId;
 		BuildType				buildType;
 		int						objectID;		
+		bool					isBurning;
+
+		AnimatedSprite*	fireSpriteA;
+		AnimatedSprite*	fireSpriteB;
+		AnimatedSprite*	fireSpriteC;
+		AnimatedSprite*	fireSpriteD;
+		
+		static vector<ofImage*> fireImgs;
 	};
 }
 

@@ -264,7 +264,6 @@ namespace mapinect {
 								{
 									vector<ofVec3f> points;
 									pointsCloserToModel.insert(make_pair(polygon, points));
-									cout << "touch en: " << polygon->getName() << endl;
 									it = pointsCloserToModel.find(polygon);
 								}
 								it->second.push_back((polygon)->getMathModel().getPlane().project(*v));
@@ -412,6 +411,8 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void PCMThread::updateDetectedTouchPoints()
 	{
+		static int lastCountTouch = 0;
+		int countTouch = 0;
 		for (map<int, list<TrackedTouchPtr> >::iterator p = trackedTouchPoints.begin(); p != trackedTouchPoints.end(); p++)
 		{
 			for (list<TrackedTouchPtr>::iterator iter = p->second.begin(); iter != p->second.end(); iter++)
@@ -432,10 +433,19 @@ namespace mapinect {
 			// Clear released touch points
 			p->second.remove_if(isStatusReleased);
 
+			countTouch += p->second.size();
+
 			for (list<TrackedTouchPtr>::iterator iter = p->second.begin(); iter != p->second.end(); iter++)
 			{
 				(*iter)->updateToHolding();
 			}
+
+
+		}
+		if (lastCountTouch != countTouch)
+		{
+			lastCountTouch = countTouch;
+			cout << "Tracked touch: " << lastCountTouch << endl;
 		}
 	}
 

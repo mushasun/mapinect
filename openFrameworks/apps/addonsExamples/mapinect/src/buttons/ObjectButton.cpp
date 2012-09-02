@@ -219,7 +219,7 @@ namespace mapinect {
 			ofSetColor(kRGBWhite);
 			ofImage* tex = isPressed() ? pressedTexture : idleTexture;
 			tex->bind();
-			ofDrawQuadTextured(pol.getVertexs(), ofTexCoordsFor(*tex));
+			ofDrawQuadTextured(pol.getVertexs(), texCoords);
 			tex->unbind();
 		}
 		else if (mode == kButtonDrawModePlain)
@@ -230,12 +230,7 @@ namespace mapinect {
 				ofSetColor(idleColor);
 			
 			vector<ofVec3f> vertexs = pol.getVertexs();
-			glBegin(GL_QUADS);      
-				glVertex3f(vertexs.at(0).x, vertexs.at(0).y, vertexs.at(0).z); 
-				glVertex3f(vertexs.at(1).x, vertexs.at(1).y, vertexs.at(1).z);
-				glVertex3f(vertexs.at(2).x, vertexs.at(2).y, vertexs.at(2).z);
-				glVertex3f(vertexs.at(3).x, vertexs.at(3).y, vertexs.at(3).z);
-			glEnd();
+			ofDrawQuad(vertexs);
 		}
 	}
 

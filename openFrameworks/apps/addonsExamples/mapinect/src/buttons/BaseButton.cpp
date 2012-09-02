@@ -1,5 +1,6 @@
 #include "BaseButton.h"
 
+#include "ofGraphicsUtils.h"
 #include "pointUtils.h"
 
 namespace mapinect {
@@ -18,6 +19,7 @@ namespace mapinect {
 		leaderChanged = false;
 		zIndex = 1;
 		touching = false;
+		texCoords = ofTexCoordsFor();
 	}
 
 	BaseButton::BaseButton(const ofColor& idle, const ofColor& pressed)

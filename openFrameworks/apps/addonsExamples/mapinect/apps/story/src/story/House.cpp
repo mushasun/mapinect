@@ -188,6 +188,7 @@ namespace story
 	/*-------------------------------------------------------------*/
 	void House::update(float elapsedTime)
 	{
+		Box::update(elapsedTime);
 		if(isWatering)
 		{
 			lastWateringInSeconds = max(lastWateringInSeconds - (elapsedTime*4), 0.0f);

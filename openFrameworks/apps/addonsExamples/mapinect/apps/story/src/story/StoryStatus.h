@@ -4,6 +4,7 @@
 #include <map>
 #include "ofMain.h"
 #include "ofVec3f.h"
+#include "IModeManager.h"
 
 namespace story
 {
@@ -11,6 +12,12 @@ namespace story
 		CENTROID_BURNING_HOUSE = 0,
 	};
 	
+	enum StoryMode{
+		STORY_ACTION_MODE = 0,
+		STORY_MOVE_MODE,
+		STORY_MOVE_AND_ACTION_MODE
+	};
+
 	enum StoryStatusProperty{
 		ADDING_STREET = 0,
 		ADDING_RIVER,
@@ -35,16 +42,20 @@ namespace story
 	{
 		private:
 			static std::map<StoryStatusProperty, bool> properties;
+			static mapinect::IModeManager* modeManager;
 			static std::map<IntStoryStatusProperty, int> intProperties;
 			static std::map<ofVec3fStoryStatusProperty, ofVec3f> ofVec3fProperties;
 		public:
-			static void			setup();
-			static void			setProperty(StoryStatusProperty prop, bool val);
+		static void			setup(mapinect::IModeManager* modeManager);
+		static void			setProperty(StoryStatusProperty prop, bool val);
 			static void			setProperty(IntStoryStatusProperty prop, int val);
 			static void			setProperty(ofVec3fStoryStatusProperty prop, ofVec3f val);
 			static bool			getProperty(StoryStatusProperty prop);
 			static int			getIntProperty(IntStoryStatusProperty prop);
 			static ofVec3f		getofVec3fProperty(ofVec3fStoryStatusProperty prop);
+
+		static void			setStoryMode(StoryMode mode);
+
 	};
 
 }

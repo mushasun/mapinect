@@ -8,6 +8,7 @@
 #include "SortPolar.h"
 #include "utils.h"
 #include "pointUtils.h"
+#include "transformationUtils.h"
 
 namespace mapinect {
 

@@ -95,7 +95,7 @@ namespace story
 	/*-------------------------------------------------------------*/
 	void WaterPlant::update(float elapsedTime)
 	{
-
+		Box::update(elapsedTime);
 	}
 
 

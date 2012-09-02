@@ -36,13 +36,13 @@ void ofDrawQuadTextured(const vector<ofVec3f>& vertexs, const vector<ofVec2f>& t
 						texCoords[2].x, texCoords[2].y, texCoords[3].x, texCoords[3].y);
 }
 
-vector<ofVec2f> ofTexCoordsFor(ofBaseDraws& d)
+vector<ofVec2f> ofTexCoordsFor(float sEnd, float tEnd, float sBegin, float tBegin)
 {
 	vector<ofVec2f> result;
-	result.push_back(ofVec2f(d.getWidth(), 0));
-	result.push_back(ofVec2f(d.getWidth(), d.getHeight()));
-	result.push_back(ofVec2f(0, d.getHeight()));
-	result.push_back(ofVec2f(0, 0));
+	result.push_back(ofVec2f(sEnd, tBegin));
+	result.push_back(ofVec2f(sEnd, tEnd));
+	result.push_back(ofVec2f(sBegin, tEnd));
+	result.push_back(ofVec2f(sBegin, tBegin));
 	
 	return result;
 }
