@@ -190,6 +190,11 @@ namespace mapinect {
 				TRGB, RRGB);
 		}
 
+		// Use traditional TEXTURE_2D for GL_REPEAT and normalized textures
+		ofDisableArbTex();
+		ofEnableNormalizedTexCoords();
+		ofSetTextureWrap(GL_CLAMP, GL_CLAMP);
+
 		//Habilita usar texturas transparentes
 		glAlphaFunc(GL_GREATER, 0.02);
 		glEnable(GL_ALPHA_TEST);

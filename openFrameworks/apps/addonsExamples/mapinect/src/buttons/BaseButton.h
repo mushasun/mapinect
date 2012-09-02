@@ -28,6 +28,7 @@ namespace mapinect {
 		inline void			setPressed(const ofColor& color)	{ pressedColor = color; }
 		inline void			setPressed(ofImage* img)			{ pressedTexture = img; }
 		inline void			setDrawMode(const ButtonDrawMode& m){ mode = m; }
+		inline void			setTexCoords(const vector<ofVec2f>& coords) { texCoords = coords; }
 		inline void			setZIndex(int index)				{ zIndex = index; }
 		
 		virtual void				draw() = 0;
@@ -50,6 +51,7 @@ namespace mapinect {
 		ofColor				pressedColor;
 		ofImage*			idleTexture;
 		ofImage*			pressedTexture;
+		vector<ofVec2f>		texCoords;
 
 		int					zIndex;
 	private:

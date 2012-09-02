@@ -4,6 +4,7 @@
 #include "Globals.h"
 #include "log.h"
 #include "pointUtils.h"
+#include "transformationUtils.h"
 #include "PCPolyhedron.h"
 #include "Frustum.h"
 #include <pcl/octree/octree.h>

@@ -7,17 +7,18 @@
 
 namespace story
 {
-	Road::Road(const ofVec3f begin, const ofVec3f end)
+	Road::Road(const ofVec3f begin, const ofVec3f end, const Polygon3D& table)
 		: begin(begin), end(end)
 	{
 		texture = new ofImage("data/texturas/road/road.jpg");
-		normal = ofVec3f(0, 1, 0);
+		normal = table.getPlane().getNormal();
 		ofVec3f direccion = normal.cross(begin-end).normalize() * NORMAL_FACTOR;
 		vector<ofVec3f> draggable;
-		draggable.push_back(end + direccion);
-		draggable.push_back(begin + direccion);
-		draggable.push_back(begin - direccion);
-				draggable.push_back(end - direccion);
+		draggable.push_back(table.project(end + direccion));
+		draggable.push_back(table.project(begin + direccion));
+		draggable.push_back(table.project(begin - direccion));
+		draggable.push_back(table.project(end - direccion));
+		
 		Polygon3D area = Polygon3D(draggable);
 		button = IButtonPtr(new DraggableButton ( draggable,
 							texture,

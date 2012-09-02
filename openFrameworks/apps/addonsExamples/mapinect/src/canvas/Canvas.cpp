@@ -48,13 +48,7 @@ namespace mapinect
 		int vertexCount = polygon.getVertexs().size();
 		assert(vertexCount >= 3);
 
-		texCoords.clear();
-		texCoords.push_back(ofVec2f(0, 0));
-		texCoords.push_back(ofVec2f(width, 0));
-		texCoords.push_back(ofVec2f(width, height));
-		texCoords.push_back(ofVec2f(0, height));
-
-		texMapper = TextureMapper2D(polygon, texCoords, kMappingOriginVertex);
+		texMapper = TextureMapper2D(polygon, ofTexCoordsFor(width, height), kMappingOriginVertex);
 	}
 
 	void Canvas::redraw()
@@ -83,7 +77,7 @@ namespace mapinect
 		redrawIfNecessary();
 		ofImage* cairoTexture = texture.getTextureRef();
 		cairoTexture->bind();
-		ofDrawQuadTextured(polygon.getVertexs(), texCoords);
+		ofDrawQuadTextured(polygon.getVertexs(), ofTexCoordsFor());
 		cairoTexture->unbind();
 
 		/*for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
@@ -101,6 +95,7 @@ namespace mapinect
 		/*if (texMapper.willMap(pto))			Con esta condicion no toma bien los bordes
 		{*/
 			ofVec3f mapped(texMapper.map(pto));
+			cout << texMapper.willMap(pto) << " v: " << mapped.x << ", " << mapped.y << ", " << mapped.z << endl; 
 			int id = touchPoint.getId();
 			map<int, IDrawer*>::iterator d = drawers.find(id);
 			switch (touchPoint.getType())

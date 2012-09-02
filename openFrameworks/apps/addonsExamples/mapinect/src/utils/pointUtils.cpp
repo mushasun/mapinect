@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "Feature.h"
 #include "Plane3D.h"
+#include "transformationUtils.h"
 #include "log.h"
 
 // -------------------------------------------------------------------------------------
@@ -66,17 +67,6 @@ PCPtr ofVecVectorToPointCloud(const vector<ofVec3f>& v)
 	return result;
 }
 
-vector<ofVec3f>	eigenVectorToOfVecVector(const vector<Eigen::Vector3f>& v)
-{
-	vector<ofVec3f> vec;
-	for(int i = 0; i < v.size(); i++)
-	{
-		Eigen::Vector3f ev = v.at(i);
-		vec.push_back(ofVec3f(ev.x(),ev.y(),ev.z()));
-	}
-	return vec;
-}
-
 PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi)
 {
 	PCPtr newCloud(new PC());
@@ -87,107 +77,6 @@ PCPtr getCloudFromIndices(const PCPtr& cloud, const pcl::PointIndices& pi)
 	return newCloud;
 }
 
-// -------------------------------------------------------------------------------------
-// transformation utils
-// -------------------------------------------------------------------------------------
-
-
-PCXYZ eyePos()
-{
-	return transformPoint(PCXYZ(0, 0, 0),  gTransformation->getWorldTransformation());
-}
-
-PCXYZ transformPoint(const PCXYZ& p, const Eigen::Affine3f& transform)
-{
-	return pcl::transformPoint(p, transform);
-}
-
-ofVec3f transformPoint(const ofVec3f& v, const Eigen::Affine3f& transform)
-{
-	PCXYZ transformedPoint(transformPoint(OFVEC3F_PCXYZ(v), transform));
-	return PCXYZ_OFVEC3F(transformedPoint);
-}
-
-PCPtr transformCloud(const PCPtr& cloud, const Eigen::Affine3f& transform)
-{
-	PCPtr transformedCloud(new PC());
-	pcl::transformPointCloud(*cloud, *transformedCloud, transform);
-	return transformedCloud;
-}
-
-vector<ofVec3f> transformVector(const vector<ofVec3f>& vec, const Eigen::Affine3f& transform)
-{
-	vector<ofVec3f> transformed;
-	for(int i = 0; i < vec.size(); i ++)
-		transformed.push_back(transformPoint(vec.at(i), transform));
-	return transformed;
-}
-
-mapinect::Polygon3D scalePolygon3D(const mapinect::Polygon3D& polygon, const float& scale)
-{
-	vector<ofVec3f> vertexs = polygon.getVertexs();
-	vector<ofVec3f> newVertexs;
-	ofVec3f center = computeCentroid(vertexs);
-	for(int i = 0; i < vertexs.size(); i++)
-	{
-		ofVec3f vec = vertexs.at(i);
-		ofVec3f scaleV = center - vec;
-		scaleV += scaleV * scale;
-		newVertexs.push_back(center + scaleV);
-	}
-	return mapinect::Polygon3D(newVertexs);
-}
-
-
-mapinect::Polygon3D transformPolygon3D(const mapinect::Polygon3D& polygon, const Eigen::Affine3f& transform)
-{
-	mapinect::Polygon3D pol(polygon);
-	vector<ofVec3f> vertexs = pol.getVertexs();
-	vector<ofVec3f> transVertexs;
-
-	for(int i = 0; i < vertexs.size(); i++)
-	{
-		transVertexs.push_back(transformPoint(vertexs.at(i),transform));
-	}
-
-	pol.setVertexs(transVertexs);
-	return pol;
-}
-
-PCPtr getScreenCoords(const PCPtr& transformedWorldCloud)
-{
-	PCPtr screenCloud(new PC());
-	for (PC::const_iterator p = transformedWorldCloud->begin(); p != transformedWorldCloud->end(); ++p)
-	{
-		screenCloud->push_back(getScreenCoords(*p));
-	}
-	return screenCloud;
-}
-
-vector<ofVec3f> getScreenCoords(const vector<ofVec3f>& transformedWorldCloud)
-{
-	vector<ofVec3f> screenPoints;
-	for (vector<ofVec3f>::const_iterator v = transformedWorldCloud.begin(); v != transformedWorldCloud.end(); ++v)
-	{
-		screenPoints.push_back(getScreenCoords(*v));
-	}
-	return screenPoints;
-}
-
-PCXYZ getScreenCoords(const PCXYZ& transformedWorldPoint)
-{
-	// Apply to world point the inverse transformation
-	PCXYZ transf = pcl::transformPoint(transformedWorldPoint, gTransformation->getInverseWorldTransformation());
-	// Then, we call the depth device instance to transform to the depth image coordinates
-	ofVec3f screenCoord = gKinect->getScreenCoordsFromWorldCoords(PCXYZ_OFVEC3F(transf));
-	return OFVEC3F_PCXYZ(screenCoord);
-}
-
-ofVec3f getScreenCoords(const ofVec3f& transformedWorldPoint)
-{
-	PCXYZ screenPoint(getScreenCoords(OFVEC3F_PCXYZ(transformedWorldPoint)));
-	return PCXYZ_OFVEC3F(screenPoint);
-}
 
 // -------------------------------------------------------------------------------------
 // i/o utils

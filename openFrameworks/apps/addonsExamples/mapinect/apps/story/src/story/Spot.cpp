@@ -30,7 +30,7 @@ namespace story
 				ofTranslate(position);
 				ofRotateY(RAD2DEG(rotation));
 				texture->bind();
-					ofDrawQuadTextured(area.getVertexs(), ofTexCoordsFor(*texture));
+					ofDrawQuadTextured(area.getVertexs(), ofTexCoordsFor());
 				texture->unbind();
 			ofPopMatrix();
 		}

@@ -3,6 +3,8 @@
 
 #include "SimpleButton.h"
 
+#include "Line3D.h"
+
 namespace mapinect {
 	class DraggableButton;
 	typedef boost::shared_ptr<DraggableButton> DraggableButtonPtr;
@@ -14,9 +16,28 @@ namespace mapinect {
 			DraggableButton(Polygon3D polygon, ofImage* idle, ofImage* pressed);
 			~DraggableButton(void);
 
+			void	setRepeatBehavior(const vector<ofVec2f>& baseTexCoords, bool repeatS, bool repeatT);
+
 			virtual ButtonEvent updateTouchPoints(const IObjectPtr& object, const DataTouch& touch);	
 		private:
-			float lastScale;
+			bool				isTranslating;
+			bool				isResizing;
+
+			ofVec3f				translationBase;
+			Line3D				resizeLineBase;
+			Polygon3D			resizePolygonBase;
+			
+			enum ScalingDirection
+			{
+				kUniformScaling = 0,
+				kHorizontalScaling,
+				kVerticalScaling
+			};
+			ScalingDirection	resizeScalingDirection;
+
+			vector<ofVec2f>		baseTexCoords;
+			bool				repeatS;
+			bool				repeatT;
 	};
 }
 #endif

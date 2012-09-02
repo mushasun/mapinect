@@ -4,10 +4,11 @@ namespace story
 {
 	std::map<StoryStatusProperty, bool> StoryStatus::properties;
 	std::map<IntStoryStatusProperty, int> StoryStatus::intProperties;
+	mapinect::IModeManager* StoryStatus::modeManager = NULL;
 	std::map<ofVec3fStoryStatusProperty, ofVec3f> StoryStatus::ofVec3fProperties;
-
-	void StoryStatus::setup()
+	void StoryStatus::setup(mapinect::IModeManager* manager)
 	{
+		modeManager = manager;
 		properties[ADDING_STREET] = false;
 		properties[ADDING_RIVER] = false;
 		properties[ADDING_POWERPLANT] = false;
@@ -45,6 +46,40 @@ namespace story
 	int StoryStatus::getIntProperty(IntStoryStatusProperty prop) 
 	{ 
 		return intProperties[prop]; 
+	}
+
+	void StoryStatus::setStoryMode(StoryMode mode)
+	{
+		switch(mode)
+		{
+			case STORY_ACTION_MODE:
+                StoryStatus::setProperty(ADDING_POWERPLANT, false);
+                StoryStatus::setProperty(ADDING_WATERPLANT, false);
+				StoryStatus::setProperty(ADDING_HOUSE,false);
+				StoryStatus::setProperty(ADDING_RIVER,false);
+				StoryStatus::setProperty(ADDING_STREET,false);
+				modeManager->disableObjectTracking();
+				modeManager->enableTouchTracking();
+				break;
+			case STORY_MOVE_MODE:
+				StoryStatus::setProperty(ADDING_POWERPLANT, false);
+                StoryStatus::setProperty(ADDING_WATERPLANT, false);
+				StoryStatus::setProperty(ADDING_HOUSE,false);
+				StoryStatus::setProperty(ADDING_RIVER,false);
+				StoryStatus::setProperty(ADDING_STREET,false);
+				modeManager->enableObjectTracking();
+				modeManager->disableTouchTracking();
+				break;
+			case STORY_MOVE_AND_ACTION_MODE:
+				StoryStatus::setProperty(ADDING_POWERPLANT, false);
+                StoryStatus::setProperty(ADDING_WATERPLANT, false);
+				StoryStatus::setProperty(ADDING_HOUSE,false);
+				StoryStatus::setProperty(ADDING_RIVER,false);
+				StoryStatus::setProperty(ADDING_STREET,false);
+				modeManager->enableObjectTracking();
+				modeManager->enableTouchTracking();
+				break;
+		}
 	}
 	
 	ofVec3f StoryStatus::getofVec3fProperty(ofVec3fStoryStatusProperty prop) 

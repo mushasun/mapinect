@@ -21,6 +21,7 @@ namespace story
 		POWERPLANT,
 		WATERPLANT,
 		FIRE,
+		FINISH
 	};
 	class Menu
 	{
@@ -31,7 +32,7 @@ namespace story
 		void			setup(IButtonManager* btnManager);
 		void			update(float elapsedTime);
 		void			draw();
-		void			buttonEvent(const IButtonPtr& btn, bool released);
+		void			buttonEvent(const IButtonPtr& btn, const DataTouch& touchPoint, bool released);
 		void			objectEvent(const IObjectPtr& object, const DataTouch& touchPoint);
 	private:
 		void					loadTextures();
@@ -39,6 +40,7 @@ namespace story
 		void					removeMenu();
 
 		bool					active;
+		bool					inAction;
 		map<int, MenuAction>	actions;
 		float					timeMenuShown;
 		IButtonManager*			btnManager;
@@ -53,6 +55,8 @@ namespace story
 		static ofImage*			imgWaterPlantButtonOn;
 		static ofImage*			imgHouseButton;
 		static ofImage*			imgHouseButtonOn;
+		static ofImage*			imgOkButton;
+		static ofImage*			imgOkButtonOn;
 		static ofImage*			imgFire;
 		static ofImage*			imgFireOn;
 

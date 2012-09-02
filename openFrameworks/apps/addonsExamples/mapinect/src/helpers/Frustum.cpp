@@ -2,6 +2,7 @@
 #include "Constants.h"
 #include "Globals.h"
 #include "pointUtils.h"
+#include "transformationUtils.h"
 #include <pcl/common/transforms.h>
 
 namespace mapinect
@@ -118,15 +119,19 @@ namespace mapinect
 
 	bool Frustum::IsInFrustum(const vector<ofVec3f>& vertices)
 	{
+		return true;
+
+
 		bool verticesInFrustum = true;
 		for (int i = 0; i < vertices.size(); i++) {
+			cout << vertices[i].x << ", " << vertices[i].y << ", " << vertices[i].z << "  -  " << IsInFrustum(vertices.at(i)) << endl;
 			verticesInFrustum = verticesInFrustum && IsInFrustum(vertices.at(i));
 		}
 		
-//		if (verticesInFrustum == false)
-//			cout << "objecto dentro del frustum" << endl; 
-//		else 
-//			cout << "objeto fuera" << endl;
+		if (verticesInFrustum == false)
+			cout << "objecto fuera" << endl; 
+		else 
+			cout << "objeto dentro" << endl;
 
 		return verticesInFrustum;
 	}

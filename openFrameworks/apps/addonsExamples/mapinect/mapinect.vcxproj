@@ -237,6 +237,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClCompile Include="src\utils\ofVecUtils.cpp" />
     <ClCompile Include="src\utils\pointUtils.cpp" />
     <ClCompile Include="src\utils\Timer.cpp" />
+    <ClCompile Include="src\utils\transformationUtils.cpp" />
     <ClCompile Include="src\utils\utils.cpp" />
     <ClCompile Include="src\vm\VM.cpp" />
   </ItemGroup>
@@ -328,6 +329,7 @@ if not exist "$(ProjectDir)\bin\data" mkdir  "$(ProjectDir)\bin\data"
     <ClInclude Include="src\utils\ofVecUtils.h" />
     <ClInclude Include="src\utils\pointUtils.h" />
     <ClInclude Include="src\utils\Timer.h" />
+    <ClInclude Include="src\utils\transformationUtils.h" />
     <ClInclude Include="src\utils\utils.h" />
     <ClInclude Include="src\vm\VM.h" />
   </ItemGroup>

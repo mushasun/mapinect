@@ -28,10 +28,11 @@ namespace story {
 		selectedBoxIdx = boxes.end();
 		StoryConstants::LoadStoryConstants();
 		Spot::setup();
+		Box::setup();
 		House::setup();
 		WaterPlant::setup();
 		PowerPlant::setup();
-		StoryStatus::setup();
+		StoryStatus::setup(modeManager);
 		Bomberos::setup();
 
 		menu.setup(btnManager);
@@ -44,7 +45,6 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::debugDraw()
 	{
-		
 	}
 
 	//--------------------------------------------------------------
@@ -68,7 +68,6 @@ namespace story {
 				ofSetHexColor(0x0000FF);
 			ofVec3f s = it->second.getTouchPoint();
 			ofCircle(s.x, s.y, s.z, 0.01);
-			
 		}
 	}
 
@@ -97,16 +96,18 @@ namespace story {
 		if (StoryStatus::getProperty(ADDING_HOUSE) || StoryStatus::getProperty(ADDING_POWERPLANT) || StoryStatus::getProperty(ADDING_WATERPLANT))
 		{
 			modeManager->enableObjectTracking();
-			modeManager->disableTouchTracking();
 		}
 		else if (StoryStatus::getProperty(ADDING_RIVER) || StoryStatus::getProperty(ADDING_STREET))
 		{
 			modeManager->disableObjectTracking();
-			modeManager->enableTouchTracking();
 		}
 		//Buildings
+
 		for (map<int, Box*>::const_iterator it = boxes.begin(); it != boxes.end(); ++it)
+		{
 			it->second->update(elapsedTime);
+		}
+
 	}
 
 	//--------------------------------------------------------------
@@ -116,10 +117,10 @@ namespace story {
 		switch(key)
 		{
 			case 'c':
-				setStoryMode(STORY_ACTION_MODE);
+				StoryStatus::setStoryMode(STORY_ACTION_MODE);
 				break;
 			case 'm':
-				setStoryMode(STORY_MOVE_MODE);
+				StoryStatus::setStoryMode(STORY_MOVE_MODE);
 				break;
 
 		}
@@ -137,10 +138,10 @@ namespace story {
 			vector<ofVec3f> oldVexs = table.getVertexs();
 			vector<ofVec3f> newVexs;
 			for(int i = 0; i < 4; i++)
-				newVexs.push_back(oldVexs.at(i)+translateCanvas);
+				newVexs.push_back(oldVexs.at(3 - i)+translateCanvas);
 
 			table.setVertexs(newVexs);
-			river = new Canvas(object->getId(),table, 300,300,ofColor(220,110,50),ofColor(75,140,250),50);
+			river = new Canvas(object->getId(),table, 512,512,ofColor(220,110,50),ofColor(75,140,250),20);
 		}
 		else
 		{
@@ -153,19 +154,19 @@ namespace story {
 			{
 				House* h  = new House(object, btnManager);
 				boxes.insert(pair<int, Box*>(object->getId(), h));
-				setStoryMode(STORY_ACTION_MODE);
+				//StoryStatus::setStoryMode(STORY_ACTION_MODE);
 			}
 			else if (StoryStatus::getProperty(ADDING_POWERPLANT))
 			{
 				PowerPlant* plant  = new PowerPlant(object, btnManager);
                 boxes.insert(pair<int, Box*>(object->getId(), plant));
-                setStoryMode(STORY_ACTION_MODE);
+                //StoryStatus::setStoryMode(STORY_ACTION_MODE);
 			}
 			else if (StoryStatus::getProperty(ADDING_WATERPLANT))
 			{
 				WaterPlant* plant  = new WaterPlant(object, btnManager);
                 boxes.insert(pair<int, Box*>(object->getId(), plant));
-                setStoryMode(STORY_ACTION_MODE);
+                //StoryStatus::setStoryMode(STORY_ACTION_MODE);
 			}
 		}
 	}
@@ -205,7 +206,6 @@ namespace story {
 		if (object->getId() == TABLE_ID)
 		{
 			//reseteo seleccion de objetos
-			cout << " no selecciono mas" << endl;
 			selectedBoxIdx = boxes.end(); 
 			spot.setActive(false);
 
@@ -221,17 +221,15 @@ namespace story {
 	{
 		if (StoryStatus::getProperty(ADDING_RIVER))
 		{
-			cout << "touchRiver" << endl;
 			river->touchEvent(touchPoint);
 		}
 		else if (StoryStatus::getProperty(ADDING_STREET))
 		{
 			if (firstTouchDone && firstTableTouch.distance(touchPoint.getTouchPoint())> 0.05)
 			{
-				
 				if (StoryStatus::getProperty(ADDING_STREET))
 				{
-					Road road = Road(firstTableTouch, touchPoint.getTouchPoint());
+					Road road = Road(firstTableTouch, touchPoint.getTouchPoint(), object->getPolygons().at(0)->getMathModel());
 					btnManager->addButton(road.button);
 					roads.push_back(road);
 				}
@@ -262,8 +260,9 @@ namespace story {
 					touchedIdx->second->burn();
 					StoryStatus::setProperty(WANT_TO_BURN, false);
 					StoryStatus::setProperty(BURNING, true);
-					modeManager->enableObjectTracking();
-					modeManager->disableTouchTracking();
+					
+					StoryStatus::setStoryMode(STORY_MOVE_MODE);
+					touchPoints.clear();
 				}
 				else
 				{
@@ -274,7 +273,7 @@ namespace story {
 				
 					vector<ofVec3f> vexs1 = object->getPolygon(kPolygonNameSideA)->getMathModel().getVertexs();
 					vector<ofVec3f> vexs2 = object->getPolygon(kPolygonNameSideB)->getMathModel().getVertexs();
-					float size = max(abs((vexs1[1] - vexs1[2]).length()),abs((vexs2[1] - vexs2[2]).length()))  + 0.03;
+					float size = max(abs((vexs1[1] - vexs1[2]).length()),abs((vexs2[1] - vexs2[2]).length()))  + 0.3;
 					spot.setSize(size);
 					spot.setPosition(spotCenter);
 				}
@@ -291,14 +290,14 @@ namespace story {
 
 	void Story::buttonPressed(const IButtonPtr& btn, const DataTouch& touchPoint)
 	{
-		menu.buttonEvent(btn,false);
+		menu.buttonEvent(btn,touchPoint,false);
 		for(map<int,Box*>::iterator it = boxes.begin(); it != boxes.end(); ++it)
 			it->second->buttonEvent(btn, false);
 	}
 
 	void Story::buttonReleased(const IButtonPtr& btn, const DataTouch& touchPoint)
 	{
-		menu.buttonEvent(btn,true);
+		menu.buttonEvent(btn,touchPoint,true);
 		for(map<int,Box*>::iterator it = boxes.begin(); it != boxes.end(); ++it)
 		{
 			it->second->buttonEvent(btn,true);
@@ -319,40 +318,4 @@ namespace story {
 			it->second = touchPoint;
 		}
 	}
-
-	void Story::setStoryMode(StoryMode mode)
-	{
-		switch(mode)
-		{
-			case STORY_ACTION_MODE:
-                StoryStatus::setProperty(ADDING_POWERPLANT, false);
-                StoryStatus::setProperty(ADDING_WATERPLANT, false);
-				StoryStatus::setProperty(ADDING_HOUSE,false);
-				StoryStatus::setProperty(ADDING_RIVER,false);
-				StoryStatus::setProperty(ADDING_STREET,false);
-				modeManager->disableObjectTracking();
-				modeManager->enableTouchTracking();
-				break;
-			case STORY_MOVE_MODE:
-				StoryStatus::setProperty(ADDING_POWERPLANT, false);
-                StoryStatus::setProperty(ADDING_WATERPLANT, false);
-				StoryStatus::setProperty(ADDING_HOUSE,false);
-				StoryStatus::setProperty(ADDING_RIVER,false);
-				StoryStatus::setProperty(ADDING_STREET,false);
-				modeManager->enableObjectTracking();
-				modeManager->disableTouchTracking();
-				break;
-			case STORY_MOVE_AND_ACTION_MODE:
-				StoryStatus::setProperty(ADDING_POWERPLANT, false);
-                StoryStatus::setProperty(ADDING_WATERPLANT, false);
-				StoryStatus::setProperty(ADDING_HOUSE,false);
-				StoryStatus::setProperty(ADDING_RIVER,false);
-				StoryStatus::setProperty(ADDING_STREET,false);
-				modeManager->enableObjectTracking();
-				modeManager->enableTouchTracking();
-				break;
-		}
-	}
-
-
 }

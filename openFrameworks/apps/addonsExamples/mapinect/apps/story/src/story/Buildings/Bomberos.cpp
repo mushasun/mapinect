@@ -51,6 +51,8 @@ namespace story
 			if (timeWatering == 0)
 			{
 				cout << "comienzo a tirar agua" << endl;
+				sirena->setVolume(0.3);
+				water->setVolume(1.0);
 				water->setPaused(false);
 			}
 			timeWatering += elapsedTime;
@@ -60,6 +62,7 @@ namespace story
 				StoryStatus::setProperty(ALREADY_BURNING, false);
 				water->setPaused(true);
 				sirena->setPaused(true);
+				StoryStatus::setStoryMode(STORY_MOVE_AND_ACTION_MODE);
 			}
 
 		}
@@ -92,7 +95,7 @@ namespace story
 			}
 
 			texture->bind();
-			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(*texture));
+			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor());
 			texture->unbind();
 		}
 	}
@@ -119,7 +122,7 @@ namespace story
 	void Bomberos::loadSounds()
 	{
 		water = new ofSoundPlayer();
-		water->loadSound("data/sonidos/house/water.wav");
+		water->loadSound("data/sonidos/bomberos/water.wav");
 		water->play();
 		water->setPaused(true);
 		water->setLoop(true);
