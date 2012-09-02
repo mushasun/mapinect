@@ -91,18 +91,21 @@ namespace mapinect {
 	{
 		window->setBackgroundColor(128, 128, 128);
 
-		cv.draw();
-		pcm.draw();
+		ofPushMatrix();
+		ofTranslate(20.0f, 20.0f, 0.0f);
+			cv.draw();
+			pcm.draw();
 		
-		app->debugDraw();
+			app->debugDraw();
 		
-		ofSetHexColor(0);
-		stringstream reportStream;
-		reportStream
-			<< "           fps: " << ofGetFrameRate() << endl
-			<< "    pcm thread: " << getPCMThreadStatus() << endl
-			<< "objects thread: " << getObjectsThreadStatus() << endl;
-		ofDrawBitmapString(reportStream.str(), 20, 520);
+			ofSetHexColor(0);
+			stringstream reportStream;
+			reportStream
+				<< "           fps: " << ofGetFrameRate() << endl
+				<< "    pcm thread: " << getPCMThreadStatus() << endl
+				<< "objects thread: " << getObjectsThreadStatus() << endl;
+			ofDrawBitmapString(reportStream.str(), 20, 520);
+		ofPopMatrix();
 	}
 
 	//--------------------------------------------------------------
@@ -217,8 +220,8 @@ namespace mapinect {
 		{
 			// Dibujar mesa y objetos detectados
 			vm->setupView();
-			vm->draw();
 			app->draw();								
+			vm->draw();
 			((ButtonManager*)app->btnManager)->draw();	
 			vm->endView();
 		}
