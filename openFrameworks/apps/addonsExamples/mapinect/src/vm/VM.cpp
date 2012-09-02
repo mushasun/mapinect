@@ -49,6 +49,7 @@ namespace mapinect {
 	float VM::nearPlane = 0;
 	float VM::farPlane = 0;
 
+	bool VM::enableFrustumDrawing = false;
 
 	//--------------------------------------------------------------
 	void VM::setup() {
@@ -219,11 +220,15 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void VM::draw() {
 		CHECK_ACTIVE;
-		ofEnableAlphaBlending();
-		//ofSetColor(0, 255, 0, 64);
-		//ofDrawQuadTextured(ofVec3f(0,0,1),ofVec3f(2,0,1),ofVec3f(2,0,-1),ofVec3f(0,0,-1));
-		Frustum::drawFrustum();
-		ofDisableAlphaBlending();
+
+		if (VM::enableFrustumDrawing)
+		{
+			ofEnableAlphaBlending();
+			//ofSetColor(0, 255, 0, 64);
+			//ofDrawQuadTextured(ofVec3f(0,0,1),ofVec3f(2,0,1),ofVec3f(2,0,-1),ofVec3f(0,0,-1));
+			Frustum::drawFrustum();
+			ofDisableAlphaBlending();
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -350,9 +355,12 @@ namespace mapinect {
 			rotYAxis -= 0.5;
 			printf("decreased rotation angle Axis Y: %f \n",rotYAxis);
 			break;
-		case 'p':
+		case 'p': 
 			rotYAxis += 0.5;
 			printf("increased rotation angle Axis Y: %f \n",rotYAxis);
+			break;
+		case 'F':
+			VM::enableFrustumDrawing = !VM::enableFrustumDrawing;
 			break;
 		}
 	}
