@@ -62,7 +62,7 @@ namespace story
 						onSound->play();
 						btn->setPressed(txSwitchOn);
 						btn->setIdle(txSwitchOn);
-						StoryStatus::setProperty(POWERPLANT_ACTIVE,true);
+						StoryStatus::setProperty(POWERPLANT_ACTIVE, true);
 					}
 					else
 					{
@@ -70,7 +70,7 @@ namespace story
 						btn->setIdle(txSwitchOff);
 						offSound->play();
 						onSound->stop();
-						StoryStatus::setProperty(POWERPLANT_ACTIVE,false);
+						StoryStatus::setProperty(POWERPLANT_ACTIVE, false);
 					}
 					
 				}
