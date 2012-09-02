@@ -68,7 +68,7 @@ namespace buildings {
 				ofVec3f v3p = v3 - (h03*(1-progress)); //(v3.x, v0.y - progress * h03, v3.z);
 				ofVec3f v2p = v2 - (h12*(1-progress)); //(v2.x, v1.y - progress * h12, v2.z);
 				
-				vector<ofVec2f> texCoords(ofTexCoordsFor(*buildingTexture));
+				vector<ofVec2f> texCoords(ofTexCoordsFor());
 				for (vector<ofVec2f>::iterator t = texCoords.begin(); t != texCoords.end(); ++t)
 				{
 					*t *= progress;
@@ -87,7 +87,7 @@ namespace buildings {
 			else
 			{
 				roofTexture->bind();
-				ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(*roofTexture));
+				ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor());
 				roofTexture->unbind();
 			}
 		}
