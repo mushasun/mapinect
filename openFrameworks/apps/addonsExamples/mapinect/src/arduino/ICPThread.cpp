@@ -88,66 +88,53 @@ namespace mapinect {
 			iter = maxIterations;
 		icpMutex.unlock();
 
-		if (gModel->getTable() != NULL) {
+		PCPtr detectedTableCloud;
+		pcl::ModelCoefficients coefficients;
+		bool ICPneeded = false;
 
-			float optimalAngleThreshold = 2;		// Tolerancia de angulo para la normal de la nueva mesa detectada = 2 grados
-			float optimalPlaneDistance = 0.005;		// Tolerancia de distancia entre el plano de la mesa del modelo y la detectada = 0.5 cms
-			float maxAngleThreshold = 10;			// Tolerancia máxima de angulo para la normal de la nueva mesa detectada = 10 grados
-			float maxPlaneDistance = 0.05;			// Tolerancia máxima de distancia entre el plano de la mesa del modelo y la detectada = 5 cms
-			PCPtr planeCloud;
-			pcl::ModelCoefficients coefficients;
+		// 1 - Verificar a partir de la nueva nube si la transformación teórica es buena
+		// Para saber si es una buena estimación
+		PCPtr planeCloud;
+		float optimalAngleThreshold = 2;		// Tolerancia de angulo para la normal de la nueva mesa detectada = 2 grados
+		float optimalPlaneDistance = 0.005;		// Tolerancia de distancia entre el plano de la mesa del modelo y la detectada = 0.5 cms
+		bool isTableWellEstimated = findNewTablePlane(afterMoving, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
+		if (!isTableWellEstimated) 
+		{
+			ICPneeded = true;
+			cout << "La transformacion estimada no es buena; aplicar ICP" << endl;
+		} else {
+			cout << "No aplicar ICP" << endl;
+		}
 
-			bool ajustarMesa = false;
-
-			// Verificar si la transformación calculada de forma teórica es ya una buena estimación
-			bool isTableWellEstimated = findNewTablePlane(afterMoving, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
-			if (isTableWellEstimated) {
-				cout << "La transformacion estimada es buena. No aplicar ICP" << endl;
-			} else {
-				bool existsTableToAdjust = findNewTablePlane(afterMoving, maxAngleThreshold, maxPlaneDistance, coefficients, planeCloud);
-				if (existsTableToAdjust) {
-					// No aplicar ICP, y ajustar la mesa
-					cout << "Se detecto mesa, pero no es optima. Ajustarla" << endl;
-					ajustarMesa = true;
-				} else {
-					// No se encontro un plano que cumpla que tenga normal con diferencia de angulo menor a 10 grados, ni distancia menor a 5 cms
-					// Aplicar ICP
-					Eigen::Affine3f icpTransf;
-					bool icpHasConverged = icpProcessing(afterMoving, beforeMoving, icpTransf, 0.20, iter); 
-					if (icpHasConverged) {				
-						PCPtr nubeAfterMovingTransfICP = transformCloud(afterMoving, icpTransf);
-						saveCloud("nubeAfterMovingTransfICP.pcd",*nubeAfterMovingTransfICP);
-						cout << "Verificando resultado de ICP" << endl;
-						bool isICPTableWellEstimated = findNewTablePlane(nubeAfterMovingTransfICP, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
-						if (isICPTableWellEstimated) {
-							cout << "La transformacion de ICP es buena, se aplica" << endl;
-							gTransformation->setWorldTransformation(icpTransf * gTransformation->getWorldTransformation());
-						} else {
-							//El resultado de ICP no es óptimo. Ver si se puede ajustar.
-							bool existsICPTableToAdjust = findNewTablePlane(nubeAfterMovingTransfICP, maxAngleThreshold, maxPlaneDistance, coefficients, planeCloud);
-							if (existsICPTableToAdjust) {
-								cout << "Tras ICP se detecto mesa, pero no es optima. Ajustarla" << endl;
-								ajustarMesa = true;
-							} else {
-								cout << "Tras ICP no se pudo hallar la mesa. No se aplica la transf." << endl;				
-							}
-						}			
-					} else {
-						cout << "ICP no convergio" << endl;
-					}
+		// 2 - Si se necesita, aplicar ICP para corregir la transformación (y así corregir a los objetos)
+		if (ICPneeded) 
+		{
+			Eigen::Affine3f icpTransf;
+			bool icpHasConverged = icpProcessing(afterMoving, beforeMoving, icpTransf, 0.20, iter); 
+			if (icpHasConverged) 
+			{				
+				PCPtr nubeAfterMovingTransfICP = transformCloud(afterMoving, icpTransf);
+				saveCloud("nubeAfterMovingTransfICP.pcd",*nubeAfterMovingTransfICP);
+				cout << "Verificando resultado de ICP" << endl;
+				bool isICPTableWellEstimated = findNewTablePlane(nubeAfterMovingTransfICP, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
+				if (isICPTableWellEstimated) 
+				{
+					cout << "La transformacion de ICP es buena, se aplica" << endl;
+					gTransformation->setWorldTransformation(icpTransf * gTransformation->getWorldTransformation());
+					afterMoving = transformCloud(afterMoving,icpTransf);
 				}
 			}
-
-			if (ajustarMesa){
-				gModel->tableMutex.lock();
-					TablePtr modelTable = gModel->getTable();
-					if (modelTable != NULL) {
-						modelTable->updateTablePlane(coefficients, planeCloud);
-						// Ver lo de los vertices, si hay que proyectarlos o qué
-						cout << "Se pisa la mesa con la nueva detectada" << endl;
-					}
-				gModel->tableMutex.unlock();
-			}
+		}
+		
+		// 3 - Re detectar la mesa
+		bool tableDetected = detectNewTable(afterMoving, coefficients, detectedTableCloud);		
+	
+		// 4 - Actualizar el modelo con la nueva mesa detectada. Se actualiza el plano de la mesa y los vértices.
+		if (tableDetected) 
+		{
+			cout << "Se detectó un nuevo plano de mesa" << endl;
+			// Ajustar el modelo de la mesa con el nuevo plano, y ajustar los vértices
+			Table::updateTablePlane(coefficients,detectedTableCloud);
 		}
 
 		// Una vez que se terminó de aplicar ICP y se actualizó la matriz de transformación, 
@@ -185,6 +172,38 @@ namespace mapinect {
 		} else {
 			return false;
 		}
+	}
+
+	bool ICPThread::detectNewTable(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& planeCloud) {
+		if (cloud->size() == 0)
+		{
+			return false;
+		}
+
+		saveCloud("nuevaNubeMesa.pcd",*cloud);
+
+		std::vector<pcl::PointIndices> clusterIndices =
+			findClusters(cloud, Constants::TABLE_CLUSTER_TOLERANCE(), Constants::TABLE_CLUSTER_MIN_SIZE());
+
+		PCPtr tableCluster;
+		float minDistanceToCentroid = MAX_FLOAT;
+		for (std::vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it)
+		{
+			PCPtr cloudCluster = getCloudFromIndices(cloud, *it);
+			ofVec3f ptoCentroid = computeCentroid(cloudCluster);
+			if (ptoCentroid.squareLength() < minDistanceToCentroid)
+			{
+				minDistanceToCentroid = ptoCentroid.squareLength();
+				tableCluster = cloudCluster;
+			}
+		}
+
+		saveCloud("tableCluster.pcd",*tableCluster);
+
+		PCPtr result(new PC());
+		planeCloud = extractBiggestPlane(tableCluster, coefficients, result, 0.009);
+		
+		return true;
 	}
 
 	bool ICPThread::icpProcessing(const PCPtr& inputCloud, const PCPtr& inputTarget, Eigen::Affine3f& newTransf, 
