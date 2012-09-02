@@ -17,7 +17,7 @@ namespace mapinect
 	{
 		// Se deben ordenar los vértices en screen coords
 		//	de modo que el A sea el que está mas cerca del (0,0) en Screen coords
-		//	y luego en sentido anti-horario B, C y D
+		//	y luego en sentido horario B, C y D
 		//				   A *------------* D
 		//					/			   \
 		//				   /			    \
@@ -52,7 +52,7 @@ namespace mapinect
 		}
 		else
 		{
-			// We want orderedVertexs2D[0] = vertexs2D[indexAVertex2D] and keep the ordering;
+			// Queremos que orderedVertexs2D[0] = vertexs2D[indexAVertex2D] y mantener el orden;
 			for (int i = 0; i < vertexs2D.size(); i++)
 				orderedVertexs2D.push_back(vertexs2D[(indexAVertex2D + i) % vertexs2D.size()]);
 		}
@@ -70,7 +70,16 @@ namespace mapinect
 				}
 			}
 
-		return orderedVertexs3D;
+		// Re ordenar para que los vertices queden en sentido horario, manteniendo al A primero
+		vector<ofVec3f> clockwiseVertexs3D;
+		clockwiseVertexs3D.resize(4);
+		clockwiseVertexs3D.at(0) = orderedVertexs3D.at(0);
+		for (int i = 0; i < 3; i++)
+		{
+			clockwiseVertexs3D.at(i + 1) = orderedVertexs3D.at(3 - i); 
+		}
+
+		return clockwiseVertexs3D;
 	}
 
 	bool isTableVertexInSafeArea(const ofVec3f& vertex)
@@ -112,12 +121,12 @@ namespace mapinect
 			cout << "El vertice A fue estimado" << endl;
 		}  
 
-		//       A -------- D -----D'
+		//       A -------- B -----B'
 		//	    /		     \
 		//     /			  \
-		//    B----------------C
+		//    D----------------C
 		//   /
-		//  B'
+		//  D'
 		// TABLE_LENGTH_AB = dist(A,B')
 		// TABLE_LENGTH_AD = dist(A,D')
 
@@ -220,7 +229,7 @@ namespace mapinect
 		// Re detectar el rectángulo de la mesa, para detectar de nuevo los vértices 
 		vector<ofVec3f> detectedVertexs = findRectangle(cloud, coefficients);
 		
-		// Ordenar los vértices, en sentido antihorario
+		// Ordenar los vértices, en sentido horario
 		detectedVertexs = reorderTableVertexs(detectedVertexs);
 
 		int minDistanceIndex = -1;
