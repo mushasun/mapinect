@@ -247,11 +247,12 @@ namespace buildings {
 			{
 				buildings[object->getId()] = new Building(object);
 				cout << "Se detecto un nuevo objeto, con id=" << object->getId() << endl;
+			//	armController->followObject(object); // ->lookAtObject(object);
+
 			} else {
 				cout << "El objeto con id=" << object->getId() << " ya existe" << endl;
 			}
 		}
-		//armController->lookAtObject(object);
 	}
 
 	//--------------------------------------------------------------

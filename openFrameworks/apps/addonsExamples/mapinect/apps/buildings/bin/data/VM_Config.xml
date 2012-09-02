@@ -1,27 +1,20 @@
 <VMConfig>
-
     <NEAR_PLANE>0.1</NEAR_PLANE>
     <FAR_PLANE>20.0</FAR_PLANE>
-    
-	<PROJ_CALIB>
-        <![CDATA[data/calib/16Ago2012-CalibProyKinect.yml]]>
-	</PROJ_CALIB>
+    <PROJ_CALIB>
+        <![CDATA[data/calib/29Ago2012_kinect-proj-calib_1.yml]]>
+</PROJ_CALIB>
     <KINECT_CALIB>
-        <![CDATA[data/calib/16Ago2012-CalibKinect.yml]]>
-	</KINECT_CALIB>
- 
-	<PROJ_WIDTH>1280</PROJ_WIDTH>
+        <![CDATA[data/calib/29Ago2012_kinect-ir-calib_1.yml]]>
+</KINECT_CALIB>
+    <PROJ_WIDTH>1280</PROJ_WIDTH>
     <PROJ_HEIGHT>768</PROJ_HEIGHT>
-
     <!-- If different calib parameters are needed -->
-    <PROJ_FX>2040.000000</PROJ_FX>
-    <PROJ_FY>1661.000000</PROJ_FY>
- 
-	<PROJ_CX>598.000000</PROJ_CX>
-    <PROJ_CY>424.000000</PROJ_CY>
-	
-    <TRANS_X>-0.110000</TRANS_X>
-    <TRANS_Y>-0.018000</TRANS_Y>
-    <TRANS_Z>0.272000</TRANS_Z>
-
+    <PROJ_FX>1991.086670</PROJ_FX>
+    <PROJ_FY>1583.743286</PROJ_FY>
+    <PROJ_CX>598.172241</PROJ_CX>
+    <PROJ_CY>405.969666</PROJ_CY>
+    <TRANS_X>-0.030000</TRANS_X>
+    <TRANS_Y>0.030000</TRANS_Y>
+    <TRANS_Z>-0.520000</TRANS_Z>
 </VMConfig>
