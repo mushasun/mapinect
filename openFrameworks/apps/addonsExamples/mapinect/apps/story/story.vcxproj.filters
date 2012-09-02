@@ -38,6 +38,9 @@
     <ClCompile Include="src\story\Road.cpp">
       <Filter>story\Buildings</Filter>
     </ClCompile>
+    <ClCompile Include="src\story\Buildings\bomberos.cpp">
+      <Filter>story\Buildings</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="story">
@@ -82,6 +85,9 @@
       <Filter>story\Buildings</Filter>
     </ClInclude>
     <ClInclude Include="src\story\River.h">
+      <Filter>story\Buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story\Buildings\bomberos.h">
       <Filter>story\Buildings</Filter>
     </ClInclude>
   </ItemGroup>
