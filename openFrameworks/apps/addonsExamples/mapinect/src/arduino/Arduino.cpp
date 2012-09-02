@@ -46,9 +46,13 @@ namespace mapinect {
 	static int		ICP_CLOUD_DENSITY;
 	static int		ICP_MAX_ITERATIONS;
 
+	float			Arduino::ARM_HEIGHT;
 	float			Arduino::ARM_LENGTH;
-	float			Arduino::KINECT_HEIGHT;
 	float			Arduino::MOTORS_HEIGHT;
+	float			Arduino::MOTORS_WIDTH;
+	float			Arduino::KINECT_MOTOR_HEIGHT;
+	float			Arduino::TILT_ANGLE;
+	float			Arduino::KINECT_HEIGHT;
 
 	static unsigned long startTime; 
 
@@ -117,9 +121,6 @@ namespace mapinect {
 
 		serial.enumerateDevices();
 
-		//	Libero el mutex para que puedan invocar al método getCloud, por si quedó en lock
-		gTransformation->cloudMutex.unlock();
-
 		return true;
 	}
 
@@ -187,13 +188,17 @@ namespace mapinect {
 
 				if (IsFeatureMoveArmActive() && !(cloudBeforeMoving.get() == NULL)) 
 				{
-					cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
+					cloudAfterMoving = getCloudWithoutMutex();
+					// cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
 					saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
 
 					icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving,ICP_MAX_ITERATIONS);
 				} else {
 					//	Libero el mutex para que puedan invocar al método getCloud
 					gTransformation->cloudMutex.unlock();
+
+					// Además, se debe volver a dibujar en la ventana de mapping
+					gTransformation->setIsWorldTransformationStable(true);
 				}
 
 			}
@@ -344,9 +349,7 @@ namespace mapinect {
 
 	ofVec3f Arduino::getKinect3dCoordinates()
 	{
-		Eigen::Vector3f kinectPos (0.0, 0.0, 0.0);		// Posicion inicial, en Sist. de Coord Local del Kinect
-		kinectPos = gTransformation->getWorldTransformation() * kinectPos;
-		return ofVec3f(kinectPos.x(), kinectPos.y(), kinectPos.z());		
+		return gTransformation->getKinectEyeCoordinates();
 	}
 
 	void Arduino::setArm3dCoordinates(float x, float y, float z)
@@ -550,9 +553,7 @@ namespace mapinect {
 
 	ofVec3f	Arduino::lookingAt()
 	{
-		Eigen::Vector3f kinectMira (0.0, 0.0, 0.10);		// Mira inicial, en Sist. de Coord Local del Kinect
-		kinectMira = gTransformation->getWorldTransformation() * kinectMira;
-		return ofVec3f(kinectMira.x(), kinectMira.y(), kinectMira.z());	
+		return gTransformation->getKinectDirectionCoordinates();
 	}
 
 	Eigen::Affine3f Arduino::calculateWorldTransformation(float angle1, float angle2, float angle4, float angle8)
@@ -561,6 +562,7 @@ namespace mapinect {
 		float angleMotor2Rad = ofDegToRad(angle2);		// Motor de abajo del brazo, con la varilla "vertical"
 		float angleMotor4Rad = ofDegToRad(angle4);		// Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
 		float angleMotor8Rad = ofDegToRad(angle8 - 90);	// Motor de los de la punta, el de más abajo. La posición inicial de referencia será 90 grados.
+		float angleTiltKinectRad = ofDegToRad(TILT_ANGLE);
 
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 
@@ -568,40 +570,43 @@ namespace mapinect {
 		Eigen::Vector3f axisY (0, 1, 0);
 		Eigen::Vector3f axisZ (0, 0, 1);
 
-		Eigen::Affine3f translationY3;
-		translationY3 = Eigen::Translation<float, 3>(0, -0.422f, 0);
+		Eigen::Affine3f tAlturaBrazo;
+		tAlturaBrazo = Eigen::Translation<float, 3>(0, -ARM_HEIGHT, 0);
 
-		Eigen::Affine3f rotationY;
-		rotationY = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
+		Eigen::Affine3f rMotor2;
+		rMotor2 = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
 		
-		Eigen::Affine3f rotationZ;
-		rotationZ = Eigen::AngleAxis<float>(angleMotor1Rad, axisZ);
+		Eigen::Affine3f rMotor1;
+		rMotor1 = Eigen::AngleAxis<float>(angleMotor1Rad, axisZ);
 
-		Eigen::Affine3f translationX;
-		translationX = Eigen::Translation<float, 3>(ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
+		Eigen::Affine3f tLargoBrazo;
+		tLargoBrazo = Eigen::Translation<float, 3>(ARM_LENGTH, 0, 0);//capaz se puede combinar con el anterior, no?
 
-		Eigen::Affine3f rotationY2;
-		rotationY2 = Eigen::AngleAxis<float>(-angleMotor8Rad, axisY);
+		Eigen::Affine3f rMotor8;
+		rMotor8 = Eigen::AngleAxis<float>(-angleMotor8Rad, axisY);
 
-		Eigen::Affine3f translationY;
-		translationY = Eigen::Translation<float, 3>(0, -MOTORS_HEIGHT, 0);
+		Eigen::Affine3f tMotores48;
+		tMotores48 = Eigen::Translation<float, 3>(0, -MOTORS_HEIGHT, MOTORS_WIDTH);
+			
+		Eigen::Affine3f rMotor4;
+		rMotor4 = Eigen::AngleAxis<float>(angleMotor4Rad, axisX);
 
-		Eigen::Affine3f translationZ;
-		translationZ = Eigen::Translation<float, 3>(0, 0, 0.015f);		// Distancia entre el eje de rotación del motor 8 y el del motor 4
+		Eigen::Affine3f tAlturaMotor4AlKinect;
+		tAlturaMotor4AlKinect = Eigen::Translation<float, 3>(0, -KINECT_MOTOR_HEIGHT, 0);
 
-		Eigen::Affine3f rotationX;
-		rotationX = Eigen::AngleAxis<float>(angleMotor4Rad, axisX);
+		Eigen::Affine3f rTiltKinect;
+		rTiltKinect = Eigen::AngleAxis<float>(angleTiltKinectRad, axisX);
 
-		Eigen::Affine3f translationY2;
-		translationY2 = Eigen::Translation<float, 3>(0, -KINECT_HEIGHT, 0);
+		Eigen::Affine3f tAlturaKinect;
+		tAlturaKinect = Eigen::Translation<float, 3>(0.012, -KINECT_HEIGHT, 0);
 
 		//con estas tres matrices tengo todas las rotaciones que preciso, ahora
 		//preciso hallar la traslacion de altura donde esta la camara
 		//y luego la traslacion a lo largo del brazo
 		
 		Eigen::Affine3f composedMatrix;
-//		composedMatrix = translationY3 * (rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (translationZ * (rotationX * translationY2)))))));
-		composedMatrix = rotationY * (rotationZ *  (translationX * (rotationY2 * (translationY * (rotationX * translationY2)))));
+//		composedMatrix = tAlturaBrazo * (rMotor2 * (rMotor1 *  (tLargoBrazo * (rMotor8 * (tMotores48 * (rMotor4 * (tAlturaMotor4AlKinect * (rTiltKinect * tAlturaKinect))))))));
+		composedMatrix = rMotor2 * (rMotor1 *  (tLargoBrazo * (rMotor8 * (tMotores48 * (rMotor4 * (tAlturaMotor4AlKinect * (rTiltKinect * tAlturaKinect)))))));
 
 		gTransformation->setWorldTransformation(composedMatrix);
 
@@ -637,7 +642,8 @@ namespace mapinect {
 			gTransformation->setIsWorldTransformationStable(false);
 
 			// Obtener nube antes de mover los motores
-			cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
+			cloudBeforeMoving = getCloud();
+			// cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
 			saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
 
 			// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
@@ -690,9 +696,13 @@ namespace mapinect {
 
 			MOTOR_ANGLE_OFFSET	= XML.getValue(ARDUINO_CONFIG "MOTOR_ANGLE_OFFSET", MOTOR_ANGLE_OFFSET_DEFAULT);
 
-			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.0);			
-			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.0);
-			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.0);
+			ARM_HEIGHT = XML.getValue(ARDUINO_CONFIG "ARM_HEIGHT", 0.42);
+			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.35);			
+			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.056);
+			MOTORS_WIDTH = XML.getValue(ARDUINO_CONFIG "MOTORS_WIDTH", 0.015);
+			KINECT_MOTOR_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_MOTOR_HEIGHT", 0.07);
+			TILT_ANGLE = XML.getValue(ARDUINO_CONFIG "TILT_ANGLE",-5.0);
+			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.030);
 
 			MAX_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_1", 0);
 			MIN_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_1", 0);
