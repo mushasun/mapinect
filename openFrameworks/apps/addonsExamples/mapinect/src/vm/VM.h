@@ -50,6 +50,8 @@ namespace mapinect {
 		static float nearPlane;
 		static float farPlane;
 
+		static bool enableFrustumDrawing;
+
 	};
 
 
