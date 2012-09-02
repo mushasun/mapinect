@@ -28,17 +28,17 @@ namespace story
 			House(const IObjectPtr& object, IButtonManager* btnManager);
 			//virtual ~House(); 
 			
-			static void		setup();
+			static void				setup();
 			
-			virtual void buttonEvent(const IButtonPtr& btn, bool released);
-			virtual void objectEvent(const DataTouch& touchPoint, const BuildType& selection);
+			virtual void			buttonEvent(const IButtonPtr& btn, bool released);
+			virtual void			objectEvent(const DataTouch& touchPoint, const BuildType& selection);
 
 			virtual void			update(float elapsedTime);
 			virtual void			draw();
 
 		private:
 			static void				loadTextures();
-			void					assosiateTextures();
+			void					associateTextures();
 			static void				loadSounds();
 
 			//control
@@ -50,6 +50,8 @@ namespace story
 			int						gardenBtnId;
 			bool					isWatering;
 			IButtonManager*			btnManager;
+
+			float						timeToBurn;
 
 			//sounds
 			static ofSoundPlayer*	ding;

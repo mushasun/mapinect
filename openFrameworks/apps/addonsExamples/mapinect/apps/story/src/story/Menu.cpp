@@ -18,6 +18,8 @@ namespace story
 	ofImage* Menu::imgPowerPlantButtonOn = NULL;
 	ofImage* Menu::imgWaterPlantButtonOn = NULL;
 	ofImage* Menu::imgHouseButtonOn = NULL;
+	ofImage* Menu::imgFire = NULL;
+	ofImage* Menu::imgFireOn = NULL;
 
 	ofSoundPlayer*	Menu::ding = NULL;
 
@@ -68,19 +70,22 @@ namespace story
 			switch(action)
 			{
 				case STREET:
-					StoryStatus::setProperty(ADDING_STREET,true);
+					StoryStatus::setProperty(ADDING_STREET, true);
 					break;
 				case RIVER:
-					StoryStatus::setProperty(ADDING_RIVER,true);
+					StoryStatus::setProperty(ADDING_RIVER, true);
 					break;
 				case HOUSE:
-					StoryStatus::setProperty(ADDING_HOUSE,true);
+					StoryStatus::setProperty(ADDING_HOUSE, true);
 					break;
 				case POWERPLANT:
-					StoryStatus::setProperty(ADDING_POWERPLANT,true);
+					StoryStatus::setProperty(ADDING_POWERPLANT, true);
 					break;
 				case WATERPLANT:
-					StoryStatus::setProperty(ADDING_WATERPLANT,true);
+					StoryStatus::setProperty(ADDING_WATERPLANT, true);
+					break;
+				case FIRE:
+					StoryStatus::setProperty(WANT_TO_BURN, true);
 					break;
 			}
 			
@@ -116,6 +121,18 @@ namespace story
 				SimpleButton *houseButton = new SimpleButton(area, imgHouseButton, imgHouseButtonOn);
 				actions[houseButton->getId()] = HOUSE;
 				btnManager->addButton(IButtonPtr(houseButton));
+				begin += costado;
+				button_vertex.clear();
+
+				//fire
+				button_vertex.push_back(begin + arriba);
+				button_vertex.push_back(begin - arriba);
+				button_vertex.push_back(begin - arriba + costado);
+				button_vertex.push_back(begin + arriba + costado);
+				area = Polygon3D(button_vertex);
+				SimpleButton *fireButton = new SimpleButton(area, imgFire, imgFireOn);
+				actions[fireButton->getId()] = FIRE;
+				btnManager->addButton(IButtonPtr(fireButton));
 				begin += costado;
 				button_vertex.clear();
 				
@@ -219,6 +236,8 @@ namespace story
 		imgPowerPlantButtonOn = new ofImage("data/texturas/menu/powerOn.jpg");
 		imgWaterPlantButtonOn = new ofImage("data/texturas/menu/waterOn.jpg");
 		imgHouseButtonOn = new ofImage("data/texturas/menu/houseOn.jpg");
+		imgFire = new ofImage("data/texturas/menu/fire.png");
+		imgFireOn = new ofImage("data/texturas/menu/fireOn.png");
 	}
 
 	

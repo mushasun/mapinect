@@ -1,6 +1,8 @@
 #include "Box.h"
 
 #include "ofGraphicsUtils.h"
+#include "StoryConstants.h"
+#include "StoryStatus.h"
 
 namespace story
 {
@@ -52,7 +54,35 @@ namespace story
 
 	void Box::update(float elapsedTime)
 	{
+		if (burnSound!=NULL)
+		{
+			if(StoryStatus::getProperty(FIREMAN_FINISHED))
+			{
+				burnSound->stop();
+				delete burnSound;
+			}
+		}
+	}
+
+	void Box::setup()
+	{
+	}
+
+	void Box::stopBurn()
+	{
 
 	}
 
+	void Box::burn()
+	{
+		if (!StoryStatus::getProperty(ALREADY_BURNING)) //para evitar tener 2 casas ardiendo
+		{
+			burnSound = new ofSoundPlayer();
+			burnSound->loadSound("data/sonidos/house/burning.wav");
+			burnSound->play();
+			burnSound->setLoop(true);
+			StoryStatus::setProperty(CENTROID_BURNING_HOUSE, this->object->getCenter());
+			cout << " ++++ se prende fuego! " << endl;
+		}
+	}
 }

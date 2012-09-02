@@ -5,6 +5,7 @@
 #include "River.h"
 #include "Road.h"
 #include "StoryConstants.h"
+#include "Buildings/bomberos.h"
 
 
 namespace story {
@@ -31,6 +32,7 @@ namespace story {
 		WaterPlant::setup();
 		PowerPlant::setup();
 		StoryStatus::setup();
+		Bomberos::setup();
 
 		menu.setup(btnManager);
 
@@ -102,11 +104,9 @@ namespace story {
 			modeManager->disableObjectTracking();
 			modeManager->enableTouchTracking();
 		}
-
 		//Buildings
 		for (map<int, Box*>::const_iterator it = boxes.begin(); it != boxes.end(); ++it)
 			it->second->update(elapsedTime);
-
 	}
 
 	//--------------------------------------------------------------
@@ -144,7 +144,12 @@ namespace story {
 		}
 		else
 		{
-			if (StoryStatus::getProperty(ADDING_HOUSE))
+			if(StoryStatus::getProperty(BURNING))
+			{
+				Bomberos* b  = new Bomberos(object, btnManager);
+				boxes.insert(pair<int, Box*>(object->getId(), b));
+			}
+			else if (StoryStatus::getProperty(ADDING_HOUSE))
 			{
 				House* h  = new House(object, btnManager);
 				boxes.insert(pair<int, Box*>(object->getId(), h));
@@ -252,16 +257,27 @@ namespace story {
 		{
 			if(selectedBoxIdx == boxes.end())
 			{
-				cout << "seleccione: " << touchedIdx->second->getBuildType() << endl;
-				selectedBoxIdx = touchedIdx;
-				ofVec3f spotCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(object->getCenter());
-				spotCenter.y -= 0.001f;
+				if (StoryStatus::getProperty(WANT_TO_BURN))
+				{
+					touchedIdx->second->burn();
+					StoryStatus::setProperty(WANT_TO_BURN, false);
+					StoryStatus::setProperty(BURNING, true);
+					modeManager->enableObjectTracking();
+					modeManager->disableTouchTracking();
+				}
+				else
+				{
+					cout << "seleccione: " << touchedIdx->second->getBuildType() << endl;
+					selectedBoxIdx = touchedIdx;
+					ofVec3f spotCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(object->getCenter());
+					spotCenter.y -= 0.001f;
 				
-				vector<ofVec3f> vexs1 = object->getPolygon(kPolygonNameSideA)->getMathModel().getVertexs();
-				vector<ofVec3f> vexs2 = object->getPolygon(kPolygonNameSideB)->getMathModel().getVertexs();
-				float size = max(abs((vexs1[1] - vexs1[2]).length()),abs((vexs2[1] - vexs2[2]).length()))  + 0.03;
-				spot.setSize(size);
-				spot.setPosition(spotCenter);
+					vector<ofVec3f> vexs1 = object->getPolygon(kPolygonNameSideA)->getMathModel().getVertexs();
+					vector<ofVec3f> vexs2 = object->getPolygon(kPolygonNameSideB)->getMathModel().getVertexs();
+					float size = max(abs((vexs1[1] - vexs1[2]).length()),abs((vexs2[1] - vexs2[2]).length()))  + 0.03;
+					spot.setSize(size);
+					spot.setPosition(spotCenter);
+				}
 			}
 			else if(selectedBoxIdx != touchedIdx)
 			{

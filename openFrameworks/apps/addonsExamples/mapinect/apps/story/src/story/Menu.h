@@ -19,7 +19,8 @@ namespace story
 		RIVER,
 		HOUSE,
 		POWERPLANT,
-		WATERPLANT
+		WATERPLANT,
+		FIRE,
 	};
 	class Menu
 	{
@@ -52,6 +53,8 @@ namespace story
 		static ofImage*			imgWaterPlantButtonOn;
 		static ofImage*			imgHouseButton;
 		static ofImage*			imgHouseButtonOn;
+		static ofImage*			imgFire;
+		static ofImage*			imgFireOn;
 
 		static ofSoundPlayer*	ding;
 

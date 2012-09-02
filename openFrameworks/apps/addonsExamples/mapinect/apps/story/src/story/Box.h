@@ -5,6 +5,7 @@
 #include "ofImage.h"
 #include "IButtonManager.h"
 #include "DataTouch.h"
+#include "ofSoundPlayer.h"
 
 using namespace mapinect;
 
@@ -26,22 +27,27 @@ namespace story
 
 		virtual void			update(float elapsedTime);
 		virtual void			draw();
+		virtual void			burn();
+		virtual void			stopBurn();
 
 		inline vector<int>		getButtonsId()		{ return buttonsId; }
 		inline BuildType		getBuildType()		{ return buildType; }
 		
 		virtual void			buttonEvent(const IButtonPtr& btn, bool released) = 0;
 		virtual void			objectEvent(const DataTouch& touchPoint, const BuildType& selection) = 0;
+		ofSoundPlayer*			burnSound;
+		void					setup();
+
 	protected:
-		IObjectPtr		object;
-		ofImage*		textureTop;
-		ofImage*		textureA;
-		ofImage*		textureB;
-		ofImage*		textureC;
-		ofImage*		textureD;
-		vector<int>		buttonsId;
-		BuildType		buildType;
-		
+		IObjectPtr				object;
+		ofImage*				textureTop;
+		ofImage*				textureA;
+		ofImage*				textureB;
+		ofImage*				textureC;
+		ofImage*				textureD;
+		vector<int>				buttonsId;
+		BuildType				buildType;
+		int						objectID;		
 	};
 }
 

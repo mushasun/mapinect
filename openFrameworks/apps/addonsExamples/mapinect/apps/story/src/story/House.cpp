@@ -38,6 +38,8 @@ namespace story
 	/*-------------------------------------------------------------*/
 	House::House(const IObjectPtr& object, IButtonManager* btnManager):Box(object,btnManager)
 	{
+		this->objectID = object->getId();
+		timeToBurn = 10; //cambiarlo a algo random?
 		lightsOn = false;
 		connected_to_energy = false;
 		connected_to_water = false;
@@ -45,7 +47,7 @@ namespace story
 		isWatering = false;
 		this->btnManager = btnManager;
 
-		assosiateTextures();
+		associateTextures();
 		buildType = BuildType::kHouse;
 		/*Button in floor of box*/
 		ObjectButton btnDoorbell(object, kPolygonNameSideA, true, txHouseDoorBellOff, txHouseDoorBellOn,
@@ -89,7 +91,7 @@ namespace story
 	/*-------------------------------------------------------------*/
 	void House::buttonEvent(const IButtonPtr& btn, bool released)
 	{
-		cout << "BOton  press enn house! " << endl;
+		cout << "Boton  press enn house! " << endl;
 		if(actionsMap.find(btn->getId()) == actionsMap.end())
 			return; // no es un boton de la casa
 
@@ -119,7 +121,7 @@ namespace story
 							btn->setIdle(txLightSwitchOff);
 						}
 						click->play();
-						assosiateTextures();
+						associateTextures();
 					}
 					else
 						error->play();
@@ -177,15 +179,23 @@ namespace story
 					break;
 			}
 		}
+		else
+		{
+
+		}
 	}
 
 	/*-------------------------------------------------------------*/
 	void House::update(float elapsedTime)
 	{
 		if(isWatering)
+		{
 			lastWateringInSeconds = max(lastWateringInSeconds - (elapsedTime*4), 0.0f);
+		}
 		else
+		{
 			lastWateringInSeconds = min(lastWateringInSeconds + elapsedTime, StoryConstants::HOUSE_GARDEN_1_TIME*4);
+		}
 	}
 
 	/*-------------------------------------------------------------*/
@@ -242,7 +252,7 @@ namespace story
 	}
 
 	/*-------------------------------------------------------------*/
-	void House::assosiateTextures()
+	void House::associateTextures()
 	{
 		textureTop = txHouseTop;
 		textureA = txHouseSide;
@@ -257,17 +267,22 @@ namespace story
 	{
 		ding = new ofSoundPlayer();
 		ding->loadSound("data/sonidos/house/ding.wav");
+
 		knock = new ofSoundPlayer();
 		knock->loadSound("data/sonidos/house/knock.wav");
+
 		click = new ofSoundPlayer();
 		click->loadSound("data/sonidos/house/click.wav");
+
 		call = new ofSoundPlayer();
 		call->loadSound("data/sonidos/house/call.wav");
+
 		water = new ofSoundPlayer();
 		water->loadSound("data/sonidos/house/water.wav");
 		water->play();
 		water->setPaused(true);
 		water->setLoop(true);
+
 		error = new ofSoundPlayer();
 		error->loadSound("data/sonidos/house/error.wav");
 	}
