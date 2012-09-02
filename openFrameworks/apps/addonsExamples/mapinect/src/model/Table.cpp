@@ -86,7 +86,7 @@ namespace mapinect
 		return inRange(screenVertex.x, minX, maxX) && inRange(screenVertex.y, minY, maxY);
 	}
 
-	void calibrateTable(TablePtr& table)
+	void Table::calibrateTable(TablePtr& table)
 	{
 		vector<ofVec3f> tableVertexs = table->getPolygonModelObject()->getMathModel().getVertexs();
 
@@ -123,8 +123,8 @@ namespace mapinect
 
 		mapinect::Line3D lineAB(pWorldA, pWorldB);	// Linea entre A y B, ambos en 3D
 		double distanceAB = pWorldA.distance(pWorldB);
-		// Se va a modificar el vertice B solo si fue estimado, o si se quiere acortar el lado AB
-		if(!isTableVertexInSafeArea(pWorldB) || (TABLE_LENGTH_AB < distanceAB)) {
+		// Se va a modificar el vertice B solo si fue estimado
+		if(!isTableVertexInSafeArea(pWorldB)) {
 			// B fue estimado, entonces se debe calcular el nuevo B' con el ancho de mesa 
 			nuevoVerticeB = lineAB.calculateValue(TABLE_LENGTH_AB / distanceAB);
 			cout << "El vertice B fue modificado" << endl;
@@ -132,8 +132,8 @@ namespace mapinect
 
 		mapinect::Line3D lineAD(pWorldA,pWorldD);	// Linea entre A y D, ambos en 3D
 		double distanceAD = pWorldA.distance(pWorldD);
-		// Se va a modificar el vertice D solo si fue estimado, o si se quiere acortar el lado AD
-		if(!isTableVertexInSafeArea(pWorldD) || (TABLE_LENGTH_AD < distanceAD)) {
+		// Se va a modificar el vertice D solo si fue estimado
+		if(!isTableVertexInSafeArea(pWorldD)) {
 			// D fue estimado, entonces se debe calcular el nuevo D' con el largo de mesa 
 			nuevoVerticeD = lineAD.calculateValue(TABLE_LENGTH_AD / distanceAD);
 			cout << "El vertice D fue modificado" << endl;
@@ -158,25 +158,137 @@ namespace mapinect
 
 			// Actualizar la mesa con los nuevos vértices
 			table->getPolygonModelObject()->setVertexs(nuevosVertices);
+			table->initOrderedVertexs = nuevosVertices;
 		}
 		/**************** Fin de la calibración inicial de la mesa ********************/
 	}
+
+	void compare(vector<ofVec3f>& initOrderedVertexs, vector<ofVec3f>& detectedVertexs, int& minDistanceIndex, 
+			int& correspondingMinDistanceIndex) {
+		// Comparar los nuevos vértices detectados con los vértices iniciales de la mesa
+		vector<float> distance;
+		distance.resize(4);
+		vector<int> detectedVertexIndex;
+		detectedVertexIndex.resize(4);
+
+		float minDistance, currentDistance;
+		for (int i = 0; i < initOrderedVertexs.size(); i++) 
+		{
+			minDistance = 100;
+			ofVec3f currentInitVertex = initOrderedVertexs.at(i);
+			for (int j = 0; j < detectedVertexs.size(); j++) 
+			{
+				currentDistance = currentInitVertex.distance(detectedVertexs.at(j));
+				if ( currentDistance < minDistance && isTableVertexInSafeArea(detectedVertexs.at(j)) ) 
+				{
+					minDistance = currentDistance;
+					distance.at(i) =  currentDistance;
+					detectedVertexIndex.at(i) = j;
+				}
+			}
+		}
+
+		// Finalmente recorro la estructura para obtener la pareja de vértices con distancia mínima
+		minDistance = 100;
+		minDistanceIndex = -1;
+		for (int i = 0; i < 4; i ++) {
+			if (distance.at(i) < minDistance) {
+				minDistance = distance.at(i);
+				minDistanceIndex = i;
+			}
+		}
+
+		correspondingMinDistanceIndex = detectedVertexIndex.at(minDistanceIndex);
+	}
+
 
 	void Table::updateTablePlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
 	{
 		TablePtr table(new Table(coefficients, cloud));
 
-		vector<ofVec3f> vertexs(gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs());
+		vector<ofVec3f> tableModelVertexs(gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs());
 
 		Plane3D newPlane(coefficients);
-		table->getPolygonModelObject()->setPlane(newPlane);
+		Polygon* p = table->getPolygonModelObject();
+		p->setPlane(newPlane);
+//		p->setVertexs(tableModelVertexs);
+		p->setCenter(computeCentroid(cloud));
 		table->setDrawPointCloud(false);
 
-		/* Update vertexs - projecting on new plane */
-		for (int i = 0; i < vertexs.size(); i++)
-			vertexs[i] = newPlane.project(vertexs[i]);
+		table->initOrderedVertexs = gModel->getTable()->initOrderedVertexs;
 
-		table->getPolygonModelObject()->setVertexs(vertexs);
+		// Re detectar el rectángulo de la mesa, para detectar de nuevo los vértices 
+		vector<ofVec3f> detectedVertexs = findRectangle(cloud, coefficients);
+		
+		// Ordenar los vértices, en sentido antihorario
+		detectedVertexs = reorderTableVertexs(detectedVertexs);
+
+		int minDistanceIndex = -1;
+		int correspondingMinDistanceIndex = -1;
+		compare(table->initOrderedVertexs,detectedVertexs,minDistanceIndex,correspondingMinDistanceIndex);
+
+		// Se debe prolongar la mesa segun sea necesario, para mantener la calibración inicial. Se toma como inicial la pareja de distancia mínima.
+		if (minDistanceIndex == -1) {		// || minDistance > 0.30) {		// Si la distancia entre vértices es mayor a 30 cms
+			cout << "No se pudo redeterminar los vértices" << endl;
+			/* Actualizar vértices proyectándolos en el nuevo plano */
+			for (int i = 0; i < tableModelVertexs.size(); i++)
+				tableModelVertexs[i] = newPlane.project(tableModelVertexs[i]);
+			// Actualizar la mesa con los vértices proyectados
+			table->getPolygonModelObject()->setVertexs(tableModelVertexs);
+		} else {
+			vector<ofVec3f> newVertexs;	
+			const int kVertexs = 4;
+			newVertexs.resize(kVertexs);
+			// La pareja de vértices más cercanos es initOrderedVertexs.at(minDistanceComparison) 
+			//	y detectedVertexs.at(comparison->at(minDistanceComparison).detectedVertexIndex)
+			for (int i = 0; i < kVertexs; i++) {
+				int index = (minDistanceIndex + i) % kVertexs;
+				newVertexs.at(index) =
+					detectedVertexs.at((correspondingMinDistanceIndex + i) % kVertexs);
+				cout << "newVertexs.at(" << index << ") vale: (" << newVertexs.at(index).x << ", " << newVertexs.at(index).y << ", " << newVertexs.at(index).z << ")" << endl;
+			}
+
+			ofVec3f startVertex = newVertexs.at(minDistanceIndex); 
+			ofVec3f nextVertex, prevVertex;
+			// Ajustar los vértices para que las distancias iniciales (de la calibración inicial) se mantengan
+			int indexNext, indexPrevious, indexOpposite;
+			double dist, calibratedDistance;
+			// Ajustar siguiente vértice
+				indexNext = minDistanceIndex + 1;
+				if (indexNext >= newVertexs.size()) 
+					indexNext = 0;				
+				nextVertex = newVertexs.at(indexNext);
+				mapinect::Line3D lineNext(startVertex, nextVertex);	
+				dist = startVertex.distance(nextVertex);
+				cout << "Siguiente vertice - dist = " << dist << endl;
+				calibratedDistance = table->initOrderedVertexs.at(minDistanceIndex).distance(table->initOrderedVertexs.at(indexNext)); 
+				cout << "  y calibratedDistance = " << calibratedDistance << endl;
+				newVertexs.at(indexNext) = lineNext.calculateValue( calibratedDistance / dist);
+				cout << "newVertexs.at(" << indexNext << ") ahora vale: (" << newVertexs.at(indexNext).x << ", " << newVertexs.at(indexNext).y << "," << newVertexs.at(indexNext).z << endl;
+			// Ajustar vértice anterior
+				indexPrevious = minDistanceIndex - 1;
+				if (indexPrevious < 0) 
+					indexPrevious = newVertexs.size() - 1;
+				prevVertex = newVertexs.at(indexPrevious);
+				mapinect::Line3D linePrev(startVertex, prevVertex);	
+				dist = startVertex.distance(prevVertex);
+				cout << "Vertice anterior - dist = " << dist << endl;
+				calibratedDistance = table->initOrderedVertexs.at(minDistanceIndex).distance(table->initOrderedVertexs.at(indexPrevious)); 
+				cout << "  y calibratedDistance = " << calibratedDistance << endl;
+				newVertexs.at(indexPrevious) = linePrev.calculateValue( calibratedDistance / dist);
+				cout << "newVertexs.at(" << indexPrevious << ") ahora vale: (" << newVertexs.at(indexPrevious).x << ", " << newVertexs.at(indexPrevious).y << "," << newVertexs.at(indexPrevious).z << endl;
+			// Ajustar vértice opuesto, con suma de vectores
+				indexOpposite = indexNext + 1;
+				if (indexOpposite >= newVertexs.size()) 
+					indexOpposite = 0;
+				// (nextVertex - startVertex) + (prevVertex - startVertex) = (opVertex - startVertex)
+				// => opVertex = (nextVertex - startVertex) + (prevVertex - startVertex) + startVertex
+				newVertexs.at(indexOpposite) = newVertexs.at(indexNext) - newVertexs.at(minDistanceIndex) + newVertexs.at(indexPrevious);
+				cout << "newVertexs.at(" << indexOpposite << ") ahora vale: (" << newVertexs.at(indexOpposite).x << ", " << newVertexs.at(indexOpposite).y << "," << newVertexs.at(indexOpposite).z << endl;
+			// Actualizar la mesa con los nuevos vértices
+			Polygon* p = table->getPolygonModelObject();
+			p->setVertexs(newVertexs);
+		}
 
 		gModel->setTable(table);
 	}
@@ -202,6 +314,7 @@ namespace mapinect
 			translation = Eigen::Translation<float, 3>(-centroid.x, -centroid.y, -centroid.z);
 
 			Eigen::Affine3f composedMatrix = rotationX * translation;
+//			Eigen::Affine3f composedMatrix = translation;	// Setear solo la traslación; si además se rota, puede no quedar bien el plano de la mesa
 		
 			gTransformation->setWorldTransformation(composedMatrix);
 			gTransformation->setInitialWorldTransformation(composedMatrix);
@@ -214,9 +327,12 @@ namespace mapinect
 			transformedCoefficients.values[3] = 0;
 		}
 		
+		saveCloud("mesaInicial.pcd",*transformedCloud);
+
 		TablePtr table(new Table(transformedCoefficients, transformedCloud));
 		table->detect();
 		table->setDrawPointCloud(false);
+
 
 		// reorder the vertexs so they're counter-clockwise and A(0) will be the closest to (0, 0) in screen coords
 		table->getPolygonModelObject()->setVertexs(reorderTableVertexs(table->getPolygonModelObject()->getMathModel().getVertexs()));
@@ -225,6 +341,8 @@ namespace mapinect
 		{
 			calibrateTable(table);
 		}
+
+		table->initOrderedVertexs = table->getPolygonModelObject()->getMathModel().getVertexs();
 
 		gModel->setTable(table);
 

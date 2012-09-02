@@ -25,6 +25,11 @@ namespace mapinect
 	private:
 		Table(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
 			: PCQuadrilateral(coefficients, cloud, TABLE_ID) { }
+
+		vector<ofVec3f> initOrderedVertexs;
+
+		static void calibrateTable(TablePtr& table);
+
 	};
 }
 
