@@ -115,9 +115,9 @@ namespace mapinect
 
 			// Para el IsInViewField
 			NDISTANCE								= XML.getValue(PCM_CONFIG "NDISTANCE",0.2);
-			FOV_HORIZONTAL							= XML.getValue(PCM_CONFIG "FOV_HORIZONTAL",57.0f);
-			FOV_VERTICAL							= XML.getValue(PCM_CONFIG "FOV_VERTICAL",43.0f);
-			FOV_MIN_DIST_CENTROID					= XML.getValue(PCM_CONFIG "FOV_MIN_DIST_CENTROID",0.1f);
+			FOV_HORIZONTAL							= XML.getValue(PCM_CONFIG "FOV_HORIZONTAL",64.0f);
+			FOV_VERTICAL							= XML.getValue(PCM_CONFIG "FOV_VERTICAL",63.0f);
+			FOV_MIN_DIST_CENTROID					= XML.getValue(PCM_CONFIG "FOV_MIN_DIST_CENTROID",0.05f);
 			WFAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
 			WFAR									= WFAR_2 * 2;
 			HFAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
