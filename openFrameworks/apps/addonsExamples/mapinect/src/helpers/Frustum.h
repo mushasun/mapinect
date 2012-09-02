@@ -12,7 +12,8 @@ namespace mapinect
 			static void RecalculateFrustum();
 			static bool IsInFrustum(const ofVec3f& pto);
 			static bool IsInFrustum(const vector<ofVec3f>& vertices);
-			static void drawFrustum();
+			static void drawFrustum();	
+			static void debugDrawFrustum();
 		private:
 			Frustum();
 
@@ -26,6 +27,8 @@ namespace mapinect
 			// Los vértices del frustum, en coordenadas de pantalla
 			ofVec3f sftl, sftr, sfbl, sfbr, sntl, sntr, snbl, snbr;	
 
+			// Los vértices del frustum, en coordenadas de mundo
+			ofVec3f ftl, ftr, fbl, fbr, ntl, ntr, nbl, nbr;	
 	};
 }
 

@@ -90,8 +90,8 @@ namespace mapinect {
 
 			ofPopMatrix();
 
-			// dibujar Frustum
-			Frustum::drawFrustum();
+			// dibujar Frustum en ventana de debug
+			Frustum::debugDrawFrustum();
 
 			for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
 			{

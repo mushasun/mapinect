@@ -60,7 +60,6 @@ namespace mapinect
 			transformationMatrixMutex.lock();
 			initialWorldTransformation = newTransformation;
 			transformationMatrixMutex.unlock();
-			Frustum::RecalculateFrustum();
 	}
 
 

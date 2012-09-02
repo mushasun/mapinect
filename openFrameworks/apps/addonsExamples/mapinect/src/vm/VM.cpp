@@ -4,6 +4,8 @@
 #include "ofxXmlSettings.h"
 #include "ofVec3f.h"
 #include "Globals.h"
+#include "Frustum.h"
+#include "ofGraphicsUtils.h"
 
 namespace mapinect {
 
@@ -217,6 +219,11 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void VM::draw() {
 		CHECK_ACTIVE;
+		ofEnableAlphaBlending();
+		//ofSetColor(0, 255, 0, 64);
+		//ofDrawQuadTextured(ofVec3f(0,0,1),ofVec3f(2,0,1),ofVec3f(2,0,-1),ofVec3f(0,0,-1));
+		Frustum::drawFrustum();
+		ofDisableAlphaBlending();
 	}
 
 	//--------------------------------------------------------------
@@ -315,6 +322,9 @@ namespace mapinect {
 			case '+':
 				transZ += varTrans;
 				printf("Z translation inc: %f \n", transZ);
+				break;
+			case '_':
+				transZ -= varTrans * 100.0f;
 				break;
 			case '1':
 				loadCalibParams();

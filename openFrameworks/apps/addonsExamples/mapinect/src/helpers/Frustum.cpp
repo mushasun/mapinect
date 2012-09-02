@@ -4,6 +4,7 @@
 #include "pointUtils.h"
 #include "transformationUtils.h"
 #include <pcl/common/transforms.h>
+#include "ofGraphicsUtils.h"
 
 namespace mapinect
 {
@@ -45,45 +46,43 @@ namespace mapinect
 		// nc es el punto intersección entre direction y el plano near
 		ofVec3f nc = p + direction * Constants::NDISTANCE;
 
-		// Se definen los 8 puntos del cono de visión
-		ofVec3f ftl, ftr, fbl, fbr, ntl, ntr, nbl, nbr;
 		// La primer letra es si es en el plano far o near
 		// La segunda letra es si es top o bottom
 		// La tercer letra es si es left o right
-		ftl = fc + (up * Constants::HFAR_2) - (right * Constants::WFAR_2);
-		instance->sftl = getScreenCoords(ftl);
+		instance->ftl = fc + (up * Constants::HFAR_2) - (right * Constants::WFAR_2);
+		instance->sftl = getScreenCoords(instance->ftl);
 //		instance->sftl.z = 0;
-		ftr = fc + (up * Constants::HFAR_2) + (right * Constants::WFAR_2);
-		instance->sftr = getScreenCoords(ftr); 
+		instance->ftr = fc + (up * Constants::HFAR_2) + (right * Constants::WFAR_2);
+		instance->sftr = getScreenCoords(instance->ftr); 
 //		instance->sftr.z = 0;
-		fbl = fc - (up * Constants::HFAR_2) - (right * Constants::WFAR_2);
-		instance->sfbl = getScreenCoords(fbl);  
+		instance->fbl = fc - (up * Constants::HFAR_2) - (right * Constants::WFAR_2);
+		instance->sfbl = getScreenCoords(instance->fbl);  
 //		instance->sfbl.z = 0;
-		fbr = fc - (up * Constants::HFAR_2) + (right * Constants::WFAR_2);
-		instance->sfbr = getScreenCoords(fbr);
+		instance->fbr = fc - (up * Constants::HFAR_2) + (right * Constants::WFAR_2);
+		instance->sfbr = getScreenCoords(instance->fbr);
 //		instance->sfbr.z = 0;
 
-		ntl = nc + (up * Constants::HNEAR_2) - (right * Constants::WNEAR_2);
-		instance->sntl = getScreenCoords(ntl);  
+		instance->ntl = nc + (up * Constants::HNEAR_2) - (right * Constants::WNEAR_2);
+		instance->sntl = getScreenCoords(instance->ntl);  
 //		instance->sntl.z = 0; 
-		ntr = nc + (up * Constants::HNEAR_2) + (right * Constants::WNEAR_2);
-		instance->sntr = getScreenCoords(ntr);  
+		instance->ntr = nc + (up * Constants::HNEAR_2) + (right * Constants::WNEAR_2);
+		instance->sntr = getScreenCoords(instance->ntr);  
 //		instance->sntr.z = 0;
-		nbl = nc - (up * Constants::HNEAR_2) - (right * Constants::WNEAR_2);
-		instance->snbl = getScreenCoords(nbl);  
+		instance->nbl = nc - (up * Constants::HNEAR_2) - (right * Constants::WNEAR_2);
+		instance->snbl = getScreenCoords(instance->nbl);  
 //		instance->snbl.z = 0;
-		nbr = nc - (up * Constants::HNEAR_2) + (right * Constants::WNEAR_2);
-		instance->snbr = getScreenCoords(nbr);
+		instance->nbr = nc - (up * Constants::HNEAR_2) + (right * Constants::WNEAR_2);
+		instance->snbr = getScreenCoords(instance->nbr);
 //		instance->snbr.z = 0;
 
 		// Crear los planos que limitan al cono de visión
 		//	Pasar los vértices siempre en el mismo orden, sentido horario, visto desde afuera del cono, para que todas las normales apunten adentro	
 		//	No se va a controlar para los planos near y far
 		//	La nube en el getCloud ya se limita al CLOUD_MAX_Z, q es lo q estamos tomando como far
-		instance->coneBottom = Plane3D(nbl,nbr,fbr);
-		instance->coneRightSide = Plane3D(fbr,nbr,ntr);
-		instance->coneTop = Plane3D(ftl,ftr,ntr);
-		instance->coneLeftSide = Plane3D(ftl,ntl,nbl);
+		instance->coneBottom = Plane3D(instance->nbl,instance->nbr,instance->fbr);
+		instance->coneRightSide = Plane3D(instance->fbr,instance->nbr,instance->ntr);
+		instance->coneTop = Plane3D(instance->ftl,instance->ftr,instance->ntr);
+		instance->coneLeftSide = Plane3D(instance->ftl,instance->ntl,instance->nbl);
 	}
 
 	bool Frustum::IsInFrustum(const ofVec3f& vec)
@@ -94,22 +93,22 @@ namespace mapinect
 			instance->RecalculateFrustum();
 		}
 
-		bool distConeBottom = instance->coneBottom.signedDistance(vec);
-		bool distRightSide = instance->coneRightSide.signedDistance(vec);
-		bool distConeTop = instance->coneTop.signedDistance(vec);
-		bool distConeLeftSide = instance->coneLeftSide.signedDistance(vec);
+		float distConeBottom = instance->coneBottom.signedDistance(vec);
+		float distRightSide = instance->coneRightSide.signedDistance(vec);
+		float distConeTop = instance->coneTop.signedDistance(vec);
+		float distConeLeftSide = instance->coneLeftSide.signedDistance(vec);
 
-		bool vecInsideConeBottom = instance->coneBottom.signedDistance(vec) < -Constants::FOV_MIN_DIST_CENTROID;
-		bool vecInsideConeRightSide = instance->coneRightSide.signedDistance(vec) < -Constants::FOV_MIN_DIST_CENTROID;
-		bool vecInsideConeTop = instance->coneTop.signedDistance(vec) < -Constants::FOV_MIN_DIST_CENTROID;
-		bool vecInsideConeLeftSide = instance->coneLeftSide.signedDistance(vec) < -Constants::FOV_MIN_DIST_CENTROID;
+		bool vecInsideConeBottom = instance->coneBottom.signedDistance(vec) < 0;
+		bool vecInsideConeRightSide = instance->coneRightSide.signedDistance(vec) < 0;
+		bool vecInsideConeTop = instance->coneTop.signedDistance(vec) < 0;
+		bool vecInsideConeLeftSide = instance->coneLeftSide.signedDistance(vec) < 0;
 
 		bool inViewField = vecInsideConeBottom
 			   && vecInsideConeTop
 			   && vecInsideConeLeftSide
 			   && vecInsideConeRightSide;
 
-//		if (inViewField == false)
+//		if (!inViewField)
 //			cout << "objecto fuera del frustum" << endl; 
 //		else 
 //			cout << "objeto dentro del cono de vision" << endl;
@@ -128,15 +127,43 @@ namespace mapinect
 			verticesInFrustum = verticesInFrustum && IsInFrustum(vertices.at(i));
 		}
 		
-		if (verticesInFrustum == false)
-			cout << "objecto fuera" << endl; 
+		if (verticesInFrustum)
+			cout << "objecto dentro del frustum" << endl; 
 		else 
-			cout << "objeto dentro" << endl;
+			cout << "objeto fuera" << endl;
 
 		return verticesInFrustum;
 	}
 
-	void Frustum::drawFrustum()
+	void Frustum::drawFrustum() 
+	{
+		if (instance != NULL)
+		{	
+			ofSetColor(255,255,255,160);
+			ofDrawQuadTextured(instance->ftl, instance->ntl, instance->nbl, instance->fbl);
+			ofDrawQuadTextured(instance->fbl, instance->fbr, instance->nbr, instance->nbl);
+			ofDrawQuadTextured(instance->ftr, instance->ntr, instance->nbr, instance->fbr);
+			ofDrawQuadTextured(instance->ftl, instance->ftr, instance->ntr, instance->ntl);
+
+			ofLine(instance->ftl, instance->ntl);
+			ofLine(instance->ftl, instance->fbl);
+			ofLine(instance->ftr, instance->ntr);				
+			ofLine(instance->ftr, instance->fbr);				
+			ofLine(instance->fbl, instance->nbl);
+			ofLine(instance->ntl, instance->nbl);
+			ofLine(instance->fbr, instance->nbr);
+			ofLine(instance->ntr, instance->nbr);
+
+			ofLine(instance->nbl, instance->nbr);
+			ofLine(instance->ntl, instance->ntr);
+
+			ofLine(instance->fbl, instance->fbr);
+			ofLine(instance->ftl, instance->ftr);
+		}	
+
+	}
+
+	void Frustum::debugDrawFrustum()
 	{
 		if (instance != NULL)
 		{	
