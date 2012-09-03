@@ -46,6 +46,8 @@ namespace mapinect {
 	static int		ICP_CLOUD_DENSITY;
 	static int		ICP_MAX_ITERATIONS;
 
+	static float	DISTANCE_TO_FOLLOW_OBJECT;
+
 	float			Arduino::ARM_HEIGHT;
 	float			Arduino::ARM_LENGTH;
 	float			Arduino::MOTORS_HEIGHT;
@@ -618,7 +620,7 @@ namespace mapinect {
 	{
 		if (object->getId() == idObjectToFollow)
 		{
-			if (centerOfFollowingObject.distance(object->getCenter()) > 0.05)
+			if (centerOfFollowingObject.distance(object->getCenter()) > DISTANCE_TO_FOLLOW_OBJECT)
 			{
 				lookAt(object->getCenter());
 			}
@@ -716,6 +718,8 @@ namespace mapinect {
 			ARM_TIMEOUT = XML.getValue(ARDUINO_CONFIG "ARM_TIMEOUT", 2000);
 			ICP_CLOUD_DENSITY = XML.getValue(ARDUINO_CONFIG "ICP_CLOUD_DENSITY", 5);
 			ICP_MAX_ITERATIONS = XML.getValue(ARDUINO_CONFIG "ICP_MAX_ITERATIONS", 20);
+
+			DISTANCE_TO_FOLLOW_OBJECT = XML.getValue(ARDUINO_CONFIG "DISTANCE_TO_FOLLOW_OBJECT", 0.25);
 		}
 	}
 
