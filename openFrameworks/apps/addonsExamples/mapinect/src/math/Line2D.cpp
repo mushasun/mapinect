@@ -96,7 +96,7 @@ namespace mapinect {
 		float den = ldif.y * dif.x - ldif.x * dif.y;
 		if (abs(den) < MATH_EPSILON)
 			return BAD_OFVEC2F;
-		float numA = ldif.x * (l.origin.y - origin.y) - ldif.y * (origin.x - l.origin.x);
+		float numA = ldif.x * (origin.y - l.origin.y) - ldif.y * (origin.x - l.origin.x);
 		
 		ofVec2f result(origin + (dif * numA / den));
 
