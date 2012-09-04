@@ -6,6 +6,7 @@
 #include "Plane3D.h"
 #include "utils.h"
 #include "Globals.h"
+#include "Constants.h"
 
 namespace mapinect {
 
@@ -190,8 +191,7 @@ namespace mapinect {
 
 				if (IsFeatureMoveArmActive() && !(cloudBeforeMoving.get() == NULL)) 
 				{
-					cloudAfterMoving = getCloudWithoutMutex();
-					// cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
+					cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
 					saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
 
 					icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving,ICP_MAX_ITERATIONS);
@@ -643,10 +643,11 @@ namespace mapinect {
 			acceleration = ofVec3f(accel.x, accel.y, accel.z);
 			gTransformation->setIsWorldTransformationStable(false);
 
-			// Obtener nube antes de mover los motores
-			cloudBeforeMoving = getCloud();
-			// cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
-			saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
+			if (gModel->getTable() != NULL) { 
+				// Obtener nube antes de mover los motores
+				cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
+				saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
+			}
 
 			// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
 			gTransformation->cloudMutex.lock();
@@ -716,7 +717,7 @@ namespace mapinect {
 			MIN_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_8", 0);
 
 			ARM_TIMEOUT = XML.getValue(ARDUINO_CONFIG "ARM_TIMEOUT", 2000);
-			ICP_CLOUD_DENSITY = XML.getValue(ARDUINO_CONFIG "ICP_CLOUD_DENSITY", 5);
+			ICP_CLOUD_DENSITY = XML.getValue(ARDUINO_CONFIG "ICP_CLOUD_DENSITY", Constants::CLOUD_STRIDE());
 			ICP_MAX_ITERATIONS = XML.getValue(ARDUINO_CONFIG "ICP_MAX_ITERATIONS", 20);
 
 			DISTANCE_TO_FOLLOW_OBJECT = XML.getValue(ARDUINO_CONFIG "DISTANCE_TO_FOLLOW_OBJECT", 0.25);
