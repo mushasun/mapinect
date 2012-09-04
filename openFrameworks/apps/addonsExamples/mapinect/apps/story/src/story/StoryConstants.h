@@ -10,6 +10,7 @@ namespace story
 		static float				SPOT_ROTATION_PERIOD_TIME;
 		static float				HOUSE_GARDEN_1_TIME;
 		static int					MENU_LIVE_TIME;
+		static float				MENU_RADIUS;
 
 		static void					LoadStoryConstants();
 

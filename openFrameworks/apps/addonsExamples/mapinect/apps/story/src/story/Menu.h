@@ -15,13 +15,15 @@ namespace story
 {
 	enum MenuAction
 	{
-		STREET,
+		STREET = 0,
 		RIVER,
 		HOUSE,
 		POWERPLANT,
 		WATERPLANT,
 		FIRE,
-		FINISH
+		BUTTON_COUNT,
+
+		FINISH,
 	};
 	class Menu
 	{
@@ -45,6 +47,8 @@ namespace story
 		float					timeMenuShown;
 		IButtonManager*			btnManager;
 
+		static ofImage**		buttonTextures;
+/*
 		static ofImage*			imgStreetButton;
 		static ofImage*			imgStreetButtonOn;
 		static ofImage*			imgRiverButton;
@@ -58,7 +62,7 @@ namespace story
 		static ofImage*			imgOkButton;
 		static ofImage*			imgOkButtonOn;
 		static ofImage*			imgFire;
-		static ofImage*			imgFireOn;
+		static ofImage*			imgFireOn;*/
 
 		static ofSoundPlayer*	ding;
 
