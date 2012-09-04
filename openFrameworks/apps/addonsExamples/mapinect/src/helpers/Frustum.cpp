@@ -118,9 +118,6 @@ namespace mapinect
 
 	bool Frustum::IsInFrustum(const vector<ofVec3f>& vertices)
 	{
-		return true;
-
-
 		bool verticesInFrustum = true;
 		for (int i = 0; i < vertices.size(); i++) {
 			cout << vertices[i].x << ", " << vertices[i].y << ", " << vertices[i].z << "  -  " << IsInFrustum(vertices.at(i)) << endl;
