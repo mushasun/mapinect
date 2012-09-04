@@ -6,9 +6,12 @@
 #include "StoryConstants.h"
 #include <cmath>
 
+#include <pcl/common/transforms.h>
+#include "transformationUtils.h"
+
 namespace story
 {
-	ofImage* Menu::imgStreetButton = NULL;
+	/*ofImage* Menu::imgStreetButton = NULL;
 	ofImage* Menu::imgRiverButton = NULL;
 	ofImage* Menu::imgPowerPlantButton = NULL;
 	ofImage* Menu::imgWaterPlantButton = NULL;
@@ -22,8 +25,10 @@ namespace story
 	ofImage* Menu::imgFireOn = NULL;
 
 	ofImage* Menu::imgOkButtonOn = NULL;
-	ofImage* Menu::imgOkButton = NULL;
-
+	ofImage* Menu::imgOkButton = NULL;*/
+	
+	ofImage** Menu::buttonTextures = NULL;
+	const int kTexturesPerButton = 2;
 	ofSoundPlayer*	Menu::ding = NULL;
 
 	
@@ -48,7 +53,7 @@ namespace story
 	/*-------------------------------------------------------------*/
 	Menu::~Menu()
 	{
-		delete(imgStreetButton);
+		/*delete(imgStreetButton);
 		delete(imgStreetButtonOn);
 		delete(imgRiverButton);
 		delete(imgRiverButtonOn);
@@ -57,7 +62,7 @@ namespace story
 		delete(imgWaterPlantButton);
 		delete(imgWaterPlantButtonOn);
 		delete(imgHouseButton);
-		delete(imgHouseButtonOn);
+		delete(imgHouseButtonOn);*/
 	}
 
 	/* Events */
@@ -112,7 +117,7 @@ namespace story
 				button_vertex.push_back(table.project(begin - arriba + costado));
 				button_vertex.push_back(table.project(begin + arriba + costado));
 				Polygon3D area = Polygon3D(button_vertex);
-				SimpleButton *okButton = new SimpleButton(area, imgOkButton, imgOkButtonOn);
+				SimpleButton *okButton = new SimpleButton(area, buttonTextures[(BUTTON_COUNT)*kTexturesPerButton], buttonTextures[((BUTTON_COUNT)*kTexturesPerButton) + 1]);
 				actions[okButton->getId()] = FINISH;
 				btnManager->addButton(IButtonPtr(okButton));
 			}
@@ -150,89 +155,49 @@ namespace story
 			timeMenuShown = 0;			
 			//dibujo el menu de cosas a construir
 			Polygon3D table = object->getPolygons().at(0)->getMathModel();
+
 			ofVec3f begin = touchPoint.getTouchPoint();
-			//ofVec3f centroid = 
+			
+			ofVec3f yAxis = table.getPlane().getNormal();
+			ofVec3f xAxis = (table.project(ofVec3f(1,0,0))- begin).getNormalized();
+			ofVec3f zAxis = yAxis.crossed(xAxis).getNormalized();
 
+			cout << "y.x: " << yAxis.dot(xAxis) << endl; 
+			cout << "y.z: " << yAxis.dot(zAxis) << endl; 
+			Eigen::Vector3f yEigenAxis(yAxis.x,yAxis.y,yAxis.z);
+			float angle = 0;
+			float step = TWO_PI / BUTTON_COUNT;
+			Eigen::Affine3f rotationMatrix;
+			Eigen::Affine3f translationMatrix;
+			translationMatrix = Eigen::Translation<float,3>(begin.x,begin.y,begin.z);
 
+			for (int i = 0; i < BUTTON_COUNT; i++)
+			{
+				ofVec3f c1 = ofVec3f(0,0,0) + (xAxis * (StoryConstants::MENU_RADIUS - BUTTON_SIDE/2.0)) - zAxis * (BUTTON_SIDE/2.0); 
+				ofVec3f c2 = c1 + (xAxis * BUTTON_SIDE);
+				ofVec3f c3 = c2 + (zAxis * BUTTON_SIDE);
+				ofVec3f c4 = c1 + (zAxis * BUTTON_SIDE);
+				vector<ofVec3f> button_vertex;
+				button_vertex.push_back(c1);
+				button_vertex.push_back(c2);
+				button_vertex.push_back(c3);
+				button_vertex.push_back(c4);
 
-			ofVec3f arriba = ofVec3f(0.f, 0.f, BUTTON_SIDE);
-			ofVec3f costado = ofVec3f(BUTTON_SIDE, 0.f, 0.f);
+				rotationMatrix = Eigen::AngleAxis<float>(angle, yEigenAxis);
+				button_vertex = transformVector(button_vertex, rotationMatrix);
+				button_vertex = transformVector(button_vertex, translationMatrix);
 
+				Polygon3D area(button_vertex);
+				SimpleButton *button = new SimpleButton(
+					area,
+					buttonTextures[i * kTexturesPerButton],
+					buttonTextures[i * kTexturesPerButton + 1]);
+				actions[button->getId()] = (MenuAction)i;
+				IButtonPtr buttonPtr(button);
+				btnManager->addButton(buttonPtr);
+				angle += step;
+			}
 
-			begin += costado;
-			vector<ofVec3f> button_vertex;
-			//primero casa
-			button_vertex.push_back(table.project(begin + arriba));
-			button_vertex.push_back(table.project(begin - arriba));
-			button_vertex.push_back(table.project(begin - arriba + costado));
-			button_vertex.push_back(table.project(begin + arriba + costado));
-			Polygon3D area = Polygon3D(button_vertex);
-			SimpleButton *houseButton = new SimpleButton(area, imgHouseButton, imgHouseButtonOn);
-			actions[houseButton->getId()] = HOUSE;
-			btnManager->addButton(IButtonPtr(houseButton));
-			begin += costado;
-			button_vertex.clear();
-
-			//fire
-			button_vertex.push_back(table.project(begin + arriba));
-			button_vertex.push_back(table.project(begin - arriba));
-			button_vertex.push_back(table.project(begin - arriba + costado));
-			button_vertex.push_back(table.project(begin + arriba + costado));
-			area = Polygon3D(button_vertex);
-			SimpleButton *fireButton = new SimpleButton(area, imgFire, imgFireOn);
-			actions[fireButton->getId()] = FIRE;
-			btnManager->addButton(IButtonPtr(fireButton));
-			begin += costado;
-			button_vertex.clear();
-				
-			//central electrica
-			button_vertex.push_back(table.project(begin + arriba));
-			button_vertex.push_back(table.project(begin - arriba));
-			button_vertex.push_back(table.project(begin - arriba + costado));
-			button_vertex.push_back(table.project(begin + arriba + costado));
-			area = Polygon3D(button_vertex);
-			SimpleButton *powerPlantButton = new SimpleButton(area, imgPowerPlantButton, imgPowerPlantButtonOn);
-			actions[powerPlantButton->getId()] = POWERPLANT;
-			btnManager->addButton(IButtonPtr(powerPlantButton));
-			begin += costado;
-			button_vertex.clear();
-				
-			//water plant
-			button_vertex.push_back(table.project(begin + arriba));
-			button_vertex.push_back(table.project(begin - arriba));
-			button_vertex.push_back(table.project(begin - arriba + costado));
-			button_vertex.push_back(table.project(begin + arriba + costado));
-			area = Polygon3D(button_vertex);
-			SimpleButton *waterPlantButton = new SimpleButton(area, imgWaterPlantButton, imgWaterPlantButtonOn);
-			actions[waterPlantButton->getId()] = WATERPLANT;
-			btnManager->addButton(IButtonPtr(waterPlantButton));
-			begin += costado;
-			button_vertex.clear();
-
-			//calle
-			button_vertex.push_back(table.project(begin + arriba));
-			button_vertex.push_back(table.project(begin - arriba));
-			button_vertex.push_back(table.project(begin - arriba + costado));
-			button_vertex.push_back(table.project(begin + arriba + costado));
-			area = Polygon3D(button_vertex);
-			SimpleButton *streetButton = new SimpleButton(area, imgStreetButton, imgStreetButtonOn);
-			actions[streetButton->getId()] = STREET;
-			btnManager->addButton(IButtonPtr(streetButton));
-			begin += costado;
-			button_vertex.clear();
-
-			//river
-			button_vertex.push_back(table.project(begin + arriba));
-			button_vertex.push_back(table.project(begin - arriba));
-			button_vertex.push_back(table.project(begin - arriba + costado));
-			button_vertex.push_back(table.project(begin + arriba + costado));
-			area = Polygon3D(button_vertex);
-			SimpleButton *riverButton = new SimpleButton(area, imgRiverButton, imgRiverButtonOn);
-			actions[riverButton->getId()] = RIVER;
-			btnManager->addButton(IButtonPtr(riverButton));
-			begin += costado;
-			button_vertex.clear();
-			//finished adding menu
 		}
 	}
 
@@ -274,7 +239,7 @@ namespace story
 	/*-------------------------------------------------------------*/
 	void Menu::loadTextures()
 	{
-		imgStreetButton = new ofImage("data/texturas/menu/road.jpg");
+		/*imgStreetButton = new ofImage("data/texturas/menu/road.jpg");
 		imgRiverButton = new ofImage("data/texturas/menu/river.jpg");
 		imgPowerPlantButton = new ofImage("data/texturas/menu/power.jpg");
 		imgWaterPlantButton = new ofImage("data/texturas/menu/water.jpg");
@@ -289,7 +254,26 @@ namespace story
 		imgOkButtonOn = new ofImage("data/texturas/menu/okOn.png");
 
 		imgFire = new ofImage("data/texturas/menu/fire.png");
-		imgFireOn = new ofImage("data/texturas/menu/fireOn.png");
+		imgFireOn = new ofImage("data/texturas/menu/fireOn.png");*/
+
+		if (buttonTextures == NULL)
+		{
+			buttonTextures = new ofImage* [BUTTON_COUNT * kTexturesPerButton];
+			buttonTextures[0] = new ofImage("data/texturas/menu/road.jpg");
+			buttonTextures[1] = new ofImage("data/texturas/menu/roadOn.jpg");
+			buttonTextures[2] = new ofImage("data/texturas/menu/river.jpg");
+			buttonTextures[3] = new ofImage("data/texturas/menu/riverOn.jpg");
+			buttonTextures[4] = new ofImage("data/texturas/menu/house.jpg");
+			buttonTextures[5] = new ofImage("data/texturas/menu/houseOn.jpg");
+			buttonTextures[6] = new ofImage("data/texturas/menu/power.jpg");
+			buttonTextures[7] = new ofImage("data/texturas/menu/powerOn.jpg");
+			buttonTextures[8] = new ofImage("data/texturas/menu/water.jpg");
+			buttonTextures[9] = new ofImage("data/texturas/menu/waterOn.jpg");
+			buttonTextures[10] = new ofImage("data/texturas/menu/fire.png");
+			buttonTextures[11] = new ofImage("data/texturas/menu/fireOn.png");
+			buttonTextures[12] = new ofImage("data/texturas/menu/ok.png");
+			buttonTextures[13] = new ofImage("data/texturas/menu/okOn.png");
+		}
 	}
 
 	

@@ -128,7 +128,7 @@ namespace story
 		onSound = new ofSoundPlayer();
 		onSound->loadSound("data/sonidos/water/water_on.mp3");
 		onSound->setLoop(true);
-		onSound->setVolume(0.5);
+		onSound->setVolume(0.2);
 		offSound = new ofSoundPlayer();
 		offSound->loadSound("data/sonidos/water/water_off.wav");
 	}

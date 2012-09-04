@@ -10,6 +10,8 @@ namespace story
 {
 	ofImage* Bomberos::txTruckTop = NULL;
 	ofImage* Bomberos::txTruckSide = NULL;
+	ofImage* Bomberos::txTruckFront = NULL;
+	ofImage* Bomberos::txTruckBack = NULL;
 	ofSoundPlayer*	Bomberos::water = NULL;
 	ofSoundPlayer*	Bomberos::sirena = NULL;
 
@@ -56,7 +58,7 @@ namespace story
 				water->setPaused(false);
 			}
 			timeWatering += elapsedTime;
-			if (timeWatering > 10)
+			if (timeWatering > 10 && StoryStatus::getProperty(ALREADY_BURNING))
 			{
 				StoryStatus::setProperty(FIREMAN_FINISHED, true);
 				StoryStatus::setProperty(ALREADY_BURNING, false);
@@ -70,7 +72,8 @@ namespace story
 
 	void Bomberos::draw()
 	{
-		ofSetColor(kRGBWhite);
+		Box::draw();
+		/*ofSetColor(kRGBWhite);
 
 		for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 		{
@@ -90,6 +93,8 @@ namespace story
 				case kPolygonNameSideD:
 					texture = textureD;
 					break;
+				case kPolygonNameTop:
+					texture = textureTop;
 				default:
 					texture = textureA;
 			}
@@ -97,24 +102,28 @@ namespace story
 			texture->bind();
 			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor());
 			texture->unbind();
-		}
+		}*/
 	}
 
 	/* Textures */
 	/*-------------------------------------------------------------*/
 	void Bomberos::loadTextures()
 	{
-		txTruckTop = new ofImage("data/texturas/house/top.jpg");
-		txTruckSide = new ofImage("data/texturas/bomberos/front.jpg");
+		txTruckTop = new ofImage("data/texturas/bomberos/top.png");
+		txTruckSide = new ofImage("data/texturas/bomberos/side.png");
+		txTruckFront = new ofImage("data/texturas/bomberos/front.png");
+		txTruckBack = new ofImage("data/texturas/bomberos/back.png");
+
 	}
 
 	/*-------------------------------------------------------------*/
 	void Bomberos::associateTextures()
 	{
 		textureA = txTruckSide;
-		textureB = txTruckSide;
+		textureB = txTruckFront;
 		textureC = txTruckSide;
-		textureD = txTruckSide;
+		textureD = txTruckBack;
+		textureTop = txTruckTop;
 	}
 
 	/* Sounds */

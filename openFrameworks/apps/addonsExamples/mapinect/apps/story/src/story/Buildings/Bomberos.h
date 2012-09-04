@@ -44,6 +44,8 @@ namespace story
 			//textures
 			static ofImage*		txTruckTop;
 			static ofImage*		txTruckSide;
+			static ofImage*		txTruckFront;
+			static ofImage*		txTruckBack;
 	};
 }
 

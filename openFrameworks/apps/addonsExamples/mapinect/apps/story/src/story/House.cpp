@@ -128,7 +128,7 @@ namespace story
 				}
 				break;
 			case KNOCK:
-				if(!released)
+				//if(!released)
 					knock->play();
 				break;
 			case GARDEN:
@@ -222,12 +222,14 @@ namespace story
 
 			ofSetColor(255,255,255,255);
 			gardenFbo.getTextureReference().bind();
+			ofDrawQuadTextured(gardenVexs, ofTexCoordsFor());
+/*
 			glBegin(GL_QUADS);  
 				glTexCoord2f(0, 0);											glVertex3f(gardenVexs[0].x, gardenVexs[0].y, gardenVexs[0].z);  
 				glTexCoord2f(gardenFbo.getWidth(), 0);						glVertex3f(gardenVexs[1].x, gardenVexs[1].y, gardenVexs[1].z);  
 				glTexCoord2f(gardenFbo.getWidth(), gardenFbo.getHeight());	glVertex3f(gardenVexs[2].x, gardenVexs[2].y, gardenVexs[2].z); 
 				glTexCoord2f(0, gardenFbo.getHeight());						glVertex3f(gardenVexs[3].x, gardenVexs[3].y, gardenVexs[3].z);   
-			glEnd();
+			glEnd();*/
 			gardenFbo.getTextureReference().unbind();
 		}
 	}

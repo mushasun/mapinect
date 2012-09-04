@@ -11,10 +11,10 @@ namespace story
 	Box::Box(const IObjectPtr& object, IButtonManager* btnManager)
 		: object(object)
 	{
-		fireSpriteA = new AnimatedSprite(fireImgs,0.2,object->getPolygon(kPolygonNameSideA)->getMathModel());
-		fireSpriteB = new AnimatedSprite(fireImgs,0.2,object->getPolygon(kPolygonNameSideB)->getMathModel());
-		fireSpriteC = new AnimatedSprite(fireImgs,0.2,object->getPolygon(kPolygonNameSideC)->getMathModel());
-		fireSpriteD = new AnimatedSprite(fireImgs,0.2,object->getPolygon(kPolygonNameSideD)->getMathModel());
+		fireSpriteA = new AnimatedSprite(fireImgs,0.07,object->getPolygon(kPolygonNameSideA)->getMathModel());
+		fireSpriteB = new AnimatedSprite(fireImgs,0.07,object->getPolygon(kPolygonNameSideB)->getMathModel());
+		fireSpriteC = new AnimatedSprite(fireImgs,0.07,object->getPolygon(kPolygonNameSideC)->getMathModel());
+		fireSpriteD = new AnimatedSprite(fireImgs,0.07,object->getPolygon(kPolygonNameSideD)->getMathModel());
 
 		isBurning = false;
 	}
@@ -123,6 +123,8 @@ namespace story
 				burnSound->stop();
 				delete burnSound;
 				isBurning = false;
+				StoryStatus::setProperty(FIREMAN_FINISHED,false);
+				StoryStatus::setProperty(BURNING, false);
 			}
 		}
 	}
@@ -141,7 +143,7 @@ namespace story
 			burnSound->play();
 			burnSound->setLoop(true);
 			StoryStatus::setProperty(CENTROID_BURNING_HOUSE, this->object->getCenter());
-			cout << " ++++ se prende fuego! " << endl;
+			StoryStatus::setProperty(ALREADY_BURNING, true);
 			isBurning = true;
 		}
 	}
