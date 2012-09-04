@@ -62,7 +62,8 @@ namespace drawing {
 			map<int, Canvas*> objectCanvas;
 			for (vector<IPolygonPtr>::const_iterator p = object->getPolygons().begin(); p != object->getPolygons().end(); ++p)
 			{
-				objectCanvas[(*p)->getName()] = new Canvas((*p)->getId(), (*p)->getMathModel(), 300, 300, backColor, foreColor);
+				objectCanvas[(*p)->getName()] = new Canvas((*p)->getId(), (*p)->getMathModel(), 300, 300, backColor, foreColor,5);
+		
 				backColor = ofRandomColor();
 			}
 			canvas[object->getId()] = objectCanvas;
