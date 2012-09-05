@@ -199,9 +199,11 @@
     <ClCompile Include="src\canvas\Trace.cpp">
       <Filter>canvas</Filter>
     </ClCompile>
-    <ClCompile Include="src\helpers\Frustum.cpp" />
     <ClCompile Include="src\utils\transformationUtils.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\helpers\Frustum.cpp">
+      <Filter>helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -469,9 +471,11 @@
     <ClInclude Include="src\canvas\Trace.h">
       <Filter>canvas</Filter>
     </ClInclude>
-    <ClInclude Include="src\helpers\Frustum.h" />
     <ClInclude Include="src\utils\transformationUtils.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\Frustum.h">
+      <Filter>helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
