@@ -104,8 +104,8 @@ namespace pown
 			notesColors.push_back(ofRandomColor());
 
 		const Polygon3D& floorPoly(floor->getMathModel());
-		const Line3D beatsLine(floorPoly.getVertexs()[0], floorPoly.getVertexs()[3]);
-		const Line3D notesLine(floorPoly.getVertexs()[0], floorPoly.getVertexs()[1]);
+		const Line3D beatsLine(floorPoly.getVertexs()[0], floorPoly.getVertexs()[1]);
+		const Line3D notesLine(floorPoly.getVertexs()[0], floorPoly.getVertexs()[3]);
 		const ofVec3f origin(notesLine.getOrigin());
 		const ofVec3f dbeat(beatsLine.getDirection() / (float)PownConstants::BEATS);
 		const ofVec3f dnote(notesLine.getDirection() / (float)PownConstants::NOTES);
