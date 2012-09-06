@@ -95,7 +95,7 @@ namespace mapinect
 		/*if (texMapper.willMap(pto))			Con esta condicion no toma bien los bordes
 		{*/
 			ofVec3f mapped(texMapper.map(pto));
-			cout << texMapper.willMap(pto) << " v: " << mapped.x << ", " << mapped.y << ", " << mapped.z << endl; 
+			//cout << texMapper.willMap(pto) << " v: " << mapped.x << ", " << mapped.y << ", " << mapped.z << endl; 
 			int id = touchPoint.getId();
 			map<int, IDrawer*>::iterator d = drawers.find(id);
 			switch (touchPoint.getType())

@@ -34,4 +34,5 @@ void ofDrawQuad(const vector<ofVec3f>& vertexs);
 void ofDrawQuadTextured(const vector<ofVec3f>& vertexs, const vector<ofVec2f>& texCoords);
 vector<ofVec2f> ofTexCoordsFor(float sEnd = 1.0f, float tEnd = 1.0f, float sBegin = 0.0f, float tBegin = 0.0f);
 
+void ofDrawCircle(const ofVec3f& vertex, float radius);
 #endif	// OFGRAPHICS_UTILS_H__

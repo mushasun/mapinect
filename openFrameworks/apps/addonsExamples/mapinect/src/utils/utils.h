@@ -6,6 +6,7 @@
 #include <assert.h>
 
 #define MATH_EPSILON		0.005
+#define MATH_EPSILON_2		0.01
 
 #define MAX_FLOAT			FLT_MAX
 

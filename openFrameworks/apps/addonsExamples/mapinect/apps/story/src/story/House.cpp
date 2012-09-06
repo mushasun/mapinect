@@ -53,8 +53,6 @@ namespace story
 		ObjectButton btnDoorbell(object, kPolygonNameSideA, true, txHouseDoorBellOff, txHouseDoorBellOn,
 								0.05,0.05, 0 ,0.04);
 		
-		
-		
 		/*Calculo jardin*/
 		Polygon3D polB = object->getPolygon(kPolygonNameSideB)->getMathModel();
 		float widthB = fabs((polB.getVertexs().at(1) - polB.getVertexs().at(2)).length());
@@ -81,6 +79,7 @@ namespace story
 		btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnDoor)));
 		buttonsId.push_back(btnDoor.getId());
 		actionsMap[btnDoor.getId()] = KNOCK;
+		
 		btnManager->addButton(ObjectButtonPtr(new ObjectButton(btnGarden)));
 		buttonsId.push_back(btnGarden.getId());
 		actionsMap[btnGarden.getId()] = GARDEN;
@@ -91,11 +90,8 @@ namespace story
 	/*-------------------------------------------------------------*/
 	void House::buttonEvent(const IButtonPtr& btn, bool released)
 	{
-		cout << "Boton  press enn house! " << endl;
 		if(actionsMap.find(btn->getId()) == actionsMap.end())
 			return; // no es un boton de la casa
-
-		cout << "{ boton de casa }" << endl;
 
 		HouseAction action = actionsMap[btn->getId()];
 		switch(action)
@@ -128,13 +124,12 @@ namespace story
 				}
 				break;
 			case KNOCK:
-				//if(!released)
+				if(!released)
 					knock->play();
 				break;
 			case GARDEN:
 				if (connected_to_water && StoryStatus::getProperty(WATERPLANT_ACTIVE))
 				{
-					cout << "{ boton water }" << endl;
 					isWatering = !isWatering;
 					if(isWatering)
 						water->setPaused(false);
@@ -155,10 +150,10 @@ namespace story
 	{
 		if(selection != NULL)
 		{
-			cout << "llega evento de " << selection << endl;
 			switch(selection)
 			{
 				case BuildType::kHouse:
+					cout << " ++++ llamada a casa" << endl;
 					call->play();
 					break;
 				case BuildType::kWaterPlant:

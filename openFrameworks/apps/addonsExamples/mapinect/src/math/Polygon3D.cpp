@@ -105,8 +105,10 @@ namespace mapinect
 	{
 		bool result = true;
 		
-		result = plane.distance(point) <= MATH_EPSILON;
-		
+		result = plane.distance(point) <= MATH_EPSILON_2;
+
+		/*if(!result)
+			cout << "not for distance: " << plane.distance(point) << endl;*/
 		for (int i = 0; result && i < edges.size(); i++)
 			result = edges[i].isInSegment(edges[i].projectedK(point));
 		
