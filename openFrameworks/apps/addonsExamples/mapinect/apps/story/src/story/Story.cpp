@@ -111,14 +111,17 @@ namespace story {
 		if (StoryStatus::getProperty(CAMERA_1))
 		{
 			setCamera(1);
+			StoryStatus::setProperty(CAMERA_1,false);
 		}
 		if (StoryStatus::getProperty(CAMERA_2))
 		{
 			setCamera(2);
+			StoryStatus::setProperty(CAMERA_2,false);
 		}
 		if (StoryStatus::getProperty(CAMERA_3))
 		{
 			setCamera(3);
+			StoryStatus::setProperty(CAMERA_3,false);
 		}
 
 	}
@@ -340,8 +343,7 @@ namespace story {
 		}
 
 		Camera cam = StoryConstants::CAMERAS.at(camera - 1);
-		this->armController->setArm3dCoordinates(cam.position);
-		this->armController->lookAt(cam.lookAt);	// Este método retorna además la dirección hacia la que quedó mirando efectivamente
+		this->armController->setArmPositionAndLookAt(cam.position,cam.lookAt);	
 	}
 
 }
