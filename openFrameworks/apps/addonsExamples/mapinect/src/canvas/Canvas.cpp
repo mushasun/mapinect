@@ -80,12 +80,17 @@ namespace mapinect
 		ofDrawQuadTextured(polygon.getVertexs(), ofTexCoordsFor());
 		cairoTexture->unbind();
 
-		/*for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
+		for (map<int, DataTouch>::const_iterator t = touchPoints.begin(); t != touchPoints.end(); ++t)
 		{
 			ofSetColor(kRGBBlue);
 			ofVec3f tp(t->second.getTouchPoint());
 			ofCircle(tp.x, tp.y, tp.z, 0.003);
-		}*/
+		}
+	}
+
+	void Canvas::endAllDrawers()
+	{
+		touchPoints.clear();
 	}
 
 	void Canvas::touchEvent(const DataTouch& touchPoint)
@@ -103,7 +108,6 @@ namespace mapinect
 			case kTouchTypeStarted:
 				touchPoints[id] = touchPoint;
 				drawers[id] = IDrawer::SCreate(mapped, foreColor);
-				//setForeColor(ofRandomColor());
 				break;
 			case kTouchTypeHolding:
 				if(pto.distanceSquared(touchPoints[id].getTouchPoint()) > 0.0001)
