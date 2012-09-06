@@ -107,6 +107,18 @@ namespace story {
 		{
 			it->second->update(elapsedTime);
 		}
+		if (StoryStatus::getProperty(CAMERA_1))
+		{
+			setCamera(1);
+		}
+		if (StoryStatus::getProperty(CAMERA_2))
+		{
+			setCamera(2);
+		}
+		if (StoryStatus::getProperty(CAMERA_3))
+		{
+			setCamera(3);
+		}
 
 	}
 

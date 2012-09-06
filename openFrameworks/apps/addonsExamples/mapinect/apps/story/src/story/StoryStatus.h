@@ -30,6 +30,9 @@ namespace story
 		ALREADY_BURNING,
 		WANT_TO_BURN,
 		BURNING,
+		CAMERA_1,
+		CAMERA_2,
+		CAMERA_3,
 	};
 
 	enum IntStoryStatusProperty{
