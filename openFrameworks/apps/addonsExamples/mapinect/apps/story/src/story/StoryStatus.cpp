@@ -19,6 +19,9 @@ namespace story
 		properties[FIREMAN_FINISHED] = false;
 		properties[ALREADY_BURNING] = false;
 		properties[BURNING] = false;
+		properties[CAMERA_1] = false;
+		properties[CAMERA_2] = false;
+		properties[CAMERA_3] = false;
 		intProperties[ID_BURNING_HOUSE] = -1;
 		ofVec3fProperties[CENTROID_BURNING_HOUSE] = ofVec3f(0.0, 0.0, 0.0);
 	}

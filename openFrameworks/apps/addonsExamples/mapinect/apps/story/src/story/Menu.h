@@ -21,6 +21,9 @@ namespace story
 		POWERPLANT,
 		WATERPLANT,
 		FIRE,
+		CAMARA_1,
+		CAMARA_2,
+		CAMARA_3,
 		BUTTON_COUNT,
 
 		FINISH,

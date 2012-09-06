@@ -96,6 +96,15 @@ namespace story
 				case FIRE:
 					StoryStatus::setProperty(WANT_TO_BURN, true);
 					break;
+				case CAMARA_1:
+					StoryStatus::setProperty(CAMERA_1, true);
+					break;
+				case CAMARA_2:
+					StoryStatus::setProperty(CAMERA_2, true);
+					break;
+				case CAMARA_3:
+					StoryStatus::setProperty(CAMERA_3, true);
+					break;
 			}
 			
 			ding->play();
@@ -273,6 +282,12 @@ namespace story
 			buttonTextures[11] = new ofImage("data/texturas/menu/fireOn.png");
 			buttonTextures[12] = new ofImage("data/texturas/menu/ok.png");
 			buttonTextures[13] = new ofImage("data/texturas/menu/okOn.png");
+			buttonTextures[14] = new ofImage("data/texturas/menu/CameraIcon1.png");
+			buttonTextures[15] = new ofImage("data/texturas/menu/CameraIcon1On.png");
+			buttonTextures[16] = new ofImage("data/texturas/menu/CameraIcon2.png");
+			buttonTextures[17] = new ofImage("data/texturas/menu/CameraIcon2On.png");
+			buttonTextures[18] = new ofImage("data/texturas/menu/CameraIcon3.png");
+			buttonTextures[19] = new ofImage("data/texturas/menu/CameraIcon3On.png");
 		}
 	}
 
