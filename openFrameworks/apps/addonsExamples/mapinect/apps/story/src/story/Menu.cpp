@@ -280,14 +280,15 @@ namespace story
 			buttonTextures[9] = new ofImage("data/texturas/menu/waterOn.jpg");
 			buttonTextures[10] = new ofImage("data/texturas/menu/fire.png");
 			buttonTextures[11] = new ofImage("data/texturas/menu/fireOn.png");
-			buttonTextures[12] = new ofImage("data/texturas/menu/ok.png");
-			buttonTextures[13] = new ofImage("data/texturas/menu/okOn.png");
-			buttonTextures[14] = new ofImage("data/texturas/menu/CameraIcon1.png");
-			buttonTextures[15] = new ofImage("data/texturas/menu/CameraIcon1On.png");
-			buttonTextures[16] = new ofImage("data/texturas/menu/CameraIcon2.png");
-			buttonTextures[17] = new ofImage("data/texturas/menu/CameraIcon2On.png");
-			buttonTextures[18] = new ofImage("data/texturas/menu/CameraIcon3.png");
-			buttonTextures[19] = new ofImage("data/texturas/menu/CameraIcon3On.png");
+			buttonTextures[12] = new ofImage("data/texturas/menu/CameraIcon1.png");
+			buttonTextures[13] = new ofImage("data/texturas/menu/CameraIcon1On.png");
+			buttonTextures[14] = new ofImage("data/texturas/menu/CameraIcon2.png");
+			buttonTextures[15] = new ofImage("data/texturas/menu/CameraIcon2On.png");
+			buttonTextures[16] = new ofImage("data/texturas/menu/CameraIcon3.png");
+			buttonTextures[17] = new ofImage("data/texturas/menu/CameraIcon3On.png");
+			buttonTextures[18] = new ofImage("data/texturas/menu/ok.png");
+			buttonTextures[19] = new ofImage("data/texturas/menu/okOn.png");
+
 		}
 	}
 
