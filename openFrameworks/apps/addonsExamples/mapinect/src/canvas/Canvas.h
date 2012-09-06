@@ -29,6 +29,8 @@ namespace mapinect
 		inline float			getLineWidth() const					{ return lineWidth; }
 		void					setLineWidth(float);
 
+		void					endAllDrawers();
+
 		void					redrawIfNecessary();
 	private:
 		void					redraw();
