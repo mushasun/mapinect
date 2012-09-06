@@ -22,7 +22,7 @@ namespace mapinect {
 		/// Returns true if the 'eye' is reachable, else sets 'bestFit' with the closer position
 		/// that will reach the arm and position the camera there
 		/// </summary>
-		virtual ofVec3f			lookAt(const ofVec3f& eye, const ofVec3f& target, ofVec3f& bestFit) = 0;
+		virtual ofVec3f			lookAt(const ofVec3f& target) = 0;
 
 		virtual ofVec3f			getEye() = 0;
 		virtual ofVec3f			getTarget() = 0;
