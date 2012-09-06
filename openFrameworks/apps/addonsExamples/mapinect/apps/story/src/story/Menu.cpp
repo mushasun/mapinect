@@ -91,7 +91,10 @@ namespace story
 			}
 			
 			ding->play();
-			if(action != FIRE)
+			if(action != FIRE &&
+				action != CAMERA_1 &&
+				action != CAMERA_2 &&
+				action != CAMERA_3)
 			{
 				inAction = true;
 				removeMenu();

@@ -8,27 +8,40 @@
 	
 	<CAMERA>
 		<POSITION>
-			<X>1.0</X>
-			<Y>1.0</Y>
-			<Z>1.0</Z>
+			<X>0.37</X>
+			<Y>0.0</Y>
+			<Z>0.0</Z>
 		</POSITION>
 		<LOOKAT>
-			<X>2.0</X>
-			<Y>3.0</Y>
-			<Z>3.0</Z>
+			<X>0.50</X>
+			<Y>0.00</Y>
+			<Z>-0.10</Z>
 		</LOOKAT>
 	</CAMERA>
 
 	<CAMERA>
 		<POSITION>
-			<X>2.0</X>
-			<Y>3.0</Y>
-			<Z>3.0</Z>
+			<X>0.20</X>
+			<Y>0.0</Y>
+			<Z>-0.20</Z>
 		</POSITION>
 		<LOOKAT>
-			<X>2.0</X>
-			<Y>3.0</Y>
-			<Z>3.0</Z>
+			<X>0.50</X>
+			<Y>0.00</Y>
+			<Z>0.10</Z>
+		</LOOKAT>
+	</CAMERA>
+	
+	<CAMERA>
+		<POSITION>
+			<X>0.37</X>
+			<Y>0.0</Y>
+			<Z>0.0</Z>
+		</POSITION>
+		<LOOKAT>
+			<X>0.50</X>
+			<Y>0.0</Y>
+			<Z>0.15</Z>
 		</LOOKAT>
 	</CAMERA>
 
