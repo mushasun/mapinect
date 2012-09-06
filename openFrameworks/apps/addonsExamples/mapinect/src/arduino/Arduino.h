@@ -24,6 +24,8 @@
 
 namespace mapinect
 {
+	class ICPThread;
+
 	class Arduino : public INotification
 	{
 	
@@ -41,7 +43,7 @@ namespace mapinect
 		void				reset();
 
 		ofVec3f				getKinect3dCoordinates();
-		ofVec3f				setArm3dCoordinates(const ofVec3f& position);
+		ofVec3f				setArm3dCoordinates(const ofVec3f& position, bool setArmStartedMoving);
 		ofVec3f				moveMotor(int motorId, signed int degrees);
 		ofVec3f				lookAt(const ofVec3f& point);
 		ofVec3f				lookingAt();
@@ -68,7 +70,7 @@ namespace mapinect
 		bool				isActive();
 		void				sendMotor(int value, int id);
 		ofVec3f				bestFitForArmSphere(const ofVec3f& point);
-		void				setArm3dCoordinates(float x, float y, float z);
+		void				setArm3dCoordinates(float x, float y, float z, bool setArmStartedMoving);
 
 		ofSerial			serial;
 		signed int			angleMotor1;
@@ -90,7 +92,7 @@ namespace mapinect
 		void				armStartedMoving();
 		void				armStoppedMoving();
 
-		ICPThread			icpThread;
+		ICPThread*			icpThread;
 
 		void				loadXMLSettings();
 

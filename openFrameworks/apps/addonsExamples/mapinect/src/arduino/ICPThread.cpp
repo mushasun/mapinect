@@ -30,8 +30,10 @@ namespace mapinect {
 		icpMutex.unlock();
 	}
 
-	void ICPThread::setup() {
+	void ICPThread::setup(Arduino* arduino) {
 		reset();
+
+		this->arduino = arduino;
 
 		startThread(true, false);
 	}
@@ -98,6 +100,13 @@ namespace mapinect {
 		float optimalAngleThreshold = 2;		// Tolerancia de angulo para la normal de la nueva mesa detectada = 2 grados
 		float optimalPlaneDistance = 0.005;		// Tolerancia de distancia entre el plano de la mesa del modelo y la detectada = 0.5 cms
 		bool isTableWellEstimated = findNewTablePlane(afterMoving, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
+		if (planeCloud->size() <= 0) 
+		{
+			cout << "No se pudo detectar la mesa" << endl;
+			this->arduino->reset();
+			return;
+		}
+
 		if (!isTableWellEstimated) 
 		{
 			ICPneeded = true;
@@ -129,12 +138,16 @@ namespace mapinect {
 		// 3 - Re detectar la mesa
 		bool tableDetected = detectNewTable(afterMoving, coefficients, detectedTableCloud);		
 	
+		bool resetArm = false;
+
 		// 4 - Actualizar el modelo con la nueva mesa detectada. Se actualiza el plano de la mesa y los vértices.
 		if (tableDetected) 
 		{
 			cout << "Se detectó un nuevo plano de mesa" << endl;
 			// Ajustar el modelo de la mesa con el nuevo plano, y ajustar los vértices
 			Table::updateTablePlane(coefficients,detectedTableCloud);
+		} else {
+			resetArm = true;
 		}
 
 		// Una vez que se terminó de aplicar ICP y se actualizó la matriz de transformación, 
@@ -144,9 +157,20 @@ namespace mapinect {
 		// Además, se debe volver a dibujar en la ventana de mapping
 		gTransformation->setIsWorldTransformationStable(true);
 
+		if (resetArm)
+			this->arduino->reset();
 	}
 
 	bool ICPThread::findNewTablePlane(const PCPtr& cloud, float maxAngleThreshold, float maxDistance, pcl::ModelCoefficients& coefficients, PCPtr& planeCloud) {
+		if (gModel->getTable() == NULL)
+		{
+			cout << "El modelo no tiene una mesa seteada" << endl;
+			return false;
+		} else if (cloud == NULL) {
+			cout << "La nube pasada al findNewTablePlane es vacía" << endl;
+			return false;
+		}
+
 		ofVec3f tableNormal = gModel->getTable()->getNormal();
 		ofVec3f tableCentroid = gModel->getTable()->getCenter();
 		Plane3D tablePlane(gModel->getTable()->getCoefficients());

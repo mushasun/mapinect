@@ -42,6 +42,7 @@ namespace mapinect {
 		virtual void			followObject(const IObjectPtr& ) = 0;
 		virtual void			stopFollowing() = 0;
 		virtual ofVec3f			setArm3dCoordinates(const ofVec3f& ) = 0;
+		virtual ofVec3f			setArmPositionAndLookAt(const ofVec3f& position, const ofVec3f& target) = 0;
 
 	};
 }

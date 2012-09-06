@@ -26,6 +26,7 @@ namespace mapinect {
 		ofVec3f			getKinect3dCoordinates();
 		ofVec3f			moveMotor(int motorId, signed int degrees);
 		void			stopFollowing();
+		ofVec3f			setArmPositionAndLookAt(const ofVec3f& position, const ofVec3f& target);
 
 	private:
 		map<int, int>	jointIdMapping;
