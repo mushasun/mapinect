@@ -17,7 +17,7 @@ namespace mapinect {
 
 		//IArmController Methods
 		bool			isReachable(const ofVec3f& eye, ofVec3f& bestFit);
-		ofVec3f			lookAt(const ofVec3f& eye, const ofVec3f& target, ofVec3f& bestFit);
+		ofVec3f			lookAt(const ofVec3f& target);
 		inline ofVec3f	getEye()		{ return eye; }
 		inline ofVec3f	getTarget()		{ return target; }
 		int				getJointRotation(int jointId);

@@ -13,7 +13,7 @@ namespace mapinect {
 		return true;
 	}
 
-	ofVec3f ArmController::lookAt(const ofVec3f& eye, const ofVec3f& target, ofVec3f& bestFit)
+	ofVec3f ArmController::lookAt(const ofVec3f& target)
 	{
 		return arduino->lookAt(target);
 	}
