@@ -3,4 +3,34 @@
 	<HOUSE_GARDEN_1_TIME>10</HOUSE_GARDEN_1_TIME>
 	<MENU_LIVE_TIME>5</MENU_LIVE_TIME>
 	<MENU_RADIUS>0.08</MENU_RADIUS>
+
+	<CANT_CAMERAS>2</CANT_CAMERAS>
+	
+	<CAMERA>
+		<POSITION>
+			<X>1.0</X>
+			<Y>1.0</Y>
+			<Z>1.0</Z>
+		</POSITION>
+		<LOOKAT>
+			<X>2.0</X>
+			<Y>3.0</Y>
+			<Z>3.0</Z>
+		</LOOKAT>
+	</CAMERA>
+
+	<CAMERA>
+		<POSITION>
+			<X>2.0</X>
+			<Y>3.0</Y>
+			<Z>3.0</Z>
+		</POSITION>
+		<LOOKAT>
+			<X>2.0</X>
+			<Y>3.0</Y>
+			<Z>3.0</Z>
+		</LOOKAT>
+	</CAMERA>
+
+	
 </StoryConfig>

@@ -318,4 +318,18 @@ namespace story {
 			it->second = touchPoint;
 		}
 	}
+
+	void Story::setCamera(int camera)
+	{
+		if (camera > StoryConstants::CANT_CAMERAS) 
+		{
+			cout << "No existe la cámara número: " << camera << endl;
+			return;
+		}
+
+		Camera cam = StoryConstants::CAMERAS.at(camera - 1);
+		this->armController->setArm3dCoordinates(cam.position);
+		this->armController->lookAt(cam.lookAt);	// Este método retorna además la dirección hacia la que quedó mirando efectivamente
+	}
+
 }
