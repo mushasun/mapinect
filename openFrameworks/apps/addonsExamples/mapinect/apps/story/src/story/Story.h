@@ -48,6 +48,8 @@ namespace story
 		virtual void buttonReleased(const IButtonPtr&, const DataTouch&);
 		virtual void pointTouched(const DataTouch&);
 
+		void setCamera(int camera);
+
 	private:
 		std::map<int, Box*>			boxes;
 		std::map<int, Box*>			houses;
