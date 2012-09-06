@@ -84,7 +84,6 @@ namespace mapinect {
 					const float rotationLimit = 1.0f;
 
 					float scale = currentLine.segmentLength() / resizeLineBase.segmentLength();
-					cout << "scale: " << scale << endl;
 					const int sAxisIx = 0;
 					const int tAxisIx = 3;
 					const float scaleLimit = 1.0f;

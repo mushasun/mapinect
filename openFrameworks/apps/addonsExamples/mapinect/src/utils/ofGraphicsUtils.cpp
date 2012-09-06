@@ -1,4 +1,6 @@
 #include "ofGraphicsUtils.h"
+#include "pointUtils.h"
+#include "transformationUtils.h"
 
 #include <assert.h>
 
@@ -45,4 +47,21 @@ vector<ofVec2f> ofTexCoordsFor(float sEnd, float tEnd, float sBegin, float tBegi
 	result.push_back(ofVec2f(sBegin, tBegin));
 	
 	return result;
+}
+
+void ofDrawCircle(const ofVec3f& center, float radius)
+{
+	ofVec3f eye = PCXYZ_OFVEC3F(eyePos());
+	ofVec3f dir = eye - center;
+	ofVec3f yAxis (0,1,0);
+	ofVec3f xAxis (1,0,0);
+	ofVec3f rotationAxis = dir.crossed(yAxis);
+	glPushMatrix();
+	glTranslatef(center.x,center.y,center.z);
+	glRotatef(dir.angle(yAxis),rotationAxis.x,rotationAxis.y,rotationAxis.z);
+	rotationAxis = dir.crossed(xAxis);
+	glRotatef(dir.angle(xAxis),rotationAxis.x,rotationAxis.y,rotationAxis.z);
+	ofCircle(0,0,0,radius);
+	glPopMatrix();
+	
 }

@@ -299,7 +299,7 @@ namespace mapinect {
 							{
 								PCPtr cloudCluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
 								ofVec3f touchPoint(computeCentroid(cloudCluster));
-								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
+								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, i->first->getMathModel().project(touchPoint))));
 							}
 						}
 						else
@@ -314,7 +314,7 @@ namespace mapinect {
 							for (vector<vector<ofVec3f> >::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
 							{
 								ofVec3f touchPoint(computeCentroid(*it));
-								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, touchPoint)));
+								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, i->first->getMathModel().project(touchPoint))));
 							}
 						}
 					}
@@ -322,7 +322,7 @@ namespace mapinect {
 					{
 						for (vector<ofVec3f>::const_iterator v = i->second.begin(); v != i->second.end(); ++v)
 						{
-							newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, *v)));
+							newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, i->first->getMathModel().project(*v))));
 						}
 					}
 				}

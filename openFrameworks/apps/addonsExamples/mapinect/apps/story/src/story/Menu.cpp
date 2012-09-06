@@ -11,22 +11,6 @@
 
 namespace story
 {
-	/*ofImage* Menu::imgStreetButton = NULL;
-	ofImage* Menu::imgRiverButton = NULL;
-	ofImage* Menu::imgPowerPlantButton = NULL;
-	ofImage* Menu::imgWaterPlantButton = NULL;
-	ofImage* Menu::imgHouseButton = NULL;
-	ofImage* Menu::imgStreetButtonOn = NULL;
-	ofImage* Menu::imgRiverButtonOn = NULL;
-	ofImage* Menu::imgPowerPlantButtonOn = NULL;
-	ofImage* Menu::imgWaterPlantButtonOn = NULL;
-	ofImage* Menu::imgHouseButtonOn = NULL;
-	ofImage* Menu::imgFire = NULL;
-	ofImage* Menu::imgFireOn = NULL;
-
-	ofImage* Menu::imgOkButtonOn = NULL;
-	ofImage* Menu::imgOkButton = NULL;*/
-	
 	ofImage** Menu::buttonTextures = NULL;
 	const int kTexturesPerButton = 2;
 	ofSoundPlayer*	Menu::ding = NULL;
@@ -53,16 +37,15 @@ namespace story
 	/*-------------------------------------------------------------*/
 	Menu::~Menu()
 	{
-		/*delete(imgStreetButton);
-		delete(imgStreetButtonOn);
-		delete(imgRiverButton);
-		delete(imgRiverButtonOn);
-		delete(imgPowerPlantButton);
-		delete(imgPowerPlantButtonOn);
-		delete(imgWaterPlantButton);
-		delete(imgWaterPlantButtonOn);
-		delete(imgHouseButton);
-		delete(imgHouseButtonOn);*/
+		if (buttonTextures != NULL)
+		{
+			for (int i = 0; i < kTexturesPerButton * BUTTON_COUNT; i++)
+			{
+				delete buttonTextures[i];
+			}
+			delete buttonTextures;
+			buttonTextures = NULL;
+		}
 	}
 
 	/* Events */
@@ -171,8 +154,6 @@ namespace story
 			ofVec3f xAxis = (table.project(ofVec3f(1,0,0))- begin).getNormalized();
 			ofVec3f zAxis = yAxis.crossed(xAxis).getNormalized();
 
-			cout << "y.x: " << yAxis.dot(xAxis) << endl; 
-			cout << "y.z: " << yAxis.dot(zAxis) << endl; 
 			Eigen::Vector3f yEigenAxis(yAxis.x,yAxis.y,yAxis.z);
 			float angle = 0;
 			float step = TWO_PI / BUTTON_COUNT;
@@ -248,23 +229,6 @@ namespace story
 	/*-------------------------------------------------------------*/
 	void Menu::loadTextures()
 	{
-		/*imgStreetButton = new ofImage("data/texturas/menu/road.jpg");
-		imgRiverButton = new ofImage("data/texturas/menu/river.jpg");
-		imgPowerPlantButton = new ofImage("data/texturas/menu/power.jpg");
-		imgWaterPlantButton = new ofImage("data/texturas/menu/water.jpg");
-		imgHouseButton = new ofImage("data/texturas/menu/house.jpg");
-		imgOkButton = new ofImage("data/texturas/menu/ok.png");
-
-		imgStreetButtonOn = new ofImage("data/texturas/menu/roadOn.jpg");
-		imgRiverButtonOn = new ofImage("data/texturas/menu/riverOn.jpg");
-		imgPowerPlantButtonOn = new ofImage("data/texturas/menu/powerOn.jpg");
-		imgWaterPlantButtonOn = new ofImage("data/texturas/menu/waterOn.jpg");
-		imgHouseButtonOn = new ofImage("data/texturas/menu/houseOn.jpg");
-		imgOkButtonOn = new ofImage("data/texturas/menu/okOn.png");
-
-		imgFire = new ofImage("data/texturas/menu/fire.png");
-		imgFireOn = new ofImage("data/texturas/menu/fireOn.png");*/
-
 		if (buttonTextures == NULL)
 		{
 			buttonTextures = new ofImage* [BUTTON_COUNT * kTexturesPerButton];
@@ -291,8 +255,6 @@ namespace story
 
 		}
 	}
-
-	
 
 	/* Sounds */
 	/*-------------------------------------------------------------*/

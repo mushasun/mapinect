@@ -109,6 +109,7 @@ namespace mapinect {
 	{
 		vector<ofVec3f> vertexs;
 		IPolygonPtr pol = obj->getPolygon(face);
+		Polygon3D poly = obj->getPolygon(face)->getMathModel();
 		ofVec3f v1 = pol->getMathModel().getVertexs().at(1);
 		ofVec3f v2 = pol->getMathModel().getVertexs().at(2);
 		ofVec3f faceNorm = pol->getMathModel().getPlane().getNormal();
@@ -120,16 +121,14 @@ namespace mapinect {
 
 		v2 = v1 + normV1V2 * width;
 
-		ofVec3f zModifier = faceNorm * ZINDEX_MULT;
-		zModifier *= zIndex;
+		ofVec3f zModifier = norm.getCrossed(normV1V2) * ZINDEX_MULT;
 
-		vertexs.push_back((v1 + norm * height) + zModifier);
+		vertexs.push_back(v1 + norm * height + zModifier);
 		vertexs.push_back(v1 + zModifier);
 		vertexs.push_back(v2 + zModifier);
 		vertexs.push_back((v2 + norm * height) + zModifier);
 		
-
-		polygon = Polygon3D(vertexs);
+		this->polygon = Polygon3D(vertexs);
 	}
 
 	//--------------------------------------------------------------
@@ -219,7 +218,7 @@ namespace mapinect {
 			ofSetColor(kRGBWhite);
 			ofImage* tex = isPressed() ? pressedTexture : idleTexture;
 			tex->bind();
-			ofDrawQuadTextured(pol.getVertexs(), texCoords);
+			ofDrawQuadTextured(pol.getVertexs(), ofTexCoordsFor());
 			tex->unbind();
 		}
 		else if (mode == kButtonDrawModePlain)
@@ -253,6 +252,7 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	bool ObjectButton::checkInFace(const DataTouch& touch, const IObjectPtr& object)
 	{
+	
 		if(object->getId() == obj->getId())
 		{
 			bool sameFace = face == touch.getPolygon()->getName();
@@ -260,15 +260,16 @@ namespace mapinect {
 			if(sameFace)
 			{
 				if(calculatedPolygon)
+				{
 					return polygon.isInPolygon(touch.getTouchPoint());
+				}
 				else
+				{
 					return true;
+				}
 			}
-			else
-				return false;
 		}
-		else
-			return false;
+		return false;
 	}
 
 	//--------------------------------------------------------------

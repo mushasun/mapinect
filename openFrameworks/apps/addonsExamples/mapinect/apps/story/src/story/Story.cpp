@@ -5,6 +5,7 @@
 #include "River.h"
 #include "Road.h"
 #include "StoryConstants.h"
+#include "ofGraphicsUtils.h"
 #include "Buildings/bomberos.h"
 
 
@@ -67,7 +68,7 @@ namespace story {
 			else
 				ofSetHexColor(0x0000FF);
 			ofVec3f s = it->second.getTouchPoint();
-			ofCircle(s.x, s.y, s.z, 0.01);
+			ofDrawCircle(s, 0.01);
 		}
 	}
 
@@ -125,7 +126,6 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::keyPressed(int key)
 	{
-		cout << "key pressed" << endl;
 		switch(key)
 		{
 			case 'c':
