@@ -4,16 +4,19 @@
 #include "mapinectTypes.h"
 #include "ofThread.h"
 #include "ofxMutex.h"
+#include "Arduino.h"
 
 namespace mapinect
 {
+	class Arduino;
+
 	class ICPThread : ofThread
 	{
 	public:
 		ICPThread();
 
 		void						reset();
-		void						setup();
+		void						setup(Arduino* arduino);
 		void						exit();
 		virtual void				threadedFunction();
 
@@ -38,6 +41,8 @@ namespace mapinect
 
 		// Re detectar mesa usando el extractBiggestPlane
 		bool						detectNewTable(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& planeCloud);
+
+		Arduino*					arduino;
 
 	};
 }

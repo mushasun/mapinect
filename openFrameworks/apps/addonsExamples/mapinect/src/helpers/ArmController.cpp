@@ -35,7 +35,7 @@ namespace mapinect {
 
 	ofVec3f	ArmController::setArm3dCoordinates(const ofVec3f& position)
 	{
-		return arduino->setArm3dCoordinates(position);
+		return arduino->setArm3dCoordinates(position, true);
 	}
 
 	void ArmController::stopFollowing()
@@ -47,4 +47,12 @@ namespace mapinect {
 	{
 		return arduino->moveMotor(motorId, degrees);
 	}
+
+	ofVec3f	ArmController::setArmPositionAndLookAt(const ofVec3f& position, const ofVec3f& target)
+	{
+		ofVec3f pos = arduino->setArm3dCoordinates(position,false);
+		arduino->lookAt(target);
+		return pos;
+	}
+
 }

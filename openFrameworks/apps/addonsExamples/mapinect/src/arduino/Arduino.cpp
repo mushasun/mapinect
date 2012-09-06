@@ -68,6 +68,8 @@ namespace mapinect {
 		stoppedMoving = true;
 		startedMoving = false;
 		isMoving = false;
+
+		icpThread = new ICPThread();
 	}
 
 	Arduino::~Arduino()
@@ -81,7 +83,7 @@ namespace mapinect {
 	{
 		CHECK_ACTIVE true;
 
-		icpThread.setup();
+		icpThread->setup(this);
 
 		loadXMLSettings();
 
@@ -133,7 +135,7 @@ namespace mapinect {
 			serial.close();
 		}
 
-		icpThread.exit();
+		icpThread->exit();
 	}
 
 	void Arduino::update() {
@@ -194,7 +196,7 @@ namespace mapinect {
 					cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
 					saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
 
-					icpThread.applyICP(cloudBeforeMoving,cloudAfterMoving,ICP_MAX_ITERATIONS);
+					icpThread->applyICP(cloudBeforeMoving,cloudAfterMoving,ICP_MAX_ITERATIONS);
 				} else {
 					//	Libero el mutex para que puedan invocar al método getCloud
 					gTransformation->cloudMutex.unlock();
@@ -354,7 +356,7 @@ namespace mapinect {
 		return gTransformation->getKinectEyeCoordinates();
 	}
 
-	void Arduino::setArm3dCoordinates(float x, float y, float z)
+	void Arduino::setArm3dCoordinates(float x, float y, float z, bool setArmStartedMoving)
 	{
 		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
 		//		en coordenadas de mundo
@@ -385,7 +387,8 @@ namespace mapinect {
 
 		if (IsFeatureMoveArmActive()) {
 			if (gTransformation->getIsWorldTransformationStable()) {
-				armStartedMoving();	
+				if (setArmStartedMoving)
+					armStartedMoving();	
 			} else {
 				posicion = getKinect3dCoordinates();
 				return;
@@ -404,13 +407,13 @@ namespace mapinect {
 		posicion = getKinect3dCoordinates(); //ofVec3f(x, y, z);
 	}
 
-	ofVec3f Arduino::setArm3dCoordinates(const ofVec3f& position)
+	ofVec3f Arduino::setArm3dCoordinates(const ofVec3f& position, bool setArmStartedMoving)
 	{
 		// Setear las coordenadas de la posición donde estará el motor8 (el de más abajo del Kinect)
 		// en coordenadas de mundo
 		// wrapper para posicionar desde un ofVec3f
 		ofVec3f bestFit = bestFitForArmSphere(position);
-		setArm3dCoordinates(bestFit.x, bestFit.y, bestFit.z);
+		setArm3dCoordinates(bestFit.x, bestFit.y, bestFit.z, setArmStartedMoving);
 		return bestFit;
 	}
 
