@@ -20,7 +20,7 @@ namespace visualizer {
 	{
 		floorTexture->bind();
 
-		ofDrawQuadTextured(modelObject->getMathModel().getVertexs(), ofTexCoordsFor(*floorTexture));
+		ofDrawQuadTextured(modelObject->getMathModel().getVertexs(), ofTexCoordsFor());
 
 		floorTexture->unbind();
 	}

@@ -134,5 +134,6 @@ SORT_ON_PROP(T, YAsc, y, <)
 SORT_ON_PROP(T, YDesc, y, >)
 SORT_ON_PROP(T, ZAsc, z, <)
 SORT_ON_PROP(T, ZDesc, z, >)
+SORT_ON_PROP(T, DistAsc, dist, <)
 
 #endif	// OFVEC_UTILS_H__

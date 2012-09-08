@@ -461,22 +461,40 @@ float boxProbability(const PCPtr& cloud)
 				cloudP = cloudTemp;
 		
 			ofVec3f norm (coefficients->values[0],coefficients->values[1],coefficients->values[2]);
+			norm.normalize();
 			//Chequeo que las normales sean perpendiculares entre si y paraleas o perpendiculares a la mesa.
 			if(table != NULL)
 			{
 				float dot = abs(tableNormal.dot(norm));
 				if( dot > 0.2 && dot < 0.8)
+				{
+					cout << "ni paralela ni perpendicular" << endl;
+					cout << "dot: " << dot << endl;
+					cout << norm.x << ", " << norm.y << ", " << norm.z << endl;
 					return 0;
+				}
 				//si es paralela a la mesa, chequeo que esté sobre la mesa
 				if(dot > 0.8)
+				{
 					if(!table->isOverTable(cloudP))
+					{
+						cout << "noot over table" << endl;
 						return 0;
+					}
+				}
 			}
 			for(int i = 0; i < normals.size(); i++)
 			{
 				float dot = abs(normals[i].dot(norm));
 				if( dot > 0.2)
+				{
+					cout << "dot: " << dot << endl;
+					cout << norm.x << ", " << norm.y << ", " << norm.z << endl;
+					cout << normals[i].x << ", " << normals[i].y << ", " << normals[i].z << endl;
+					
+					cout << "mal entre si" << endl;
 					return 0;
+				}
 			}
 
 			normals.push_back(norm);

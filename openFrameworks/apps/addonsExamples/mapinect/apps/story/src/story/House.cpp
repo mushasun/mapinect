@@ -234,15 +234,15 @@ namespace story
 	/*-------------------------------------------------------------*/
 	void House::loadTextures()
 	{
-			txHouseTop = new ofImage("data/texturas/house/top.jpg");
-			txHouseSide = new ofImage("data/texturas/house/Side.jpg");
-			txHouseSideWindowOn = new ofImage("data/texturas/house/SideWindowOn.jpg");
-			txHouseSideWindowOff = new ofImage("data/texturas/house/SideWindowOff.jpg");
+			txHouseTop = new ofImage("data/texturas/house/top.png");
+			txHouseSide = new ofImage("data/texturas/house/Side.png");
+			txHouseSideWindowOn = new ofImage("data/texturas/house/SideWindowOn.png");
+			txHouseSideWindowOff = new ofImage("data/texturas/house/SideWindowOff.png");
 			txHouseDoorBellOn = new ofImage("data/texturas/house/DoorBellOn.png");
 			txHouseDoorBellOff = new ofImage("data/texturas/house/DoorBellOff.png");
 			txLightSwitchOn = new ofImage("data/texturas/house/LightSwitchOn.png");
 			txLightSwitchOff = new ofImage("data/texturas/house/LightSwitchOff.png");
-			txHouseDoor = new ofImage("data/texturas/house/Door.jpg");
+			txHouseDoor = new ofImage("data/texturas/house/Door.png");
 			txHouseGarden1 = new ofImage("data/texturas/house/garden1.jpg");
 			txHouseGarden2 = new ofImage("data/texturas/house/garden2.jpg");
 			txHouseGarden3 = new ofImage("data/texturas/house/garden3.jpg");
