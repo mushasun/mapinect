@@ -63,7 +63,7 @@ namespace mapinect
 	Line3D Plane3D::intersection(const Plane3D& otherPlane) const
 	{
 		// http://paulbourke.net/geometry/planeplane/
-		
+		// TODO: Revisar este metodo, parece que esta mal
 		float dot = normal.dot(otherPlane.getNormal());
 		if (fabsf(dot) < MATH_EPSILON)
 			return Line3D(BAD_OFVEC3F, BAD_OFVEC3F);
@@ -91,10 +91,9 @@ namespace mapinect
 		ofVec3f c3 = otherPlane2.d * (otherPlane1.normal.getCrossed(normal));
 
 		ofVec3f pto(c1 + c2 + c3);
-		pto *= den;
+		pto *= 1/den;
 
 		return pto;
-
 	}
 
 	ofVec3f Plane3D::intersection(const Line3D& line) const

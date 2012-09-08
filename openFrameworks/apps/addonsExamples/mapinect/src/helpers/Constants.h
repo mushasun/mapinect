@@ -26,6 +26,7 @@ namespace mapinect
 
 		static float				OBJECT_CLUSTER_MIN_PERCENT;
 		static float				OBJECT_CLUSTER_TOLERANCE_FACTOR;
+		static float				OBJECT_PLANE_TOLERANCE_FACTOR;
 
 	public:
 		static int					OBJECT_FRAMES_TO_ACCEPT;
@@ -62,6 +63,7 @@ namespace mapinect
 
 		static int					OBJECT_CLUSTER_MIN_SIZE();
 		static float				OBJECT_CLUSTER_TOLERANCE();
+		static float				OBJECT_PLANE_TOLERANCE();
 
 		static float				OBJECT_VERTEX_UNIFYING_DISTANCE();
 		static float				OBJECT_RECALCULATE_TOLERANCE();

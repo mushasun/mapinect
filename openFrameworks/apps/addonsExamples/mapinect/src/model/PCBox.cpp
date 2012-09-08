@@ -67,6 +67,8 @@ namespace mapinect {
 	
 	// ------------------------------------------------------------------------------
 	void PCBox::unifyVertexs() {
+	/*	PCPolyhedron::unifyVertexs();
+		return;*/
 
 		if(getMissing(pcpolygons).size() > 0)
 		{
@@ -112,7 +114,13 @@ namespace mapinect {
 					Plane3D plane0(p0->getPolygonModelObject()->getMathModel().getPlane());
 					Plane3D plane1(p1->getPolygonModelObject()->getMathModel().getPlane());
 					Plane3D plane2(p2->getPolygonModelObject()->getMathModel().getPlane());
-					ofVec3f vertex = plane0.intersection(plane1, plane2);
+					
+					
+					ofVec3f vertex = plane0.intersection(plane1,plane2);
+
+					/*cout << "dist-0:" << plane0.distance(vertex) << endl;
+					cout << "dist-1:" << plane1.distance(vertex) << endl;
+					cout << "dist-2:" << plane2.distance(vertex) << endl;*/
 
 					tempVertexs[vertexNames[i][0]][vertexIdx[i][0]] = vertex;
 					tempVertexs[vertexNames[i][1]][vertexIdx[i][1]] = vertex;
@@ -120,10 +128,14 @@ namespace mapinect {
 
 					vertexs.push_back(vertex);
 					//DEBUG
-					/*saveCloudAsFile("vmerged" + ofToString(i) + ".pcd", vertex);
-					saveCloudAsFile("merged" + ofToString(i) + "1.pcd", *p0->getCloud());
-					saveCloudAsFile("merged" + ofToString(i) + "2.pcd", *p1->getCloud());
-					saveCloudAsFile("merged" + ofToString(i) + "3.pcd", *p2->getCloud());*/
+					saveCloud("vmerged" + ofToString(i) + ".pcd", vertex);
+					saveCloud("merged" + ofToString(i) + "1.pcd", *p0->getCloud());
+					saveCloud("mergedProj" + ofToString(i) + "1.pcd", *projectPointsInPlane(p0->getCloud(),p0->getPolygonModelObject()->getMathModel().getPlane().getCoefficients()));
+					saveCloud("merged" + ofToString(i) + "2.pcd", *p1->getCloud());
+					saveCloud("mergedProj" + ofToString(i) + "2.pcd", *projectPointsInPlane(p1->getCloud(),p1->getPolygonModelObject()->getMathModel().getPlane().getCoefficients()));
+					saveCloud("merged" + ofToString(i) + "3.pcd", *p2->getCloud());
+					saveCloud("mergedProj" + ofToString(i) + "3.pcd", *projectPointsInPlane(p2->getCloud(),p2->getPolygonModelObject()->getMathModel().getPlane().getCoefficients()));
+					
 
 				}
 			}
@@ -316,7 +328,7 @@ namespace mapinect {
 				{
 					if(IsFeatureMoveArmActive())
 					{
-						cout << "acctivo" << endl;
+						//cout << "acctivo" << endl;
 						nextVec = transformVector(nextVec, gTransformation->getInverseWorldTransformation());
 						prevVec = transformVector(prevVec, gTransformation->getInverseWorldTransformation());
 					}
@@ -460,6 +472,9 @@ namespace mapinect {
 						break;
 				}
 			}
+
+			//Corrijo normales?
+
 			measures = measureBox();
 			
 
@@ -469,6 +484,7 @@ namespace mapinect {
 			fullEstimation = isvalid;
 			if(fullEstimation)
 				cout << "+++++++++++++++++ full estimation +++++++++++++++" << endl;
+
 
 		}
 		else
@@ -734,12 +750,37 @@ namespace mapinect {
 			ofVec3f traslation;
 			
 			if(polFatherName == kPolygonNameTop || polFatherName == kPolygonNameBottom)
+			{
+				/*ofVec3f n1 = getPCPolygon(kPolygonNameSideA,estimated)->getNormal();
+				ofVec3f n2 = getPCPolygon(kPolygonNameSideB,estimated)->getNormal();
+				normal = n1.crossed(n2);
+				
+				if(polFatherName == kPolygonNameBottom)
+					normal *= -1;
+*/
 				traslation = normal * (-measures.y); 
+			}
 			else if(polFatherName == kPolygonNameSideA || polFatherName == kPolygonNameSideC)
+			{
+				/*ofVec3f n1 = getPCPolygon(kPolygonNameTop,estimated)->getNormal();
+				ofVec3f n2 = getPCPolygon(kPolygonNameSideB,estimated)->getNormal();
+				normal = n1.crossed(n2);
+				
+				if(polFatherName == kPolygonNameSideA)
+					normal *= -1;
+*/
 				traslation = normal * (-measures.z); 
+			}
 			else if(polFatherName == kPolygonNameSideB || polFatherName == kPolygonNameSideD)
+			{
+				/*ofVec3f n1 = getPCPolygon(kPolygonNameTop,estimated)->getNormal();
+				ofVec3f n2 = getPCPolygon(kPolygonNameSideA,estimated)->getNormal();
+				normal = n1.crossed(n2);
+				
+				if(polFatherName == kPolygonNameSideD)
+					normal *= -1;*/
 				traslation = normal * (-measures.x); 
-
+			}
 			Eigen::Transform<float,3,Eigen::Affine> transformation;
 			transformation = Eigen::Translation<float,3>(traslation.x, traslation.y, traslation.z);
 
@@ -765,22 +806,44 @@ namespace mapinect {
 
 				vector<ofVec3f> vex = f1->getPolygonModelObject()->getMathModel().getVertexs();
 				
-				if(IsFeatureMoveArmActive())
-					vex = transformVector(vex, gTransformation->getInverseWorldTransformation());
+				
 
 				if(useTop)
 				{
+					if(IsFeatureMoveArmActive())
+					vex = transformVector(vex, gTransformation->getInverseWorldTransformation());
 					// Busco los 2 puntos con menor 'x'
-					sort(vex.begin(), vex.end(), sortOnXDesc<ofVec3f>);					
+					sort(vex.begin(), vex.end(), sortOnXDesc<ofVec3f>);		
+					if(IsFeatureMoveArmActive())
+					vex = transformVector(vex, gTransformation->getWorldTransformation());
 				}
 				else
 				{
 					// Busco los 2 puntos con menor 'y' 
-					sort(vex.begin(), vex.end(), sortOnYDesc<ofVec3f>);
+					//sort(vex.begin(), vex.end(), sortOnYDesc<ofVec3f>);
+
+					// Busco los 2 puntos más cercanos a la mesa
+					struct VertexDistance
+					{
+						VertexDistance(ofVec3f vec, float dist) : vec(vec), dist(dist) { }
+						ofVec3f	vec;
+						float	dist;
+					};
+					gModel->tableMutex.lock();
+					Plane3D tPlane = gModel->getTable()->getMathModelApproximation()->getPolygons().at(0)->getMathModel().getPlane();
+					gModel->tableMutex.unlock();
+
+					vector<VertexDistance> closerToTable;
+					for(int i = 0; i < vex.size(); i++)
+						closerToTable.push_back(VertexDistance(vex.at(i),tPlane.distance(vex.at(i))));
+
+					sort(closerToTable.begin(),closerToTable.end(),sortOnDistAsc<VertexDistance>);
+					vex.clear();
+					vex.push_back(closerToTable.at(0).vec);
+					vex.push_back(closerToTable.at(1).vec);
 				}
 				
-				if(IsFeatureMoveArmActive())
-					vex = transformVector(vex, gTransformation->getWorldTransformation());
+				
 
 				ofVec3f min1 = vex.at(0);
 				ofVec3f min2 = vex.at(1);
@@ -799,10 +862,21 @@ namespace mapinect {
 			{
 				gModel->tableMutex.lock();
 				gModel->getTable()->getCoefficients();
+				float dist =  gModel->getTable()->getMathModelApproximation()->getPolygons().at(0)->getMathModel().distance(polygon->getCenter());
+				gModel->tableMutex.unlock();
+
+				normal = polygon->getNormal();
+				ofVec3f traslation = normal * (-dist); 
+				Eigen::Transform<float,3,Eigen::Affine> transformation;
+				transformation = Eigen::Translation<float,3>(traslation.x, traslation.y, traslation.z);
+				pcl::transformPointCloud(*cloudToMove,*cloudMoved,transformation);
+
+				/*gModel->tableMutex.lock();
+				gModel->getTable()->getCoefficients();
 				coeff =  gModel->getTable()->getCoefficients();
 				gModel->tableMutex.unlock();
 				normal = polygon->getNormal();
-				cloudMoved = projectPointsInPlane(cloudToMove, coeff);
+				cloudMoved = projectPointsInPlane(cloudToMove, coeff);*/
 			}
 
 			
@@ -825,6 +899,7 @@ namespace mapinect {
 		
 		saveCloud("estimated" + ofToString(estimatedPol->getPolygonModelObject()->getName()) + ".pcd", *estimatedPol->getCloud());
 		saveCloud("from" + ofToString(polygon->getPolygonModelObject()->getName()) + ".pcd", *polygon->getCloud());
+		saveCloud("fromVertex" + ofToString(polygon->getPolygonModelObject()->getName()) + ".pcd", polygon->getPolygonModelObject()->getMathModel().getVertexs());
 		
 
 		return estimatedPol;
@@ -845,7 +920,7 @@ namespace mapinect {
 	ofVec3f PCBox::measureBox()
 	{
 		float w,h,d;
-	//	cout << "Measures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+		//cout << "Measures of: " << sideA->getPolygonModelObject()->getName() << endl; 
 		vector<ofVec3f> sideAVex = getPCPolygon(kPolygonNameSideA, pcpolygons)->getPolygonModelObject()->getMathModel().getVertexs();
 		vector<ofVec3f> sideBVex = getPCPolygon(kPolygonNameSideB, pcpolygons)->getPolygonModelObject()->getMathModel().getVertexs();
 		w = abs((sideAVex.at(1) - sideAVex.at(2)).length());

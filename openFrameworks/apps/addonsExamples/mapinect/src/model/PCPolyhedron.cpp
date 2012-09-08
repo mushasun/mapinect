@@ -123,6 +123,8 @@ namespace mapinect {
 	
 	vector<PCPolygonPtr> PCPolyhedron::detectPolygons(const PCPtr& cloud, float planeTolerance, float pointsTolerance, bool limitFaces)
 	{
+		saveCloud("1_toDetect.pcd", *cloud);
+
 		PCPtr cloudTemp(cloud);
 		
 		float maxFaces = limitFaces ? MAX_FACES : 100;
@@ -188,7 +190,7 @@ namespace mapinect {
 
 			cloudTemp = cloudFilteredTempOutliers;
 
-			saveCloud("prefilter_pol" + ofToString(i) + ".pcd", *cloudP);
+			saveCloud("2_DetectedPol" + ofToString(i) + ".pcd", *cloudP);
 			
 			//Remove outliers by clustering	
 			vector<pcl::PointIndices> clusterIndices(findClusters(cloudP, 0.02, 10, 10000));
@@ -200,9 +202,11 @@ namespace mapinect {
 				cloudPFiltered = getCloudFromIndices(cloudP, clusterIndices.at(0));
 			}
 
-			saveCloud("postfilter_pol" + ofToString(i) + ".pcd",*cloudPFiltered);
+			saveCloud("3_Postfilter_pol" + ofToString(i) + ".pcd",*cloudPFiltered);
 			if (cloudPFiltered->size() < 4)
 				break;
+
+			//COrrijo las normales de los planos?
 
 			//proyecto los puntos sobre el plano
 			pcl::ProjectInliers<pcl::PointXYZ> proj; 
@@ -212,7 +216,7 @@ namespace mapinect {
 			proj.setModelCoefficients(coefficients); 
 			proj.filter(*projectedCloud);
 
-			saveCloud("postfilter_pol_proy" + ofToString(i) + ".pcd",*projectedCloud);
+			saveCloud("4_Proy_Pol" + ofToString(i) + ".pcd",*projectedCloud);
 
 			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projectedCloud));
 			pcp->detectPolygon();
@@ -251,7 +255,7 @@ namespace mapinect {
 		pcPolygonsMutex.lock();
 		saveCloud("detectPrimitives.pcd", *cloud);
 
-		vector<PCPolygonPtr> nuevos = detectPolygons(cloud); 
+		vector<PCPolygonPtr> nuevos = detectPolygons(cloud,Constants::OBJECT_PLANE_TOLERANCE()); 
 		nuevos = discardPolygonsOutOfBox(nuevos); 
 		namePolygons(nuevos);
 		bool estimationOk;
@@ -347,6 +351,8 @@ namespace mapinect {
 				}
 			}
 		}
+			saveCloud("UnifiedVertex.pcd", vertexs);
+
 	}
 
 	bool PCPolyhedron::findBestFit(const PCPolygonPtr& polygon, PCPolygonPtr& removed, bool& wasRemoved)
@@ -502,7 +508,7 @@ namespace mapinect {
 		vector<PCPolygonPtr> prevPcPolygons = pcpolygons;
 
 		//Detecto nuevas caras
-		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,0.003,2.6,false); 
+		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,Constants::OBJECT_PLANE_TOLERANCE(),2.6,false); 
 		
 		//Matching de las caras detectadas con las anteriores
 		nuevos = mergePolygons(nuevos);

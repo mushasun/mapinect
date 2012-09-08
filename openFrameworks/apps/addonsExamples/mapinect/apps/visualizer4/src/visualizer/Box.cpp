@@ -60,7 +60,7 @@ namespace visualizer {
 
 
 			}
-			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor(*barTexture));
+			ofDrawQuadTextured((*p)->getMathModel().getVertexs(), ofTexCoordsFor());
 
 
 			//static ofVec3f vA,vB,vC,vD;

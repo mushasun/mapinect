@@ -16,16 +16,15 @@ namespace mapinect {
 	bool PCQuadrilateral::detectPolygon() {
 		if(IsFeatureActive(FEATURE_RECTANGLE_VERTEX))
 		{
-			vector<ofVec3f> vertexs = findRectangle(cloud, coefficients);
-			
-			{
-				Polygon* p = getPolygonModelObject();
-				p->setVertexs(vertexs);
-				p->setCenter(computeCentroid(cloud));
-			}
+			saveCloud("QPrevvertexCloud" + ofToString(this->getId()) + ".pcd", *cloud);
 
-			/*saveCloudAsFile("vertex" + ofToString(this->getId()) + ".pcd", vertexs); 
-			saveCloudAsFile("vertexCloud" + ofToString(this->getId()) + ".pcd", *cloud); */
+			vector<ofVec3f> vertexs = findRectangle(cloud, coefficients);
+			Polygon* p = getPolygonModelObject();
+			p->setVertexs(vertexs);
+			p->setCenter(computeCentroid(cloud));
+
+			saveCloud("Qvertex" + ofToString(this->getId()) + ".pcd", vertexs); 
+			saveCloud("QvertexCloud" + ofToString(this->getId()) + ".pcd", *cloud);
 		}
 		else
 		{

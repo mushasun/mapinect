@@ -73,25 +73,7 @@ namespace visualizer {
 	//--------------------------------------------------------------
 	void VisualizerApp::debugDraw()
 	{
-		/*ofClear(0,0,0);
-		vis.draw(ofVec3f(0,0,0), ofVec3f(600,0,0),ofVec3f(600,600,0),ofVec3f(0,600,0));
-		return;*/
-		// Esto vamos a tener que sacarlo
-		map<int, DataTouch> keep;
-		for (map<int, DataTouch>::const_iterator it = touchPoints.begin(); it != touchPoints.end(); ++it)
-		{
-			if (it->second.getType() == kTouchTypeStarted)
-				ofSetHexColor(0xFF0000);
-			else if (it->second.getType() == kTouchTypeHolding)
-				ofSetHexColor(0x00FF00);
-			else
-				ofSetHexColor(0x0000FF);
-			ofVec2f s = getScreenCoords(it->second.getTouchPoint());
-			ofCircle(s.x, s.y, 4);
-			if (it->second.getType() != kTouchTypeReleased)
-				keep.insert(make_pair(it->first, it->second));
-		}
-		touchPoints = keep;
+
 	}
 
 	//--------------------------------------------------------------
@@ -289,7 +271,7 @@ namespace visualizer {
 				//				ofColor(255,255,0));
 
 				//Draggable 1
-				vector<ofVec3f> draggable2;
+				/*vector<ofVec3f> draggable2;
 				draggable2.push_back(pol.getVertexs()[1] + ((pol.getVertexs()[0] - pol.getVertexs()[1])/2));
 				draggable2.push_back(pol.getVertexs()[1]);
 				
@@ -301,7 +283,7 @@ namespace visualizer {
 								btnLyric,
 								btnLyric);
 
-				this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d2)));
+				this->btnManager->addButton(DraggableButtonPtr(new DraggableButton(d2)));*/
 			}
 		}
 		else
@@ -315,7 +297,7 @@ namespace visualizer {
 				{
 					//Load buttons
 					/*Button in floor of box*/
-					ObjectButton oButton1(object, kPolygonNameSideA, true, btnNext, btnNextOn,
+					/*ObjectButton oButton1(object, kPolygonNameSideA, true, btnNext, btnNextOn,
 											0.1,0.1,- 0.05 ,0.04);
 					this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton1)));
 
@@ -327,7 +309,7 @@ namespace visualizer {
 											0.05,0.05,0.25,0.04);
 					this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton3)));
 
-
+					*/
 					/*ObjectButton oButton4(object, kPolygonNameSideA, false, btnPrev, btnPrevOn,
 											0.05,0.05,0.1,0.04);
 					this->btnManager->addButton(ObjectButtonPtr(new ObjectButton(oButton3)));*/
