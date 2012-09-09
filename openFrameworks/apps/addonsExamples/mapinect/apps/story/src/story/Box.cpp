@@ -105,9 +105,9 @@ namespace story
 	{
 		object = ob;
 		fireSpriteA->setPolygon(object->getPolygon(kPolygonNameSideA)->getMathModel());
-		fireSpriteB->setPolygon(object->getPolygon(kPolygonNameSideA)->getMathModel());
-		fireSpriteC->setPolygon(object->getPolygon(kPolygonNameSideA)->getMathModel());
-		fireSpriteD->setPolygon(object->getPolygon(kPolygonNameSideA)->getMathModel());
+		fireSpriteB->setPolygon(object->getPolygon(kPolygonNameSideB)->getMathModel());
+		fireSpriteC->setPolygon(object->getPolygon(kPolygonNameSideC)->getMathModel());
+		fireSpriteD->setPolygon(object->getPolygon(kPolygonNameSideD)->getMathModel());
 	}
 
 	void Box::update(float elapsedTime)

@@ -956,10 +956,11 @@ namespace mapinect {
 		cout << "\td: " << newMeasure.z << endl;*/
 
 		const float OBJECT_MIN_VOLUME = 0.000125;
+		bool sizeValid = newMeasure.x < 0.4 && newMeasure.y < 0.4 && newMeasure.z < 0.4; 
 		bool volValid = newMeasure.x * newMeasure.y * newMeasure.z > OBJECT_MIN_VOLUME;
 		bool vertexValid = this->vertexs.size() == 8;
 		bool prevMeasureValid = (newMeasure - measures).length() < 0.05;
-		return vertexValid && prevMeasureValid && volValid;
+		return vertexValid && prevMeasureValid && volValid && sizeValid;
 	}
 
 	float PCBox::getVolume()

@@ -585,7 +585,7 @@ namespace mapinect {
 		{
 			float inVol = computeVolume(trimmedCloud);
 
-			if(getVolume() < inVol * 0.4)
+			if(getVolume() < inVol * Constants::OBJECT_VOLUME_TOLERANCE)
 			{
 				cout << "[   INVALID VOLUME    ]" << endl;
 				cout << "need: " << inVol * 0.6 << "  --- has: " << getVolume() << endl;

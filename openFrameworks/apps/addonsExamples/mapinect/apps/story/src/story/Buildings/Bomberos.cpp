@@ -120,10 +120,11 @@ namespace story
 	void Bomberos::associateTextures(const IObjectPtr& object)
 	{
 		Polygon3D sideA = object->getPolygon(kPolygonNameSideA)->getMathModel();
-		Polygon3D sideB = object->getPolygon(kPolygonNameSideA)->getMathModel();
+		Polygon3D sideB = object->getPolygon(kPolygonNameSideB)->getMathModel();
 		float aWidth = (sideA.getVertexs().at(1) - sideA.getVertexs().at(2)).length();
 		float bWidth = (sideB.getVertexs().at(1) - sideB.getVertexs().at(2)).length();
 
+		cout << "ladoA: " << aWidth << " - LadoB: " << bWidth <<endl;
 		textureA = aWidth > bWidth ? txTruckSide : txTruckFront;
 		textureB = aWidth > bWidth ? txTruckFront : txTruckSide;
 		textureC = aWidth > bWidth ? txTruckSide : txTruckBack;

@@ -121,7 +121,7 @@ namespace mapinect {
 
 		v2 = v1 + normV1V2 * width;
 
-		ofVec3f zModifier = norm.getCrossed(normV1V2) * ZINDEX_MULT;
+		ofVec3f zModifier = faceNorm * ZINDEX_MULT;
 
 		vertexs.push_back(v1 + norm * height + zModifier);
 		vertexs.push_back(v1 + zModifier);
