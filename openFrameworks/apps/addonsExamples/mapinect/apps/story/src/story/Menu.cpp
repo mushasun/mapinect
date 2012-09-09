@@ -31,7 +31,7 @@ namespace story
 	{
 		active = false;
 		inAction = false;
-		timeMenuShown = 0;
+		timeMenuShown = -1;
 	}
 
 	/*-------------------------------------------------------------*/
@@ -80,21 +80,21 @@ namespace story
 					StoryStatus::setProperty(WANT_TO_BURN, true);
 					break;
 				case CAMARA_1:
-					StoryStatus::setProperty(CAMERA_1, true);
+					StoryStatus::setProperty(SET_CAMERA_1, true);
 					break;
 				case CAMARA_2:
-					StoryStatus::setProperty(CAMERA_2, true);
+					StoryStatus::setProperty(SET_CAMERA_2, true);
 					break;
 				case CAMARA_3:
-					StoryStatus::setProperty(CAMERA_3, true);
+					StoryStatus::setProperty(SET_CAMERA_3, true);
 					break;
 			}
 			
 			ding->play();
 			if(action != FIRE &&
-				action != CAMERA_1 &&
-				action != CAMERA_2 &&
-				action != CAMERA_3)
+				action != CAMARA_1 &&
+				action != CAMARA_2 &&
+				action != CAMARA_3)
 			{
 				inAction = true;
 				removeMenu();
@@ -191,6 +191,11 @@ namespace story
 				angle += step;
 			}
 
+		}
+		else
+		{
+			cout << "No entra el menu:" << endl;
+			cout << (timeMenuShown <= 0) << !active << !inAction << endl;
 		}
 	}
 

@@ -108,20 +108,20 @@ namespace story {
 		{
 			it->second->update(elapsedTime);
 		}
-		if (StoryStatus::getProperty(CAMERA_1))
+		if (StoryStatus::getProperty(SET_CAMERA_1))
 		{
-			setCamera(1);
-			StoryStatus::setProperty(CAMERA_1,false);
+			//setCamera(1);
+			StoryStatus::setProperty(SET_CAMERA_1,false);
 		}
-		if (StoryStatus::getProperty(CAMERA_2))
+		if (StoryStatus::getProperty(SET_CAMERA_2))
 		{
-			setCamera(2);
-			StoryStatus::setProperty(CAMERA_2,false);
+			//setCamera(2);
+			StoryStatus::setProperty(SET_CAMERA_2,false);
 		}
-		if (StoryStatus::getProperty(CAMERA_3))
+		if (StoryStatus::getProperty(SET_CAMERA_3))
 		{
-			setCamera(3);
-			StoryStatus::setProperty(CAMERA_3,false);
+			//setCamera(3);
+			StoryStatus::setProperty(SET_CAMERA_3,false);
 		}
 
 	}
@@ -281,7 +281,6 @@ namespace story {
 				}
 				else
 				{
-					cout << "seleccione: " << touchedIdx->second->getBuildType() << endl;
 					selectedBoxIdx = touchedIdx;
 					ofVec3f spotCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(object->getCenter());
 					spotCenter.y -= 0.001f;
@@ -295,7 +294,6 @@ namespace story {
 			}
 			else if(selectedBoxIdx != touchedIdx)
 			{
-				cout << "mando evento a: " << touchedIdx->second->getBuildType() << endl;
 				touchedIdx->second->objectEvent(touchPoint,selectedBoxIdx->second->getBuildType());
 				selectedBoxIdx = boxes.end(); 
 				spot.setActive(false);
