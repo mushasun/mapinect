@@ -4,7 +4,7 @@
 	<MENU_LIVE_TIME>5</MENU_LIVE_TIME>
 	<MENU_RADIUS>0.085</MENU_RADIUS>
 
-	<CANT_CAMERAS>2</CANT_CAMERAS>
+	<CANT_CAMERAS>3</CANT_CAMERAS>
 	
 	<CAMERA>
 		<POSITION>
@@ -13,35 +13,35 @@
 			<Z>0.0</Z>
 		</POSITION>
 		<LOOKAT>
-			<X>0.50</X>
-			<Y>0.00</Y>
-			<Z>-0.10</Z>
+			<X>1.60</X>
+			<Y>0.30</Y>
+			<Z>0.00</Z>
 		</LOOKAT>
 	</CAMERA>
 
 	<CAMERA>
 		<POSITION>
-			<X>0.20</X>
-			<Y>0.0</Y>
-			<Z>-0.20</Z>
-		</POSITION>
-		<LOOKAT>
-			<X>0.50</X>
-			<Y>0.00</Y>
-			<Z>0.10</Z>
-		</LOOKAT>
-	</CAMERA>
-	
-	<CAMERA>
-		<POSITION>
 			<X>0.37</X>
 			<Y>0.0</Y>
 			<Z>0.0</Z>
 		</POSITION>
 		<LOOKAT>
-			<X>0.50</X>
+			<X>1.60</X>
+			<Y>0.30</Y>
+			<Z>-0.25</Z>
+		</LOOKAT>
+	</CAMERA>
+	
+	<CAMERA>
+		<POSITION>
+			<X>0.25</X>
 			<Y>0.0</Y>
-			<Z>0.15</Z>
+			<Z>0.25</Z>
+		</POSITION>
+		<LOOKAT>
+			<X>1.60</X>
+			<Y>0.30</Y>
+			<Z>0.00</Z>
 		</LOOKAT>
 	</CAMERA>
 
