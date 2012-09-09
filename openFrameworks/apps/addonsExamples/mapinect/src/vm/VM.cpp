@@ -14,7 +14,9 @@ namespace mapinect {
 	static float transX =   0;
 	static float transY =   0;
 	static float transZ =   0;		
-	static float rotYAxis = 0;
+	static float rotXAxis = 0;	
+	static float rotYAxis = 0;	
+	static float rotZAxis = 0;
 
 	static ofVec3f currentModelviewT(0,0,0);
 	static ofVec3f modelviewRight(0,0,0);
@@ -192,9 +194,11 @@ namespace mapinect {
 		glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			glTranslatef(transX,transY,transZ);
-			//		glRotatef(rotYAxis,0,1,0);
+			glRotatef(rotXAxis,1,0,0);
+			glRotatef(rotYAxis,0,1,0);
+			glRotatef(rotZAxis,0,0,1);
 			glScalef(1,-1,-1);											//3 - Pasar del sist. de coord. de nuestro modelo al de OpenGL (X,-Y,-Z)
-			glMultMatrixf(inv_proj_RT_premult);							//2 - Pasar de rgb-camera space al sistema de coord. del proyector
+			//glMultMatrixf(inv_proj_RT_premult);							//2 - Pasar de rgb-camera space al sistema de coord. del proyector
 			glMultMatrixf(kinect_matrix_RT);							//1 - Pasar de depth-camera space a rgb-camera space	
 			Eigen::Affine3f inverseWorldTransformationMatrix = gTransformation->getInverseWorldTransformation();
 			glMultMatrixf(inverseWorldTransformationMatrix.data()); //0 - Aplicar transformación de mundo real
@@ -247,9 +251,9 @@ namespace mapinect {
 	void VM::keyPressed(int key) {
 		CHECK_ACTIVE;
 				
-		float varProj = 2.0f;
-		float varTrans = 0.01f;
-
+		float varProj = 0.5f;
+		float varTrans = 0.001f;
+		float varRot = 0.01f; // in degrees
 		switch (key) {
 			/*********************
 				fy		++	= UP
@@ -341,6 +345,30 @@ namespace mapinect {
 				printf("Parameters saved to VM config file\n");
 				keyPressed('q');
 				break;
+			case 'z':
+				rotXAxis -= varRot;
+				printf("decreased rotation angle Axis X: %f \n",rotXAxis);
+				break;
+			case 'x':
+				rotXAxis += varRot;
+			printf("increased rotation angle Axis X: %f \n",rotXAxis);
+				break;
+			case 'c':
+				rotYAxis -= varRot;
+				printf("decreased rotation angle Axis Y: %f \n",rotYAxis);
+				break;
+			case 'v':
+				rotYAxis += varRot;
+				printf("increased rotation angle Axis Y: %f \n",rotYAxis);
+				break;
+			case 'b':
+				rotZAxis -= varRot;
+				printf("decreased rotation angle Axis Z: %f \n",rotZAxis);
+				break;
+			case 'n':
+				rotZAxis += varRot;
+				printf("increased rotation angle Axis Z: %f \n",rotZAxis);
+				break;
 
 			/*********************
 			  SHOW STATUS	 - q
@@ -350,15 +378,8 @@ namespace mapinect {
 				printf("	Modelview Trans [x,y,z] = (%.4f,%.4f,%.4f) \n",currentModelviewT.x, currentModelviewT.y, currentModelviewT.z);
 				printf("	Proj intrinsics [fx,fy,cx,cy] = (%.1f,%.1f,%.1f,%.1f) \n", proj_fx, proj_fy, proj_cx, proj_cy);
 				printf("	Model glTransl  [x,y,z] = (%.4f,%.4f,%.4f) \n", transX, transY, transZ);
+				printf("	Model glRotation	=	(%.2f,%.2f,%.2f) \n", rotXAxis, rotYAxis, rotZAxis);
 				break;
-		case 'o':
-			rotYAxis -= 0.5;
-			printf("decreased rotation angle Axis Y: %f \n",rotYAxis);
-			break;
-		case 'p': 
-			rotYAxis += 0.5;
-			printf("increased rotation angle Axis Y: %f \n",rotYAxis);
-			break;
 		case 'F':
 			VM::enableFrustumDrawing = !VM::enableFrustumDrawing;
 			break;
@@ -559,6 +580,10 @@ namespace mapinect {
 			transX = XML.getValue(VM_CONFIG "TRANS_X", -0.112);
 			transY = XML.getValue(VM_CONFIG "TRANS_Y",  0.020);
 			transZ = XML.getValue(VM_CONFIG "TRANS_Z",  0.000);
+
+			rotXAxis = XML.getValue(VM_CONFIG "ROT_X",	0.0f);
+			rotYAxis = XML.getValue(VM_CONFIG "ROT_Y",	0.0f);
+			rotZAxis = XML.getValue(VM_CONFIG "ROT_Z",	0.0f);
 		}
 		 
 		VM::setProjMatrix(proj_fx, proj_fy, proj_cx, proj_cy);
@@ -576,6 +601,10 @@ namespace mapinect {
 			XML.setValue(VM_CONFIG "TRANS_X", transX);
 			XML.setValue(VM_CONFIG "TRANS_Y", transY);
 			XML.setValue(VM_CONFIG "TRANS_Z", transZ);
+
+			XML.setValue(VM_CONFIG "ROT_X", rotXAxis);
+			XML.setValue(VM_CONFIG "ROT_Y", rotYAxis);
+			XML.setValue(VM_CONFIG "ROT_Z", rotZAxis);
 
 			XML.saveFile("VM_Config.xml");
 		}

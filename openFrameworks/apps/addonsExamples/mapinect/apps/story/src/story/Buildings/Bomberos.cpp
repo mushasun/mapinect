@@ -27,7 +27,7 @@ namespace story
 	{
 		timeWatering = 0;
 		sirena->setPaused(false);
-		associateTextures();
+		associateTextures(object);
 	}
 
 	/* Events */
@@ -117,12 +117,17 @@ namespace story
 	}
 
 	/*-------------------------------------------------------------*/
-	void Bomberos::associateTextures()
+	void Bomberos::associateTextures(const IObjectPtr& object)
 	{
-		textureA = txTruckSide;
-		textureB = txTruckFront;
-		textureC = txTruckSide;
-		textureD = txTruckBack;
+		Polygon3D sideA = object->getPolygon(kPolygonNameSideA)->getMathModel();
+		Polygon3D sideB = object->getPolygon(kPolygonNameSideA)->getMathModel();
+		float aWidth = (sideA.getVertexs().at(1) - sideA.getVertexs().at(2)).length();
+		float bWidth = (sideB.getVertexs().at(1) - sideB.getVertexs().at(2)).length();
+
+		textureA = aWidth > bWidth ? txTruckSide : txTruckFront;
+		textureB = aWidth > bWidth ? txTruckFront : txTruckSide;
+		textureC = aWidth > bWidth ? txTruckSide : txTruckBack;
+		textureD = aWidth > bWidth ? txTruckBack : txTruckSide;
 		textureTop = txTruckTop;
 	}
 
