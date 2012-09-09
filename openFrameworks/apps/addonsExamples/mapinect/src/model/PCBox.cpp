@@ -128,14 +128,14 @@ namespace mapinect {
 
 					vertexs.push_back(vertex);
 					//DEBUG
-					saveCloud("vmerged" + ofToString(i) + ".pcd", vertex);
+					/*saveCloud("vmerged" + ofToString(i) + ".pcd", vertex);
 					saveCloud("merged" + ofToString(i) + "1.pcd", *p0->getCloud());
 					saveCloud("mergedProj" + ofToString(i) + "1.pcd", *projectPointsInPlane(p0->getCloud(),p0->getPolygonModelObject()->getMathModel().getPlane().getCoefficients()));
 					saveCloud("merged" + ofToString(i) + "2.pcd", *p1->getCloud());
 					saveCloud("mergedProj" + ofToString(i) + "2.pcd", *projectPointsInPlane(p1->getCloud(),p1->getPolygonModelObject()->getMathModel().getPlane().getCoefficients()));
 					saveCloud("merged" + ofToString(i) + "3.pcd", *p2->getCloud());
 					saveCloud("mergedProj" + ofToString(i) + "3.pcd", *projectPointsInPlane(p2->getCloud(),p2->getPolygonModelObject()->getMathModel().getPlane().getCoefficients()));
-					
+					*/
 
 				}
 			}
@@ -147,7 +147,7 @@ namespace mapinect {
 				if(p0.get() != NULL)
 					p0->getPolygonModelObject()->setVertexs(tempVertexs[i]);
 			}
-			saveCloud("UnifiedVertex.pcd", vertexs);
+			saveCloud("UnifiedVertex" + ofToString(getId()) + ".pcd", vertexs);
 
 			/*for(int i = 0; i < pcpolygons.size(); i ++)
 			{

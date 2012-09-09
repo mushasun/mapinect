@@ -29,7 +29,7 @@ namespace story
 
 		private:
 			static void				loadTextures();
-			void					associateTextures();
+			void					associateTextures(const IObjectPtr& object);
 			static void				loadSounds();
 
 			//control
