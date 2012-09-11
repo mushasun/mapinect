@@ -51,8 +51,14 @@ namespace mapinect {
 	ofVec3f	ArmController::setArmPositionAndLookAt(const ofVec3f& position, const ofVec3f& target)
 	{
 		ofVec3f pos = arduino->setArm3dCoordinates(position,false);
-		arduino->lookAt(target);
-		return pos;
+		ofVec3f lookingAt = arduino->lookAt(target);
+		if (lookingAt == NULL ) {
+			cout << "lookingAt dio null" << endl;
+			arduino->reset(true);
+			return NULL;
+		} 
+	
+	return pos;
 	}
 
 }
