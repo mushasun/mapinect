@@ -332,15 +332,12 @@ namespace mapinect {
 				transZ += varTrans;
 				printf("Z translation inc: %f \n", transZ);
 				break;
-			case '_':
-				transZ -= varTrans * 100.0f;
-				break;
-			case '1':
+			case 'L':
 				loadCalibParams();
 				printf("Parameters loaded from VM config file\n");
 				keyPressed('q');
 				break;
-			case '2':
+			case 'S':
 				saveCurrentCalibParams();
 				printf("Parameters saved to VM config file\n");
 				keyPressed('q');
