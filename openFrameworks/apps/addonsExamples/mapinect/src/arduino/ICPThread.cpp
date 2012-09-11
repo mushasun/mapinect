@@ -90,7 +90,7 @@ namespace mapinect {
 			iter = maxIterations;
 		icpMutex.unlock();
 
-		PCPtr detectedTableCloud;
+
 		pcl::ModelCoefficients coefficients;
 		bool ICPneeded = false;
 
@@ -98,16 +98,17 @@ namespace mapinect {
 		// Para saber si es una buena estimación
 		PCPtr planeCloud;
 		float optimalAngleThreshold = 2;		// Tolerancia de angulo para la normal de la nueva mesa detectada = 2 grados
-		float optimalPlaneDistance = 0.005;		// Tolerancia de distancia entre el plano de la mesa del modelo y la detectada = 0.5 cms
-		bool isTableWellEstimated = findNewTablePlane(afterMoving, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
-		if (planeCloud->size() <= 0) 
+		float maxAngleThreshold = 30;			// Tolerancia máxima para el ángulo entre la normal del plano del modelo y la nueva normal, para encontrar al plano de la mesa
+		float optimalPlaneDistance = 0.01;		// Tolerancia de distancia entre el plano de la mesa del modelo y la detectada = 1.0 cms
+		bool isTableWellEstimated = findNewTablePlane(afterMoving, maxAngleThreshold, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
+/*		if (planeCloud->size() <= 0) 
 		{
 			cout << "No se pudo detectar la mesa" << endl;
-			this->arduino->reset();
+			this->arduino->reset(true); // forceReset = true, esto es, el cloudMutex ya está en lock al entrar al método reset
 			return;
 		}
-
-		if (!isTableWellEstimated) 
+*/
+		if (!isTableWellEstimated || planeCloud->size() <= 0) 
 		{
 			ICPneeded = true;
 			cout << "La transformacion estimada no es buena; aplicar ICP" << endl;
@@ -125,43 +126,49 @@ namespace mapinect {
 				PCPtr nubeAfterMovingTransfICP = transformCloud(afterMoving, icpTransf);
 				saveCloud("nubeAfterMovingTransfICP.pcd",*nubeAfterMovingTransfICP);
 				cout << "Verificando resultado de ICP" << endl;
-				bool isICPTableWellEstimated = findNewTablePlane(nubeAfterMovingTransfICP, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
-				if (isICPTableWellEstimated) 
+				PCPtr icpPlaneCloud;
+				pcl::ModelCoefficients icpCoefficients;
+				isTableWellEstimated = findNewTablePlane(nubeAfterMovingTransfICP, maxAngleThreshold, optimalAngleThreshold, optimalPlaneDistance, icpCoefficients, icpPlaneCloud);
+				if (isTableWellEstimated) //|| icpPlaneCloud->size() > 0) 
 				{
 					cout << "La transformacion de ICP es buena, se aplica" << endl;
 					gTransformation->setWorldTransformation(icpTransf * gTransformation->getWorldTransformation());
-					afterMoving = transformCloud(afterMoving,icpTransf);
+					afterMoving = transformCloud(afterMoving, icpTransf);
+					planeCloud = icpPlaneCloud;
+					coefficients = pcl::ModelCoefficients(icpCoefficients);
 				}
 			}
 		}
-		
-		// 3 - Re detectar la mesa
-		bool tableDetected = detectNewTable(afterMoving, coefficients, detectedTableCloud);		
-	
-		bool resetArm = false;
 
+
+		// 3 - Re detectar la mesa
+//		PCPtr detectedTableCloud;
+//		bool tableDetected = detectNewTable(afterMoving, coefficients, detectedTableCloud);		
+	
 		// 4 - Actualizar el modelo con la nueva mesa detectada. Se actualiza el plano de la mesa y los vértices.
-		if (tableDetected) 
+//		if (tableDetected) 
+		if (planeCloud->size() > 0 && isTableWellEstimated)
 		{
 			cout << "Se detectó un nuevo plano de mesa" << endl;
 			// Ajustar el modelo de la mesa con el nuevo plano, y ajustar los vértices
-			Table::updateTablePlane(coefficients,detectedTableCloud);
+//			Table::updateTablePlane(coefficients,detectedTableCloud);
+			Table::updateTablePlane(coefficients,planeCloud);
+
+			// Una vez que se terminó de aplicar ICP y se actualizó la matriz de transformación, 
+			//	libero el mutex para que puedan invocar al método getCloud
+			gTransformation->cloudMutex.unlock();
+
+			// Además, se debe volver a dibujar en la ventana de mapping
+			gTransformation->setIsWorldTransformationStable(true);
+
 		} else {
-			resetArm = true;
+			this->arduino->reset(true);	// forceReset = true, esto es, el cloudMutex ya está en lock al entrar al método reset
 		}
 
-		// Una vez que se terminó de aplicar ICP y se actualizó la matriz de transformación, 
-		//	libero el mutex para que puedan invocar al método getCloud
-		gTransformation->cloudMutex.unlock();
 
-		// Además, se debe volver a dibujar en la ventana de mapping
-		gTransformation->setIsWorldTransformationStable(true);
-
-		if (resetArm)
-			this->arduino->reset();
 	}
 
-	bool ICPThread::findNewTablePlane(const PCPtr& cloud, float maxAngleThreshold, float maxDistance, pcl::ModelCoefficients& coefficients, PCPtr& planeCloud) {
+	bool ICPThread::findNewTablePlane(const PCPtr& cloud, float maxAngleThreshold, float optimalAngleThreshold, float maxDistance, pcl::ModelCoefficients& coefficients, PCPtr& planeCloud) {
 		if (gModel->getTable() == NULL)
 		{
 			cout << "El modelo no tiene una mesa seteada" << endl;
@@ -178,6 +185,22 @@ namespace mapinect {
 		float distanceThreshold = 0.005; //  How close a point must be to the model in order to be considered an inlier
 		planeCloud = findPlaneGivenNormal(cloud, coefficients, tableNormal, maxAngleThreshold, distanceThreshold);
 
+		// Separar en clusters, para quedarme solo con los puntos de la mesa
+		std::vector<pcl::PointIndices> clusterIndices =
+				findClusters(planeCloud, Constants::TABLE_CLUSTER_TOLERANCE(), Constants::TABLE_CLUSTER_MIN_SIZE());
+		float minDistanceToCentroid = MAX_FLOAT;
+		for (std::vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it)
+		{
+			cout << "Hay clusters" << endl;
+			PCPtr cloudCluster = getCloudFromIndices(planeCloud, *it);
+			ofVec3f ptoCentroid = computeCentroid(cloudCluster);
+			if (ptoCentroid.squareLength() < minDistanceToCentroid)
+			{
+				minDistanceToCentroid = ptoCentroid.squareLength();
+				planeCloud = cloudCluster;
+			}
+		}
+
 		Plane3D planeFound(coefficients);
 		float centroidDistance = planeFound.distance(tableCentroid);
 		ofVec3f planeNormal = planeFound.getNormal();
@@ -191,7 +214,7 @@ namespace mapinect {
 			normalDifference = abs(180 - normalDifference);	
 		}
 
-		if (planeCloud->size() > 0 && normalDifference < maxAngleThreshold && centroidDistance < maxDistance) {
+		if (planeCloud->size() > 0 && normalDifference < optimalAngleThreshold && centroidDistance < maxDistance) {
 			return true;
 		} else {
 			return false;

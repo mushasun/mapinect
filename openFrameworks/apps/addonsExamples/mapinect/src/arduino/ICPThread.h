@@ -33,7 +33,7 @@ namespace mapinect
 		ofxMutex					icpMutex;	
 
 		// buscar en la nube el plano que tenga una normal dada para verificar si la mesa se ajustó bien
-		bool						findNewTablePlane(const PCPtr& cloud, float maxAngleThreshold, float maxDistance, 
+		bool						findNewTablePlane(const PCPtr& cloud, float maxAngleThreshold, float optimalAngleThreshold, float maxDistance, 
 											pcl::ModelCoefficients& coefficients, PCPtr& planeCloud);
 
 		bool						icpProcessing(const PCPtr& inputCloud, const PCPtr& inputTarget, Eigen::Affine3f& newTransf, 
