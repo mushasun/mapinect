@@ -223,7 +223,7 @@ namespace mapinect {
 			switch (key)
 			{
 				case '0':
-					reset(); // Vuelve a la posición inicial, resetea la matriz de transformación y no aplica ICP
+					reset(true); // Vuelve a la posición inicial, resetea la matriz de transformación y no aplica ICP
 					break;
 				case '6':
 					moveMotor(8,80);
@@ -251,7 +251,7 @@ namespace mapinect {
 				moveMotor(8,angleMotor8 - ANGLE_STEP);
 			} 
 			else if (key == KEY_RESET) {
-				reset();
+				reset(false);
 			}
 			else if (key == KEY_PRINT_STATUS) {
 				cout << read() << endl;
@@ -264,20 +264,31 @@ namespace mapinect {
 	}
 
 
-	void Arduino::reset()
+	void Arduino::reset(bool forceReset)
 	{
 		CHECK_ACTIVE;
+
+		cout << "reset" << endl;
 
 		loadXMLSettings();
 
 		if (IsFeatureMoveArmActive()) {
-			startedMoving = true;
-			// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
-			gTransformation->cloudMutex.lock();
+			armStartedMoving(forceReset);	
+
 			// No se debe aplicar ICP en el reset; sirve para "volver a una posición segura"
 			cloudBeforeMoving.reset();
 		}
 
+/*		if (IsFeatureMoveArmActive()) {
+			startedMoving = true;
+			if (!forceReset) {		// Si debo forzar el reset, no se debe invocar al lock, es por que ya quedó en lock el cloudMutex
+				// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
+				gTransformation->cloudMutex.lock();
+			}
+			// No se debe aplicar ICP en el reset; sirve para "volver a una posición segura"
+			cloudBeforeMoving.reset();
+		}
+*/
 		if (RESET_ANGLE1 != ANGLE_UNDEFINED) {
 			angleMotor1 = RESET_ANGLE1;
 			sendMotor((char) angleMotor1, ID_MOTOR_1);
@@ -302,7 +313,7 @@ namespace mapinect {
 		}
 
 		//	Libero el mutex para que puedan invocar al método getCloud, por si quedó en lock
-		gTransformation->cloudMutex.unlock();
+//		gTransformation->cloudMutex.unlock();
 	}
 
 	void Arduino::sendMotor(int value, int id)
@@ -388,7 +399,7 @@ namespace mapinect {
 		if (IsFeatureMoveArmActive()) {
 			if (gTransformation->getIsWorldTransformationStable()) {
 				if (setArmStartedMoving)
-					armStartedMoving();	
+					armStartedMoving(false);	
 			} else {
 				posicion = getKinect3dCoordinates();
 				return;
@@ -527,7 +538,7 @@ namespace mapinect {
 		{
 			if (gTransformation->getIsWorldTransformationStable())
 			{
-				armStartedMoving();
+				armStartedMoving(false);
 			}
 			else
 			{
@@ -548,7 +559,7 @@ namespace mapinect {
 			calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
 		}
 
-		return NULL;
+		return lookingAt();
 	}
 
 	bool Arduino::isActive()
@@ -575,8 +586,8 @@ namespace mapinect {
 		Eigen::Vector3f axisY (0, 1, 0);
 		Eigen::Vector3f axisZ (0, 0, 1);
 
-		Eigen::Affine3f tAlturaBrazo;
-		tAlturaBrazo = Eigen::Translation<float, 3>(0, -ARM_HEIGHT, 0);
+//		Eigen::Affine3f tAlturaBrazo;
+//		tAlturaBrazo = Eigen::Translation<float, 3>(0, -ARM_HEIGHT, 0);
 
 		Eigen::Affine3f rMotor2;
 		rMotor2 = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
@@ -596,22 +607,22 @@ namespace mapinect {
 		Eigen::Affine3f rMotor4;
 		rMotor4 = Eigen::AngleAxis<float>(angleMotor4Rad, axisX);
 
-		Eigen::Affine3f tAlturaMotor4AlKinect;
+/*		Eigen::Affine3f tAlturaMotor4AlKinect;
 		tAlturaMotor4AlKinect = Eigen::Translation<float, 3>(0, -KINECT_MOTOR_HEIGHT, 0);
 
 		Eigen::Affine3f rTiltKinect;
 		rTiltKinect = Eigen::AngleAxis<float>(angleTiltKinectRad, axisX);
-
-		Eigen::Affine3f tAlturaKinect;
-		tAlturaKinect = Eigen::Translation<float, 3>(0.012, -KINECT_HEIGHT, 0);
+*/
+		Eigen::Affine3f tAlturaAlKinect;
+		tAlturaAlKinect = Eigen::Translation<float, 3>(0.012, -KINECT_HEIGHT, 0);
 
 		//con estas tres matrices tengo todas las rotaciones que preciso, ahora
 		//preciso hallar la traslacion de altura donde esta la camara
 		//y luego la traslacion a lo largo del brazo
 		
 		Eigen::Affine3f composedMatrix;
-//		composedMatrix = tAlturaBrazo * (rMotor2 * (rMotor1 *  (tLargoBrazo * (rMotor8 * (tMotores48 * (rMotor4 * (tAlturaMotor4AlKinect * (rTiltKinect * tAlturaKinect))))))));
-		composedMatrix = rMotor2 * (rMotor1 *  (tLargoBrazo * (rMotor8 * (tMotores48 * (rMotor4 * (tAlturaMotor4AlKinect * (rTiltKinect * tAlturaKinect)))))));
+//		composedMatrix = tAlturaBrazo * (rMotor2 * (rMotor1 *  (tLargoBrazo * (rMotor8 * (tMotores48 * (rMotor4 * (tAlturaMotor4AlKinect * (rTiltKinect * tAlturaKinect))))))) /*)*/;
+		composedMatrix = rMotor2 * (rMotor1 *  (tLargoBrazo * (rMotor8 * (tMotores48 * (rMotor4 * tAlturaAlKinect))))) ;
 
 		gTransformation->setWorldTransformation(composedMatrix);
 
@@ -638,7 +649,7 @@ namespace mapinect {
 		lookAt(object->getCenter());
 	}
 
-	void Arduino::armStartedMoving()
+	void Arduino::armStartedMoving(bool moveForced)
 	{		
 		if (IsFeatureMoveArmActive()) {
 			startedMoving = true;
@@ -648,12 +659,20 @@ namespace mapinect {
 
 			if (gModel->getTable() != NULL) { 
 				// Obtener nube antes de mover los motores
-				cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
+				if (moveForced)
+					cloudBeforeMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
+				else
+					cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
 				saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
+			} else {
+				// No aplicar ICP si no se tiene mesa detectada
+				cloudBeforeMoving.reset();
 			}
 
-			// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
-			gTransformation->cloudMutex.lock();
+			if (!moveForced) {		// Si debo forzar el reset, no se debe invocar al lock, es por que ya quedó en lock el cloudMutex
+				// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
+				gTransformation->cloudMutex.lock();
+			}
 		}
 
 	}
@@ -702,13 +721,13 @@ namespace mapinect {
 
 			MOTOR_ANGLE_OFFSET	= XML.getValue(ARDUINO_CONFIG "MOTOR_ANGLE_OFFSET", MOTOR_ANGLE_OFFSET_DEFAULT);
 
-			ARM_HEIGHT = XML.getValue(ARDUINO_CONFIG "ARM_HEIGHT", 0.42);
-			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.35);			
+//			ARM_HEIGHT = XML.getValue(ARDUINO_CONFIG "ARM_HEIGHT", 0.42);
+			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.354);			
 			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.056);
 			MOTORS_WIDTH = XML.getValue(ARDUINO_CONFIG "MOTORS_WIDTH", 0.015);
-			KINECT_MOTOR_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_MOTOR_HEIGHT", 0.07);
-			TILT_ANGLE = XML.getValue(ARDUINO_CONFIG "TILT_ANGLE",-5.0);
-			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.030);
+//			KINECT_MOTOR_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_MOTOR_HEIGHT", 0.07);
+//			TILT_ANGLE = XML.getValue(ARDUINO_CONFIG "TILT_ANGLE",-5.0);
+			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.116);
 
 			MAX_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_1", 0);
 			MIN_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_1", 0);
@@ -785,7 +804,7 @@ namespace mapinect {
 				angleMotor2 = angle2;
 				angleMotor4 = angle4;
 				angleMotor8 = angle8;
-				armStartedMoving();
+				armStartedMoving(false);
 			}
 			else
 			{
