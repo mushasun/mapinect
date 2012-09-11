@@ -120,15 +120,14 @@ namespace mapinect
 	{
 		bool verticesInFrustum = true;
 		for (int i = 0; i < vertices.size(); i++) {
-			//cout << vertices[i].x << ", " << vertices[i].y << ", " << vertices[i].z << "  -  " << IsInFrustum(vertices.at(i)) << endl;
 			verticesInFrustum = verticesInFrustum && IsInFrustum(vertices.at(i));
 		}
 		
-		/*if (verticesInFrustum)
+		if (verticesInFrustum)
 			cout << "objecto dentro del frustum" << endl; 
 		else 
 			cout << "objeto fuera" << endl;
-*/
+
 		return verticesInFrustum;
 	}
 
