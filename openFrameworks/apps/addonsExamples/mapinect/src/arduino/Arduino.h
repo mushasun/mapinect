@@ -40,7 +40,7 @@ namespace mapinect
 
 		virtual void		keyPressed(int key);
 
-		void				reset();
+		void				reset(bool forceReset);
 
 		ofVec3f				getKinect3dCoordinates();
 		ofVec3f				setArm3dCoordinates(const ofVec3f& position, bool setArmStartedMoving);
@@ -89,7 +89,7 @@ namespace mapinect
 		ofVec3f				centerOfFollowingObject;
 		ofVec3f				acceleration;
 
-		void				armStartedMoving();
+		void				armStartedMoving(bool moveForced);
 		void				armStoppedMoving();
 
 		ICPThread*			icpThread;
