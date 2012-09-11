@@ -115,9 +115,13 @@ namespace mapinect
 	void Model::setTable(const TablePtr& newTable)
 	{
 		tableMutex.lock();
+		bool updated = table.get() != NULL;
 		table = newTable;
 		IObjectPtr iObject = table->getMathModelApproximation();
-		EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectDetected, iObject));
+		if (!updated)
+			EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectDetected, iObject));
+		else
+			EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectUpdated, iObject));
 		tableMutex.unlock();
 	}
 
