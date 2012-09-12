@@ -309,20 +309,33 @@ namespace mapinect
 		
 		if (!IsFeatureMoveArmActive())
 		{
-			// We want to set the table as the plane y = 0
+			// We want to set the table as the plane Y = y (not necesarilly at y=0, but needs to have normal = (0,-1,0))
 			// While we don't have the arm transformation, we will translate the origin to
 			// table's centroid directly from Kinect's origin
 			Eigen::Vector3f axisX(1, 0, 0);
-			Eigen::Affine3f rotationX;
-			ofVec3f newYaxis = -(::getNormal(coefficients).getNormalized());
-			float angle = newYaxis.angleRad(ofVec3f(0, 1, 0));
-			rotationX = Eigen::AngleAxis<float>(-angle, axisX);
+			Eigen::Vector3f axisZ(0, 0, 1);
+			Eigen::Affine3f rotationX, rotationZ;
+			ofVec3f newTableNormal = -(::getNormal(coefficients).getNormalized());
+
+			ofVec3f ejeX = ofVec3f(1, 0, 0);
+			Plane3D planoX = Plane3D(ofVec3f(0,0,0), ejeX); //lo defino con el plano que yz y normal x
+			ofVec3f projXNormal = planoX.project(newTableNormal);
+
+			float angleX = projXNormal.angleRad(ofVec3f(0, 1, 0));
+			rotationX = Eigen::AngleAxis<float>(-angleX, axisX);
+
+			ofVec3f ejeZ = ofVec3f(0, 0, 1);
+			Plane3D planoZ = Plane3D(ofVec3f(0,0,0), ejeZ); //lo defino con el plano que xy y normal z
+			ofVec3f projZNormal = planoZ.project(newTableNormal);
+
+			float angleZ = projZNormal.angleRad(ofVec3f(0, 1, 0));
+			rotationZ = Eigen::AngleAxis<float>(angleZ, axisZ);
 
 			Eigen::Affine3f translation;
 			ofVec3f centroid(computeCentroid(cloud));
 			translation = Eigen::Translation<float, 3>(-centroid.x, -centroid.y, -centroid.z);
 
-			Eigen::Affine3f composedMatrix = rotationX * translation;
+			Eigen::Affine3f composedMatrix = rotationX * rotationZ * translation;
 //			Eigen::Affine3f composedMatrix = translation;	// Setear solo la traslación; si además se rota, puede no quedar bien el plano de la mesa
 		
 			gTransformation->setWorldTransformation(composedMatrix);
