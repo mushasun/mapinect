@@ -49,12 +49,9 @@ namespace mapinect {
 
 	static float	DISTANCE_TO_FOLLOW_OBJECT;
 
-	float			Arduino::ARM_HEIGHT;
 	float			Arduino::ARM_LENGTH;
 	float			Arduino::MOTORS_HEIGHT;
 	float			Arduino::MOTORS_WIDTH;
-	float			Arduino::KINECT_MOTOR_HEIGHT;
-	float			Arduino::TILT_ANGLE;
 	float			Arduino::KINECT_HEIGHT;
 
 	static unsigned long startTime; 
@@ -578,7 +575,7 @@ namespace mapinect {
 		float angleMotor2Rad = ofDegToRad(angle2);		// Motor de abajo del brazo, con la varilla "vertical"
 		float angleMotor4Rad = ofDegToRad(angle4);		// Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
 		float angleMotor8Rad = ofDegToRad(angle8 - 90);	// Motor de los de la punta, el de más abajo. La posición inicial de referencia será 90 grados.
-		float angleTiltKinectRad = ofDegToRad(TILT_ANGLE);
+//		float angleTiltKinectRad = ofDegToRad(TILT_ANGLE);
 
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 
