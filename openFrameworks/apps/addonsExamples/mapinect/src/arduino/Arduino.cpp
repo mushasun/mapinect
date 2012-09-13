@@ -276,7 +276,7 @@ namespace mapinect {
 			armStartedMoving(forceReset);	
 
 			// No se debe aplicar ICP en el reset; sirve para "volver a una posición segura"
-			cloudBeforeMoving.reset();
+//			cloudBeforeMoving.reset();
 		}
 
 /*		if (IsFeatureMoveArmActive()) {
@@ -721,12 +721,9 @@ namespace mapinect {
 
 			MOTOR_ANGLE_OFFSET	= XML.getValue(ARDUINO_CONFIG "MOTOR_ANGLE_OFFSET", MOTOR_ANGLE_OFFSET_DEFAULT);
 
-//			ARM_HEIGHT = XML.getValue(ARDUINO_CONFIG "ARM_HEIGHT", 0.42);
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.354);			
 			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.056);
 			MOTORS_WIDTH = XML.getValue(ARDUINO_CONFIG "MOTORS_WIDTH", 0.015);
-//			KINECT_MOTOR_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_MOTOR_HEIGHT", 0.07);
-//			TILT_ANGLE = XML.getValue(ARDUINO_CONFIG "TILT_ANGLE",-5.0);
 			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.116);
 
 			MAX_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_1", 0);

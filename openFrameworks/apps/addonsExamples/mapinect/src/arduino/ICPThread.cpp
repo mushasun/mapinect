@@ -90,7 +90,61 @@ namespace mapinect {
 			iter = maxIterations;
 		icpMutex.unlock();
 
+		// 1 - Re detectar la mesa
+		pcl::ModelCoefficients coefficients;
+		PCPtr detectedTableCloud;
+		bool tableDetected = detectNewTable(afterMoving, coefficients, detectedTableCloud);
 
+		// 2 - Si se detectó la nueva mesa, calcular ajuste necesario 
+		if (tableDetected) 
+		{
+			// 2.1 - Calcular rotaciones para que tenga normal (0,-1,0)
+			Eigen::Affine3f rotation = Table::calculateRotations(coefficients);
+			// Aplicar la rotación a la nube de mesa detectada, y actualizar los coeficientes con la nueva normal de la mesa
+			detectedTableCloud = transformCloud(detectedTableCloud,rotation);	
+			coefficients.values[0] = 0;
+			coefficients.values[1] = -1;
+			coefficients.values[2] = 0;
+			coefficients.values[3] = computeCentroid(detectedTableCloud).y;
+
+			// 2.2 - Calcular traslación para que coincidan los nuevos vértices detectados con los vértices calibrados de la mesa
+			// Guardar los vértices de la mesa del modelo
+			vector<ofVec3f> tableModelVertexs(gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs());
+			// Calcular la mesa con el nuevo plano, y nuevos vértices, ajustando los que se tenía del modelo
+			TablePtr newTable = Table::updateTablePlane(coefficients,detectedTableCloud);
+					// Matchear solo si son vértices "reales" y no estimados => y qué hacemos si son estimados?? Capaz los debería matchear igual, y dsp al volver a mover la mesa se van a volver a ajustar, pero lo importante es mantener el plano de la mesa, por la detección de los objetos
+			// Obtener los nuevos vértices después de recalcular la mesa
+			vector<ofVec3f> newTableVertexs(newTable->getPolygonModelObject()->getMathModel().getVertexs());
+
+			// Tomar la pareja de vértices (A,A') que se corresponden, para calcular la traslación
+			ofVec3f vertexA = tableModelVertexs.at(0);
+			ofVec3f newVertexA = newTableVertexs.at(0);
+			// Traslación = A - A'
+			Eigen::Affine3f translation;
+			ofVec3f trans = newVertexA - vertexA;
+			translation = Eigen::Translation<float, 3>(-trans.x, -trans.y, -trans.z);
+
+			// 2.3 - Calcular la transformación de ajuste necesaria, en base a las rotaciones y traslaciones halladas
+			gTransformation->setWorldTransformation(translation * (rotation * gTransformation->getWorldTransformation()));
+
+			// Setear la mesa
+//			gModel->setTable(newTable);
+
+			// Una vez que se terminó de actualizar la mesa y se calculó la transformación, 
+			//	libero el mutex para que puedan invocar al método getCloud
+			gTransformation->cloudMutex.unlock();
+
+			// Además, se debe volver a dibujar en la ventana de mapping
+			gTransformation->setIsWorldTransformationStable(true);
+
+		} else {
+			// 2.B - Qué pasa si no se detectó la mesa?
+		}
+
+
+
+
+/*
 		pcl::ModelCoefficients coefficients;
 		bool ICPneeded = false;
 
@@ -101,13 +155,13 @@ namespace mapinect {
 		float maxAngleThreshold = 30;			// Tolerancia máxima para el ángulo entre la normal del plano del modelo y la nueva normal, para encontrar al plano de la mesa
 		float optimalPlaneDistance = 0.01;		// Tolerancia de distancia entre el plano de la mesa del modelo y la detectada = 1.0 cms
 		bool isTableWellEstimated = findNewTablePlane(afterMoving, maxAngleThreshold, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
-/*		if (planeCloud->size() <= 0) 
-		{
-			cout << "No se pudo detectar la mesa" << endl;
-			this->arduino->reset(true); // forceReset = true, esto es, el cloudMutex ya está en lock al entrar al método reset
-			return;
-		}
-*/
+//		if (planeCloud->size() <= 0) 
+//		{
+//			cout << "No se pudo detectar la mesa" << endl;
+//			this->arduino->reset(true); // forceReset = true, esto es, el cloudMutex ya está en lock al entrar al método reset
+//			return;
+//		}
+
 		if (!isTableWellEstimated || planeCloud->size() <= 0) 
 		{
 			ICPneeded = true;
@@ -151,8 +205,9 @@ namespace mapinect {
 		{
 			cout << "Se detectó un nuevo plano de mesa" << endl;
 			// Ajustar el modelo de la mesa con el nuevo plano, y ajustar los vértices
-//			Table::updateTablePlane(coefficients,detectedTableCloud);
-			Table::updateTablePlane(coefficients,planeCloud);
+//			TablePtr table = Table::updateTablePlane(coefficients,detectedTableCloud);
+			TablePtr table = Table::updateTablePlane(coefficients,planeCloud);
+			gModel->setTable(table);
 
 			// Una vez que se terminó de aplicar ICP y se actualizó la matriz de transformación, 
 			//	libero el mutex para que puedan invocar al método getCloud
@@ -164,7 +219,7 @@ namespace mapinect {
 		} else {
 			this->arduino->reset(true);	// forceReset = true, esto es, el cloudMutex ya está en lock al entrar al método reset
 		}
-
+*/
 
 	}
 
