@@ -94,12 +94,14 @@ namespace mapinect {
 		gModel->tableMutex.lock();
 		TablePtr table = gModel->getTable();
 		Plane3D plane (table->getCoefficients());
+		ofVec3f tableNormal(table->getNormal().normalized());
 		gModel->tableMutex.unlock();
 
-		vertexs.push_back(plane.project(v2));
-		vertexs.push_back(plane.project(v2 + norm * height));
-		vertexs.push_back(plane.project(v1 + norm * height));
-		vertexs.push_back(plane.project(v1));
+		const float kElevation = 0.001;
+		vertexs.push_back(plane.project(v2) + tableNormal * kElevation);
+		vertexs.push_back(plane.project(v2 + norm * height) + tableNormal * kElevation);
+		vertexs.push_back(plane.project(v1 + norm * height) + tableNormal * kElevation);
+		vertexs.push_back(plane.project(v1) + tableNormal * kElevation);
 
 		polygon = Polygon3D(vertexs);
 	}

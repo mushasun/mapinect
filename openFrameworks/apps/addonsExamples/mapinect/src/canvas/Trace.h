@@ -1,13 +1,11 @@
 #ifndef TRACE_H__
 #define TRACE_H__
 
-#include "IDrawer.h"
-
 #include "ofxCairoTexture.h"
 
 namespace mapinect
 {
-	class Trace : public IDrawer
+	class Trace
 	{
 	public:
 		Trace(const ofVec2f& startPoint, const ofColor& color);
