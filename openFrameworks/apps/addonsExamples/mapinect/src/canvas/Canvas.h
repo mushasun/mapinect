@@ -2,8 +2,8 @@
 #define CANVAS_H__
 
 #include "DataTouch.h"
-#include "IDrawer.h"
 #include "IPolygon.h"
+#include "Trace.h"
 #include "TextureMapper2D.h"
 #include "ofxCairoTexture.h"
 #include <map>
@@ -29,7 +29,7 @@ namespace mapinect
 		inline float			getLineWidth() const					{ return lineWidth; }
 		void					setLineWidth(float);
 
-		void					endAllDrawers();
+		void					endAllTraces();
 
 		void					redrawIfNecessary();
 	private:
@@ -48,7 +48,7 @@ namespace mapinect
 		TextureMapper2D			texMapper;
 		ofVec3f					lastPoint;
 
-		map<int, IDrawer*>		drawers;
+		map<int, Trace*>		traces;
 		map<int, DataTouch>		touchPoints;
 	};
 }

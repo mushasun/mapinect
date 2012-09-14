@@ -7,8 +7,10 @@ namespace mapinect
 {
 	const int kMappingOriginVertex = 1;
 
-	Canvas::Canvas(int polygonId, const Polygon3D& polygon, int width, int height, const ofColor& backColor, const ofColor& foreColor, float lineWidth)
-		: polygonId(polygonId), polygon(polygon), width(width), height(height), backColor(backColor), foreColor(foreColor), needsToRedraw(true), lineWidth(lineWidth)
+	Canvas::Canvas(int polygonId, const Polygon3D& polygon, int width, int height,
+		const ofColor& backColor, const ofColor& foreColor, float lineWidth)
+		: polygonId(polygonId), polygon(polygon), width(width), height(height),
+		backColor(backColor), foreColor(foreColor), needsToRedraw(true), lineWidth(lineWidth)
 	{
 		int vertexCount = polygon.getVertexs().size();
 		assert(vertexCount >= 3);
@@ -60,11 +62,9 @@ namespace mapinect
 	{
 		if (needsToRedraw)
 		{
-			texture.background(backColor);
-
-			for (map<int, IDrawer*>::iterator d = drawers.begin(); d != drawers.end(); ++d)
+			for (map<int, Trace*>::iterator t = traces.begin(); t != traces.end(); ++t)
 			{
-				d->second->draw(texture);
+				t->second->draw(texture);
 			}
 
 			texture.update();
@@ -88,7 +88,7 @@ namespace mapinect
 		}
 	}
 
-	void Canvas::endAllDrawers()
+	void Canvas::endAllTraces()
 	{
 		touchPoints.clear();
 	}
@@ -97,34 +97,30 @@ namespace mapinect
 	{
 		assert(touchPoint.getPolygon()->getId() == polygonId);
 		ofVec3f pto = touchPoint.getTouchPoint();
-		/*if (texMapper.willMap(pto))			Con esta condicion no toma bien los bordes
-		{*/
-			ofVec3f mapped(texMapper.map(pto));
-			//cout << texMapper.willMap(pto) << " v: " << mapped.x << ", " << mapped.y << ", " << mapped.z << endl; 
-			int id = touchPoint.getId();
-			map<int, IDrawer*>::iterator d = drawers.find(id);
-			switch (touchPoint.getType())
+		ofVec3f mapped(texMapper.map(pto));
+		int id = touchPoint.getId();
+		map<int, Trace*>::iterator t = traces.find(id);
+		switch (touchPoint.getType())
+		{
+		case kTouchTypeStarted:
+			touchPoints[id] = touchPoint;
+			traces[id] = new Trace(mapped, foreColor);
+			break;
+		case kTouchTypeHolding:
+			if(pto.distanceSquared(touchPoints[id].getTouchPoint()) > 0.0001)
 			{
-			case kTouchTypeStarted:
 				touchPoints[id] = touchPoint;
-				drawers[id] = IDrawer::SCreate(mapped, foreColor);
-				break;
-			case kTouchTypeHolding:
-				if(pto.distanceSquared(touchPoints[id].getTouchPoint()) > 0.0001)
+				if (t != traces.end())
 				{
-					touchPoints[id] = touchPoint;
-					if (d != drawers.end())
-					{
-						d->second->update(mapped);
-						redraw();
-					}
+					t->second->update(mapped);
+					redraw();
 				}
-				break;
-			case kTouchTypeReleased:
-				touchPoints.erase(id);
-				break;
 			}
-		//}
+			break;
+		case kTouchTypeReleased:
+			touchPoints.erase(id);
+			break;
+		}
 		
 	}
 }

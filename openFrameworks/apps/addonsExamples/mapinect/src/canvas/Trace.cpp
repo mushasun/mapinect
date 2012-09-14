@@ -3,11 +3,6 @@
 namespace mapinect
 {
 
-	IDrawer* IDrawer::SCreate(const ofVec2f& startPoint, const ofColor& color)
-	{
-		return new Trace(startPoint, color);
-	}
-	
 	Trace::Trace(const ofVec2f& startPoint, const ofColor& color)
 		: lastPoint(startPoint), color(color)
 	{
@@ -20,7 +15,7 @@ namespace mapinect
 
 	void Trace::update(const ofVec2f& mappedPoint)
 	{
-		polyline.curveTo(mappedPoint.x, mappedPoint.y);
+		polyline.lineTo(mappedPoint.x, mappedPoint.y);
 		lastPoint = mappedPoint;
 	}
 
@@ -28,6 +23,9 @@ namespace mapinect
 	{
 		texture.setColor(color);
 		texture.draw(polyline);
+		
+		polyline.clear();
+		polyline.addVertex(lastPoint.x, lastPoint.y);
 	}
 
 }

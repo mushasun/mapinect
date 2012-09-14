@@ -465,9 +465,6 @@
     <ClInclude Include="src\canvas\Canvas.h">
       <Filter>canvas</Filter>
     </ClInclude>
-    <ClInclude Include="src\canvas\IDrawer.h">
-      <Filter>canvas</Filter>
-    </ClInclude>
     <ClInclude Include="src\canvas\Trace.h">
       <Filter>canvas</Filter>
     </ClInclude>
