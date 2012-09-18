@@ -1,9 +1,23 @@
 #include "ofVecUtils.h"
 
 #include "utils.h"
+#include "ofUtils.h"
 
 ofVec3f BAD_OFVEC3F(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
 ofVec2f BAD_OFVEC2F(MAX_FLOAT, MAX_FLOAT);
+
+string ofVecToString(const ofVec3f& v)
+{
+	const int kDefaultPrecision = 2;
+	return ofVecToString(v, kDefaultPrecision);
+}
+
+string ofVecToString(const ofVec3f& v, int precision)
+{
+	return "(" + ofToString(v.x, precision) + ", " +
+		ofToString(v.y, precision) + ", " +
+		ofToString(v.z, precision) + ")";
+}
 
 void computeBoundingBox(const std::vector<ofVec3f>& v, ofVec3f& vMin, ofVec3f& vMax) {
 	vMin = ofVec3f(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);

@@ -470,7 +470,7 @@ float boxProbability(const PCPtr& cloud)
 				{
 					cout << "ni paralela ni perpendicular" << endl;
 					cout << "dot: " << dot << endl;
-					cout << norm.x << ", " << norm.y << ", " << norm.z << endl;
+					cout << ofVecToString(norm) << endl;
 					return 0;
 				}
 				//si es paralela a la mesa, chequeo que esté sobre la mesa
