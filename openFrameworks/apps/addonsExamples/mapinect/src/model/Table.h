@@ -9,7 +9,8 @@ namespace mapinect
 	{
 	public:
 		static TablePtr create(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud);
-		static void updateTablePlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud);
+		static TablePtr updateTablePlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud);
+		static Eigen::Affine3f calculateRotations(const pcl::ModelCoefficients& coefficients);
 
 		virtual IObjectPtr		getMathModelApproximation() const;
 
