@@ -19,6 +19,7 @@ namespace mapinect
 		FEATURE_CALIBRATE_TABLE,
 		FEATURE_INVALIDATE_OBJECT_BY_VOLUME,
 		FEATURE_ENABLE_MAPPING_WHILE_MOVING,
+		FEATURE_LOG,
 
 		FEATURE_COUNT
 	};
@@ -37,6 +38,7 @@ namespace mapinect
 	bool IsFeatureUniformDensity();
 	bool IsFeatureCalibrateTableActive();
 	bool IsFeatureEnableMappingWhileMovingActive();
+	bool IsFeatureLogActive();
 
 	#define CHECK_ACTIVE		if (!isActive()) return
 }
