@@ -254,7 +254,7 @@ namespace mapinect
 				int index = (minDistanceIndex + i) % kVertexs;
 				newVertexs.at(index) =
 					detectedVertexs.at((correspondingMinDistanceIndex + i) % kVertexs);
-//				cout << "newVertexs.at(" << index << ") vale: (" << newVertexs.at(index).x << ", " << newVertexs.at(index).y << ", " << newVertexs.at(index).z << ")" << endl;
+//				cout << "newVertexs.at(" << index << ") vale: (" << ofVecToString(newVertexs.at(index)) << endl;
 			}
 
 			ofVec3f startVertex = newVertexs.at(minDistanceIndex); 
@@ -273,7 +273,7 @@ namespace mapinect
 				calibratedDistance = table->initOrderedVertexs.at(minDistanceIndex).distance(table->initOrderedVertexs.at(indexNext)); 
 //				cout << "  y calibratedDistance = " << calibratedDistance << endl;
 				newVertexs.at(indexNext) = lineNext.calculateValue( calibratedDistance / dist);
-//				cout << "newVertexs.at(" << indexNext << ") ahora vale: (" << newVertexs.at(indexNext).x << ", " << newVertexs.at(indexNext).y << "," << newVertexs.at(indexNext).z << endl;
+//				cout << "newVertexs.at(" << indexNext << ") ahora vale: (" << ofVecToString(newVertexs.at(indexNext)) << endl;
 			// Ajustar vértice anterior
 				indexPrevious = minDistanceIndex - 1;
 				if (indexPrevious < 0) 
@@ -285,7 +285,7 @@ namespace mapinect
 				calibratedDistance = table->initOrderedVertexs.at(minDistanceIndex).distance(table->initOrderedVertexs.at(indexPrevious)); 
 //				cout << "  y calibratedDistance = " << calibratedDistance << endl;
 				newVertexs.at(indexPrevious) = linePrev.calculateValue( calibratedDistance / dist);
-//				cout << "newVertexs.at(" << indexPrevious << ") ahora vale: (" << newVertexs.at(indexPrevious).x << ", " << newVertexs.at(indexPrevious).y << "," << newVertexs.at(indexPrevious).z << endl;
+//				cout << "newVertexs.at(" << indexPrevious << ") ahora vale: (" << ofVecToString(newVertexs.at(indexPrevious)) << endl;
 			// Ajustar vértice opuesto, con suma de vectores
 				indexOpposite = indexNext + 1;
 				if (indexOpposite >= newVertexs.size()) 
@@ -293,7 +293,7 @@ namespace mapinect
 				// (nextVertex - startVertex) + (prevVertex - startVertex) = (opVertex - startVertex)
 				// => opVertex = (nextVertex - startVertex) + (prevVertex - startVertex) + startVertex
 				newVertexs.at(indexOpposite) = newVertexs.at(indexNext) - newVertexs.at(minDistanceIndex) + newVertexs.at(indexPrevious);
-//				cout << "newVertexs.at(" << indexOpposite << ") ahora vale: (" << newVertexs.at(indexOpposite).x << ", " << newVertexs.at(indexOpposite).y << "," << newVertexs.at(indexOpposite).z << endl;
+//				cout << "newVertexs.at(" << indexOpposite << ") ahora vale: (" << ofVecToString(newVertexs.at(indexOpposite)) << endl;
 			// Actualizar la mesa con los nuevos vértices
 			Polygon* p = table->getPolygonModelObject();
 			p->setVertexs(newVertexs);
@@ -356,7 +356,7 @@ namespace mapinect
 		pcl::ModelCoefficients transformedCoefficients(coefficients);
 
 		ofVec3f centroideMesa = computeCentroid(cloud); 
-		cout << "centroide = (" << centroideMesa.x << "," << centroideMesa.y << "," << centroideMesa.z << ")" << endl;
+		cout << "centroide = " << centroideMesa << endl;
 
 
 		// We want to set the table as the plane Y = y (not necesarilly at y=0, but needs to have normal = (0,-1,0))
@@ -389,7 +389,7 @@ namespace mapinect
 			transformedCloud = PCPtr(transformCloud(cloud, composedMatrix));
 
 			ofVec3f newCentroid = computeCentroid(transformedCloud);
-			cout << "centroide = (" << newCentroid.x << "," << newCentroid.y << "," << newCentroid.z << ")" << endl;
+			cout << "centroide = " << newCentroid << endl;
 			Y = newCentroid.y; 
 
 			composedMatrix = composedMatrix * gTransformation->getWorldTransformation();

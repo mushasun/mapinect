@@ -631,14 +631,14 @@ namespace mapinect {
 
 		/*
 		ofVec3f eye = transformPoint(ofVec3f(0,0,0),composedMatrix);
-		cout << "eye transformado = (" << eye.x << "," << eye.y << "," << eye.z << ")" << endl;
+		cout << "eye transformado = " << ofVecToString(eye) << endl;
 
 		ofVec3f mesa = transformPoint(ofVec3f(0,0.5,1.0),composedMatrix);
-		cout << "mesa transformado = (" << mesa.x << "," << mesa.y << "," << mesa.z << ")" << endl;
+		cout << "mesa transformado = " << ofVecToString(mesa) << endl;
 
 		ofVec3f cent(0.16555759, 0.10312909, 1.2223474);
 		ofVec3f centroide = transformPoint(cent,composedMatrix);
-		cout << "centroide transformado = (" << centroide.x << "," << centroide.y << "," << centroide.z << ")" << endl;
+		cout << "centroide transformado = " << ofVecToString(centroide) << endl;
 		*/
 		return composedMatrix;
 

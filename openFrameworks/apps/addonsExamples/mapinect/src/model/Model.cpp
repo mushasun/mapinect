@@ -127,7 +127,7 @@ namespace mapinect
 			cout << "Table was updated, new vertexs:" << endl;
 		}
 		for(int i=0; i<vertexs.size();i++)
-			cout << "	"<< i << "= (" << vertexs.at(i).x << "," << vertexs.at(i).y << "," << vertexs.at(i).z << ")" << endl;
+			cout << "	"<< i << "= " << vertexs.at(i) << endl;
 		tableMutex.unlock();
 	}
 

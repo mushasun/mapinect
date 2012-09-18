@@ -112,7 +112,7 @@ namespace mapinect {
 			detectedTableCloud = transformCloud(detectedTableCloud,correctedRotation);	
 
 			ofVec3f newCentroid = computeCentroid(detectedTableCloud);
-			cout << "centroide = (" << newCentroid.x << "," << newCentroid.y << "," << newCentroid.z << ")" << endl;
+			cout << "centroide = " << newCentroid << endl;
 
 //			float Y = 0.38;
 //			float translateY = Y - computeCentroid(detectedTableCloud).y;
