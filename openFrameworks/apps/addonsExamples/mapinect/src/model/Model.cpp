@@ -118,10 +118,16 @@ namespace mapinect
 		bool updated = table.get() != NULL;
 		table = newTable;
 		IObjectPtr iObject = table->getMathModelApproximation();
-		if (!updated)
+		vector<ofVec3f> vertexs = table->getPolygonModelObject()->getMathModel().getVertexs();
+		if (!updated) {
 			EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectDetected, iObject));
-		else
+			cout << "Table detected with vertexs:" << endl;
+		} else {
 			EventManager::addEvent(MapinectEvent(kMapinectEventTypeObjectUpdated, iObject));
+			cout << "Table was updated, new vertexs:" << endl;
+		}
+		for(int i=0; i<vertexs.size();i++)
+			cout << "	"<< i << "= (" << vertexs.at(i).x << "," << vertexs.at(i).y << "," << vertexs.at(i).z << ")" << endl;
 		tableMutex.unlock();
 	}
 

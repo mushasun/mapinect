@@ -133,7 +133,7 @@ namespace mapinect
 		mapinect::Line3D lineAB(pWorldA, pWorldB);	// Linea entre A y B, ambos en 3D
 		double distanceAB = pWorldA.distance(pWorldB);
 		// Se va a modificar el vertice B solo si fue estimado
-		if(!isTableVertexInSafeArea(pWorldB)) {
+		if(!isTableVertexInSafeArea(pWorldB) || (TABLE_LENGTH_AB > distanceAB) ) {
 			// B fue estimado, entonces se debe calcular el nuevo B' con el ancho de mesa 
 			nuevoVerticeB = lineAB.calculateValue(TABLE_LENGTH_AB / distanceAB);
 			cout << "El vertice B fue modificado" << endl;
@@ -142,7 +142,7 @@ namespace mapinect
 		mapinect::Line3D lineAD(pWorldA,pWorldD);	// Linea entre A y D, ambos en 3D
 		double distanceAD = pWorldA.distance(pWorldD);
 		// Se va a modificar el vertice D solo si fue estimado
-		if(!isTableVertexInSafeArea(pWorldD)) {
+		if(!isTableVertexInSafeArea(pWorldD) || (TABLE_LENGTH_AD > distanceAD) ) {
 			// D fue estimado, entonces se debe calcular el nuevo D' con el largo de mesa 
 			nuevoVerticeD = lineAD.calculateValue(TABLE_LENGTH_AD / distanceAD);
 			cout << "El vertice D fue modificado" << endl;
@@ -211,7 +211,7 @@ namespace mapinect
 	}
 
 
-	void Table::updateTablePlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
+	TablePtr Table::updateTablePlane(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
 	{
 		TablePtr table(new Table(coefficients, cloud));
 
@@ -254,7 +254,7 @@ namespace mapinect
 				int index = (minDistanceIndex + i) % kVertexs;
 				newVertexs.at(index) =
 					detectedVertexs.at((correspondingMinDistanceIndex + i) % kVertexs);
-				cout << "newVertexs.at(" << index << ") vale: (" << newVertexs.at(index).x << ", " << newVertexs.at(index).y << ", " << newVertexs.at(index).z << ")" << endl;
+//				cout << "newVertexs.at(" << index << ") vale: (" << newVertexs.at(index).x << ", " << newVertexs.at(index).y << ", " << newVertexs.at(index).z << ")" << endl;
 			}
 
 			ofVec3f startVertex = newVertexs.at(minDistanceIndex); 
@@ -269,11 +269,11 @@ namespace mapinect
 				nextVertex = newVertexs.at(indexNext);
 				mapinect::Line3D lineNext(startVertex, nextVertex);	
 				dist = startVertex.distance(nextVertex);
-				cout << "Siguiente vertice - dist = " << dist << endl;
+//				cout << "Siguiente vertice - dist = " << dist << endl;
 				calibratedDistance = table->initOrderedVertexs.at(minDistanceIndex).distance(table->initOrderedVertexs.at(indexNext)); 
-				cout << "  y calibratedDistance = " << calibratedDistance << endl;
+//				cout << "  y calibratedDistance = " << calibratedDistance << endl;
 				newVertexs.at(indexNext) = lineNext.calculateValue( calibratedDistance / dist);
-				cout << "newVertexs.at(" << indexNext << ") ahora vale: (" << newVertexs.at(indexNext).x << ", " << newVertexs.at(indexNext).y << "," << newVertexs.at(indexNext).z << endl;
+//				cout << "newVertexs.at(" << indexNext << ") ahora vale: (" << newVertexs.at(indexNext).x << ", " << newVertexs.at(indexNext).y << "," << newVertexs.at(indexNext).z << endl;
 			// Ajustar vértice anterior
 				indexPrevious = minDistanceIndex - 1;
 				if (indexPrevious < 0) 
@@ -281,11 +281,11 @@ namespace mapinect
 				prevVertex = newVertexs.at(indexPrevious);
 				mapinect::Line3D linePrev(startVertex, prevVertex);	
 				dist = startVertex.distance(prevVertex);
-				cout << "Vertice anterior - dist = " << dist << endl;
+//				cout << "Vertice anterior - dist = " << dist << endl;
 				calibratedDistance = table->initOrderedVertexs.at(minDistanceIndex).distance(table->initOrderedVertexs.at(indexPrevious)); 
-				cout << "  y calibratedDistance = " << calibratedDistance << endl;
+//				cout << "  y calibratedDistance = " << calibratedDistance << endl;
 				newVertexs.at(indexPrevious) = linePrev.calculateValue( calibratedDistance / dist);
-				cout << "newVertexs.at(" << indexPrevious << ") ahora vale: (" << newVertexs.at(indexPrevious).x << ", " << newVertexs.at(indexPrevious).y << "," << newVertexs.at(indexPrevious).z << endl;
+//				cout << "newVertexs.at(" << indexPrevious << ") ahora vale: (" << newVertexs.at(indexPrevious).x << ", " << newVertexs.at(indexPrevious).y << "," << newVertexs.at(indexPrevious).z << endl;
 			// Ajustar vértice opuesto, con suma de vectores
 				indexOpposite = indexNext + 1;
 				if (indexOpposite >= newVertexs.size()) 
@@ -293,63 +293,116 @@ namespace mapinect
 				// (nextVertex - startVertex) + (prevVertex - startVertex) = (opVertex - startVertex)
 				// => opVertex = (nextVertex - startVertex) + (prevVertex - startVertex) + startVertex
 				newVertexs.at(indexOpposite) = newVertexs.at(indexNext) - newVertexs.at(minDistanceIndex) + newVertexs.at(indexPrevious);
-				cout << "newVertexs.at(" << indexOpposite << ") ahora vale: (" << newVertexs.at(indexOpposite).x << ", " << newVertexs.at(indexOpposite).y << "," << newVertexs.at(indexOpposite).z << endl;
+//				cout << "newVertexs.at(" << indexOpposite << ") ahora vale: (" << newVertexs.at(indexOpposite).x << ", " << newVertexs.at(indexOpposite).y << "," << newVertexs.at(indexOpposite).z << endl;
 			// Actualizar la mesa con los nuevos vértices
 			Polygon* p = table->getPolygonModelObject();
 			p->setVertexs(newVertexs);
 		}
 
-		gModel->setTable(table);
+		return table;
+//		gModel->setTable(table);
+	}
+
+	Eigen::Affine3f Table::calculateRotations(const pcl::ModelCoefficients& coefficients)
+	{
+		Eigen::Vector3f axisX(1, 0, 0);
+		Eigen::Vector3f axisZ(0, 0, 1);
+		ofVec3f ejeX = ofVec3f(1, 0, 0);
+		ofVec3f ejeZ = ofVec3f(0, 0, 1);
+		Eigen::Affine3f rotationX, rotationZ;
+		ofVec3f normalMesa = ofVec3f(0, -1, 0); // Queremos que la mesa tenga siempre esta normal
+		ofVec3f newTableNormal = (::getNormal(coefficients).getNormalized());		// La normal debe estar apuntando hacia Y negativo
+
+		// Calcular rotaciones necesarias para que la nueva mesa tenga normal (0,-1,0)
+		// Proyectar a la normal newTableNormal en el plano X=x; plano que pasa por el origen, con normal = (1,0,0) 
+		Plane3D planoX = Plane3D(ofVec3f(0, 0, 0), ejeX); //lo defino con el plano que yz y normal x
+		ofVec3f projXNormal = planoX.project(newTableNormal);
+		// Calcular el ángulo que forman la proyección de la normal con el vector (0,-1,0)
+		float angleX = projXNormal.angleRad(normalMesa);
+		projXNormal.normalize();
+		if (projXNormal.crossed(normalMesa).x < 0) {
+			angleX *= -1;
+		}
+		rotationX = Eigen::AngleAxis<float>(angleX, axisX);
+
+/*		if (IsFeatureMoveArmActive()) {		//TODO: verificar por qué hay que cambiar esta rotación, según si el feature move arm está activo o no
+			rotationX = Eigen::AngleAxis<float>(angleX, axisX);		// Si el feature Move ARm está activo
+		} else {
+			rotationX = Eigen::AngleAxis<float>(-angleX, axisX);
+		}
+*/
+
+		// Rotar a la normal newTableNormal en X el ángulo hallado
+		ofVec3f normalRotatedX = transformPoint(newTableNormal,rotationX);
+		// Calcular el ángulo que forman la normal rotada con el vector (0,-1,0)
+		float angleZ = normalRotatedX.angleRad(normalMesa);
+		normalRotatedX.normalize();
+		if (normalRotatedX.crossed(normalMesa).z < 0) {
+			angleZ *= -1;
+		}
+		rotationZ = Eigen::AngleAxis<float>(angleZ, axisZ);
+
+		// Calcular la matriz de rotación de Eigen para aplicar estas dos rotaciones
+		Eigen::Affine3f rotation = rotationZ * rotationX;
+
+		ofVec3f checkTableNormal = transformPoint(newTableNormal, rotation);
+
+		return rotation;
 	}
 
 	TablePtr Table::create(const pcl::ModelCoefficients& coefficients, const PCPtr& cloud)
 	{
 		PCPtr transformedCloud(cloud);
 		pcl::ModelCoefficients transformedCoefficients(coefficients);
-		
+
+		ofVec3f centroideMesa = computeCentroid(cloud); 
+		cout << "centroide = (" << centroideMesa.x << "," << centroideMesa.y << "," << centroideMesa.z << ")" << endl;
+
+
+		// We want to set the table as the plane Y = y (not necesarilly at y=0, but needs to have normal = (0,-1,0))
+		Eigen::Affine3f rotation = Table::calculateRotations(coefficients);
+		Eigen::Affine3f composedMatrix, translation;
+
+		// The table should be on this plane, y = Y
+//		float Y = 0.38;
+		float Y = 0;
+
 		if (!IsFeatureMoveArmActive())
 		{
-			// We want to set the table as the plane Y = y (not necesarilly at y=0, but needs to have normal = (0,-1,0))
 			// While we don't have the arm transformation, we will translate the origin to
 			// table's centroid directly from Kinect's origin
-			Eigen::Vector3f axisX(1, 0, 0);
-			Eigen::Vector3f axisZ(0, 0, 1);
-			Eigen::Affine3f rotationX, rotationZ;
-			ofVec3f newTableNormal = -(::getNormal(coefficients).getNormalized());
-
-			ofVec3f ejeX = ofVec3f(1, 0, 0);
-			Plane3D planoX = Plane3D(ofVec3f(0,0,0), ejeX); //lo defino con el plano que yz y normal x
-			ofVec3f projXNormal = planoX.project(newTableNormal);
-
-			float angleX = projXNormal.angleRad(ofVec3f(0, 1, 0));
-			rotationX = Eigen::AngleAxis<float>(-angleX, axisX);
-
-			ofVec3f ejeZ = ofVec3f(0, 0, 1);
-			Plane3D planoZ = Plane3D(ofVec3f(0,0,0), ejeZ); //lo defino con el plano que xy y normal z
-			ofVec3f projZNormal = planoZ.project(newTableNormal);
-
-			float angleZ = projZNormal.angleRad(ofVec3f(0, 1, 0));
-			rotationZ = Eigen::AngleAxis<float>(angleZ, axisZ);
-
-			Eigen::Affine3f translation;
 			ofVec3f centroid(computeCentroid(cloud));
 			translation = Eigen::Translation<float, 3>(-centroid.x, -centroid.y, -centroid.z);
 
-			Eigen::Affine3f composedMatrix = rotationX * rotationZ * translation;
-//			Eigen::Affine3f composedMatrix = translation;	// Setear solo la traslación; si además se rota, puede no quedar bien el plano de la mesa
-		
-			gTransformation->setWorldTransformation(composedMatrix);
-			gTransformation->setInitialWorldTransformation(composedMatrix);
+			composedMatrix = rotation * translation;		
+			transformedCloud = PCPtr(transformCloud(cloud, composedMatrix));
+		} else {
+//			transformedCloud = PCPtr(transformCloud(cloud, rotation));
+//			float translateY = Y - computeCentroid(transformedCloud).y;
+/*			float translateY = 0;
+			translation = Eigen::Translation<float, 3>(0.0, translateY, 0.0);
+*/
+			ofVec3f centroid(computeCentroid(cloud));
+			
+			composedMatrix = getTranslationMatrix(centroid) * (rotation * getTranslationMatrix(-centroid));
 
 			transformedCloud = PCPtr(transformCloud(cloud, composedMatrix));
 
-			transformedCoefficients.values[0] = 0;
-			transformedCoefficients.values[1] = -1;
-			transformedCoefficients.values[2] = 0;
-			transformedCoefficients.values[3] = 0;
+			ofVec3f newCentroid = computeCentroid(transformedCloud);
+			cout << "centroide = (" << newCentroid.x << "," << newCentroid.y << "," << newCentroid.z << ")" << endl;
+			Y = newCentroid.y; 
+
+			composedMatrix = composedMatrix * gTransformation->getWorldTransformation();
 		}
-		
 		saveCloud("mesaInicial.pcd",*transformedCloud);
+
+		transformedCoefficients.values[0] = 0;
+		transformedCoefficients.values[1] = -1;
+		transformedCoefficients.values[2] = 0;
+		transformedCoefficients.values[3] = Y;
+
+		gTransformation->setWorldTransformation(composedMatrix);
+		gTransformation->setInitialWorldTransformation(composedMatrix);
 
 		TablePtr table(new Table(transformedCoefficients, transformedCloud));
 		table->detect();
@@ -365,6 +418,19 @@ namespace mapinect
 		}
 
 		table->initOrderedVertexs = table->getPolygonModelObject()->getMathModel().getVertexs();
+
+		ofVec3f ab = table->initOrderedVertexs.at(1) - table->initOrderedVertexs.at(0);
+		ab = ab.getNormalized();
+		ofVec3f ad = table->initOrderedVertexs.at(3) - table->initOrderedVertexs.at(0);
+		ad = ad.getNormalized();
+		float angleDAB = ab.angle(ad);
+		cout << "angle DAB es: " << angleDAB << endl;
+
+		ofVec3f cd = table->initOrderedVertexs.at(3) - table->initOrderedVertexs.at(2);
+		cd = cd.getNormalized();
+		float angleADC = ad.angle(cd);
+		cout << "angle ADC es: " << angleADC << endl;
+
 
 		gModel->setTable(table);
 
