@@ -261,7 +261,7 @@ PCPtr findPlaneGivenNormal(const PCPtr& cloud, pcl::ModelCoefficients& coefficie
 	seg.setMethodType (pcl::SAC_RANSAC);  
 	seg.setMaxIterations (maxIterations);  
 	seg.setDistanceThreshold (distanceThreshold);  //  How close a point must be to the model in order to be considered an inlier
-	cout << "Buscando planos con normal = (" << normal.x << ", " << normal.y << ", " << normal.z << ")" << endl;
+	cout << "Buscando planos con normal = " << normal << endl;
 	seg.setAxis(Eigen::Vector3f(normal.x,normal.y,normal.z));  
 	float angleThresholdRad = ofDegToRad(angleThreshold);
 	seg.setEpsAngle(angleThresholdRad);
@@ -470,7 +470,7 @@ float boxProbability(const PCPtr& cloud)
 				{
 					cout << "ni paralela ni perpendicular" << endl;
 					cout << "dot: " << dot << endl;
-					cout << ofVecToString(norm) << endl;
+					cout << norm << endl;
 					return 0;
 				}
 				//si es paralela a la mesa, chequeo que esté sobre la mesa
@@ -489,8 +489,8 @@ float boxProbability(const PCPtr& cloud)
 				if( dot > 0.2)
 				{
 					cout << "dot: " << dot << endl;
-					cout << norm.x << ", " << norm.y << ", " << norm.z << endl;
-					cout << normals[i].x << ", " << normals[i].y << ", " << normals[i].z << endl;
+					cout << norm << endl;
+					cout << normals[i] << endl;
 					
 					cout << "mal entre si" << endl;
 					return 0;

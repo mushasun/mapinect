@@ -10,9 +10,6 @@
 extern ofVec3f BAD_OFVEC3F;
 extern ofVec2f BAD_OFVEC2F;
 
-string ofVecToString(const ofVec3f& v);
-string ofVecToString(const ofVec3f& v, int precision);
-
 void computeBoundingBox(const std::vector<ofVec3f>& v, ofVec3f& min, ofVec3f& max);
 
 template<class T>
