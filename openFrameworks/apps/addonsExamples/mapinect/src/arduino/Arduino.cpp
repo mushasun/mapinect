@@ -8,6 +8,8 @@
 #include "Globals.h"
 #include "Constants.h"
 
+#include "transformationUtils.h"
+
 namespace mapinect {
 
 #define		ARDUINO_CONFIG		"ArduinoConfig:"
@@ -115,7 +117,11 @@ namespace mapinect {
 		sendMotor((char) angleMotor8, ID_MOTOR_8);
 
 		if (IsFeatureMoveArmActive()) {
-			gTransformation->setInitialWorldTransformation(calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8));
+			Eigen::Affine3f initTransf;
+			initTransf = calculateWorldTransformation(angleMotor1,angleMotor2,angleMotor4,angleMotor8);
+			gTransformation->setInitialWorldTransformation(initTransf);
+			gTransformation->setWorldTransformation(initTransf);
+
 		}
 
 		posicion = getKinect3dCoordinates();
@@ -623,6 +629,17 @@ namespace mapinect {
 
 		gTransformation->setWorldTransformation(composedMatrix);
 
+		/*
+		ofVec3f eye = transformPoint(ofVec3f(0,0,0),composedMatrix);
+		cout << "eye transformado = (" << eye.x << "," << eye.y << "," << eye.z << ")" << endl;
+
+		ofVec3f mesa = transformPoint(ofVec3f(0,0.5,1.0),composedMatrix);
+		cout << "mesa transformado = (" << mesa.x << "," << mesa.y << "," << mesa.z << ")" << endl;
+
+		ofVec3f cent(0.16555759, 0.10312909, 1.2223474);
+		ofVec3f centroide = transformPoint(cent,composedMatrix);
+		cout << "centroide transformado = (" << centroide.x << "," << centroide.y << "," << centroide.z << ")" << endl;
+		*/
 		return composedMatrix;
 
 	}
@@ -648,25 +665,30 @@ namespace mapinect {
 
 	void Arduino::armStartedMoving(bool moveForced)
 	{		
-		if (IsFeatureMoveArmActive()) {
+		if (IsFeatureMoveArmActive())
+		{
 			startedMoving = true;
 			ofPoint accel = gKinect->getMksAccel();
 			acceleration = ofVec3f(accel.x, accel.y, accel.z);
 			gTransformation->setIsWorldTransformationStable(false);
 
-			if (gModel->getTable() != NULL) { 
+			if (gModel->getTable() != NULL)
+			{ 
 				// Obtener nube antes de mover los motores
 				if (moveForced)
 					cloudBeforeMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
 				else
 					cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
 				saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
-			} else {
+			}
+			else
+			{
 				// No aplicar ICP si no se tiene mesa detectada
 				cloudBeforeMoving.reset();
 			}
 
-			if (!moveForced) {		// Si debo forzar el reset, no se debe invocar al lock, es por que ya quedó en lock el cloudMutex
+			if (!moveForced) // Si debo forzar el reset, no se debe invocar al lock, es por que ya quedó en lock el cloudMutex
+			{
 				// Mientras se está moviendo el brazo, nadie debería poder obtener la nube a través del método getCloud
 				gTransformation->cloudMutex.lock();
 			}
