@@ -95,13 +95,31 @@ namespace mapinect {
 		PCPtr detectedTableCloud;
 		bool tableDetected = detectNewTable(afterMoving, coefficients, detectedTableCloud);
 
+
 		// 2 - Si se detectó la nueva mesa, calcular ajuste necesario 
 		if (tableDetected) 
 		{
+			saveCloud("nuevaMesaSinTransformar.pcd",*detectedTableCloud);
+	
 			// 2.1 - Calcular rotaciones para que tenga normal (0,-1,0)
 			Eigen::Affine3f rotation = Table::calculateRotations(coefficients);
+			ofVec3f centroidPrev  = computeCentroid(detectedTableCloud);
+
+			Eigen::Affine3f correctedRotation;
+			correctedRotation = getTranslationMatrix(centroidPrev) * (rotation * getTranslationMatrix(-centroidPrev));
+
 			// Aplicar la rotación a la nube de mesa detectada, y actualizar los coeficientes con la nueva normal de la mesa
-			detectedTableCloud = transformCloud(detectedTableCloud,rotation);	
+			detectedTableCloud = transformCloud(detectedTableCloud,correctedRotation);	
+
+			ofVec3f newCentroid = computeCentroid(detectedTableCloud);
+			cout << "centroide = (" << newCentroid.x << "," << newCentroid.y << "," << newCentroid.z << ")" << endl;
+
+//			float Y = 0.38;
+//			float translateY = Y - computeCentroid(detectedTableCloud).y;
+//			Eigen::Affine3f translationY;
+	//		translationY = Eigen::Translation<float, 3>(0.0, translateY, 0.0);
+	//		detectedTableCloud = transformCloud(detectedTableCloud,translationY);	
+
 			coefficients.values[0] = 0;
 			coefficients.values[1] = -1;
 			coefficients.values[2] = 0;
@@ -124,8 +142,13 @@ namespace mapinect {
 			ofVec3f trans = newVertexA - vertexA;
 			translation = Eigen::Translation<float, 3>(-trans.x, -trans.y, -trans.z);
 
+			Eigen::Affine3f composedMatrix = translation * correctedRotation;
+			
+			detectedTableCloud = transformCloud(detectedTableCloud,composedMatrix);	
+			saveCloud("nuevaMesaTransformada.pcd",*detectedTableCloud);
+		
 			// 2.3 - Calcular la transformación de ajuste necesaria, en base a las rotaciones y traslaciones halladas
-			gTransformation->setWorldTransformation(translation * (rotation * gTransformation->getWorldTransformation()));
+			gTransformation->setWorldTransformation(composedMatrix * gTransformation->getWorldTransformation());
 
 			// Setear la mesa
 //			gModel->setTable(newTable);
@@ -139,6 +162,7 @@ namespace mapinect {
 
 		} else {
 			// 2.B - Qué pasa si no se detectó la mesa?
+			// resetear a la posicion inicial el brazo
 		}
 
 
