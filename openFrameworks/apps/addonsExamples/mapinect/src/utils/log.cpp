@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <sstream>
 
+#include "Feature.h"
 #include "ofxMutex.h"
 #include "Timer.h"
 
@@ -35,40 +36,49 @@ static ofxMutex			logsMutex;
 
 void log(const LogFile& file, const std::string& str)
 {
-	assert(file < kLogFileCount);
+	if (mapinect::IsFeatureLogActive())
+	{
+		assert(file < kLogFileCount);
 
-	logsMutex.lock();
-	ostringstream oss;
-	oss << logsTimer[file].stopResumeAndGetElapsedSeconds() << "\t" << str << endl;
-	logs[file] += oss.str();
-	logsMutex.unlock();
+		logsMutex.lock();
+		ostringstream oss;
+		oss << logsTimer[file].stopResumeAndGetElapsedSeconds() << "\t" << str << endl;
+		logs[file] += oss.str();
+		logsMutex.unlock();
+	}
 }
 
 void printLogFileToFile(const LogFile& file, const std::string& filename, bool clear)
 {
-	assert(file < kLogFileCount);
+	if (mapinect::IsFeatureLogActive())
+	{
+		assert(file < kLogFileCount);
 
-	ofstream ofs;
-	ofs.open(filename.c_str());
-	logsMutex.lock();
-	ofs << logs[file] << "print" << endl;
-	ofs.close();
-	if (clear)
-		logs[file] = "";
-	logsTimer[file].start();
-	logsMutex.unlock();
+		ofstream ofs;
+		ofs.open(filename.c_str());
+		logsMutex.lock();
+		ofs << logs[file] << "print" << endl;
+		ofs.close();
+		if (clear)
+			logs[file] = "";
+		logsTimer[file].start();
+		logsMutex.unlock();
+	}
 }
 
 void printLogFile(const LogFile& file, bool clear)
 {
-	assert(file < kLogFileCount);
+	if (mapinect::IsFeatureLogActive())
+	{
+		assert(file < kLogFileCount);
 
-	logsMutex.lock();
-	cout << logs[file] << "print" << endl;
-	if (clear)
-		logs[file] = "";
-	logsTimer[file].start();
-	logsMutex.unlock();
+		logsMutex.lock();
+		cout << logs[file] << "print" << endl;
+		if (clear)
+			logs[file] = "";
+		logsTimer[file].start();
+		logsMutex.unlock();
+	}
 }
 
 static std::string	pcmThreadStatus = "";

@@ -27,10 +27,11 @@ namespace mapinect
 			gFeatures[FEATURE_SHOW_RGB] = XML.getValue(FEATURE_CONFIG "SHOW_RGB", false);
 			gFeatures[FEATURE_HAND_DETECTION] = XML.getValue(FEATURE_CONFIG "HAND_DETECTION", false);
 			gFeatures[FEATURE_MOVE_ARM] = XML.getValue(FEATURE_CONFIG "MOVE_ARM",false);
-			gFeatures[FEATURE_UNIFORM_DENSITY] = XML.getValue(FEATURE_CONFIG "UNIFORM_DENSITY",true);
-			gFeatures[FEATURE_CALIBRATE_TABLE] = XML.getValue(FEATURE_CONFIG "CALIBRATE_TABLE",false);
-			gFeatures[FEATURE_INVALIDATE_OBJECT_BY_VOLUME] = XML.getValue(FEATURE_CONFIG "INVALIDATE_OBJECT_BY_VOLUME",true);
+			gFeatures[FEATURE_UNIFORM_DENSITY] = XML.getValue(FEATURE_CONFIG "UNIFORM_DENSITY", true);
+			gFeatures[FEATURE_CALIBRATE_TABLE] = XML.getValue(FEATURE_CONFIG "CALIBRATE_TABLE", false);
+			gFeatures[FEATURE_INVALIDATE_OBJECT_BY_VOLUME] = XML.getValue(FEATURE_CONFIG "INVALIDATE_OBJECT_BY_VOLUME", true);
 			gFeatures[FEATURE_ENABLE_MAPPING_WHILE_MOVING] = XML.getValue(FEATURE_CONFIG "FEATURE_ENABLE_MAPPING_WHILE_MOVING", true);
+			gFeatures[FEATURE_LOG] = XML.getValue(FEATURE_CONFIG "FEATURE_LOG", false);
 		}
 
 	}
@@ -88,6 +89,11 @@ namespace mapinect
 	bool IsFeatureEnableMappingWhileMovingActive() 
 	{
 		return IsFeatureActive(FEATURE_ENABLE_MAPPING_WHILE_MOVING);
+	}
+
+	bool IsFeatureLogActive() 
+	{
+		return IsFeatureActive(FEATURE_LOG);
 	}
 
 }
