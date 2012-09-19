@@ -385,12 +385,35 @@ namespace mapinect {
 		pcPolygonsMutex.lock();
 		for (int i = 0; i < pcpolygons.size(); i++)
 			pcpolygons[i]->draw();
+		ofSetColor(this->getColor());
 		for(int i = 0; i < vertexs.size(); i++)
 		{
-			ofSetColor(this->getColor());
 			ofVec3f w = getScreenCoords(vertexs.at(i));
 			ofCircle(w.x, w.y, 5, 4);
 		}
+		static vector<pair<int, int> > lines;
+		if (lines.empty())
+		{
+			lines.push_back(make_pair(0, 1));
+			lines.push_back(make_pair(1, 2));
+			lines.push_back(make_pair(2, 3));
+			lines.push_back(make_pair(3, 0));
+			lines.push_back(make_pair(4, 5));
+			lines.push_back(make_pair(5, 6));
+			lines.push_back(make_pair(6, 7));
+			lines.push_back(make_pair(7, 4));
+			lines.push_back(make_pair(0, 4));
+			lines.push_back(make_pair(1, 5));
+			lines.push_back(make_pair(2, 6));
+			lines.push_back(make_pair(3, 7));
+		}
+		for(int i = 0; i < lines.size(); i++)
+		{
+			ofVec3f w1 = getScreenCoords(vertexs[lines[i].first]);
+			ofVec3f w2 = getScreenCoords(vertexs[lines[i].second]);
+			ofLine(w1.x, w1.y, w2.x, w2.y);
+		}
+
 		ofSetColor(0,0,255);
 		ofVec3f sAvg = getScreenCoords(this->getCenter());
 		ofDrawBitmapString(ofToString(this->getId()), sAvg.x, sAvg.y, 0);
