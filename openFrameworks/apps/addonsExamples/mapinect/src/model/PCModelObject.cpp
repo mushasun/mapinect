@@ -25,7 +25,7 @@ namespace mapinect {
 		setId(objId);
 		lod = 1;
 
-		this->setColor(ofColor(rand()%255,rand()%255,rand()%255).getHex());
+		setColor(ofRandomColor());
 	}
 
 	PCModelObject::~PCModelObject() {
