@@ -123,11 +123,6 @@ namespace mapinect
 			verticesInFrustum = verticesInFrustum && IsInFrustum(vertices.at(i));
 		}
 		
-		if (verticesInFrustum)
-			cout << "objecto dentro del frustum" << endl; 
-		else 
-			cout << "objeto fuera" << endl;
-
 		return verticesInFrustum;
 	}
 
