@@ -95,7 +95,6 @@ namespace mapinect {
 		PCPtr detectedTableCloud;
 		bool tableDetected = detectNewTable(afterMoving, coefficients, detectedTableCloud);
 
-
 		// 2 - Si se detectó la nueva mesa, calcular ajuste necesario 
 		if (tableDetected) 
 		{
@@ -103,8 +102,8 @@ namespace mapinect {
 	
 			// 2.1 - Calcular rotaciones para que tenga normal (0,-1,0)
 			Eigen::Affine3f rotation = Table::calculateRotations(coefficients);
-			ofVec3f centroidPrev  = computeCentroid(detectedTableCloud);
 
+			ofVec3f centroidPrev  = computeCentroid(detectedTableCloud);
 			Eigen::Affine3f correctedRotation;
 			correctedRotation = getTranslationMatrix(centroidPrev) * (rotation * getTranslationMatrix(-centroidPrev));
 
@@ -114,19 +113,21 @@ namespace mapinect {
 			ofVec3f newCentroid = computeCentroid(detectedTableCloud);
 			cout << "centroide = " << newCentroid << endl;
 
-//			float Y = 0.38;
-//			float translateY = Y - computeCentroid(detectedTableCloud).y;
-//			Eigen::Affine3f translationY;
-	//		translationY = Eigen::Translation<float, 3>(0.0, translateY, 0.0);
-	//		detectedTableCloud = transformCloud(detectedTableCloud,translationY);	
+			ofVec3f tableModelCentroid = computeCentroid(gModel->getTable()->getCloud());
+
+			// Se debe mantener la misma altura de la mesa del modelo
+			float Y = tableModelCentroid.y;
+			float translateY = Y - computeCentroid(detectedTableCloud).y;
+			Eigen::Affine3f translationY;
+			translationY = Eigen::Translation<float, 3>(0.0, translateY, 0.0);
+			detectedTableCloud = transformCloud(detectedTableCloud,translationY);	
 
 			coefficients.values[0] = 0;
 			coefficients.values[1] = -1;
 			coefficients.values[2] = 0;
-			coefficients.values[3] = computeCentroid(detectedTableCloud).y;
+			coefficients.values[3] = Y;
 
 			// 2.2 - Calcular traslación para que coincidan los nuevos vértices detectados con los vértices calibrados de la mesa
-			// Guardar los vértices de la mesa del modelo
 			vector<ofVec3f> tableModelVertexs(gModel->getTable()->getPolygonModelObject()->getMathModel().getVertexs());
 			// Calcular la mesa con el nuevo plano, y nuevos vértices, ajustando los que se tenía del modelo
 			TablePtr newTable = Table::updateTablePlane(coefficients,detectedTableCloud);
@@ -137,23 +138,26 @@ namespace mapinect {
 			// Tomar la pareja de vértices (A,A') que se corresponden, para calcular la traslación
 			ofVec3f vertexA = tableModelVertexs.at(0);
 			ofVec3f newVertexA = newTableVertexs.at(0);
-			// Traslación = A - A'
-			Eigen::Affine3f translation;
-			ofVec3f trans = newVertexA - vertexA;
-			translation = Eigen::Translation<float, 3>(-trans.x, -trans.y, -trans.z);
+			Eigen::Affine3f translationToFitVertexs = Eigen::Affine3f::Identity();
 
-			Eigen::Affine3f composedMatrix = translation * correctedRotation;
-			
-			detectedTableCloud = transformCloud(detectedTableCloud,composedMatrix);	
+			if (vertexA.distance(newVertexA) < 0.50) {			
+				ofVec3f trans = newVertexA - vertexA;	// A - A'
+				translationToFitVertexs = Eigen::Translation<float, 3>(-trans.x, -trans.y, -trans.z);
+			} else {
+				cout << "da vuelta el X" << endl;
+			}
+
+			detectedTableCloud = transformCloud(detectedTableCloud,translationToFitVertexs);	
 			saveCloud("nuevaMesaTransformada.pcd",*detectedTableCloud);
-		
+					
 			// 2.3 - Calcular la transformación de ajuste necesaria, en base a las rotaciones y traslaciones halladas
+			Eigen::Affine3f composedMatrix = translationToFitVertexs * (translationY * correctedRotation);
 			gTransformation->setWorldTransformation(composedMatrix * gTransformation->getWorldTransformation());
 
-			// Setear la mesa
-//			gModel->setTable(newTable);
+			// Enviar evento que el brazo se dejó de mover, y ya está estable la transformación
+			EventManager::addEvent(MapinectEvent(kMapinectEventTypeArmStoppedMoving));
 
-			// Una vez que se terminó de actualizar la mesa y se calculó la transformación, 
+			// Una vez que se terminó de actualizar la transformación, 
 			//	libero el mutex para que puedan invocar al método getCloud
 			gTransformation->cloudMutex.unlock();
 
