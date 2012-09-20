@@ -386,6 +386,12 @@ namespace mapinect {
 		for (int i = 0; i < pcpolygons.size(); i++)
 			pcpolygons[i]->draw();
 
+		ofSetColor(this->getColor());
+		for(int i = 0; i < vertexs.size(); i++)
+		{
+			ofVec3f w = getScreenCoords(vertexs.at(i));
+			ofCircle(w.x, w.y, 5, 4);
+		}
 		static vector<pair<int, int> > lines;
 		if (lines.empty())
 		{
@@ -402,12 +408,11 @@ namespace mapinect {
 			lines.push_back(make_pair(2, 6));
 			lines.push_back(make_pair(3, 7));
 		}
-		ofSetColor(this->getColor());
 		for(int i = 0; i < lines.size(); i++)
 		{
 			ofVec3f w1 = getScreenCoords(vertexs[lines[i].first]);
 			ofVec3f w2 = getScreenCoords(vertexs[lines[i].second]);
-			ofLine(w1.x, w1.y, w2.x, w2.y);
+			ofLine(w1.x, w1.y, 5, w2.x, w2.y, 5);
 		}
 
 		ofSetColor(0,0,255);
