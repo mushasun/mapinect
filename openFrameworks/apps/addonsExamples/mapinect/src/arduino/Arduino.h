@@ -60,6 +60,9 @@ namespace mapinect
 		static float		MOTORS_HEIGHT;
 		static float		MOTORS_WIDTH;
 		static float		KINECT_HEIGHT;
+		static float		TILT_ANGLE;
+		static float		ARM_HEIGHT;
+		static float		KINECT_MOTOR_HEIGHT;
 
 		inline bool			isArmMoving()	{	return startedMoving;	}
 
@@ -87,7 +90,7 @@ namespace mapinect
 		ofVec3f				acceleration;
 
 		void				armStartedMoving(bool moveForced);
-		void				armStoppedMoving();
+		void				armHasStoppedMoving();
 
 		ICPThread*			icpThread;
 
