@@ -15,7 +15,9 @@ namespace story
 	enum StoryMode{
 		STORY_ACTION_MODE = 0,
 		STORY_MOVE_MODE,
-		STORY_MOVE_AND_ACTION_MODE
+		STORY_MOVE_AND_ACTION_MODE,
+		STORY_ARM_MOVING,
+		STORY_ARM_STOPPED
 	};
 
 	enum StoryStatusProperty{
@@ -48,16 +50,19 @@ namespace story
 			static mapinect::IModeManager* modeManager;
 			static std::map<IntStoryStatusProperty, int> intProperties;
 			static std::map<ofVec3fStoryStatusProperty, ofVec3f> ofVec3fProperties;
+
+			static StoryMode currentMode;
 		public:
-		static void			setup(mapinect::IModeManager* modeManager);
-		static void			setProperty(StoryStatusProperty prop, bool val);
+			static void			setup(mapinect::IModeManager* modeManager);
+			static void			setProperty(StoryStatusProperty prop, bool val);
 			static void			setProperty(IntStoryStatusProperty prop, int val);
 			static void			setProperty(ofVec3fStoryStatusProperty prop, ofVec3f val);
 			static bool			getProperty(StoryStatusProperty prop);
 			static int			getIntProperty(IntStoryStatusProperty prop);
 			static ofVec3f		getofVec3fProperty(ofVec3fStoryStatusProperty prop);
 
-		static void			setStoryMode(StoryMode mode);
+			static void			setStoryMode(StoryMode mode);
+			static StoryMode	getStoryMode();
 
 	};
 

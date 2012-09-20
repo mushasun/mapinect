@@ -24,6 +24,7 @@ namespace mapinect {
 		virtual void buttonPressed(const IButtonPtr&, const DataTouch&)		{ }
 		virtual void buttonReleased(const IButtonPtr&, const DataTouch&)	{ }
 		virtual void pointTouched(const DataTouch&)							{ }
+		virtual void armStoppedMoving()										{ }
 		/*IButtonManager*	btnManager;*/
 	};
 }

@@ -17,22 +17,25 @@ namespace mapinect {
 		kMapinectEventTypeObjectTouched,
 		kMapinectEventTypePointTouched,
 		kMapinectEventTypeButtonPressed,
-		kMapinectEventTypeButtonReleased
+		kMapinectEventTypeButtonReleased,
+		kMapinectEventTypeArmStoppedMoving
 	} MapinectEventType;
 
 	struct MapinectEvent
 	{
 	public:
 		MapinectEvent(const MapinectEventType& type, const IObjectPtr& object)
-			: type(type), object(object), movement(ofVec3f(), ofVec3f()) { }
+			: type(type), object(object) { }
 		MapinectEvent(const MapinectEventType& type, const IObjectPtr& object, const DataMovement& movement)
 			: type(type), object(object), movement(movement) { }
 		MapinectEvent(const MapinectEventType& type, const IObjectPtr& object, const DataTouch& touchPoint)
-			: type(type), object(object), movement(ofVec3f(), ofVec3f()), touchPoint(touchPoint) { }
+			: type(type), object(object), touchPoint(touchPoint) { }
 		MapinectEvent(const MapinectEventType& type, const IButtonPtr& button, const DataTouch& touchPoint)
-			: type(type), button(button), movement(ofVec3f(), ofVec3f()), touchPoint(touchPoint) { }
+			: type(type), button(button), touchPoint(touchPoint) { }
 		MapinectEvent(const MapinectEventType& type, const DataTouch& touchPoint)
-			: type(type), movement(ofVec3f(), ofVec3f()), touchPoint(touchPoint) { }
+			: type(type), touchPoint(touchPoint) { }
+		MapinectEvent(const MapinectEventType& type)
+			: type(type) { }
 
 		MapinectEventType		type;
 		IObjectPtr				object;

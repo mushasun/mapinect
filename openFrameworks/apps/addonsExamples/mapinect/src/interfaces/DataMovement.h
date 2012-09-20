@@ -7,8 +7,10 @@ namespace mapinect {
 
 	struct DataMovement {
 		public:
+			DataMovement() { }
 			DataMovement(const ofVec3f& translation, const ofVec3f& rotation)
 				: translation(translation), rotation(rotation) { }
+
 
 			const ofVec3f&		getTranslation() const	{ return translation; }
 			const ofVec3f&		getRotation() const		{ return rotation; }

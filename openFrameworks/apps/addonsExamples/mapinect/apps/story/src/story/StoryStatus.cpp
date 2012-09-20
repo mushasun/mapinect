@@ -6,6 +6,8 @@ namespace story
 	std::map<IntStoryStatusProperty, int> StoryStatus::intProperties;
 	mapinect::IModeManager* StoryStatus::modeManager = NULL;
 	std::map<ofVec3fStoryStatusProperty, ofVec3f> StoryStatus::ofVec3fProperties;
+	StoryMode StoryStatus::currentMode = STORY_ACTION_MODE;		// Modo inicial?
+
 	void StoryStatus::setup(mapinect::IModeManager* manager)
 	{
 		modeManager = manager;
@@ -53,6 +55,8 @@ namespace story
 
 	void StoryStatus::setStoryMode(StoryMode mode)
 	{
+		StoryStatus::currentMode = mode;
+
 		switch(mode)
 		{
 			case STORY_ACTION_MODE:
@@ -82,7 +86,30 @@ namespace story
 				modeManager->enableObjectTracking();
 				modeManager->enableTouchTracking();
 				break;
+			case STORY_ARM_MOVING:
+				StoryStatus::setProperty(ADDING_POWERPLANT, false);
+                StoryStatus::setProperty(ADDING_WATERPLANT, false);
+				StoryStatus::setProperty(ADDING_HOUSE,false);
+				StoryStatus::setProperty(ADDING_RIVER,false);
+				StoryStatus::setProperty(ADDING_STREET,false);
+				modeManager->disableObjectTracking();
+				modeManager->disableTouchTracking();
+				break;
+			case STORY_ARM_STOPPED:
+				StoryStatus::setProperty(ADDING_POWERPLANT, false);
+                StoryStatus::setProperty(ADDING_WATERPLANT, false);
+				StoryStatus::setProperty(ADDING_HOUSE,false);
+				StoryStatus::setProperty(ADDING_RIVER,false);
+				StoryStatus::setProperty(ADDING_STREET,false);
+				modeManager->enableObjectTracking();
+				modeManager->disableTouchTracking();
+				break;
 		}
+	}
+
+	StoryMode StoryStatus::getStoryMode() 
+	{
+		return StoryStatus::currentMode;		
 	}
 	
 	ofVec3f StoryStatus::getofVec3fProperty(ofVec3fStoryStatusProperty prop) 

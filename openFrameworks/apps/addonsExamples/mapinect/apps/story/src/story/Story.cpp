@@ -41,6 +41,9 @@ namespace story {
 		modeManager->disableObjectTracking();
 		firstTouchDone = false;
 		river = NULL;
+
+		previousMode = STORY_ACTION_MODE;	
+		objectWasUpdated = false;
 	}
 
 	//--------------------------------------------------------------
@@ -77,6 +80,17 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::update(float elapsedTime) 
 	{
+		if (StoryStatus::getStoryMode() == STORY_ARM_STOPPED) {
+			int MAX_WAITING_TIME = 2000;	// 2 segundos
+			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
+			if (objectWasUpdated || (elapsedTime > MAX_WAITING_TIME)) {
+				// Tras actualizar los objetos, vuelve al modo en que estaba antes de mover el brazo
+				StoryStatus::setStoryMode(previousMode);
+				cout << "Volviendo al modo anterior luego de: " << elapsedTime << " ms" << endl;
+				objectWasUpdated = false;
+			}
+		}
+
 		//spot
 		if(spot.isActive())
 			spot.update(elapsedTime);
@@ -110,17 +124,17 @@ namespace story {
 		}
 		if (StoryStatus::getProperty(SET_CAMERA_1))
 		{
-			//setCamera(1);
+			setCamera(1);
 			StoryStatus::setProperty(SET_CAMERA_1,false);
 		}
 		if (StoryStatus::getProperty(SET_CAMERA_2))
 		{
-			//setCamera(2);
+			setCamera(2);
 			StoryStatus::setProperty(SET_CAMERA_2,false);
 		}
 		if (StoryStatus::getProperty(SET_CAMERA_3))
 		{
-			//setCamera(3);
+			setCamera(3);
 			StoryStatus::setProperty(SET_CAMERA_3,false);
 		}
 
@@ -137,7 +151,15 @@ namespace story {
 			case 'm':
 				StoryStatus::setStoryMode(STORY_MOVE_MODE);
 				break;
-
+			case '1':
+				setCamera(1);
+				break;
+			case '2':
+				setCamera(2);
+				break;
+			case '3':
+				setCamera(3);
+				break;
 		}
 	}
 
@@ -146,17 +168,7 @@ namespace story {
 	{
 		if (object->getId() == TABLE_ID)
 		{
-			floor = object;
-			Polygon3D table = object->getPolygons().at(0)->getMathModel();
-			ofVec3f tableNormal = table.getPlane().getNormal();
-			ofVec3f translateCanvas = tableNormal * -0.009;
-			vector<ofVec3f> oldVexs = table.getVertexs();
-			vector<ofVec3f> newVexs;
-			for(int i = 0; i < 4; i++)
-				newVexs.push_back(oldVexs.at(3 - i)+translateCanvas);
-
-			table.setVertexs(newVexs);
-			river = new Canvas(object->getId(),table, 512,512,ofColor(220,110,50),ofColor(75,140,250),20);
+			tableUpdated(object);
 		}
 		else
 		{
@@ -189,10 +201,14 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::objectUpdated(const IObjectPtr& object)
 	{
+		if (StoryStatus::getStoryMode() == STORY_ARM_MOVING || StoryStatus::getStoryMode() == STORY_ARM_STOPPED) {
+			objectWasUpdated = true;
+		}
+
 		if (object->getId() == TABLE_ID)
-			river->update(object->getPolygons().at(0)->getMathModel());
-		else
 		{
+			tableUpdated(object);
+		} else {
 			map<int,Box*>::iterator box = boxes.find(object->getId());
 			if(box != boxes.end())
 				box->second->updateModelObject(object);
@@ -331,6 +347,13 @@ namespace story {
 			it->second = touchPoint;
 		}
 	}
+	
+	void Story::armStoppedMoving()
+	{
+		cout << "estado stopped" << endl;
+		StoryStatus::setStoryMode(STORY_ARM_STOPPED);	// Setear por un rato el objectTracking para que ajuste a los objetos
+		startTime = ofGetSystemTime();
+	}
 
 	void Story::setCamera(int camera)
 	{
@@ -338,10 +361,36 @@ namespace story {
 		{
 			cout << "No existe la cámara número: " << camera << endl;
 			return;
+		} else if (StoryStatus::getStoryMode() == STORY_ARM_MOVING || StoryStatus::getStoryMode() == STORY_ARM_STOPPED) {
+			cout << "Brazo ya se está moviendo. No ejecutar setCamera" << endl;
+			return;			
 		}
+
+		previousMode = StoryStatus::getStoryMode();
+		StoryStatus::setStoryMode(STORY_ARM_MOVING);
 
 		Camera cam = StoryConstants::CAMERAS.at(camera - 1);
 		this->armController->setArmPositionAndLookAt(cam.position,cam.lookAt);	
 	}
+
+	void Story::tableUpdated(const IObjectPtr& object) 
+	{
+		floor = object;
+		Polygon3D table = object->getPolygons().at(0)->getMathModel();
+		ofVec3f tableNormal = table.getPlane().getNormal();
+		ofVec3f translateCanvas = tableNormal * -0.009;
+		vector<ofVec3f> oldVexs = table.getVertexs();
+		vector<ofVec3f> newVexs;
+		for(int i = 0; i < 4; i++)
+			newVexs.push_back(oldVexs.at(3 - i)+translateCanvas);
+
+		table.setVertexs(newVexs);
+		if (river == NULL)
+			river = new Canvas(object->getId(),table, 512,512,ofColor(220,110,50),ofColor(75,140,250),20);
+		else
+			river->update(table);
+
+	}
+
 
 }

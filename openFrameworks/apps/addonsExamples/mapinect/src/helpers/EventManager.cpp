@@ -66,6 +66,9 @@ namespace mapinect {
 						case kMapinectEventTypePointTouched:
 							listener->pointTouched(e->touchPoint);
 							break;
+						case kMapinectEventTypeArmStoppedMoving:
+							listener->armStoppedMoving();
+							break;
 						}
 					}
 				

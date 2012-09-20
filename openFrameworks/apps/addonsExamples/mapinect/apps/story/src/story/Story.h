@@ -47,6 +47,7 @@ namespace story
 		virtual void buttonPressed(const IButtonPtr&, const DataTouch&);
 		virtual void buttonReleased(const IButtonPtr&, const DataTouch&);
 		virtual void pointTouched(const DataTouch&);
+		virtual void armStoppedMoving();
 
 		void setCamera(int camera);
 
@@ -72,6 +73,12 @@ namespace story
 		
 		map<int,Box*>::iterator		selectedBoxIdx;
 		Spot						spot;
+
+		enum StoryMode				previousMode;
+		unsigned long				startTime;
+		bool						objectWasUpdated;
+
+		void						tableUpdated(const IObjectPtr& object);
 	};
 }
 
