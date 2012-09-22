@@ -5,7 +5,7 @@
         <![CDATA[data/calib/29Ago2012_kinect-proj-calib_1.yml]]>
 </PROJ_CALIB>
     <KINECT_CALIB>
-        <![CDATA[data/calib/29Ago2012_kinect-ir-calib_1.yml]]>
+        <![CDATA[data/calib/default-kinect-calib.yml]]>
 </KINECT_CALIB>
     <PROJ_WIDTH>1280</PROJ_WIDTH>
     <PROJ_HEIGHT>768</PROJ_HEIGHT>
