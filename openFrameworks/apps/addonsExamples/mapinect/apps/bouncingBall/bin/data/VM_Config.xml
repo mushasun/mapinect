@@ -1,27 +1,27 @@
 <VMConfig>	
 
-	<NEAR_PLANE>0.01</NEAR_PLANE>
-	<FAR_PLANE>400.0</FAR_PLANE>
+    <NEAR_PLANE>0.1</NEAR_PLANE>
+    <FAR_PLANE>20.0</FAR_PLANE>
 	
 	<PROJ_CALIB>
 		<![CDATA[data/calib/projector-calib-27May.yml]]>
 	</PROJ_CALIB>
 	<KINECT_CALIB>
-		<![CDATA[data/calib/kinect-calib-27May.yml]]>
+        <![CDATA[data/calib/default-kinect-calib.yml]]>
 	</KINECT_CALIB>
 	
-	<PROJ_WIDTH>1280</PROJ_WIDTH>
-	<PROJ_HEIGHT>768</PROJ_HEIGHT>
-
-    <!-- If different calib parameters are needed -->	
-	<PROJ_FX>1929.0</PROJ_FX>
-	<PROJ_FY>1593.0</PROJ_FY>
-
-	<PROJ_CX>634.0</PROJ_CX>
-	<PROJ_CY>373.0</PROJ_CY>
-	
-	<TRANS_X>-0.112</TRANS_X>
-	<TRANS_Y>0.020</TRANS_Y>
-	<TRANS_Z>0</TRANS_Z>
+    <PROJ_WIDTH>1280</PROJ_WIDTH>
+    <PROJ_HEIGHT>768</PROJ_HEIGHT>
+    <!-- If different calib parameters are needed -->
+    <PROJ_FX>1971.086670</PROJ_FX>
+    <PROJ_FY>1570.243286</PROJ_FY>
+    <PROJ_CX>610.172241</PROJ_CX>
+    <PROJ_CY>532.969666</PROJ_CY>
+    <TRANS_X>-0.006000</TRANS_X>
+    <TRANS_Y>0.067000</TRANS_Y>
+    <TRANS_Z>-0.032000</TRANS_Z>
+    <ROT_X>-0.680000</ROT_X>
+    <ROT_Y>0.000000</ROT_Y>
+    <ROT_Z>-0.000000</ROT_Z>
 	
 </VMConfig>

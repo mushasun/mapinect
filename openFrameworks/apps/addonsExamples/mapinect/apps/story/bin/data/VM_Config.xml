@@ -5,19 +5,19 @@
         <![CDATA[data/calib/29Ago2012_kinect-proj-calib_1.yml]]>
 </PROJ_CALIB>
     <KINECT_CALIB>
-        <![CDATA[data/calib/29Ago2012_kinect-ir-calib_1.yml]]>
+       <![CDATA[data/calib/default-kinect-calib.yml]]>
 </KINECT_CALIB>
     <PROJ_WIDTH>1280</PROJ_WIDTH>
     <PROJ_HEIGHT>768</PROJ_HEIGHT>
     <!-- If different calib parameters are needed -->
-    <PROJ_FX>1984.586670</PROJ_FX>
-    <PROJ_FY>1472.743286</PROJ_FY>
-    <PROJ_CX>494.172241</PROJ_CX>
-    <PROJ_CY>357.969666</PROJ_CY>
-    <TRANS_X>-0.045000</TRANS_X>
-    <TRANS_Y>0.047000</TRANS_Y>
-    <TRANS_Z>-0.309000</TRANS_Z>
-    <ROT_X>-0.000000</ROT_X>
+    <PROJ_FX>1971.086670</PROJ_FX>
+    <PROJ_FY>1570.243286</PROJ_FY>
+    <PROJ_CX>610.172241</PROJ_CX>
+    <PROJ_CY>532.969666</PROJ_CY>
+    <TRANS_X>-0.006000</TRANS_X>
+    <TRANS_Y>0.067000</TRANS_Y>
+    <TRANS_Z>-0.032000</TRANS_Z>
+    <ROT_X>-0.680000</ROT_X>
     <ROT_Y>0.000000</ROT_Y>
     <ROT_Z>-0.000000</ROT_Z>
 </VMConfig>
