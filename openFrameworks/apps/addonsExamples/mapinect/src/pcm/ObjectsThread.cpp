@@ -278,9 +278,6 @@ namespace mapinect {
 
 	void ObjectsThread::updateDetectedObjects()
 	{
-		int countObjects = 0;
-		static int lastCountObjects = 0;
-
 		vector<TrackedCloudPtr> potentialOcclusions;
 		vector<TrackedCloudPtr> occlusions = computeOcclusions(trackedClouds);
 
@@ -315,11 +312,6 @@ namespace mapinect {
 				saveCloud("noMatched.pcd",*(*iter)->getTrackedCloud());
 			}*/
 		}
-		countObjects += trackedClouds.size();
-		if (lastCountObjects != countObjects)
-		{
-			lastCountObjects = countObjects;
-			cout << "Tracked OBJECTS: " << lastCountObjects << endl;
-		}
+		objectsCount(trackedClouds.size());
 	}
 }

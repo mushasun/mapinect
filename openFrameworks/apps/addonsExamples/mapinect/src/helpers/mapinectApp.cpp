@@ -103,7 +103,9 @@ namespace mapinect {
 			reportStream
 				<< "           fps: " << ofGetFrameRate() << endl
 				<< "    pcm thread: " << getPCMThreadStatus() << endl
-				<< "objects thread: " << getObjectsThreadStatus() << endl;
+				<< "objects thread: " << getObjectsThreadStatus() << endl
+				<< "       objects: " << objectsCount() << endl
+				<< "  touch points: " << touchPointsCount() << endl;
 			ofDrawBitmapString(reportStream.str(), 20, 520);
 		ofPopMatrix();
 	}

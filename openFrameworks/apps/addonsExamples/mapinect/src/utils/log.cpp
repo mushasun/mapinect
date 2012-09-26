@@ -83,6 +83,8 @@ void printLogFile(const LogFile& file, bool clear)
 
 static std::string	pcmThreadStatus = "";
 static std::string	objectsThreadStatus = "";
+static int			objectsCountStatus = 0;
+static int			touchPointsCountStatus = 0;
 static ofxMutex		pcmThreadStatusMutex;
 static ofxMutex		objectsThreadStatusMutex;
 
@@ -115,3 +117,24 @@ std::string getObjectsThreadStatus()
 	objectsThreadStatusMutex.unlock();
 	return result;
 }
+
+void objectsCount(int count)
+{
+	objectsCountStatus = count;
+}
+
+int objectsCount()
+{
+	return objectsCountStatus;
+}
+
+void touchPointsCount(int count)
+{
+	touchPointsCountStatus = count;
+}
+
+int touchPointsCount()
+{
+	return touchPointsCountStatus;
+}
+

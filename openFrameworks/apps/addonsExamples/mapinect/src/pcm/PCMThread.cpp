@@ -411,7 +411,6 @@ namespace mapinect {
 	//--------------------------------------------------------------
 	void PCMThread::updateDetectedTouchPoints()
 	{
-		static int lastCountTouch = 0;
 		int countTouch = 0;
 		for (map<int, list<TrackedTouchPtr> >::iterator p = trackedTouchPoints.begin(); p != trackedTouchPoints.end(); p++)
 		{
@@ -442,11 +441,7 @@ namespace mapinect {
 
 
 		}
-		if (lastCountTouch != countTouch)
-		{
-			lastCountTouch = countTouch;
-			cout << "Tracked touch: " << lastCountTouch << endl;
-		}
+		touchPointsCount(countTouch);
 	}
 
 }
