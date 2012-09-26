@@ -34,7 +34,6 @@
 #include "Feature.h"
 #include "Plane3D.h"
 #include "transformationUtils.h"
-#include "log.h"
 
 // -------------------------------------------------------------------------------------
 // pcl <--> ofVec3f and other conversion utils
@@ -762,14 +761,12 @@ vector<ofVec3f>::const_iterator findCloser(const ofVec3f& v, const vector<ofVec3
 
 float computeVolume(const PCPtr& cloud)
 {
-	enableCout(false);
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudHull (new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::ConvexHull<pcl::PointXYZ> chull;
 	chull.setInputCloud (cloud);
 	chull.setDimension(3);
 	chull.setComputeAreaVolume(true);
 	chull.reconstruct (*cloudHull);
-	enableCout(true);
 	return chull.getTotalVolume();
 }
 // -------------------------------------------------------------------------------------
