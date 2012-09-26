@@ -155,8 +155,8 @@ PCPtr getCloudWithoutMutex(const ofVec3f& min, const ofVec3f& max, int stride)
 		stride = 1;
 	}
 	const int minStride = ::min(mapinect::Constants::CLOUD_STRIDE_H, mapinect::Constants::CLOUD_STRIDE_V);
-	const int hStride = stride + mapinect::Constants::CLOUD_STRIDE_H - minStride;
-	const int vStride = stride + mapinect::Constants::CLOUD_STRIDE_V - minStride;
+	const int hStride = stride + mapinect::Constants::CLOUD_STRIDE_H - 1;
+	const int vStride = stride + mapinect::Constants::CLOUD_STRIDE_V - 1;
 
 	// Allocate space for max points available
 	PCPtr partialCloud(new PC());
