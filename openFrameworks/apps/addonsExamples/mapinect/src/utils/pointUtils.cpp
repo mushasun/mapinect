@@ -428,6 +428,8 @@ float boxProbability(const PCPtr& cloud)
 		seg.setMaxIterations (50);
 		seg.setDistanceThreshold (0.009); //original: 0.01
 
+		float DOT_EPSILON = 0.1;
+
 		// Create the filtering object
 		int nrPoints = cloud->points.size ();
 
@@ -462,18 +464,19 @@ float boxProbability(const PCPtr& cloud)
 		
 			ofVec3f norm (coefficients->values[0],coefficients->values[1],coefficients->values[2]);
 			norm.normalize();
+
 			//Chequeo que las normales sean perpendiculares entre si y paraleas o perpendiculares a la mesa.
 			if(table != NULL)
 			{
 				float dot = abs(tableNormal.dot(norm));
-				if( dot > 0.2 && dot < 0.8)
+				if( dot > DOT_EPSILON && dot < (1.0 - DOT_EPSILON))
 				{
 					cout << "plane is neither orthogonal nor parallel, dot: " << dot
 						<< "normal: " << norm << endl;
 					return 0;
 				}
 				//si es paralela a la mesa, chequeo que esté sobre la mesa
-				if(dot > 0.8)
+				if(dot > (1.0 - DOT_EPSILON))
 				{
 					if(!table->isOverTable(cloudP))
 					{
@@ -485,7 +488,7 @@ float boxProbability(const PCPtr& cloud)
 			for(int i = 0; i < normals.size(); i++)
 			{
 				float dot = abs(normals[i].dot(norm));
-				if( dot > 0.2)
+				if( dot > DOT_EPSILON)
 				{
 					cout << "plane normals aren't orthogonal, dot: " << dot
 						<< "normal A: " << norm
@@ -512,7 +515,7 @@ float boxProbability(const PCPtr& cloud)
 		float pointsPercent = pointsInPlanes/totalPoints;
 		if (inRange(numFaces, 2, 3))
 			return pointsPercent;
-		else if (numFaces == 1 && abs(tableNormal.dot(normals[0])) < 0.1)
+		else if (numFaces == 1 && abs(tableNormal.dot(normals[0])) < DOT_EPSILON)
 			return pointsPercent;
 		else
 			return 0;
