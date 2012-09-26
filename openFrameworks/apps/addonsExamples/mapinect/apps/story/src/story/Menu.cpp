@@ -194,8 +194,8 @@ namespace story
 		}
 		else
 		{
-			cout << "No entra el menu:" << endl;
-			cout << (timeMenuShown <= 0) << !active << !inAction << endl;
+//			cout << "No entra el menu:" << endl;
+//			cout << (timeMenuShown <= 0) << !active << !inAction << endl;
 		}
 	}
 

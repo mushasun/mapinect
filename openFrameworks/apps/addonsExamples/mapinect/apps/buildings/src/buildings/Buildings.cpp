@@ -8,6 +8,17 @@ namespace buildings {
 	GLuint Buildings::videoTexture = 0;
 	GLuint Buildings::videoTexture2 = 0;
 
+	struct Camera 
+	{
+	public:
+		Camera(const ofVec3f& position, const ofVec3f& lookAt)
+			: position(position), lookAt(lookAt) { }
+		ofVec3f position;
+		ofVec3f lookAt;
+	};
+
+	vector<Camera> CAMERAS;
+
 	//--------------------------------------------------------------
 	Buildings::Buildings() {
 		floor = NULL;
@@ -30,6 +41,19 @@ namespace buildings {
 		videoTexture = txManager->loadVideoTexture("data/movies/fingers.mov"); // En: mapinect\apps\buildings\bin\data\movies
 		videoTexture2 = txManager->loadVideoTexture("data/movies/MOV05377.MPG");  
 		*/
+
+		Camera camera1(ofVec3f(0.37,0.0,0.0), ofVec3f(2.0,0.30,0.35));
+		CAMERAS.push_back(camera1);
+
+		Camera camera2(ofVec3f(0.37,0.0,0.0), ofVec3f(2.0,0.30,-0.25));
+		CAMERAS.push_back(camera2);
+
+		Camera camera3(ofVec3f(0.25,0.0,0.25), ofVec3f(2.0,0.30,-1.00));
+		CAMERAS.push_back(camera3);
+
+		Camera camera4(ofVec3f(0.0,0.0,-0.35), ofVec3f(2.0,0.30,-0.1));
+		CAMERAS.push_back(camera4);
+
 	}
 
 	//--------------------------------------------------------------
@@ -174,7 +198,29 @@ namespace buildings {
 	//--------------------------------------------------------------
 	void Buildings::keyPressed(int key)
 	{
+		switch (key) {
+			case '1':
+				setCamera(1);
+				break;
+			case '2':
+				setCamera(2);
+				break;
+			case '3':
+				setCamera(3);
+				break;
+			case '4':
+				setCamera(4);
+				break;
+		}
 	}
+
+	void Buildings::setCamera(int camera)
+	{
+		Camera cam = CAMERAS.at(camera - 1);
+
+		this->armController->setArmPositionAndLookAt(cam.position,cam.lookAt);	
+	}
+
 
 	//--------------------------------------------------------------
 	void Buildings::keyReleased(int key)

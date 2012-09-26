@@ -43,6 +43,9 @@ namespace buildings {
 		std::map<int, Building*>	buildings;
 		std::map<int, DataTouch>	touchPoints;
 		Floor*						floor;
+		
+		virtual	void setCamera(int camera);
+
 	};
 }
 
