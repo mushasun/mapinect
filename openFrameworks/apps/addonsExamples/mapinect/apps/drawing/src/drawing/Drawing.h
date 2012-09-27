@@ -16,14 +16,16 @@ namespace drawing
 		kAppStatusDrawing,
 		kAppStatusPickingColor,
 		kAppStatusFollowingObject,
-		kAppStatusInsertingPicture
+		kAppStatusInsertingPicture,
+		kAppStatusPositioningPicture
 	};
 
 	enum AppAction
 	{
 		kAppActionPickColor = 0,
 		kAppActionFollowObject,
-		kAppActionInsertPicture
+		kAppActionInsertPicture,
+		kAppActionConfirmPicture
 	};
 
 	enum DrawingMode
@@ -48,6 +50,7 @@ namespace drawing
 		virtual void		objectMoved(const IObjectPtr&, const DataMovement&);
 		virtual void		objectTouched(const IObjectPtr&, const DataTouch&);
 		virtual void		pointTouched(const DataTouch& touchPoint);
+		virtual void		buttonPressed(const IButtonPtr&, const DataTouch&);
 		virtual void		buttonReleased(const IButtonPtr&, const DataTouch&);
 
 	private:
@@ -61,6 +64,7 @@ namespace drawing
 		void				createPalette(const ofVec3f&);
 		void				destroyPalette();
 		void				createPicture(const ofVec3f&);
+		void				confirmPicture();
 
 		Polygon3D			table;
 		map<int, DataTouch>	touchPoints;
@@ -77,6 +81,9 @@ namespace drawing
 
 		bool				paletteVisible;
 		vector<ofFloatColor>paletteColors;
+
+		IButtonPtr			pictureCurrent;
+		ofImage*			pictureTextureCurrent;
 	};
 }
 

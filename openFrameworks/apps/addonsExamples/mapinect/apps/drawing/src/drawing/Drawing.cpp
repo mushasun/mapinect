@@ -33,13 +33,15 @@ namespace drawing
 		menuSound.loadSound("sounds/ding.wav");
 
 		int tx = 0;
-		textures.resize(kButtons * 2);
+		textures.resize((kButtons + 1) * 2);
 		textures[tx++] = new ofImage("textures/paletteOff.png");
 		textures[tx++] = new ofImage("textures/paletteOn.png");
 		textures[tx++] = new ofImage("textures/followOff.png");
 		textures[tx++] = new ofImage("textures/followOn.png");
 		textures[tx++] = new ofImage("textures/pictureOff.png");
 		textures[tx++] = new ofImage("textures/pictureOn.png");
+		textures[tx++] = new ofImage("textures/confirmOff.png");
+		textures[tx++] = new ofImage("textures/confirmOn.png");
 
 		int c = 0;
 		paletteColors.resize(kPaletteColors);
@@ -53,7 +55,9 @@ namespace drawing
 
 	void Drawing::update(float elapsedTime)
 	{
-		if (status == kAppStatusDrawing)
+		if (canvas != NULL &&
+			status != kAppStatusFollowingObject &&
+			status != kAppStatusPickingColor)
 		{
 			menuTimer += elapsedTime;
 			if (menuTimer >= kMenuTime)
@@ -152,7 +156,7 @@ namespace drawing
 			if (object->getId() == TABLE_ID)
 			{
 				createPicture(touchPoint.getTouchPoint());
-				setAppStatus(kAppStatusDrawing);
+				setAppStatus(kAppStatusPositioningPicture);
 			}
 		}
 	}
@@ -172,6 +176,15 @@ namespace drawing
 		else
 		{
 			it->second = touchPoint;
+		}
+	}
+
+	void Drawing::buttonPressed(const IButtonPtr& button, const DataTouch& touchPoint)
+	{
+		map<int, int>::const_iterator iter = actions.find(button->getId());
+		if (iter == actions.end())
+		{
+			destroyMenu();
 		}
 	}
 
@@ -197,6 +210,11 @@ namespace drawing
 				{
 					setAppStatus(kAppStatusInsertingPicture);
 				}
+				else if (action == kAppActionConfirmPicture)
+				{
+					confirmPicture();
+					setAppStatus(kAppStatusDrawing);
+				}
 			}
 			else if (paletteVisible)
 			{
@@ -210,21 +228,19 @@ namespace drawing
 	{
 		if (status != newStatus)
 		{
-			if (status == kAppStatusDrawing)
-			{
-				if (canvas != NULL)
-					canvas->endAllTraces();
-				destroyMenu();
-			}
-			else if (status == kAppStatusPickingColor)
+			if (status == kAppStatusPickingColor)
 			{
 				destroyPalette();
 			}
 			else if (status == kAppStatusFollowingObject)
 			{
 			}
-			else if (status == kAppStatusInsertingPicture)
+			else
 			{
+				if (status == kAppStatusDrawing)
+					if (canvas != NULL)
+						canvas->endAllTraces();
+				destroyMenu();
 			}
 
 			status = newStatus;
@@ -239,6 +255,9 @@ namespace drawing
 			{
 			}
 			else if (status == kAppStatusInsertingPicture)
+			{
+			}
+			else if (status == kAppStatusPositioningPicture)
 			{
 			}
 
@@ -258,7 +277,7 @@ namespace drawing
 	vector<ofVec3f> Drawing::polygonOnTable(const ofVec3f& center, float xLength, float zLength, float elevation, float radius, float rotationAngle)
 	{
 		ofVec3f yAxis = table.getPlane().getNormal();
-		ofVec3f xAxis = (table.project(ofVec3f(1,0,0)) - center).getNormalized();
+		ofVec3f xAxis = (table.getVertexs()[3] - table.getVertexs()[0]).getNormalized();
 		ofVec3f zAxis = yAxis.crossed(xAxis).getNormalized();
 
 		ofVec3f c1 = ofVec3f(0,0,0)
@@ -292,26 +311,41 @@ namespace drawing
 		if (!menuVisible)
 		{
 			menuVisible = true;
-		
+			
 			const float kSideLength = 0.1f;
 			const float kSpacing = kSideLength;
 
-			float angle = 0;
-			float step = TWO_PI / (float)kButtons;
-
-			for (int i = 0; i < kButtons; i++)
+			if (status == kAppStatusPositioningPicture)
 			{
-				vector<ofVec3f> buttonVertexs(polygonOnTable(center, kSideLength, kSideLength, kButtonElevation, kSpacing, angle));
-
+				vector<ofVec3f> buttonVertexs(polygonOnTable(center, kSideLength, kSideLength, kButtonElevation, 0, 0));
 				Polygon3D area(buttonVertexs);
 				SimpleButton *button = new SimpleButton(
 					area,
-					textures[i * 2],
-					textures[i * 2 + 1]);
-				actions[button->getId()] = i;
+					textures[kAppActionConfirmPicture * 2],
+					textures[kAppActionConfirmPicture * 2 + 1]);
+				actions[button->getId()] = kAppActionConfirmPicture;
 				IButtonPtr buttonPtr(button);
 				btnManager->addButton(buttonPtr);
-				angle += step;
+			}
+			else
+			{
+				float angle = 0;
+				float step = TWO_PI / (float)kButtons;
+
+				for (int i = 0; i < kButtons; i++)
+				{
+					vector<ofVec3f> buttonVertexs(polygonOnTable(center, kSideLength, kSideLength, kButtonElevation, kSpacing, angle));
+
+					Polygon3D area(buttonVertexs);
+					SimpleButton *button = new SimpleButton(
+						area,
+						textures[i * 2],
+						textures[i * 2 + 1]);
+					actions[button->getId()] = i;
+					IButtonPtr buttonPtr(button);
+					btnManager->addButton(buttonPtr);
+					angle += step;
+				}
 			}
 		}
 	}
@@ -379,6 +413,18 @@ namespace drawing
 		DraggableButton* button = new DraggableButton(polygon, image, image);
 		IButtonPtr buttonPtr(button);
 		btnManager->addButton(buttonPtr);
+
+		pictureCurrent = buttonPtr;
+		pictureTextureCurrent = image;
+	}
+
+	void Drawing::confirmPicture()
+	{
+		const vector<ofVec3f>& vertexs(pictureCurrent->getVertexs());
+		canvas->drawTexture(*pictureTextureCurrent, vertexs);
+		btnManager->removeButton(pictureCurrent->getId());
+		pictureTextureCurrent = NULL;
+		pictureCurrent.reset();
 	}
 
 }

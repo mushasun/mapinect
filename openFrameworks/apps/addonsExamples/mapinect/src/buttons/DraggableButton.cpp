@@ -36,11 +36,11 @@ namespace mapinect {
 			bool willResize = prevContacts.size() == 1 && postContacts.size() == 2;
 			isResizing = prevContacts.size() == 2 && postContacts.size() == 2;
 
-			ofVec3f leaderPrevPos = prevContacts.find(leaderTouch)->second.getTouchPoint();
-			ofVec3f leaderPostPos = postContacts.find(leaderTouch)->second.getTouchPoint();
-
 			if (isTranslating)
 			{
+				ofVec3f leaderPrevPos = prevContacts.find(leaderTouch)->second.getTouchPoint();
+				ofVec3f leaderPostPos = postContacts.find(leaderTouch)->second.getTouchPoint();
+
 				ofVec3f translation = leaderPostPos - leaderPrevPos;
 
 				polygon = transformPolygon3D(polygon, getTranslationMatrix(translation));
@@ -48,6 +48,8 @@ namespace mapinect {
 		
 			if (leaderTouch != touch.getId())
 			{
+				ofVec3f leaderPostPos = postContacts.find(leaderTouch)->second.getTouchPoint();
+
 				ofVec3f followerPostPos = postContacts.find(touch.getId())->second.getTouchPoint();
 				if (willResize)
 				{
@@ -74,9 +76,9 @@ namespace mapinect {
 						}
 						if (abs(rotation) > rotationLimit)
 						{
-							transformation = transformation * getRotationMatrix(
+							/*transformation = transformation * getRotationMatrix(
 								resizePolygonBase.getPlane().getNormal(),
-								ofDegToRad(-rotation));
+								ofDegToRad(-rotation));*/
 						}
 						transformation = transformation * getTranslationMatrix(-resizePolygonBase.getCentroid());
 
