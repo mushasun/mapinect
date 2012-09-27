@@ -20,6 +20,7 @@ namespace mapinect
 
 		void					update(const Polygon3D& polygon);
 		void					draw();
+		void					drawTexture(ofImage&, const vector<ofVec3f>&);
 		void					touchEvent(const DataTouch&);
 
 		inline const ofColor&	getBackColor() const					{ return backColor; }

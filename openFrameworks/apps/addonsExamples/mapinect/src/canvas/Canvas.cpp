@@ -88,6 +88,14 @@ namespace mapinect
 		}
 	}
 
+	void Canvas::drawTexture(ofImage& image, const vector<ofVec3f>& vertexs)
+	{
+		ofVec2f o = texMapper.map(vertexs[0]);
+		ofVec2f d = texMapper.map(vertexs[2]);
+		texture.draw(image, o.x, o.y, 0.0f, d.x - o.x, d.y - o.y);
+		redraw();
+	}
+
 	void Canvas::endAllTraces()
 	{
 		touchPoints.clear();
