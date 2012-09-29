@@ -15,7 +15,7 @@
 
 using namespace std;
 
-#define WAIT_TIME_MS		20
+#define WAIT_TIME_MS		10
 
 namespace mapinect {
 	PCMThread::PCMThread()
@@ -98,6 +98,7 @@ namespace mapinect {
 		setPCMThreadStatus("Obtaining cloud...");
 		log(kLogFilePCMThread, "Obtaining cloud...");
 		PCPtr cloud = getCloud();
+		log(kLogFilePCMThread, "Cloud obtained...");
 		saveCloud("rawCloud.pcd", *cloud);
 		
 		if (cloud->size() == 0)
@@ -205,6 +206,8 @@ namespace mapinect {
 		PCPtr objectsOnTableTopCloud = getObjectsOnTableTopCloud(occluders);
 		if(objectDetection)
 			objectsThread.setClouds(objectsOnTableTopCloud);
+	
+		log(kLogFilePCMThread, "Starts Hand detection...");
 
 		if(IsFeatureActive(FEATURE_HAND_DETECTION) && touchDetection)
 		{
@@ -376,6 +379,7 @@ namespace mapinect {
 			updateDetectedTouchPoints();
 
 		}
+		log(kLogFilePCMThread, "Finish Hand detection...");
 	}
 
 	//--------------------------------------------------------------

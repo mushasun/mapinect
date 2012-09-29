@@ -14,7 +14,7 @@ namespace mapinect {
 
 	PCModelObject::PCModelObject(const PCPtr& cloud, int objId)
 	{
-		drawPointCloud = true;
+		drawPointCloud = false;
 		setCloud(cloud);
 		transformation.setIdentity();
 		if (objId == -1)	
@@ -63,20 +63,12 @@ namespace mapinect {
 			for (PC::const_iterator p = cloudScreenCoords->begin(); p != cloudScreenCoords->end(); ++p) {
 				glVertex3f(p->x, p->y, 5);
 			}
-			glEnd();
-			
+			glEnd();	
 		}
 	}
 
 	void PCModelObject::addToModel(const PCPtr& nuCloud){
-		//DEBUG!!!!
 		lod++;
-		/////////
-
-		//pcl::io::savePCDFileASCII ("pre.pcd", cloud);
-		//pcl::io::savePCDFileASCII ("nu.pcd", *nuCloud);
-		/*cloud += *nuCloud;*/
-		//pcl::io::savePCDFileASCII ("transformed.pcd", cloud);
 	}
 
 	void PCModelObject::setDrawPointCloud(bool draw)		

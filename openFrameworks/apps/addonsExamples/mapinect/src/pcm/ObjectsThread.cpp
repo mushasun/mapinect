@@ -129,9 +129,16 @@ namespace mapinect {
 			{
 				PCPtr cloudCluster = getCloudFromIndices(cloud, *it);
 
+				gModel->tableMutex.lock();
+				TablePtr table = gModel->getTable();
+				gModel->tableMutex.unlock();
 				saveCloud("objectsCluster" + ofToString(debugCounter) + ".pcd", *cloudCluster);
+				
+				if(table->isOnTable(cloudCluster))
+					newClouds.push_back(TrackedCloudPtr (new TrackedCloud(cloudCluster,false)));
+				else
+					newClouds.push_back(TrackedCloudPtr (new TrackedCloud(cloudCluster,true)));
 
-				newClouds.push_back(TrackedCloudPtr (new TrackedCloud(cloudCluster)));
 				debugCounter++;
 			}
 		}
@@ -179,7 +186,8 @@ namespace mapinect {
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
 			// Chequea el matching contra todas las trackedClouds, estén o no dentro del frustum
 			float dist = (*iter)->matchingTrackedObjects(trackedCloud);
-			if (dist != -1 && dist < currentDist)
+			if (dist != -1 && 
+				dist < currentDist)
 			{
 				currentMatch = (*iter);
 				currentDist = dist;
@@ -306,11 +314,10 @@ namespace mapinect {
 				}
 				(*iter)->removeMatching();
 			}
-			/*else 
+			else 
 			{
-				cout << "		no matching! " << (*iter)->getCounter() << endl;
 				saveCloud("noMatched.pcd",*(*iter)->getTrackedCloud());
-			}*/
+			}
 		}
 		objectsCount(trackedClouds.size());
 	}

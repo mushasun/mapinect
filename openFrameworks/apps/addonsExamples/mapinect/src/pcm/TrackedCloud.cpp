@@ -17,6 +17,7 @@
 #include "Table.h"
 #include "utils.h"
 #include "EventManager.h"
+#include "Frustum.h"
 
 namespace mapinect {
 
@@ -38,10 +39,11 @@ namespace mapinect {
 		init();
 	}
 
-	TrackedCloud::TrackedCloud(const PCPtr& cloud)
+	TrackedCloud::TrackedCloud(const PCPtr& cloud, bool floating)
 	{
 		init();
 		this->cloud = cloud;
+		this->floating = floating;
 	}
 
 	TrackedCloud::~TrackedCloud()
@@ -83,7 +85,10 @@ namespace mapinect {
 				if(objectInModel->isValid())
 					gModel->addObject(objectInModel);
 				else
+				{
+					counter = 0;
 					objectInModel.reset();
+				}
 			}
 		}
 	}
@@ -136,9 +141,14 @@ namespace mapinect {
 			int difCount = getDifferencesCount(newObjectCloud, cluster, Constants::OBJECT_RECALCULATE_TOLERANCE());
 			int maxDif = newObjectCloud->points.size() * Constants::OBJECT_CLOUD_DIFF_PERCENT;
 
-
 			if(difCount > maxDif)
+			{
+		/*		cout << "dif: " << difCount << " --- max: " << maxDif << endl;  
+				saveCloud("d1.pcd", *newObjectCloud);
+				saveCloud("d2.pcd", *cluster);
+*/
 				needRecalculateFaces = true;
+			}
 			else
 				needRecalculateFaces = false;
 			
@@ -160,56 +170,87 @@ namespace mapinect {
 	
 	void TrackedCloud::updateMatching()
 	{
-		const int OBJECT_INVALID_FRAMES_TO_RESET = 20;
-		const int OBJECT_INVALID_FRAMES_TO_DELETE = 80;
 		//Chequeo validez del objeto
 		bool sendUpdate = false;
 		
 		gModel->objectsMutex.lock();
-		if(objectInModel.get() != NULL)
+		if(objectInModel.get() != NULL &&
+		   hasMatching())
 		{
-			if(!objectInModel->isValid() && hasMatching())
+			//Elimino
+			if(invalidCounter >= Constants::OBJECT_INVALID_FRAMES_TO_DELETE)
+			{
+				cout << "[     DELETED     ]" << endl;
+				gModel->removeObject(objectInModel);
+				objectInModel.reset();
+			}
+			////Recalculo
+			else if(invalidCounter >= Constants::OBJECT_INVALID_FRAMES_TO_RESET)
 			{
 				cloud = matchingCloud->getTrackedCloud();
 				objectInModel->resetLod();
 				objectInModel->setCloud(cloud);
-				invalidCounter++;
-				if(invalidCounter >= OBJECT_INVALID_FRAMES_TO_RESET)
+				// Si supera el limite, lo reseteo
+
+				ObjectType objType = getObjectType(cloud);
+				if(objType != UNRECOGNIZED)
 				{
-					// Si supera el limite, lo reseteo
 					cout << "[     RECALCULATING     ]" << endl;
 					objectInModel->detectPrimitives();
 					if(objectInModel->isValid())
 					{
-						sendUpdate = true;
-						invalidCounter = 0;
+						PCPolyhedron* polyhedron = dynamic_cast<PCPolyhedron*>(objectInModel.get());
+						if (polyhedron != NULL)
+						{
+							// Está dentro del frustum si todos sus vértices lo están
+							if(Frustum::IsInFrustum(polyhedron->getVertexs()))
+							{
+								cout << "racalculating valid" << endl;
+								sendUpdate = true;
+								invalidCounter = 0;
+							}
+							else
+								cout << "racalculating NO FRUSTUM" << endl;
+						}
 					}
+					else
+						cout << "racalculating NO VALID" << endl;
 				}
-				if(invalidCounter >= OBJECT_INVALID_FRAMES_TO_DELETE)
-				{
-					cout << "[     DELETED     ]" << endl;
-					gModel->removeObject(objectInModel);
-					objectInModel.reset();
-				}
+				else
+					cout << "racalculating NO BOX" << endl;
 			}
-			else
-				invalidCounter = 0;
+
+			
+			
 		}
 		gModel->objectsMutex.unlock();
 
-		if(needApplyTransformation || needRecalculateFaces || objectInModel.get() == NULL)		//Necesito recalcular algo
+		if(needApplyTransformation		|| 
+		   needRecalculateFaces			|| 
+		   objectInModel.get() == NULL	|| 
+		   (invalidCounter > 0 && invalidCounter <= Constants::OBJECT_INVALID_FRAMES_TO_RESET))		//Necesito recalcular algo
 		{ 
 			if(hasMatching())
 			{
+				/*if(needApplyTransformation)
+					cout << "transform" <<endl;
+				if(needRecalculateFaces)
+					cout << "faces" << endl;
+				if(objectInModel.get() == NULL)
+					cout << "null" << endl;
+				if(invalidCounter)
+					cout << "invalid count" << endl;
+				cout << "recalculate" << endl;*/
 				gModel->objectsMutex.lock();
 				cloud = matchingCloud->getTrackedCloud();
-				if(objectInModel.get() != NULL && objectInModel->isValid())
+				if(objectInModel.get() != NULL)
 				{
 					objectInModel->resetLod();
 					objectInModel->addToModel(cloud);
 
 					if(objectInModel->isValid())
 					{
+						invalidCounter = 0;
 						sendUpdate = true;
 
 						if(needApplyTransformation && objectInModel.get() != NULL)
@@ -220,13 +261,16 @@ namespace mapinect {
 							translationV = ofVec3f();
 						}
 					}
-
+					else
+						invalidCounter++;
 				}
 				gModel->objectsMutex.unlock();
 			}
 			
 		}
-		else if(objectInModel.get() != NULL && objectInModel->getLod() < Constants::OBJECT_LOD_MAX && objectInModel->isValid())
+		else if(objectInModel.get() != NULL && 
+				objectInModel->getLod() < Constants::OBJECT_LOD_MAX && 
+				objectInModel->isValid())
 		//Si no llegue al nivel maximo de detalle, aumento
 		{
 			sendUpdate = true;
@@ -252,7 +296,6 @@ namespace mapinect {
 			extract.filter (*nuCloudFilteredNoTable);
 			saveCloud("postFiltroMesa.pcd",*nuCloudFilteredNoTable);
 
-			///Added for debug
 			{
 				gModel->objectsMutex.lock();
 				objectInModel->addToModel(nuCloudFilteredNoTable);
@@ -276,14 +319,27 @@ namespace mapinect {
 	{
 		PCPtr diff;
 		PCPtr cluster;
+		
+		//Da preferencia a nubes que está sobre la mesa
+		if(matchingCloud != NULL)
+		{
+			if(!matchingCloud->isFloating() && tracked->isFloating())
+				return -1;
+		}
+
 		PCPtr newObjectCloud(new PC(*cloud));
 		if(hasObject())
+		{
 			cluster = getHalo(objectInModel->getvMin(),objectInModel->getvMax(),0.03,tracked->getTrackedCloud());
+		}
 		else
+		{
 			cluster = tracked->getTrackedCloud();
-
-		if(cluster->size() < cloud->size() * 0.2)
-			return -1;
+		}
+		saveCloud("newTrack.pcd", *newObjectCloud);
+		saveCloud("prevTrack.pcd", *cluster);
+		//if(cluster->size() < cloud->size() * 0.2)
+		//	return -1;
 
 		//Hallo la traslación 
 		ofVec3f clusterCentroid = computeCentroid(cluster);
@@ -294,7 +350,15 @@ namespace mapinect {
 		float result = translation.length();
 
 		if(result > nearest)
-			result = numeric_limits<float>::max();
+		{
+			if(matchingCloud != NULL)
+			{
+				if(matchingCloud->isFloating() && !tracked->isFloating())
+					return result;
+			}
+			else
+				result = -1;
+		}
 
 		return result;
 	}

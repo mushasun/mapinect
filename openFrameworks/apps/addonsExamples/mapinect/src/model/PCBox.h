@@ -17,10 +17,6 @@ namespace mapinect {
 			
 			virtual void			detectPrimitives();
 			virtual float			getVolume();
-			//virtual void			addToModel(const PCPtr& nuCloud);
-
-			//BoxVertex&				getVertex(BoxVertexName v);
-
 		private:
 			virtual void					unifyVertexs();
 			virtual bool					validate();

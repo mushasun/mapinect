@@ -251,7 +251,6 @@ namespace mapinect {
 	}
 
 	void PCPolyhedron::detectPrimitives() {
-		
 		pcPolygonsMutex.lock();
 		saveCloud("detectPrimitives.pcd", *cloud);
 
@@ -260,6 +259,7 @@ namespace mapinect {
 		namePolygons(nuevos);
 		bool estimationOk;
 		vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos,estimationOk);
+
 		if(estimationOk)
 		{
 			pcpolygons = nuevos;
@@ -278,7 +278,7 @@ namespace mapinect {
 			}
 		}
 		else
-			cout << "estimation failed in detect primitives" << endl;// TODO eliminar objeto? Volver a llamar detectPrimitives?
+			cout << "estimation failed in detect primitives" << endl;
 		pcPolygonsMutex.unlock();
 
 	}
@@ -418,6 +418,8 @@ namespace mapinect {
 		ofSetColor(0,0,255);
 		ofVec3f sAvg = getScreenCoords(this->getCenter());
 		ofDrawBitmapString(ofToString(this->getId()), sAvg.x, sAvg.y, 0);
+
+
 		pcPolygonsMutex.unlock();
 	}
 
@@ -448,29 +450,6 @@ namespace mapinect {
 	vector<PCPolygonPtr>	PCPolyhedron::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard)
 	{
 		return toDiscard;
-		//vector<PCPolygonPtr> polygonsInBox;
-
-		//gModel->tableMutex.lock();
-		//for(int i = 0; i < toDiscard.size(); i++)
-		//{
-		//	TablePtr table = gModel->getTable();
-		//	PCPtr cloudPtr(toDiscard.at(i)->getCloud());
-		//	if(table->isOnTable(cloudPtr))
-		//	{
-		//		//cout << "pol" << ofToString(i) << " On table!" <<endl;
-		//		polygonsInBox.push_back(toDiscard.at(i));
-		//	}
-		//	else if(table->isParallelToTable(toDiscard.at(i)))
-		//	{
-		//		//cout << "pol" << ofToString(i) << " parallel table!" <<endl;
-		//		polygonsInBox.push_back(toDiscard.at(i));
-		//	}
-
-		//}
-		//gModel->tableMutex.unlock();
-
-
-		//return polygonsInBox;
 	}
 	
 	vector<PCPolygonPtr>	PCPolyhedron::discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard, const vector<PCPolygonPtr>& inPolygon)
@@ -482,30 +461,6 @@ namespace mapinect {
 	{
 		estimationOk = true;
 		return vector<PCPolygonPtr>();
-	}
-
-	void checkForUnknown(vector<PCPolygonPtr> pols, int seq)
-	{
-		/*cout << "seq: " << seq << endl;
-		for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
-		{
-			cout << "--" << (*p)->getPolygonModelObject()->getName() << endl;
-			if((*p)->getPolygonModelObject()->getName() == kPolygonNameUnknown)
-				cout << "-----unknown in " << seq << endl;
-		}*/
-	}
-
-	void checkForRepeat(vector<PCPolygonPtr> pols, int seq)
-	{
-		//map<int,int> map;
-
-		//for (vector<PCPolygonPtr>::iterator p = pols.begin(); p != pols.end(); ++p)
-		//{
-		//	if(map.count((*p)->getPolygonModelObject()->getName()) > 0)
-		//		cout << "repeated " <<  (*p)->getPolygonModelObject()->getName() << " in: " << seq << endl;
-		//	else
-		//		map[(*p)->getPolygonModelObject()->getName()] = (*p)->getPolygonModelObject()->getName();
-		//}
 	}
 
 	void PCPolyhedron::addToModel(const PCPtr& nuCloud)
@@ -537,15 +492,9 @@ namespace mapinect {
 		//Matching de las caras detectadas con las anteriores
 		nuevos = mergePolygons(nuevos);
 
-		checkForUnknown(nuevos, 2);
-		checkForRepeat(nuevos, 2);
-
 		//Estimación de caras no visibles
 		bool estimationOK;
 		vector<PCPolygonPtr> estimated = estimateHiddenPolygons(nuevos,estimationOK);
-
-		checkForUnknown(estimated, 3);
-		checkForRepeat(estimated, 3);
 
 		bool valid = true;
 		if(estimationOK)
@@ -555,54 +504,12 @@ namespace mapinect {
 			//Actualizo los nuevos polygons si no hubo errores
 			nuevos.insert(nuevos.end(),estimated.begin(),estimated.end());
 			pcpolygons = nuevos;
-			
-			checkForRepeat(pcpolygons, 4);
-			checkForUnknown(pcpolygons, 4);
 
 			//Unifico vertices
 			unifyVertexs();
 
 			isvalid = validate();
 		}
-
-		
-		if(estimationOK && isvalid)
-		{
-			polygonsCache.clear();
-			for (vector<PCPolygonPtr>::iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
-			{
-				polygonsCache.push_back((*p)->getPolygonModelObject());
-			}
-
-		}
-		else
-		{
-			pcpolygons = prevPcPolygons;
-
-			//Si hay errores en la estimación, rollback de los pcpolygons mergeados
-			for(int i = 0; i < pcpolygons.size(); i++)
-				pcpolygons.at(i)->rollBackMatching();
-
-			if(!isvalid)
-			{
-				//Necesito unificar los vertices despues del rollback
-				unifyVertexs();
-			}
-			//isvalid = false;
-		}
-		
-
-		//Seteo nueva nube
-		PCPtr finalCloud (new PC());
-		for(int i = 0; i < pcpolygons.size(); i ++)
-		{
-			*finalCloud += *pcpolygons.at(i)->getCloud();
-			saveCloud("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
-		}
-		saveCloud("finalCloud" + ofToString(getId()) + ".pcd", *finalCloud);
-
-		setCloud(finalCloud);
-
 
 		//Chequeo volumenes
 		if(IsFeatureActive(FEATURE_INVALIDATE_OBJECT_BY_VOLUME))
@@ -616,6 +523,43 @@ namespace mapinect {
 				isvalid = false;
 			}
 		}
+		
+		if(estimationOK && isvalid)
+		{
+			polygonsCache.clear();
+			for (vector<PCPolygonPtr>::iterator p = pcpolygons.begin(); p != pcpolygons.end(); ++p)
+			{
+				polygonsCache.push_back((*p)->getPolygonModelObject());
+			}
+
+		}
+		else
+		{
+			//cout << "[ Add to model invalid ]" << endl;
+			pcpolygons = prevPcPolygons;
+
+			//Si hay errores en la estimación, rollback de los pcpolygons mergeados
+			for(int i = 0; i < pcpolygons.size(); i++)
+				pcpolygons.at(i)->rollBackMatching();
+
+			if(!isvalid)
+			{
+				//Necesito unificar los vertices despues del rollback
+				unifyVertexs();
+			}
+			isvalid = false;
+		}
+		
+		//Seteo nueva nube
+		PCPtr finalCloud (new PC());
+		for(int i = 0; i < pcpolygons.size(); i ++)
+		{
+			*finalCloud += *pcpolygons.at(i)->getCloud();
+			saveCloud("pol" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
+		}
+		saveCloud("finalCloud" + ofToString(getId()) + ".pcd", *finalCloud);
+
+		setCloud(finalCloud);
 		pcPolygonsMutex.unlock();
 
 	}
