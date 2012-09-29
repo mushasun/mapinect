@@ -15,7 +15,7 @@ namespace mapinect {
 	
 	public:
 		TrackedCloud();
-		TrackedCloud(const PCPtr& cloud);
+		TrackedCloud(const PCPtr& cloud, bool floating);
 		virtual ~TrackedCloud();
 
 		bool							confirmMatch(const TrackedCloudPtr& trackedCloud, TrackedCloudPtr& removedCloud);
@@ -35,6 +35,9 @@ namespace mapinect {
 
 		inline bool						isInViewField() const		{ return inViewField; }
 		inline void						setInViewField(bool val)    { inViewField = val;}
+
+		inline bool						isFloating() const		{ return floating; }
+		inline void						setFloating(bool val)    { floating = val;}
 	private:
 		void							init();
 
@@ -49,6 +52,7 @@ namespace mapinect {
 		ofVec3f							translationV;
 		int								invalidCounter;
 		bool							inViewField;
+		bool							floating;
 	};
 
 }

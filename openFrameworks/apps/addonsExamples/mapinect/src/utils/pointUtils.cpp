@@ -427,7 +427,7 @@ float boxProbability(const PCPtr& cloud)
 		seg.setMaxIterations (50);
 		seg.setDistanceThreshold (0.009); //original: 0.01
 
-		float DOT_EPSILON = 0.1;
+		float DOT_EPSILON = 0.15;
 
 		// Create the filtering object
 		int nrPoints = cloud->points.size ();

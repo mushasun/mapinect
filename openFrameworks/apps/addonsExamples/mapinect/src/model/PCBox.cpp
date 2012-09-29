@@ -72,9 +72,9 @@ namespace mapinect {
 
 		if(getMissing(pcpolygons).size() > 0)
 		{
-			cout << "FAILED ESTIMATION - OBJ: " << getId() << endl;//PCPolyhedron::unifyVertexs();
-			for(int i = 0; i < pcpolygons.size(); i++)
-				cout << "	" << pcpolygons.at(i)->getPolygonModelObject()->getName() << endl;
+			//cout << "FAILED ESTIMATION - OBJ: " << getId() << endl;//PCPolyhedron::unifyVertexs();
+			//for(int i = 0; i < pcpolygons.size(); i++)
+				//cout << "	" << pcpolygons.at(i)->getPolygonModelObject()->getName() << endl;
 		}
 		else
 		{
@@ -473,19 +473,16 @@ namespace mapinect {
 				}
 			}
 
-			//Corrijo normales?
-
 			measures = measureBox();
 			
+			isvalid = validate();
+			/*if(!isvalid)
+				cout << "[INVALID]" << endl;*/
 
-			//Valido volumen del objeto
-			const float OBJECT_MIN_VOLUME = 0.000125;
-			isvalid = measures.x * measures.y * measures.z > OBJECT_MIN_VOLUME;
+
 			fullEstimation = isvalid;
 			if(fullEstimation)
 				cout << "+++++++++++++++++ full estimation +++++++++++++++" << endl;
-
-
 		}
 		else
 		{
@@ -920,14 +917,15 @@ namespace mapinect {
 	ofVec3f PCBox::measureBox()
 	{
 		float w,h,d;
-		//cout << "Measures of: " << sideA->getPolygonModelObject()->getName() << endl; 
 		vector<ofVec3f> sideAVex = getPCPolygon(kPolygonNameSideA, pcpolygons)->getPolygonModelObject()->getMathModel().getVertexs();
 		vector<ofVec3f> sideBVex = getPCPolygon(kPolygonNameSideB, pcpolygons)->getPolygonModelObject()->getMathModel().getVertexs();
 		w = abs((sideAVex.at(1) - sideAVex.at(2)).length());
-		//cout << "\tw: " << w << endl;
 		h = abs((sideAVex.at(0) - sideAVex.at(1)).length());
-		//cout << "\th: " << h << endl;
 		d = abs((sideBVex.at(1) - sideBVex.at(2)).length());
+
+		//cout << "Measures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+		//cout << "\tw: " << w << endl;
+		//cout << "\th: " << h << endl;
 		//cout << "\td: " << d << endl;
 
 		return ofVec3f(w,h,d);
@@ -968,5 +966,4 @@ namespace mapinect {
 		return measures.x * measures.y * measures.z;
 	}
 
-	
 }
