@@ -78,6 +78,12 @@ namespace mapinect {
 		}
 		else
 		{
+			for(int i = 0; i < pcpolygons.size(); i ++)
+			{
+				saveCloud("p" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", *pcpolygons.at(i)->getCloud());
+				saveCloud("v" + ofToString(pcpolygons.at(i)->getPolygonModelObject()->getName()) + ".pcd", pcpolygons.at(i)->getPolygonModelObject()->getMathModel().getVertexs());
+			}
+
 			vertexs.clear();
 			IPolygonName vertexNames[8][3]	= {{kPolygonNameSideA,kPolygonNameSideB,kPolygonNameTop},
 											  {kPolygonNameSideA,kPolygonNameSideB,kPolygonNameBottom},
