@@ -17,7 +17,7 @@ namespace mapinect
 	int					Constants::CLOUD_POINTS_MAX							= KINECT_DEFAULT_WIDTH * KINECT_DEFAULT_HEIGHT;
 	float				Constants::CLOUD_DENSITY							= 0.2f;
 	float				Constants::CLOUD_VOXEL_SIZE							= 0.01f;
-	float				Constants::CLOUD_Z_MAX								= 0.8;//2.0f;
+	float				Constants::CLOUD_Z_MAX								= 1.0;
 
 	int					Constants::CLOUD_POINTS								= CLOUD_POINTS_MAX * CLOUD_DENSITY;
 
@@ -52,17 +52,12 @@ namespace mapinect
 	float				Constants::FOV_HORIZONTAL							= 57.0f;
 	float				Constants::FOV_VERTICAL								= 43.0f;	
 	float				Constants::WFAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
-	float				Constants::WFAR										= WFAR_2 * 2;
 	float				Constants::HFAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
-	float				Constants::HFAR										= HFAR_2 * 2;
 	float				Constants::WNEAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * NDISTANCE; 
-	float				Constants::WNEAR									= WNEAR_2 * 2;
 	float				Constants::HNEAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * NDISTANCE;
-	float				Constants::HNEAR									= HNEAR_2 * 2;
-	float				Constants::FOV_MIN_DIST_CENTROID					= 0.1;
 
 	// Para la calibración inicial de la mesa
-	int					Constants::PIXEL_TOLERANCE_ESTIMATED_VERTEX			= 40;
+	int					Constants::TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE	= 20;
 	float				Constants::TABLE_LENGTH_AB							= 0.3;
 	float				Constants::TABLE_LENGTH_AD							= 0.3;
 
@@ -119,18 +114,13 @@ namespace mapinect
 			NDISTANCE								= XML.getValue(PCM_CONFIG "NDISTANCE",0.2);
 			FOV_HORIZONTAL							= XML.getValue(PCM_CONFIG "FOV_HORIZONTAL",64.0f);
 			FOV_VERTICAL							= XML.getValue(PCM_CONFIG "FOV_VERTICAL",63.0f);
-			FOV_MIN_DIST_CENTROID					= XML.getValue(PCM_CONFIG "FOV_MIN_DIST_CENTROID",0.05f);
 			WFAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
-			WFAR									= WFAR_2 * 2;
 			HFAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
-			HFAR									= HFAR_2 * 2;
 			WNEAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * NDISTANCE; 
-			WNEAR									= WNEAR_2 * 2;
 			HNEAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * NDISTANCE;
-			HNEAR									= HNEAR_2 * 2;
 
 			// Para la calibración inicial de la mesa
-			PIXEL_TOLERANCE_ESTIMATED_VERTEX		= XML.getValue(PCM_CONFIG "PIXEL_TOLERANCE_ESTIMATED_VERTEX", PIXEL_TOLERANCE_ESTIMATED_VERTEX);
+			TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE	= XML.getValue(PCM_CONFIG "TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE", TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE);
 			TABLE_LENGTH_AB							= XML.getValue(PCM_CONFIG "TABLE_LENGTH_AB", TABLE_LENGTH_AB);
 			TABLE_LENGTH_AD							= XML.getValue(PCM_CONFIG "TABLE_LENGTH_AD", TABLE_LENGTH_AD);
 

@@ -14,9 +14,6 @@
 
 #include "ICPThread.h"
 
-#define		COULD_NOT_REACH		1
-#define		CANT_MOVE			1
-
 #define		ID_MOTOR_1			1
 #define		ID_MOTOR_2			2
 #define		ID_MOTOR_4			4

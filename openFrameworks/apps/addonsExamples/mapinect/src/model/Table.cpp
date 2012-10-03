@@ -84,7 +84,7 @@ namespace mapinect
 
 	bool isTableVertexInSafeArea(const ofVec3f& vertex)
 	{
-		const int TOLERANCE = Constants::PIXEL_TOLERANCE_ESTIMATED_VERTEX;
+		const int TOLERANCE = Constants::TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE;
 
 		const float minX = 0 + TOLERANCE;
 		const float maxX = KINECT_DEFAULT_WIDTH - TOLERANCE;

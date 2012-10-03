@@ -18,8 +18,6 @@ namespace mapinect {
 #define		ANGLE_DEFAULT		0
 #define		KEY_UNDEFINED		""
 
-#define		MOTOR_ANGLE_OFFSET_DEFAULT	128
-
 	static string	COM_PORT;
 	static char		KEY_MOVE_1R;
 	static char		KEY_MOVE_1L;
@@ -35,7 +33,6 @@ namespace mapinect {
 	static char		RESET_ANGLE2;
 	static char		RESET_ANGLE4;
 	static char		RESET_ANGLE8;
-	static float	MOTOR_ANGLE_OFFSET;
 	static int		ANGLE_STEP;
 	static int		MAX_ANGLE_1;
 	static int		MIN_ANGLE_1;
@@ -45,6 +42,7 @@ namespace mapinect {
 	static int		MIN_ANGLE_4;
 	static int		MAX_ANGLE_8;
 	static int		MIN_ANGLE_8;
+
 	static int		ARM_TIMEOUT;
 	static int		ICP_CLOUD_DENSITY;
 	static int		ICP_MAX_ITERATIONS;
@@ -324,7 +322,6 @@ namespace mapinect {
 
 	void Arduino::sendMotor(int value, int id)
 	{
-		//value += MOTOR_ANGLE_OFFSET;
 		if (value < 0){
 			value = -value;
 			value |= 1 << 7; //MAGIC!
@@ -740,8 +737,6 @@ namespace mapinect {
 			KEY_MOVE_4L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_4L", KEY_UNDEFINED).c_str()[0];
 			KEY_MOVE_8R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_8R", KEY_UNDEFINED).c_str()[0];
 			KEY_MOVE_8L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_8L", KEY_UNDEFINED).c_str()[0];
-
-			MOTOR_ANGLE_OFFSET	= XML.getValue(ARDUINO_CONFIG "MOTOR_ANGLE_OFFSET", MOTOR_ANGLE_OFFSET_DEFAULT);
 
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.354);			
 			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.056);
