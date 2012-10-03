@@ -17,30 +17,30 @@ namespace mapinect {
 #define		ANGLE_DEFAULT		0
 #define		KEY_UNDEFINED		""
 
+	// required
 	static string	COM_PORT;
-	static char		KEY_MOVE_1R;
-	static char		KEY_MOVE_1L;
-	static char		KEY_MOVE_2R;
-	static char		KEY_MOVE_2L;
-	static char		KEY_MOVE_4R;
-	static char		KEY_MOVE_4L;
-	static char		KEY_MOVE_8R;
-	static char		KEY_MOVE_8L;
-	static char		KEY_RESET;
-	static char		KEY_PRINT_STATUS;
-	static char		RESET_ANGLE1;
-	static char		RESET_ANGLE2;
-	static char		RESET_ANGLE4;
-	static char		RESET_ANGLE8;
-	static int		ANGLE_STEP;
-	static int		MAX_ANGLE_1;
-	static int		MIN_ANGLE_1;
-	static int		MAX_ANGLE_2;
-	static int		MIN_ANGLE_2;
-	static int		MAX_ANGLE_4;
-	static int		MIN_ANGLE_4;
-	static int		MAX_ANGLE_8;
-	static int		MIN_ANGLE_8;
+
+	static float	ARM_LENGTH;
+	static float	MOTORS_HEIGHT;
+	static float	MOTORS_WIDTH;
+	static float	KINECT_HEIGHT;
+	static float	TILT_ANGLE;
+	static float	ARM_HEIGHT;
+	static float	KINECT_MOTOR_HEIGHT;
+
+	static char		ANGLE_DEFAULT_1;
+	static char		ANGLE_DEFAULT_2;
+	static char		ANGLE_DEFAULT_4;
+	static char		ANGLE_DEFAULT_8;
+
+	static int		ANGLE_MAX_1;
+	static int		ANGLE_MIN_1;
+	static int		ANGLE_MAX_2;
+	static int		ANGLE_MIN_2;
+	static int		ANGLE_MAX_4;
+	static int		ANGLE_MIN_4;
+	static int		ANGLE_MAX_8;
+	static int		ANGLE_MIN_8;
 
 	static int		ARM_TIMEOUT;
 	static int		ICP_CLOUD_DENSITY;
@@ -48,13 +48,19 @@ namespace mapinect {
 
 	static float	DISTANCE_TO_FOLLOW_OBJECT;
 
-	float			Arduino::ARM_LENGTH;
-	float			Arduino::MOTORS_HEIGHT;
-	float			Arduino::MOTORS_WIDTH;
-	float			Arduino::KINECT_HEIGHT;
-	float			Arduino::TILT_ANGLE;
-	float			Arduino::ARM_HEIGHT;
-	float			Arduino::KINECT_MOTOR_HEIGHT;
+	// optional - for debug
+	static char		KEY_RESET;
+	static char		KEY_PRINT_STATUS;
+
+	static int		ANGLE_STEP_FOR_KEY;
+	static char		KEY_ANGLE_1INC;
+	static char		KEY_ANGLE_1DEC;
+	static char		KEY_ANGLE_2INC;
+	static char		KEY_ANGLE_2DEC;
+	static char		KEY_ANGLE_4INC;
+	static char		KEY_ANGLE_4DEC;
+	static char		KEY_ANGLE_8INC;
+	static char		KEY_ANGLE_8DEC;
 
 	static unsigned long startTime; 
 
@@ -86,10 +92,10 @@ namespace mapinect {
 
 		loadXMLSettings();
 
-		angleMotor1 = RESET_ANGLE1;
-		angleMotor2 = RESET_ANGLE2;
-		angleMotor4 = RESET_ANGLE4;
-		angleMotor8 = RESET_ANGLE8;// La posición inicial de este motor es mirando de costado. 
+		angleMotor1 = ANGLE_DEFAULT_1;
+		angleMotor2 = ANGLE_DEFAULT_2;
+		angleMotor4 = ANGLE_DEFAULT_4;
+		angleMotor8 = ANGLE_DEFAULT_8;// La posición inicial de este motor es mirando de costado. 
 
 		if (!serial.setup(COM_PORT, 9600)) {
 			cout << "Error en setup del Serial, puerto COM: " << COM_PORT << endl;
@@ -236,22 +242,22 @@ namespace mapinect {
 					loadXMLSettings();
 					break;
 			}
-			if (key == KEY_MOVE_1R) {
-				moveMotor(1,angleMotor1 + ANGLE_STEP);
-			} else if (key == KEY_MOVE_1L) {
-				moveMotor(1,angleMotor1 - ANGLE_STEP);
-			} else if (key == KEY_MOVE_2R) {
-				moveMotor(2,angleMotor2 + ANGLE_STEP);
-			} else if (key == KEY_MOVE_2L) {
-				moveMotor(2,angleMotor2 - ANGLE_STEP);
-			} else if (key == KEY_MOVE_4R) {
-				moveMotor(4,angleMotor4 + ANGLE_STEP);
-			} else if (key == KEY_MOVE_4L) {
-				moveMotor(4,angleMotor4 - ANGLE_STEP);
-			} else if (key == KEY_MOVE_8R) {
-				moveMotor(8,angleMotor8 + ANGLE_STEP);
-			} else if (key == KEY_MOVE_8L) {
-				moveMotor(8,angleMotor8 - ANGLE_STEP);
+			if (key == KEY_ANGLE_1INC) {
+				moveMotor(1,angleMotor1 + ANGLE_STEP_FOR_KEY);
+			} else if (key == KEY_ANGLE_1DEC) {
+				moveMotor(1,angleMotor1 - ANGLE_STEP_FOR_KEY);
+			} else if (key == KEY_ANGLE_2INC) {
+				moveMotor(2,angleMotor2 + ANGLE_STEP_FOR_KEY);
+			} else if (key == KEY_ANGLE_2DEC) {
+				moveMotor(2,angleMotor2 - ANGLE_STEP_FOR_KEY);
+			} else if (key == KEY_ANGLE_4INC) {
+				moveMotor(4,angleMotor4 + ANGLE_STEP_FOR_KEY);
+			} else if (key == KEY_ANGLE_4DEC) {
+				moveMotor(4,angleMotor4 - ANGLE_STEP_FOR_KEY);
+			} else if (key == KEY_ANGLE_8INC) {
+				moveMotor(8,angleMotor8 + ANGLE_STEP_FOR_KEY);
+			} else if (key == KEY_ANGLE_8DEC) {
+				moveMotor(8,angleMotor8 - ANGLE_STEP_FOR_KEY);
 			} 
 			else if (key == KEY_RESET) {
 				reset(false);
@@ -292,20 +298,20 @@ namespace mapinect {
 			cloudBeforeMoving.reset();
 		}
 */
-		if (RESET_ANGLE1 != ANGLE_UNDEFINED) {
-			angleMotor1 = RESET_ANGLE1;
+		if (ANGLE_DEFAULT_1 != ANGLE_UNDEFINED) {
+			angleMotor1 = ANGLE_DEFAULT_1;
 			sendMotor((char) angleMotor1, ID_MOTOR_1);
 		}
-		if (RESET_ANGLE2 != ANGLE_UNDEFINED) {
-			angleMotor2 = RESET_ANGLE2;
+		if (ANGLE_DEFAULT_2 != ANGLE_UNDEFINED) {
+			angleMotor2 = ANGLE_DEFAULT_2;
 			sendMotor((char) angleMotor2, ID_MOTOR_2);
 		}
-		if (RESET_ANGLE4 != ANGLE_UNDEFINED) {
-			angleMotor4 = RESET_ANGLE4;
+		if (ANGLE_DEFAULT_4 != ANGLE_UNDEFINED) {
+			angleMotor4 = ANGLE_DEFAULT_4;
 			sendMotor((char) angleMotor4, ID_MOTOR_4);
 		}
-		if (RESET_ANGLE8 != ANGLE_UNDEFINED) {
-			angleMotor8 = RESET_ANGLE8;
+		if (ANGLE_DEFAULT_8 != ANGLE_UNDEFINED) {
+			angleMotor8 = ANGLE_DEFAULT_8;
 			sendMotor((char) angleMotor8, ID_MOTOR_8);
 		}
 
@@ -387,12 +393,12 @@ namespace mapinect {
 		} else {
 			_angleMotor1 = 0;
 		}
-		if (!inRange(_angleMotor1, MIN_ANGLE_1, MAX_ANGLE_1))
+		if (!inRange(_angleMotor1, ANGLE_MIN_1, ANGLE_MAX_1))
 		{
 			return;
 		}
 
-		if (!inRange(_angleMotor2, MIN_ANGLE_2, MAX_ANGLE_2))
+		if (!inRange(_angleMotor2, ANGLE_MIN_2, ANGLE_MAX_2))
 		{
 			return;
 		}
@@ -435,7 +441,7 @@ namespace mapinect {
 		//la lógica es pasar el punto que viene a un punto en coordenadas esféricas
 		//reducir el r y pasarlo nuevamente a coordenadas cartesianas.
 		Line3D armLine(ofVec3f(0, 0, 0), p);
-		return armLine.calculateValue(Arduino::ARM_LENGTH / armLine.segmentLength());
+		return armLine.calculateValue(ARM_LENGTH / armLine.segmentLength());
 	}
 
 	ofVec3f	Arduino::lookAt(const ofVec3f& point)
@@ -527,11 +533,11 @@ namespace mapinect {
 				}
 		}		 	
 
-		if (!inRange(int(anguloV), MIN_ANGLE_4, MAX_ANGLE_4))
+		if (!inRange(int(anguloV), ANGLE_MIN_4, ANGLE_MAX_4))
 		{
 			return NULL;
 		}
-		if (!inRange(int(anguloH), MIN_ANGLE_8, MAX_ANGLE_8))
+		if (!inRange(int(anguloH), ANGLE_MIN_8, ANGLE_MAX_8))
 		{
 			return NULL;
 		}
@@ -718,24 +724,6 @@ namespace mapinect {
 		if(XML.loadFile("Arduino_Config.xml")) {
 
 			COM_PORT = XML.getValue(ARDUINO_CONFIG "COM_PORT", "COM3");
-			ANGLE_STEP = XML.getValue(ARDUINO_CONFIG "ANGLE_STEP", 10);
-
-			RESET_ANGLE1 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE1", ANGLE_DEFAULT);
-			RESET_ANGLE2 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE2", ANGLE_DEFAULT);
-			RESET_ANGLE4 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE4", ANGLE_DEFAULT);
-			RESET_ANGLE8 = XML.getValue(ARDUINO_CONFIG "RESET_ANGLE8", ANGLE_DEFAULT);
-
-			KEY_RESET = XML.getValue(ARDUINO_CONFIG "KEY_RESET", KEY_UNDEFINED).c_str()[0];
-			KEY_PRINT_STATUS = XML.getValue(ARDUINO_CONFIG "KEY_PRINT_STATUS", KEY_UNDEFINED).c_str()[0];
-
-			KEY_MOVE_1R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_1R", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_1L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_1L", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_2R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_2R", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_2L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_2L", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_4R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_4R", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_4L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_4L", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_8R = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_8R", KEY_UNDEFINED).c_str()[0];
-			KEY_MOVE_8L = XML.getValue(ARDUINO_CONFIG "KEY_MOVE_8L", KEY_UNDEFINED).c_str()[0];
 
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.354);			
 			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.056);
@@ -745,20 +733,39 @@ namespace mapinect {
 			ARM_HEIGHT = XML.getValue(ARDUINO_CONFIG "ARM_HEIGHT", 0.42);
 			KINECT_MOTOR_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_MOTOR_HEIGHT", 0.08);
 
-			MAX_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_1", 0);
-			MIN_ANGLE_1 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_1", 0);
-			MAX_ANGLE_2 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_2", 0);
-			MIN_ANGLE_2 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_2", 0);
-			MAX_ANGLE_4 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_4", 0);
-			MIN_ANGLE_4 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_4", 0);
-			MAX_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MAX_ANGLE_8", 0);
-			MIN_ANGLE_8 = XML.getValue(ARDUINO_CONFIG "MIN_ANGLE_8", 0);
+			ANGLE_DEFAULT_1 = XML.getValue(ARDUINO_CONFIG "ANGLE_DEFAULT_1", ANGLE_DEFAULT);
+			ANGLE_DEFAULT_2 = XML.getValue(ARDUINO_CONFIG "ANGLE_DEFAULT_2", ANGLE_DEFAULT);
+			ANGLE_DEFAULT_4 = XML.getValue(ARDUINO_CONFIG "ANGLE_DEFAULT_4", ANGLE_DEFAULT);
+			ANGLE_DEFAULT_8 = XML.getValue(ARDUINO_CONFIG "ANGLE_DEFAULT_8", ANGLE_DEFAULT);
+
+			ANGLE_MAX_1 = XML.getValue(ARDUINO_CONFIG "ANGLE_MAX_1", 0);
+			ANGLE_MIN_1 = XML.getValue(ARDUINO_CONFIG "ANGLE_MIN_1", 0);
+			ANGLE_MAX_2 = XML.getValue(ARDUINO_CONFIG "ANGLE_MAX_2", 0);
+			ANGLE_MIN_2 = XML.getValue(ARDUINO_CONFIG "ANGLE_MIN_2", 0);
+			ANGLE_MAX_4 = XML.getValue(ARDUINO_CONFIG "ANGLE_MAX_4", 0);
+			ANGLE_MIN_4 = XML.getValue(ARDUINO_CONFIG "ANGLE_MIN_4", 0);
+			ANGLE_MAX_8 = XML.getValue(ARDUINO_CONFIG "ANGLE_MAX_8", 0);
+			ANGLE_MIN_8 = XML.getValue(ARDUINO_CONFIG "ANGLE_MIN_8", 0);
 
 			ARM_TIMEOUT = XML.getValue(ARDUINO_CONFIG "ARM_TIMEOUT", 2000);
 			ICP_CLOUD_DENSITY = XML.getValue(ARDUINO_CONFIG "ICP_CLOUD_DENSITY", Constants::CLOUD_STRIDE());
 			ICP_MAX_ITERATIONS = XML.getValue(ARDUINO_CONFIG "ICP_MAX_ITERATIONS", 20);
 
 			DISTANCE_TO_FOLLOW_OBJECT = XML.getValue(ARDUINO_CONFIG "DISTANCE_TO_FOLLOW_OBJECT", 0.25);
+
+			KEY_RESET = XML.getValue(ARDUINO_CONFIG "KEY_RESET", KEY_UNDEFINED).c_str()[0];
+			KEY_PRINT_STATUS = XML.getValue(ARDUINO_CONFIG "KEY_PRINT_STATUS", KEY_UNDEFINED).c_str()[0];
+
+			ANGLE_STEP_FOR_KEY = XML.getValue(ARDUINO_CONFIG "ANGLE_STEP_FOR_KEY", 10);
+			KEY_ANGLE_1INC = XML.getValue(ARDUINO_CONFIG "KEY_ANGLE_1INC", KEY_UNDEFINED).c_str()[0];
+			KEY_ANGLE_1DEC = XML.getValue(ARDUINO_CONFIG "KEY_ANGLE_1DEC", KEY_UNDEFINED).c_str()[0];
+			KEY_ANGLE_2INC = XML.getValue(ARDUINO_CONFIG "KEY_ANGLE_2INC", KEY_UNDEFINED).c_str()[0];
+			KEY_ANGLE_2DEC = XML.getValue(ARDUINO_CONFIG "KEY_ANGLE_2DEC", KEY_UNDEFINED).c_str()[0];
+			KEY_ANGLE_4INC = XML.getValue(ARDUINO_CONFIG "KEY_ANGLE_4INC", KEY_UNDEFINED).c_str()[0];
+			KEY_ANGLE_4DEC = XML.getValue(ARDUINO_CONFIG "KEY_ANGLE_4DEC", KEY_UNDEFINED).c_str()[0];
+			KEY_ANGLE_8INC = XML.getValue(ARDUINO_CONFIG "KEY_ANGLE_8INC", KEY_UNDEFINED).c_str()[0];
+			KEY_ANGLE_8DEC = XML.getValue(ARDUINO_CONFIG "KEY_ANGLE_8DEC", KEY_UNDEFINED).c_str()[0];
+
 		}
 	}
 
@@ -769,7 +776,7 @@ namespace mapinect {
 
 		if (motorId == ID_MOTOR_1)
 		{
-			if (!inRange(degrees, MIN_ANGLE_1, MAX_ANGLE_1))
+			if (!inRange(degrees, ANGLE_MIN_1, ANGLE_MAX_1))
 			{
 				return error;
 			}
@@ -780,7 +787,7 @@ namespace mapinect {
 		}
 		if (motorId == ID_MOTOR_2)
 		{
-			if (!inRange(degrees, MIN_ANGLE_2, MAX_ANGLE_2))
+			if (!inRange(degrees, ANGLE_MIN_2, ANGLE_MAX_2))
 			{
 				return error;
 			}
@@ -791,7 +798,7 @@ namespace mapinect {
 		}
 		if (motorId == ID_MOTOR_4)
 		{
-			if (!inRange(degrees, MIN_ANGLE_4, MAX_ANGLE_4))
+			if (!inRange(degrees, ANGLE_MIN_4, ANGLE_MAX_4))
 			{
 				return error;
 			}
@@ -802,7 +809,7 @@ namespace mapinect {
 		}
 		if (motorId == ID_MOTOR_8)
 		{
-			if (!inRange(degrees, MIN_ANGLE_8, MAX_ANGLE_8))
+			if (!inRange(degrees, ANGLE_MIN_8, ANGLE_MAX_8))
 			{
 				return error;
 			}

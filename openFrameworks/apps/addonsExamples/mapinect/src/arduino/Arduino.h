@@ -53,14 +53,6 @@ namespace mapinect
 		
 		signed int*			motorAngles() const;
 
-		static float		ARM_LENGTH;
-		static float		MOTORS_HEIGHT;
-		static float		MOTORS_WIDTH;
-		static float		KINECT_HEIGHT;
-		static float		TILT_ANGLE;
-		static float		ARM_HEIGHT;
-		static float		KINECT_MOTOR_HEIGHT;
-
 		inline bool			isArmMoving()	{	return startedMoving;	}
 
 	private:
