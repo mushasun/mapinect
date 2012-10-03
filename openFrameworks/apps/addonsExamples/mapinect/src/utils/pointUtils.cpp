@@ -767,6 +767,12 @@ float computeVolume(const PCPtr& cloud)
 	chull.setDimension(3);
 	chull.setComputeAreaVolume(true);
 	chull.reconstruct (*cloudHull);
+
+	//SOLO PARA FOTOS 
+	saveCloud("cloudParaHull.pcd",*cloud);
+	saveCloud("Hull.pcd",*cloudHull);
+	////
+
 	return chull.getTotalVolume();
 }
 // -------------------------------------------------------------------------------------

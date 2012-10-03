@@ -138,8 +138,9 @@ namespace mapinect {
 				}
 			}
 
+			saveCloud("tableCluster.pcd", *tableCluster);
 			PCPtr biggestPlaneCloud = extractBiggestPlane(tableCluster, coefficients, result, 0.009);
-
+			
 			Table::create(coefficients, biggestPlaneCloud);
 		}
 		else
@@ -154,6 +155,9 @@ namespace mapinect {
 				gModel->tableMutex.unlock();
 			}
 
+			//SOLO PARA FOTOS
+			PCPtr rest(new PC());
+
 			for (PC::const_iterator p = cloud->begin(); p != cloud->end(); ++p)
 			{
 				if (evaluatePoint(coefficients, *p) > Constants::TABLE_HEIGHT_TOLERANCE())
@@ -162,8 +166,15 @@ namespace mapinect {
 					{
 						result->push_back(*p);
 					}
+					else
+						rest->push_back(*p);
 				}
+				else
+					rest->push_back(*p);
 			}
+
+			saveCloud("restRawCloud.pcd", *rest);
+
 		}
 
 		return result;
