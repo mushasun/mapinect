@@ -2,7 +2,6 @@
 
 #include "Feature.h"
 #include "ofxXmlSettings.h"
-#include <direct.h> // for getcwd
 #include "Plane3D.h"
 #include "utils.h"
 #include "Globals.h"
