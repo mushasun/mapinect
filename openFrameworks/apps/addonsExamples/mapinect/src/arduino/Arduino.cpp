@@ -24,9 +24,6 @@ namespace mapinect {
 	static float	MOTORS_HEIGHT;
 	static float	MOTORS_WIDTH;
 	static float	KINECT_HEIGHT;
-	static float	TILT_ANGLE;
-	static float	ARM_HEIGHT;
-	static float	KINECT_MOTOR_HEIGHT;
 
 	static char		ANGLE_DEFAULT_1;
 	static char		ANGLE_DEFAULT_2;
@@ -586,16 +583,12 @@ namespace mapinect {
 		float angleMotor2Rad = ofDegToRad(angle2);		// Motor de abajo del brazo, con la varilla "vertical"
 		float angleMotor4Rad = ofDegToRad(angle4);		// Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
 		float angleMotor8Rad = ofDegToRad(angle8 - 90);	// Motor de los de la punta, el de más abajo. La posición inicial de referencia será 90 grados.
-		float angleTiltKinectRad = ofDegToRad(TILT_ANGLE);
 
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf
 
 		Eigen::Vector3f axisX (1, 0, 0);
 		Eigen::Vector3f axisY (0, 1, 0);
 		Eigen::Vector3f axisZ (0, 0, 1);
-
-		Eigen::Affine3f tAlturaBrazo;
-		tAlturaBrazo = Eigen::Translation<float, 3>(0, -ARM_HEIGHT, 0);
 
 		Eigen::Affine3f rMotor2;
 		rMotor2 = Eigen::AngleAxis<float>(-angleMotor2Rad, axisY);
@@ -615,12 +608,6 @@ namespace mapinect {
 		Eigen::Affine3f rMotor4;
 		rMotor4 = Eigen::AngleAxis<float>(angleMotor4Rad, axisX);
 
-		Eigen::Affine3f tAlturaMotor4AlKinect;
-		tAlturaMotor4AlKinect = Eigen::Translation<float, 3>(0, -KINECT_MOTOR_HEIGHT, 0);
-
-		Eigen::Affine3f rTiltKinect;
-		rTiltKinect = Eigen::AngleAxis<float>(angleTiltKinectRad, axisX);
-
 		Eigen::Affine3f tAlturaAlKinect;
 		tAlturaAlKinect = Eigen::Translation<float, 3>(0.012, -KINECT_HEIGHT, 0);
 
@@ -629,7 +616,6 @@ namespace mapinect {
 		//y luego la traslacion a lo largo del brazo
 		
 		Eigen::Affine3f composedMatrix;
-		//composedMatrix = tAlturaBrazo * (rMotor2 * (rMotor1 *  (tLargoBrazo * (rMotor8 * (tMotores48 * (rMotor4 * (tAlturaMotor4AlKinect * (rTiltKinect * tAlturaAlKinect))))))));
 		composedMatrix = rMotor2 * (rMotor1 *  (tLargoBrazo * (rMotor8 * (tMotores48 * (rMotor4 * tAlturaAlKinect))))) ;
 
 		gTransformation->setWorldTransformation(composedMatrix);
@@ -728,10 +714,7 @@ namespace mapinect {
 			ARM_LENGTH = XML.getValue(ARDUINO_CONFIG "ARM_LENGTH", 0.354);			
 			MOTORS_HEIGHT = XML.getValue(ARDUINO_CONFIG "MOTORS_HEIGHT", 0.056);
 			MOTORS_WIDTH = XML.getValue(ARDUINO_CONFIG "MOTORS_WIDTH", 0.015);
-			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.036);
-			TILT_ANGLE = XML.getValue(ARDUINO_CONFIG "TILT_ANGLE", -5.0);
-			ARM_HEIGHT = XML.getValue(ARDUINO_CONFIG "ARM_HEIGHT", 0.42);
-			KINECT_MOTOR_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_MOTOR_HEIGHT", 0.08);
+			KINECT_HEIGHT = XML.getValue(ARDUINO_CONFIG "KINECT_HEIGHT", 0.116);
 
 			ANGLE_DEFAULT_1 = XML.getValue(ARDUINO_CONFIG "ANGLE_DEFAULT_1", ANGLE_DEFAULT);
 			ANGLE_DEFAULT_2 = XML.getValue(ARDUINO_CONFIG "ANGLE_DEFAULT_2", ANGLE_DEFAULT);
