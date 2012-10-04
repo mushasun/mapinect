@@ -40,7 +40,7 @@ namespace mapinect {
 	static int		ANGLE_MIN_8						= -120;
 
 	static int		ARM_TIMEOUT						= 2000;
-	static int		ICP_CLOUD_DENSITY				= Constants::CLOUD_STRIDE();
+	static int		ICP_CLOUD_STRIDE				= Constants::CLOUD_STRIDE();
 	static int		ICP_MAX_ITERATIONS				= 20;
 
 	static float	DISTANCE_TO_FOLLOW_OBJECT		= 0.2f;
@@ -199,7 +199,7 @@ namespace mapinect {
 
 				if (IsFeatureMoveArmActive() && !(cloudBeforeMoving.get() == NULL)) 
 				{
-					cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
+					cloudAfterMoving = getCloudWithoutMutex(ICP_CLOUD_STRIDE);
 					saveCloud("cloudAfterMoving.pcd", *cloudAfterMoving);
 
 					icpThread->applyICP(cloudBeforeMoving,cloudAfterMoving,ICP_MAX_ITERATIONS);
@@ -667,9 +667,9 @@ namespace mapinect {
 			{ 
 				// Obtener nube antes de mover los motores
 				if (moveForced)
-					cloudBeforeMoving = getCloudWithoutMutex(ICP_CLOUD_DENSITY);
+					cloudBeforeMoving = getCloudWithoutMutex(ICP_CLOUD_STRIDE);
 				else
-					cloudBeforeMoving = getCloud(ICP_CLOUD_DENSITY);
+					cloudBeforeMoving = getCloud(ICP_CLOUD_STRIDE);
 				saveCloud("cloudBeforeMoving.pcd", *cloudBeforeMoving);
 			}
 			else
@@ -731,7 +731,7 @@ namespace mapinect {
 			ANGLE_MIN_8 = XML.getValue(ARDUINO_CONFIG "ANGLE_MIN_8", ANGLE_MIN_8);
 
 			ARM_TIMEOUT = XML.getValue(ARDUINO_CONFIG "ARM_TIMEOUT", ARM_TIMEOUT);
-			ICP_CLOUD_DENSITY = XML.getValue(ARDUINO_CONFIG "ICP_CLOUD_DENSITY", ICP_CLOUD_DENSITY);
+			ICP_CLOUD_STRIDE = XML.getValue(ARDUINO_CONFIG "ICP_CLOUD_STRIDE", ICP_CLOUD_STRIDE);
 			ICP_MAX_ITERATIONS = XML.getValue(ARDUINO_CONFIG "ICP_MAX_ITERATIONS", ICP_MAX_ITERATIONS);
 
 			DISTANCE_TO_FOLLOW_OBJECT = XML.getValue(ARDUINO_CONFIG "DISTANCE_TO_FOLLOW_OBJECT", DISTANCE_TO_FOLLOW_OBJECT);
