@@ -75,13 +75,13 @@ namespace mapinect
 		static float				TOUCH_TRANSLATION_TOLERANCE();
 
 		//contsantes de view field
-		static float				NDISTANCE;
-		static float				FOV_HORIZONTAL;
-		static float				FOV_VERTICAL;
-		static float				WFAR_2;
-		static float				HFAR_2;
-		static float				WNEAR_2;
-		static float				HNEAR_2;
+		static float				FRUSTUM_NEAR_DISTANCE;
+		static float				FRUSTUM_FOV_HORIZONTAL;
+		static float				FRUSTUM_FOV_VERTICAL;
+		static float				FRUSTUM_WFAR_2;
+		static float				FRUSTUM_HFAR_2;
+		static float				FRUSTUM_WNEAR_2;
+		static float				FRUSTUM_HNEAR_2;
 
 		// Para la calibración inicial de la mesa
 		static int					TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE;
