@@ -44,34 +44,34 @@ namespace mapinect
 		ofVec3f fc = p + direction * Constants::CLOUD_Z_MAX;
 
 		// nc es el punto intersección entre direction y el plano near
-		ofVec3f nc = p + direction * Constants::NDISTANCE;
+		ofVec3f nc = p + direction * Constants::FRUSTUM_NEAR_DISTANCE;
 
 		// La primer letra es si es en el plano far o near
 		// La segunda letra es si es top o bottom
 		// La tercer letra es si es left o right
-		instance->ftl = fc + (up * Constants::HFAR_2) - (right * Constants::WFAR_2);
+		instance->ftl = fc + (up * Constants::FRUSTUM_HFAR_2) - (right * Constants::FRUSTUM_WFAR_2);
 		instance->sftl = getScreenCoords(instance->ftl);
 //		instance->sftl.z = 0;
-		instance->ftr = fc + (up * Constants::HFAR_2) + (right * Constants::WFAR_2);
+		instance->ftr = fc + (up * Constants::FRUSTUM_HFAR_2) + (right * Constants::FRUSTUM_WFAR_2);
 		instance->sftr = getScreenCoords(instance->ftr); 
 //		instance->sftr.z = 0;
-		instance->fbl = fc - (up * Constants::HFAR_2) - (right * Constants::WFAR_2);
+		instance->fbl = fc - (up * Constants::FRUSTUM_HFAR_2) - (right * Constants::FRUSTUM_WFAR_2);
 		instance->sfbl = getScreenCoords(instance->fbl);  
 //		instance->sfbl.z = 0;
-		instance->fbr = fc - (up * Constants::HFAR_2) + (right * Constants::WFAR_2);
+		instance->fbr = fc - (up * Constants::FRUSTUM_HFAR_2) + (right * Constants::FRUSTUM_WFAR_2);
 		instance->sfbr = getScreenCoords(instance->fbr);
 //		instance->sfbr.z = 0;
 
-		instance->ntl = nc + (up * Constants::HNEAR_2) - (right * Constants::WNEAR_2);
+		instance->ntl = nc + (up * Constants::FRUSTUM_HNEAR_2) - (right * Constants::FRUSTUM_WNEAR_2);
 		instance->sntl = getScreenCoords(instance->ntl);  
 //		instance->sntl.z = 0; 
-		instance->ntr = nc + (up * Constants::HNEAR_2) + (right * Constants::WNEAR_2);
+		instance->ntr = nc + (up * Constants::FRUSTUM_HNEAR_2) + (right * Constants::FRUSTUM_WNEAR_2);
 		instance->sntr = getScreenCoords(instance->ntr);  
 //		instance->sntr.z = 0;
-		instance->nbl = nc - (up * Constants::HNEAR_2) - (right * Constants::WNEAR_2);
+		instance->nbl = nc - (up * Constants::FRUSTUM_HNEAR_2) - (right * Constants::FRUSTUM_WNEAR_2);
 		instance->snbl = getScreenCoords(instance->nbl);  
 //		instance->snbl.z = 0;
-		instance->nbr = nc - (up * Constants::HNEAR_2) + (right * Constants::WNEAR_2);
+		instance->nbr = nc - (up * Constants::FRUSTUM_HNEAR_2) + (right * Constants::FRUSTUM_WNEAR_2);
 		instance->snbr = getScreenCoords(instance->nbr);
 //		instance->snbr.z = 0;
 

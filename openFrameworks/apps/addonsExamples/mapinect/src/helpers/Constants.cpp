@@ -48,13 +48,13 @@ namespace mapinect
 	int					Constants::TOUCH_MAX_PER_FACE						= 4;
 
 	//contsantes de view field
-	float				Constants::NDISTANCE								= 0.2;
-	float				Constants::FOV_HORIZONTAL							= 57.0f;
-	float				Constants::FOV_VERTICAL								= 43.0f;	
-	float				Constants::WFAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
-	float				Constants::HFAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
-	float				Constants::WNEAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * NDISTANCE; 
-	float				Constants::HNEAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * NDISTANCE;
+	float				Constants::FRUSTUM_NEAR_DISTANCE					= 0.2;
+	float				Constants::FRUSTUM_FOV_HORIZONTAL					= 57.0f;
+	float				Constants::FRUSTUM_FOV_VERTICAL						= 43.0f;	
+	float				Constants::FRUSTUM_WFAR_2							= tan(ofDegToRad(FRUSTUM_FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
+	float				Constants::FRUSTUM_HFAR_2							= tan(ofDegToRad(FRUSTUM_FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
+	float				Constants::FRUSTUM_WNEAR_2							= tan(ofDegToRad(FRUSTUM_FOV_HORIZONTAL / 2.0f)) * FRUSTUM_NEAR_DISTANCE; 
+	float				Constants::FRUSTUM_HNEAR_2							= tan(ofDegToRad(FRUSTUM_FOV_VERTICAL / 2.0f)) * FRUSTUM_NEAR_DISTANCE;
 
 	// Para la calibración inicial de la mesa
 	int					Constants::TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE	= 20;
@@ -111,13 +111,13 @@ namespace mapinect
 			TOUCH_MAX_PER_FACE						= XML.getValue(PCM_CONFIG "TOUCH_MAX_PER_FACE", TOUCH_MAX_PER_FACE);
 
 			// Para el IsInViewField
-			NDISTANCE								= XML.getValue(PCM_CONFIG "NDISTANCE",0.2);
-			FOV_HORIZONTAL							= XML.getValue(PCM_CONFIG "FOV_HORIZONTAL",64.0f);
-			FOV_VERTICAL							= XML.getValue(PCM_CONFIG "FOV_VERTICAL",63.0f);
-			WFAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
-			HFAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
-			WNEAR_2									= tan(ofDegToRad(FOV_HORIZONTAL / 2.0f)) * NDISTANCE; 
-			HNEAR_2									= tan(ofDegToRad(FOV_VERTICAL / 2.0f)) * NDISTANCE;
+			FRUSTUM_NEAR_DISTANCE					= XML.getValue(PCM_CONFIG "FRUSTUM_NEAR_DISTANCE",0.2);
+			FRUSTUM_FOV_HORIZONTAL					= XML.getValue(PCM_CONFIG "FRUSTUM_FOV_HORIZONTAL",64.0f);
+			FRUSTUM_FOV_VERTICAL					= XML.getValue(PCM_CONFIG "FRUSTUM_FOV_VERTICAL",63.0f);
+			FRUSTUM_WFAR_2							= tan(ofDegToRad(FRUSTUM_FOV_HORIZONTAL / 2.0f)) * CLOUD_Z_MAX; 
+			FRUSTUM_HFAR_2							= tan(ofDegToRad(FRUSTUM_FOV_VERTICAL / 2.0f)) * CLOUD_Z_MAX;
+			FRUSTUM_WNEAR_2							= tan(ofDegToRad(FRUSTUM_FOV_HORIZONTAL / 2.0f)) * FRUSTUM_NEAR_DISTANCE; 
+			FRUSTUM_HNEAR_2							= tan(ofDegToRad(FRUSTUM_FOV_VERTICAL / 2.0f)) * FRUSTUM_NEAR_DISTANCE;
 
 			// Para la calibración inicial de la mesa
 			TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE	= XML.getValue(PCM_CONFIG "TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE", TABLE_VERTEX_ESTIMATED_PIXEL_TOLERANCE);
