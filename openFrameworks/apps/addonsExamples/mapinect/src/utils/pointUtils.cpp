@@ -148,7 +148,7 @@ PCPtr getCloudWithoutMutex(const ofVec3f& min, const ofVec3f& max, int stride)
 	}
 
 	float voxelSize = mapinect::Constants::CLOUD_VOXEL_SIZE;
-	if(mapinect::IsFeatureUniformDensity())
+	if(mapinect::IsFeatureUniformDensityActive())
 	{
 		voxelSize = mapinect::Constants::CLOUD_VOXEL_SIZE_FOR_STRIDE(stride);
 		stride = 1;
@@ -197,7 +197,7 @@ PCPtr getCloudWithoutMutex(const ofVec3f& min, const ofVec3f& max, int stride)
 		}
 	}
 
-	if(mapinect::IsFeatureUniformDensity())
+	if(mapinect::IsFeatureUniformDensityActive())
 	{
 		PCPtr preFilter(new PC(*partialCloud));
 		pcl::VoxelGrid<pcl::PointXYZ> sor;

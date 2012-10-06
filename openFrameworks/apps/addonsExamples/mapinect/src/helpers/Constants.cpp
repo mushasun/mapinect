@@ -72,7 +72,7 @@ namespace mapinect
 			CLOUD_DENSITY							= XML.getValue(PCM_CONFIG "CLOUD_DENSITY", CLOUD_DENSITY);
 			CLOUD_VOXEL_SIZE						= XML.getValue(PCM_CONFIG "CLOUD_VOXEL_SIZE", CLOUD_VOXEL_SIZE);
 
-			if (IsFeatureUniformDensity())
+			if (IsFeatureUniformDensityActive())
 			{
 				CLOUD_DENSITY = round(kVoxelDensityMultiplier / CLOUD_VOXEL_SIZE, 3);
 			}

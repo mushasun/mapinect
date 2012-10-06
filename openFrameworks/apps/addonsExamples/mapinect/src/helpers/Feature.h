@@ -15,6 +15,7 @@ namespace mapinect
 		FEATURE_SHOW_RGB,
 		FEATURE_HAND_DETECTION,
 		FEATURE_MOVE_ARM,
+		FEATURE_ICP,
 		FEATURE_UNIFORM_DENSITY,
 		FEATURE_CALIBRATE_TABLE,
 		FEATURE_INVALIDATE_OBJECT_BY_VOLUME,
@@ -35,7 +36,8 @@ namespace mapinect
 	bool IsFeatureVMActive();
 	bool IsFeatureSaveCloudActive();
 	bool IsFeatureMoveArmActive();
-	bool IsFeatureUniformDensity();
+	bool IsFeatureICPActive();
+	bool IsFeatureUniformDensityActive();
 	bool IsFeatureCalibrateTableActive();
 	bool IsFeatureEnableMappingWhileMovingActive();
 	bool IsFeatureLogActive();
