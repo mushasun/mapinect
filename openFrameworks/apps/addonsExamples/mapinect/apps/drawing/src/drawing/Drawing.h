@@ -80,6 +80,7 @@ namespace drawing
 		vector<ofImage*>	textures;
 
 		bool				paletteVisible;
+		vector<ofImage*>	paletteTextures;
 		vector<ofFloatColor>paletteColors;
 
 		IButtonPtr			pictureCurrent;

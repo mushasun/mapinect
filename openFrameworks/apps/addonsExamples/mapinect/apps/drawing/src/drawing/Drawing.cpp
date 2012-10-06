@@ -34,14 +34,14 @@ namespace drawing
 
 		int tx = 0;
 		textures.resize((kButtons + 1) * 2);
-		textures[tx++] = new ofImage("textures/paletteOff.png");
-		textures[tx++] = new ofImage("textures/paletteOn.png");
-		textures[tx++] = new ofImage("textures/followOff.png");
-		textures[tx++] = new ofImage("textures/followOn.png");
-		textures[tx++] = new ofImage("textures/pictureOff.png");
-		textures[tx++] = new ofImage("textures/pictureOn.png");
-		textures[tx++] = new ofImage("textures/confirmOff.png");
-		textures[tx++] = new ofImage("textures/confirmOn.png");
+		textures[tx++] = new ofImage("textures/off0001.png");
+		textures[tx++] = new ofImage("textures/on0001.png");
+		textures[tx++] = new ofImage("textures/off0002.png");
+		textures[tx++] = new ofImage("textures/on0002.png");
+		textures[tx++] = new ofImage("textures/off0003.png");
+		textures[tx++] = new ofImage("textures/on0003.png");
+		textures[tx++] = new ofImage("textures/off0004.png");
+		textures[tx++] = new ofImage("textures/on0004.png");
 
 		int c = 0;
 		paletteColors.resize(kPaletteColors);
@@ -51,6 +51,21 @@ namespace drawing
 		paletteColors[c++] = kRGBGreen;
 		paletteColors[c++] = kRGBYellow;
 		paletteColors[c++] = kRGBWhite;
+
+		c = 0;
+		paletteTextures.resize(kPaletteColors * 2);
+		paletteTextures[c++] = new ofImage("textures/off0005.png");
+		paletteTextures[c++] = new ofImage("textures/on0005.png");
+		paletteTextures[c++] = new ofImage("textures/off0006.png");
+		paletteTextures[c++] = new ofImage("textures/on0006.png");
+		paletteTextures[c++] = new ofImage("textures/off0007.png");
+		paletteTextures[c++] = new ofImage("textures/on0007.png");
+		paletteTextures[c++] = new ofImage("textures/off0008.png");
+		paletteTextures[c++] = new ofImage("textures/on0008.png");
+		paletteTextures[c++] = new ofImage("textures/off0009.png");
+		paletteTextures[c++] = new ofImage("textures/on0009.png");
+		paletteTextures[c++] = new ofImage("textures/off0010.png");
+		paletteTextures[c++] = new ofImage("textures/on0010.png");
 	}
 
 	void Drawing::update(float elapsedTime)
@@ -379,8 +394,8 @@ namespace drawing
 				Polygon3D area(buttonVertexs);
 				SimpleButton *button = new SimpleButton(
 					area,
-					paletteColors[i],
-					paletteColors[i] + 0.5f);
+					paletteTextures[i * 2],
+					paletteTextures[i * 2 + 1]);
 				actions[button->getId()] = i;
 				IButtonPtr buttonPtr(button);
 				btnManager->addButton(buttonPtr);
