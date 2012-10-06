@@ -23,6 +23,7 @@ namespace mapinect
 			gFeatures[FEATURE_PCM] = XML.getValue(FEATURE_CONFIG "PCM", true);
 			gFeatures[FEATURE_VM] = XML.getValue(FEATURE_CONFIG "VM", true);
 			gFeatures[FEATURE_SAVE_CLOUD] = XML.getValue(FEATURE_CONFIG "SAVE_CLOUD", false);
+			gFeatures[FEATURE_ICP] = XML.getValue(FEATURE_CONFIG "ICP", false);
 			gFeatures[FEATURE_RECTANGLE_VERTEX] = XML.getValue(FEATURE_CONFIG "RECTANGLE_VERTEX", false);
 			gFeatures[FEATURE_SHOW_RGB] = XML.getValue(FEATURE_CONFIG "SHOW_RGB", false);
 			gFeatures[FEATURE_HAND_DETECTION] = XML.getValue(FEATURE_CONFIG "HAND_DETECTION", false);
@@ -76,7 +77,12 @@ namespace mapinect
 		return IsFeatureActive(FEATURE_MOVE_ARM);
 	}
 
-	bool IsFeatureUniformDensity()
+	bool IsFeatureICPActive()
+	{
+		return IsFeatureActive(FEATURE_ICP);
+	}
+
+	bool IsFeatureUniformDensityActive()
 	{
 		return IsFeatureActive(FEATURE_UNIFORM_DENSITY);
 	}
