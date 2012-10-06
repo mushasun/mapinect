@@ -303,7 +303,8 @@ namespace mapinect {
 		}
 	}
 
-	bool ICPThread::detectNewTable(const PCPtr& cloud, pcl::ModelCoefficients& coefficients, PCPtr& planeCloud) {
+	bool ICPThread::detectNewTable(const PCPtr& cloud, pcl::ModelCoefficients& newTableCoefficients,
+		PCPtr& newTableCloud) {
 		if (cloud->size() == 0)
 		{
 			return false;
@@ -329,10 +330,33 @@ namespace mapinect {
 
 		saveCloud("tableCluster.pcd",*tableCluster);
 
-		PCPtr result(new PC());
-		planeCloud = extractBiggestPlane(tableCluster, coefficients, result, 0.009);
+		const Plane3D currentTablePlane(gModel->getTable()->getCoefficients());
+		const float tableMinSize = Constants::TABLE_CLUSTER_MIN_SIZE();
+		float minTablePlaneDistance = MAX_FLOAT;
+		PCPtr remainingCloud(new PC());
+		PCPtr cluster(tableCluster);
+		do
+		{
+			pcl::ModelCoefficients coefficients;
+			PCPtr planeCloud = extractBiggestPlane(cluster, coefficients, remainingCloud, 0.009,
+				tableMinSize);
+			if (planeCloud->size() == 0)
+			{
+				break;
+			}
+			else
+			{
+				if (currentTablePlane.distance(computeCentroid(planeCloud)) < minTablePlaneDistance)
+				{
+					newTableCoefficients = coefficients;
+					newTableCloud = planeCloud;
+				}
+				cluster = remainingCloud;
+			}
+		}
+		while (remainingCloud->size() > tableMinSize);
 		
-		return true;
+		return minTablePlaneDistance < MAX_FLOAT;
 	}
 
 	bool ICPThread::icpProcessing(const PCPtr& inputCloud, const PCPtr& inputTarget, Eigen::Affine3f& newTransf, 
