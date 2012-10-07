@@ -240,27 +240,14 @@ namespace story
 		if (buttonTextures == NULL)
 		{
 			buttonTextures = new ofImage* [BUTTON_COUNT * kTexturesPerButton];
-			buttonTextures[0] = new ofImage("data/texturas/menu/road.jpg");
-			buttonTextures[1] = new ofImage("data/texturas/menu/roadOn.jpg");
-			buttonTextures[2] = new ofImage("data/texturas/menu/river.jpg");
-			buttonTextures[3] = new ofImage("data/texturas/menu/riverOn.jpg");
-			buttonTextures[4] = new ofImage("data/texturas/menu/house.jpg");
-			buttonTextures[5] = new ofImage("data/texturas/menu/houseOn.jpg");
-			buttonTextures[6] = new ofImage("data/texturas/menu/power.jpg");
-			buttonTextures[7] = new ofImage("data/texturas/menu/powerOn.jpg");
-			buttonTextures[8] = new ofImage("data/texturas/menu/water.jpg");
-			buttonTextures[9] = new ofImage("data/texturas/menu/waterOn.jpg");
-			buttonTextures[10] = new ofImage("data/texturas/menu/fire.png");
-			buttonTextures[11] = new ofImage("data/texturas/menu/fireOn.png");
-			buttonTextures[12] = new ofImage("data/texturas/menu/CameraIcon1.png");
-			buttonTextures[13] = new ofImage("data/texturas/menu/CameraIcon1On.png");
-			buttonTextures[14] = new ofImage("data/texturas/menu/CameraIcon2.png");
-			buttonTextures[15] = new ofImage("data/texturas/menu/CameraIcon2On.png");
-			buttonTextures[16] = new ofImage("data/texturas/menu/CameraIcon3.png");
-			buttonTextures[17] = new ofImage("data/texturas/menu/CameraIcon3On.png");
-			buttonTextures[18] = new ofImage("data/texturas/menu/ok.png");
-			buttonTextures[19] = new ofImage("data/texturas/menu/okOn.png");
-
+			for (int i = 0; i < BUTTON_COUNT; i++)
+			{
+				string d(i < 10 ? "0" : "");
+				buttonTextures[i * kTexturesPerButton + 0] =
+					new ofImage("data/texturas/menu/off00" + d + ofToString(i+1) + ".png");
+				buttonTextures[i * kTexturesPerButton + 1] =
+					new ofImage("data/texturas/menu/on00" + d + ofToString(i+1) + ".png");
+			}
 		}
 	}
 
