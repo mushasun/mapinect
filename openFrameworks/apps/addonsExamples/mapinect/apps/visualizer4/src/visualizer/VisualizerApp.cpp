@@ -407,7 +407,6 @@ namespace visualizer {
 
 	void VisualizerApp::buttonPressed(const IButtonPtr& btn, const DataTouch& touch)
 	{
-		cout << "pressed: " << btn->getId() << endl;
 		/*music.setSpeed(btn->getId());
 		if(btn->getId() == 1 && !music.getIsPlaying())
 			music.play();
@@ -445,7 +444,6 @@ namespace visualizer {
 	}
 	void VisualizerApp::buttonReleased(const IButtonPtr& btn, const DataTouch& touch)
 	{
-		cout << "release: " << btn->getId() << endl;
 		switch(btn->getId())
 		{
 			case 2:

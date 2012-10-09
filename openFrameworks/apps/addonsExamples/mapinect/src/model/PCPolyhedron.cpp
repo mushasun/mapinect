@@ -123,6 +123,7 @@ namespace mapinect {
 	
 	vector<PCPolygonPtr> PCPolyhedron::detectPolygons(const PCPtr& cloud, float planeTolerance, float pointsTolerance, bool limitFaces)
 	{
+		float DOT_EPSILON = 0.15;
 		saveCloud("1_toDetect.pcd", *cloud);
 
 		PCPtr cloudTemp(cloud);
@@ -193,7 +194,7 @@ namespace mapinect {
 			saveCloud("2_DetectedPol" + ofToString(i) + ".pcd", *cloudP);
 			
 			//Remove outliers by clustering	
-			vector<pcl::PointIndices> clusterIndices(findClusters(cloudP, 0.02, 10, 10000));
+			vector<pcl::PointIndices> clusterIndices(findClusters(cloudP, pointsTolerance, 10, 10000));
 			int debuccount = 0;
 
 			PCPtr cloudPFiltered (new PC());
@@ -206,25 +207,38 @@ namespace mapinect {
 			if (cloudPFiltered->size() < 4)
 				break;
 
-			//COrrijo las normales de los planos?
+			//Controlo que las normales sean perpendiculares
+			ofVec3f norm (coefficients->values[0],coefficients->values[1],coefficients->values[2]);
+			norm.normalize();
+			bool normalCheck = true;
+			for(int i = 0; i < nuevos.size() && normalCheck; i++)
+			{
+				float dot = abs(nuevos[i]->getNormal().dot(norm));
+				if( dot > DOT_EPSILON)
+				{
+					normalCheck = false;
+				}
+			}
 
-			//proyecto los puntos sobre el plano
-			pcl::ProjectInliers<pcl::PointXYZ> proj; 
-			proj.setModelType(pcl::SACMODEL_PLANE); 
-			PCPtr projectedCloud (new PC()); 
-			proj.setInputCloud(cloudPFiltered); 
-			proj.setModelCoefficients(coefficients); 
-			proj.filter(*projectedCloud);
+			if(normalCheck)
+			{
+				//proyecto los puntos sobre el plano
+				pcl::ProjectInliers<pcl::PointXYZ> proj; 
+				proj.setModelType(pcl::SACMODEL_PLANE); 
+				PCPtr projectedCloud (new PC()); 
+				proj.setInputCloud(cloudPFiltered); 
+				proj.setModelCoefficients(coefficients); 
+				proj.filter(*projectedCloud);
 
-			saveCloud("4_Proy_Pol" + ofToString(i) + ".pcd",*projectedCloud);
+				saveCloud("4_Proy_Pol" + ofToString(i) + ".pcd",*projectedCloud);
 
-			PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projectedCloud));
-			pcp->detectPolygon();
+				PCPolygonPtr pcp(new PCQuadrilateral(*coefficients, projectedCloud));
+				pcp->detectPolygon();
 			
-			nuevos.push_back(pcp);
-			
+				nuevos.push_back(pcp);
+				numFaces++;
+			}
 			i++;
-			numFaces++;
 		}
 
 		return nuevos;
@@ -254,7 +268,7 @@ namespace mapinect {
 		pcPolygonsMutex.lock();
 		saveCloud("detectPrimitives.pcd", *cloud);
 
-		vector<PCPolygonPtr> nuevos = detectPolygons(cloud,Constants::OBJECT_PLANE_TOLERANCE()); 
+		vector<PCPolygonPtr> nuevos = detectPolygons(cloud,Constants::OBJECT_PLANE_TOLERANCE(),Constants::CLOUD_VOXEL_SIZE * 2); 
 		nuevos = discardPolygonsOutOfBox(nuevos); 
 		namePolygons(nuevos);
 		bool estimationOk;
@@ -477,17 +491,11 @@ namespace mapinect {
 		saveCloud("nucloud.pcd",*nuCloud);
 		saveCloud("trimmed.pcd",*trimmedCloud);
 
-		//if(trimmedCloud->size() < this->cloud->size() * 0.2)
-		//{
-		//	cout << "puntos insuficientes!  " << "necesita: "<< this->cloud->size() * 0.2 << "   tiene: " << trimmedCloud->size() << endl;
-		//	return; //Si la nube no tiene suficientes puntos, mantengo el procesamiento anterior.
-		//}
-
 		pcPolygonsMutex.lock();
 		vector<PCPolygonPtr> prevPcPolygons = pcpolygons;
 
 		//Detecto nuevas caras
-		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,Constants::OBJECT_PLANE_TOLERANCE(),2.6,false); 
+		vector<PCPolygonPtr> nuevos = detectPolygons(trimmedCloud,Constants::OBJECT_PLANE_TOLERANCE(),Constants::CLOUD_VOXEL_SIZE * 2,false); 
 		
 		//Matching de las caras detectadas con las anteriores
 		nuevos = mergePolygons(nuevos);
@@ -535,7 +543,6 @@ namespace mapinect {
 		}
 		else
 		{
-			//cout << "[ Add to model invalid ]" << endl;
 			pcpolygons = prevPcPolygons;
 
 			//Si hay errores en la estimación, rollback de los pcpolygons mergeados
