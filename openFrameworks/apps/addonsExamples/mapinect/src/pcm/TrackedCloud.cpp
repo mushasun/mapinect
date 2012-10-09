@@ -205,19 +205,12 @@ namespace mapinect {
 							// Está dentro del frustum si todos sus vértices lo están
 							if(Frustum::IsInFrustum(polyhedron->getVertexs()))
 							{
-								cout << "racalculating valid" << endl;
 								sendUpdate = true;
 								invalidCounter = 0;
 							}
-							else
-								cout << "racalculating NO FRUSTUM" << endl;
 						}
 					}
-					else
-						cout << "racalculating NO VALID" << endl;
 				}
-				else
-					cout << "racalculating NO BOX" << endl;
 			}
 
 			
@@ -314,7 +307,7 @@ namespace mapinect {
 	}
 
 	///Retorna la distancia de matcheo entre las dos nubes
-	///Retorna -1 en caso de no matchear
+	///Retorna numeric_limits<float>::max() en caso de no matchear
 	float TrackedCloud::matchingTrackedObjects(const TrackedCloudPtr& tracked) const
 	{
 		PCPtr diff;
@@ -324,7 +317,9 @@ namespace mapinect {
 		if(matchingCloud != NULL)
 		{
 			if(!matchingCloud->isFloating() && tracked->isFloating())
-				return -1;
+			{
+				return numeric_limits<float>::max();
+			}
 		}
 
 		PCPtr newObjectCloud(new PC(*cloud));
@@ -349,15 +344,16 @@ namespace mapinect {
 
 		float result = translation.length();
 
+		//Da preferencia a los objetos apoyados en la mesa
 		if(result > nearest)
 		{
-			if(matchingCloud != NULL)
+			if(matchingCloud != NULL &&
+			   matchingCloud->isFloating() && !tracked->isFloating())
 			{
-				if(matchingCloud->isFloating() && !tracked->isFloating())
-					return result;
+				return result;
 			}
 			else
-				result = -1;
+				return numeric_limits<float>::max();;
 		}
 
 		return result;

@@ -37,7 +37,7 @@ namespace mapinect {
 			vector<PCPolygonPtr>			updatePolygons();
 			PCPolygonPtr					findCloserPolygon(PCPolygonPtr pol, vector<PCPolygonPtr> polygons);
 			bool							findBestFit(const PCPolygonPtr&, PCPolygonPtr& removed, bool& wasRemoved);
-			vector<PCPolygonPtr>			detectPolygons(const PCPtr& cloudTemp, float planeTolerance = 0.003, float pointsTolerance = 4.0, bool limitFaces = true);
+			vector<PCPolygonPtr>			detectPolygons(const PCPtr& cloudTemp, float planeTolerance, float pointsTolerance, bool limitFaces = true);
 			virtual vector<PCPolygonPtr>	estimateHiddenPolygons(const vector<PCPolygonPtr>& newPolygons, bool& estimationOk);
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard);
 			virtual vector<PCPolygonPtr>	discardPolygonsOutOfBox(const vector<PCPolygonPtr>& toDiscard, const vector<PCPolygonPtr>& inPolygon);

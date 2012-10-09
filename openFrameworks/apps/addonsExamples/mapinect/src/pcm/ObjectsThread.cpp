@@ -186,12 +186,16 @@ namespace mapinect {
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
 			// Chequea el matching contra todas las trackedClouds, estén o no dentro del frustum
 			float dist = (*iter)->matchingTrackedObjects(trackedCloud);
-			if (dist != -1 && 
+			if (dist != numeric_limits<float>::max() && 
 				dist < currentDist)
 			{
 				currentMatch = (*iter);
 				currentDist = dist;
 			}
+			/*else
+			{
+				cout << "dist: " << currentDist << endl;
+			}*/
 		}
 		if(currentDist != numeric_limits<float>::max())
 		{
