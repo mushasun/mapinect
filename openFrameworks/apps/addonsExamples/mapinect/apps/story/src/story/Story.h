@@ -76,7 +76,6 @@ namespace story
 
 		enum StoryMode				previousMode;
 		unsigned long				startTime;
-		bool						objectWasUpdated;
 
 		void						tableUpdated(const IObjectPtr& object);
 	};

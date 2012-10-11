@@ -12,6 +12,7 @@ namespace story
 	int					StoryConstants::MENU_LIVE_TIME						= 10;
 	float				StoryConstants::MENU_RADIUS							= 0.08;
 
+	float				StoryConstants::OBJECT_UPDATE_TIME_AFTER_MOVING		= 4000;
 	int					StoryConstants::CANT_CAMERAS						= 0;
 	vector<Camera>		StoryConstants::CAMERAS;
 
@@ -29,6 +30,7 @@ namespace story
 			MENU_LIVE_TIME					= XML.getValue("MENU_LIVE_TIME", MENU_LIVE_TIME);
 			MENU_RADIUS						= XML.getValue("MENU_RADIUS", MENU_RADIUS);
 			
+			OBJECT_UPDATE_TIME_AFTER_MOVING = XML.getValue("OBJECT_UPDATE_TIME_AFTER_MOVING", OBJECT_UPDATE_TIME_AFTER_MOVING);
 			CANT_CAMERAS					= XML.getValue("CANT_CAMERAS",0);
 
 			// Cargar posicion y vector look at para las diferentes "cámaras"

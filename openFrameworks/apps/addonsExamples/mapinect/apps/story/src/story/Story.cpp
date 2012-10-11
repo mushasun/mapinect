@@ -43,7 +43,6 @@ namespace story {
 		river = NULL;
 
 		previousMode = STORY_ACTION_MODE;	
-		objectWasUpdated = false;
 	}
 
 	//--------------------------------------------------------------
@@ -80,14 +79,15 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::update(float elapsedTime) 
 	{
-		if (StoryStatus::getStoryMode() == STORY_ARM_STOPPED) {
-			int MAX_WAITING_TIME = 2000;	// 2 segundos
+		if (StoryStatus::getStoryMode() == STORY_ARM_STOPPED)
+		{
+			int MAX_WAITING_TIME = StoryConstants::OBJECT_UPDATE_TIME_AFTER_MOVING;	// 2 segundos
 			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
-			if (objectWasUpdated || (elapsedTime > MAX_WAITING_TIME)) {
+			if (elapsedTime > MAX_WAITING_TIME)
+			{
 				// Tras actualizar los objetos, vuelve al modo en que estaba antes de mover el brazo
 				StoryStatus::setStoryMode(previousMode);
 				cout << "Volviendo al modo anterior luego de: " << elapsedTime << " ms" << endl;
-				objectWasUpdated = false;
 			}
 		}
 
@@ -201,10 +201,6 @@ namespace story {
 	//--------------------------------------------------------------
 	void Story::objectUpdated(const IObjectPtr& object)
 	{
-		if (StoryStatus::getStoryMode() == STORY_ARM_MOVING || StoryStatus::getStoryMode() == STORY_ARM_STOPPED) {
-			objectWasUpdated = true;
-		}
-
 		if (object->getId() == TABLE_ID)
 		{
 			tableUpdated(object);
