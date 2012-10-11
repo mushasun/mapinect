@@ -22,6 +22,7 @@ namespace story
 		static float				HOUSE_GARDEN_1_TIME;
 		static int					MENU_LIVE_TIME;
 		static float				MENU_RADIUS;
+		static float				OBJECT_UPDATE_TIME_AFTER_MOVING;
 		static int					CANT_CAMERAS;
 		static vector<Camera>		CAMERAS;				
 

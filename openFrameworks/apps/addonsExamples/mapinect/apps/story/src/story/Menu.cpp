@@ -239,10 +239,10 @@ namespace story
 	{
 		if (buttonTextures == NULL)
 		{
-			buttonTextures = new ofImage* [BUTTON_COUNT * kTexturesPerButton];
-			for (int i = 0; i < BUTTON_COUNT; i++)
+			buttonTextures = new ofImage* [FINISH * kTexturesPerButton];
+			for (int i = 0; i < FINISH; i++)
 			{
-				string d(i < 10 ? "0" : "");
+				string d((i + 1) < 10 ? "0" : "");
 				buttonTextures[i * kTexturesPerButton + 0] =
 					new ofImage("data/texturas/menu/off00" + d + ofToString(i+1) + ".png");
 				buttonTextures[i * kTexturesPerButton + 1] =
