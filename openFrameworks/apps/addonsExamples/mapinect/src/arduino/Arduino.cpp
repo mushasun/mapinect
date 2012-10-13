@@ -581,7 +581,7 @@ namespace mapinect {
 	{
 		float angleMotor1Rad = ofDegToRad(angle1);		// Motor que mueve la varilla "horizontal"
 		float angleMotor2Rad = ofDegToRad(angle2);		// Motor de abajo del brazo, con la varilla "vertical"
-		float angleMotor4Rad = ofDegToRad(angle4);		// Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
+		float angleMotor4Rad = ofDegToRad(angle4 - 15);		// Motor de los de la punta, el de más arriba, sobre el que está enganchado la base del Kinect
 		float angleMotor8Rad = ofDegToRad(angle8 - 90);	// Motor de los de la punta, el de más abajo. La posición inicial de referencia será 90 grados.
 
 		//todas las matrices segun: http://pages.cs.brandeis.edu/~cs155/Lecture_07_6.pdf

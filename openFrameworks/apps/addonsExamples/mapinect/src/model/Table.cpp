@@ -358,6 +358,8 @@ namespace mapinect
 		ofVec3f centroideMesa = computeCentroid(cloud); 
 		cout << "centroide = " << centroideMesa << endl;
 
+		saveCloud("mesaInicialSinCorregir.pcd",*cloud);
+
 
 		// We want to set the table as the plane Y = y (not necesarilly at y=0, but needs to have normal = (0,-1,0))
 		Eigen::Affine3f rotation = Table::calculateRotations(coefficients);
@@ -394,7 +396,7 @@ namespace mapinect
 
 			composedMatrix = composedMatrix * gTransformation->getWorldTransformation();
 		}
-		saveCloud("mesaInicial.pcd",*transformedCloud);
+		saveCloud("mesaInicialCorregida.pcd",*transformedCloud);
 
 		transformedCoefficients.values[0] = 0;
 		transformedCoefficients.values[1] = -1;

@@ -315,46 +315,38 @@ namespace mapinect {
 		std::vector<pcl::PointIndices> clusterIndices =
 			findClusters(cloud, Constants::TABLE_CLUSTER_TOLERANCE(), Constants::TABLE_CLUSTER_MIN_SIZE());
 
-		PCPtr tableCluster;
-		float minDistanceToCentroid = MAX_FLOAT;
-		for (std::vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it)
-		{
-			PCPtr cloudCluster = getCloudFromIndices(cloud, *it);
-			ofVec3f ptoCentroid = computeCentroid(cloudCluster);
-			if (ptoCentroid.squareLength() < minDistanceToCentroid)
-			{
-				minDistanceToCentroid = ptoCentroid.squareLength();
-				tableCluster = cloudCluster;
-			}
-		}
-
-		saveCloud("tableCluster.pcd",*tableCluster);
-
 		const Plane3D currentTablePlane(gModel->getTable()->getCoefficients());
 		const float tableMinSize = Constants::TABLE_CLUSTER_MIN_SIZE();
 		float minTablePlaneDistance = MAX_FLOAT;
-		PCPtr remainingCloud(new PC());
-		PCPtr cluster(tableCluster);
-		do
+		for (std::vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it)
 		{
-			pcl::ModelCoefficients coefficients;
-			PCPtr planeCloud = extractBiggestPlane(cluster, coefficients, remainingCloud, 0.009,
-				tableMinSize);
-			if (planeCloud->size() == 0)
+			PCPtr cloudCluster = getCloudFromIndices(cloud, *it);
+			cout << "process cluster" <<endl;
+			PCPtr remainingCloud(new PC());
+			PCPtr cluster(cloudCluster);
+			do
 			{
-				break;
-			}
-			else
-			{
-				if (currentTablePlane.distance(computeCentroid(planeCloud)) < minTablePlaneDistance)
+				cout << "process plane" <<endl;
+				pcl::ModelCoefficients coefficients;
+				PCPtr planeCloud = extractBiggestPlane(cluster, coefficients, remainingCloud, 0.009,
+					tableMinSize);
+				if (planeCloud->size() == 0)
 				{
-					newTableCoefficients = coefficients;
-					newTableCloud = planeCloud;
+					break;
+				}
+				else if (currentTablePlane.getNormal().dot(::getNormal(coefficients).normalized()) >= 0.7)
+				{
+					if (currentTablePlane.distance(computeCentroid(planeCloud)) < minTablePlaneDistance)
+					{
+						minTablePlaneDistance = currentTablePlane.distance(computeCentroid(planeCloud));
+						newTableCoefficients = coefficients;
+						newTableCloud = planeCloud;
+					}
 				}
 				cluster = remainingCloud;
 			}
+			while (remainingCloud->size() > tableMinSize);
 		}
-		while (remainingCloud->size() > tableMinSize);
 		
 		return minTablePlaneDistance < MAX_FLOAT;
 	}
