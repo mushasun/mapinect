@@ -50,6 +50,7 @@ namespace mapinect
 		static float				TOUCH_CLUSTER_MIN_PERCENT;
 		static float				TOUCH_TRANSLATION_TOLERANCE_FACTOR;
 	public:
+		static float				TOUCH_TABLE_BORDER_TOLERANCE;
 		static int					TOUCH_MAX_PER_FACE;
 
 		static void					LoadConstants();
