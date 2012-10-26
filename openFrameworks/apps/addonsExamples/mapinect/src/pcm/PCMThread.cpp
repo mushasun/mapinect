@@ -234,6 +234,7 @@ namespace mapinect {
 
 				setPCMThreadStatus("Detecting touch points...");
 				log(kLogFilePCMThread, "Detecting touch points...");
+				const float touchTableBorderTolerance = Constants::TOUCH_TABLE_BORDER_TOLERANCE;
 				const float touchDistance = Constants::TOUCH_DISTANCE();
 				const float clusterTolerance = Constants::OBJECT_CLUSTER_TOLERANCE();
 				const int clusterMinSize = Constants::TOUCH_CLUSTER_MIN_SIZE();
@@ -265,6 +266,21 @@ namespace mapinect {
 									float distance = (*p)->getMathModel().distance(*v);
 									if (distance <= touchDistance && distance < minDistance)
 									{
+										if ((*p)->getId() == TABLE_ID)
+										{
+											bool closeToEdges = false;
+											for (vector<Line3D>::const_iterator e = (*p)->getMathModel().getEdges().begin();
+												e != (*p)->getMathModel().getEdges().end(); ++e)
+											{
+												if (e->distance(planeProjected) < touchTableBorderTolerance)
+												{
+													closeToEdges = true;
+													break;
+												}
+											}
+											if (closeToEdges)
+												continue;
+										}
 										minDistance = distance;
 										polygon = *p;
 									}
