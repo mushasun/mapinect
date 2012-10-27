@@ -228,6 +228,8 @@ namespace mapinect {
 			if (objectsOnTableTopCloud->size() > 200)
 			{
 				PCPtr differenceCloud = getDifferenceCloudFromModel(objectsOnTableTopCloud);
+				saveCloud("difCloud.pcd", *differenceCloud);
+
 				vector<IObjectPtr> mathModel(gModel->getMathModelApproximation());
 
 				// touch detection and tracking
@@ -245,7 +247,7 @@ namespace mapinect {
 				for (int i = 0; i < clusterIndices.size(); ++i)
 				{
 					PCPtr cluster = getCloudFromIndices(differenceCloud, clusterIndices.at(i));
-					saveCloud("cluster" + ofToString(i) + ".pcd", *cluster);
+					saveCloud("clusterHand" + ofToString(i) + ".pcd", *cluster);
 
 					// filter the points that are close to the math model
 					vector<ofVec3f> vCluster(pointCloudToOfVecVector(cluster));
@@ -328,6 +330,8 @@ namespace mapinect {
 							for (vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it)
 							{
 								PCPtr cloudCluster = getCloudFromIndices(polygonTouchPointsCloud, *it);
+								saveCloud("clusterTouchPoints.pcd", *cloudCluster);
+								
 								ofVec3f touchPoint(computeCentroid(cloudCluster));
 								newTouchPoints.push_back(TrackedTouchPtr(new TrackedTouch(i->first, i->first->getMathModel().project(touchPoint))));
 							}
