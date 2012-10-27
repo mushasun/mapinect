@@ -208,9 +208,9 @@ namespace mapinect {
 	}
 
 	//--------------------------------------------------------------
-	vector<TrackedCloudPtr> ObjectsThread::computeOcclusions(const list<TrackedCloudPtr>& potentialOcclusions)
+	map<int,TrackedCloudPtr> ObjectsThread::computeOcclusions(const list<TrackedCloudPtr>& potentialOcclusions)
 	{
-		vector<TrackedCloudPtr> occlusions;
+		map<int,TrackedCloudPtr> occlusions;
 
 		ofVec3f origin = PCXYZ_OFVEC3F(eyePos());
 
@@ -235,51 +235,47 @@ namespace mapinect {
 				{
 					bool occludedPol = true;
 					PCPolyhedron* polyhedron = dynamic_cast<PCPolyhedron*>((*iter)->getTrackedObject().get());
-					if(polyhedron->isValid())
+					polyhedron->resetOccludedFaces();
+					vector<IPolygonPtr> pols = polyhedron->getVisiblePolygons();
+					int occludedFaces = 0;
+					for(int i = 0; i < pols.size(); i++)
 					{
-						polyhedron->resetOccludedFaces();
-						vector<IPolygon*> pols = polyhedron->getPolygons();
-						int occludedFaces = 0;
-						for(int i = 0; i < pols.size(); i++)
+						vector<ofVec3f> vexs = pols.at(i)->getMathModel().getVertexs();
+						int occludedVertexs = 0;
+
+						for(int o = 0; o < vexs.size(); o++)
 						{
-							vector<ofVec3f> vexs = pols.at(i)->getMathModel().getVertexs();
-							int occludedVertexs = 0;
+							bool occludedVertex = false;
+							ofVec3f end = vexs.at(o);
+							Eigen::Vector3f endPoint(end.x,end.y,end.z);
+							Eigen::Vector3f originPoint = PCXYZ_EIGEN3F(eyePos());
+							voxelList.clear();
 
-							for(int o = 0; o < vexs.size(); o++)
+							int voxs = octree.getApproxIntersectedVoxelCentersBySegment(originPoint,endPoint,voxelList,Constants::CLOUD_VOXEL_SIZE*2);
+
+							for(int i = 0; i < voxelList.size(); i ++)
 							{
-								bool occludedVertex = false;
-								ofVec3f end = vexs.at(o);
-								Eigen::Vector3f endPoint(end.x,end.y,end.z);
-								Eigen::Vector3f originPoint = PCXYZ_EIGEN3F(eyePos());
-								voxelList.clear();
-
-								int voxs = octree.getApproxIntersectedVoxelCentersBySegment(originPoint,endPoint,voxelList,Constants::CLOUD_VOXEL_SIZE*2);
-
-								for(int i = 0; i < voxelList.size(); i ++)
+								if(octree.isVoxelOccupiedAtPoint(voxelList.at(i)))
 								{
-									if(octree.isVoxelOccupiedAtPoint(voxelList.at(i)))
-									{
-										ofVec3f intersect (voxelList.at(i).x,voxelList.at(i).y,voxelList.at(i).z);
-										if(((intersect - end).length() > Constants::CLOUD_VOXEL_SIZE*5) &&
-											(intersect - origin).length() < (end - origin).length())
-											occludedVertexs++;
-									}
+									ofVec3f intersect (voxelList.at(i).x,voxelList.at(i).y,voxelList.at(i).z);
+									if(((intersect - end).length() > Constants::CLOUD_VOXEL_SIZE*5) &&
+										(intersect - origin).length() < (end - origin).length())
+										occludedVertexs++;
 								}
 							}
-
-							if(occludedVertexs > 3)
-							{
-								polyhedron->setOccludedFace(pols.at(i)->getName());
-								occludedFaces++;
-							}
 						}
-						if(occludedFaces > 1)
+
+						if(occludedVertexs >= 2)
 						{
-							occlusions.push_back((*iter));
-							//cout << "	occluded pol " << endl;
+							polyhedron->setOccludedFace(pols.at(i)->getName());
+							occludedFaces++;
 						}
 					}
-					
+					if(occludedFaces > 1)
+					{
+						occlusions[(*iter)->getTrackedObject()->getId()] = (*iter);
+						cout << "	occluded pol " << endl;
+					}
 				}
 			}
 			gModel->objectsMutex.unlock();
@@ -291,24 +287,26 @@ namespace mapinect {
 	void ObjectsThread::updateDetectedObjects()
 	{
 		vector<TrackedCloudPtr> potentialOcclusions;
-		vector<TrackedCloudPtr> occlusions = computeOcclusions(trackedClouds);
+		map<int,TrackedCloudPtr> occlusions = computeOcclusions(trackedClouds);
 
 		if(occlusions.size() > 0)
 		{
-			for(int i = 0; i < occlusions.size(); i++)
-			{
-				if(!occlusions.at(i)->hasMatching())
-					occlusions.at(i)->addCounter(1);
+			for (map<int,TrackedCloudPtr>::iterator iter = occlusions.begin(); iter != occlusions.end(); iter++) {
+				if(!(*iter).second->hasMatching())
+					(*iter).second->addCounter(1);
 			}
 		}
 
 		for (list<TrackedCloudPtr>::iterator iter = trackedClouds.begin(); iter != trackedClouds.end(); iter++) {
 			if ((*iter)->hasMatching() && (*iter)->isInViewField())
 			{
-				saveCloud("objPreMatched.pcd",*(*iter)->getTrackedCloud());
-				(*iter)->updateMatching();
-				saveCloud("objPostMatched.pcd",*(*iter)->getTrackedCloud());
-
+				//if(!(*iter)->hasObject() ||
+				//	occlusions.find((*iter)->getTrackedObject()->getId()) == occlusions.end())
+				//{
+					saveCloud("objPreMatched.pcd",*(*iter)->getTrackedCloud());
+					(*iter)->updateMatching();
+					saveCloud("objPostMatched.pcd",*(*iter)->getTrackedCloud());
+				//}
 				if (!((*iter)->hasObject())) {
 					(*iter)->addCounter(2);
 				}
