@@ -229,7 +229,7 @@ namespace mapinect {
 				if(prev.get() == NULL)
 				{
 					missing.remove(toEstimate);
-					cerr<<"no se puede estimar el poligono " << toEstimate << endl;
+					//cerr<<"no se puede estimar el poligono " << toEstimate << endl;
 					estimationOk = false;
 					return vector<PCPolygonPtr>(); // no se puede estimar el poligono
 				}
@@ -314,7 +314,7 @@ namespace mapinect {
 				if(next.get() == NULL || prev.get() == NULL)
 				{
 					missing.remove(toEstimate);
-					cerr<<"no se puede estimar el poligono " << toEstimate << endl;
+					//cerr<<"no se puede estimar el poligono " << toEstimate << endl;
 					estimationOk = false;
 					return vector<PCPolygonPtr>(); // no se puede estimar el poligono
 				}
@@ -929,7 +929,7 @@ namespace mapinect {
 		h = abs((sideAVex.at(0) - sideAVex.at(1)).length());
 		d = abs((sideBVex.at(1) - sideBVex.at(2)).length());
 
-		//cout << "Measures of: " << sideA->getPolygonModelObject()->getName() << endl; 
+		//cout << "Measures of: " << getId() << endl; 
 		//cout << "\tw: " << w << endl;
 		//cout << "\th: " << h << endl;
 		//cout << "\td: " << d << endl;

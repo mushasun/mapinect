@@ -470,8 +470,7 @@ float boxProbability(const PCPtr& cloud)
 				float dot = abs(tableNormal.dot(norm));
 				if( dot > DOT_EPSILON && dot < (1.0 - DOT_EPSILON))
 				{
-					cout << "plane is neither orthogonal nor parallel, dot: " << dot
-						<< " normal: " << norm << endl;
+					//cout << "plane is neither orthogonal nor parallel, dot: " << dot << " normal: " << norm << endl;
 					return 0;
 				}
 				//si es paralela a la mesa, chequeo que esté sobre la mesa
@@ -479,7 +478,7 @@ float boxProbability(const PCPtr& cloud)
 				{
 					if(!table->isOverTable(cloudP))
 					{
-						cout << "plane not over table" << endl;
+						//cout << "plane not over table" << endl;
 						return 0;
 					}
 				}
@@ -489,9 +488,7 @@ float boxProbability(const PCPtr& cloud)
 				float dot = abs(normals[i].dot(norm));
 				if( dot > DOT_EPSILON)
 				{
-					cout << "plane normals aren't orthogonal, dot: " << dot
-						<< " normal A: " << norm
-						<< " normal B: " << normals[i] << endl;
+					//cout << "plane normals aren't orthogonal, dot: " << dot << " normal A: " << norm << " normal B: " << normals[i] << endl;
 					return 0;
 				}
 			}

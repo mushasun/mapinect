@@ -58,7 +58,7 @@ namespace mapinect {
 			return NULL;
 		} 
 	
-	return pos;
+		return pos;
 	}
 
 }
