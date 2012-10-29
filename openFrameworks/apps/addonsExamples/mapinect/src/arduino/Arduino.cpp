@@ -281,8 +281,10 @@ namespace mapinect {
 		if (IsFeatureMoveArmActive()) {
 			armStartedMoving(forceReset);	
 
-			// No se debe aplicar ICP en el reset; sirve para "volver a una posición segura"
-//			cloudBeforeMoving.reset();
+			if (IsFeatureICPActive()) {
+				// No se debe aplicar ICP en el reset; sirve para "volver a una posición segura"
+				cloudBeforeMoving.reset();
+			}
 		}
 
 /*		if (IsFeatureMoveArmActive()) {

@@ -84,6 +84,7 @@ namespace mapinect {
 		int iter = 0;
 		icpMutex.lock();
 			checkApplyICP = false;
+			cout << "se baja la flag checkApplyICP" << endl;
 			pcl::PointCloud<PCXYZ>::Ptr beforeMoving (new pcl::PointCloud<PCXYZ>(*cloudBeforeMoving.get()));
 			saveCloud("ICPbeforeMoving.pcd",*beforeMoving);
 			pcl::PointCloud<PCXYZ>::Ptr afterMoving  (new pcl::PointCloud<PCXYZ>(*cloudAfterMoving.get()));
@@ -93,6 +94,8 @@ namespace mapinect {
 
 		if (!IsFeatureICPActive())
 		{
+			startTime = ofGetSystemTime();
+
 			// 1 - Re detectar la mesa
 			pcl::ModelCoefficients coefficients;
 			PCPtr detectedTableCloud;
@@ -174,6 +177,9 @@ namespace mapinect {
 				// resetear a la posicion inicial el brazo
 				this->arduino->reset(true);
 			}
+
+			unsigned int elapsedTime = (unsigned int) (ofGetSystemTime() - startTime);
+			cout << "ajuste de la mesa llevó: " << elapsedTime << endl;
 		}
 		else
 		{
@@ -183,7 +189,7 @@ namespace mapinect {
 			// 1 - Verificar a partir de la nueva nube si la transformación teórica es buena
 			// Para saber si es una buena estimación
 			PCPtr planeCloud;
-			float optimalAngleThreshold = 2;		// Tolerancia de angulo para la normal de la nueva mesa detectada = 2 grados
+			float optimalAngleThreshold = 5;		// Tolerancia de angulo para la normal de la nueva mesa detectada = 2 grados
 			float maxAngleThreshold = 30;			// Tolerancia máxima para el ángulo entre la normal del plano del modelo y la nueva normal, para encontrar al plano de la mesa
 			float optimalPlaneDistance = 0.01;		// Tolerancia de distancia entre el plano de la mesa del modelo y la detectada = 1.0 cms
 			bool isTableWellEstimated = findNewTablePlane(afterMoving, maxAngleThreshold, optimalAngleThreshold, optimalPlaneDistance, coefficients, planeCloud);
@@ -208,7 +214,8 @@ namespace mapinect {
 					cout << "Verificando resultado de ICP" << endl;
 					PCPtr icpPlaneCloud;
 					pcl::ModelCoefficients icpCoefficients;
-					isTableWellEstimated = findNewTablePlane(nubeAfterMovingTransfICP, maxAngleThreshold, optimalAngleThreshold, optimalPlaneDistance, icpCoefficients, icpPlaneCloud);
+					//isTableWellEstimated = findNewTablePlane(nubeAfterMovingTransfICP, maxAngleThreshold, optimalAngleThreshold, optimalPlaneDistance, icpCoefficients, icpPlaneCloud);
+					isTableWellEstimated = detectNewTable(nubeAfterMovingTransfICP, icpCoefficients, icpPlaneCloud);
 					if (isTableWellEstimated) //|| icpPlaneCloud->size() > 0) 
 					{
 						cout << "La transformacion de ICP es buena, se aplica" << endl;
@@ -235,6 +242,9 @@ namespace mapinect {
 				TablePtr table = Table::updateTablePlane(coefficients,planeCloud);
 				gModel->setTable(table);
 
+				// Enviar evento que el brazo se dejó de mover, y ya está estable la transformación
+				EventManager::addEvent(MapinectEvent(kMapinectEventTypeArmStoppedMoving));
+
 				// Una vez que se terminó de aplicar ICP y se actualizó la matriz de transformación, 
 				//	libero el mutex para que puedan invocar al método getCloud
 				gTransformation->cloudMutex.unlock();
@@ -242,9 +252,7 @@ namespace mapinect {
 				// Además, se debe volver a dibujar en la ventana de mapping
 				gTransformation->setIsWorldTransformationStable(true);
 
-			}
-			else
-			{
+			} else {
 				this->arduino->reset(true);	// forceReset = true, esto es, el cloudMutex ya está en lock al entrar al método reset
 			}
 		}
