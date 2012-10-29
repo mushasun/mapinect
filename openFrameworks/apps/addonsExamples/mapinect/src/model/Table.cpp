@@ -13,15 +13,16 @@
 
 namespace mapinect
 {
+	// Devuelve los vertices de la mesa ordenados en sentido horario
 	vector<ofVec3f> reorderTableVertexs(const vector<ofVec3f>& vertexs)
 	{
 		// Se deben ordenar los vértices en screen coords
 		//	de modo que el A sea el que está mas cerca del (0,0) en Screen coords
 		//	y luego en sentido horario B, C y D
-		//				   A *------------* D
+		//				   A *------------* B
 		//					/			   \
 		//				   /			    \
-		//			    B *------------------* C
+		//			    D *------------------* C
 		vector<ofVec3f> vertexs2D;
 		for (int i = 0; i < vertexs.size(); i++) 
 		{
@@ -146,8 +147,9 @@ namespace mapinect
 			// D fue estimado, entonces se debe calcular el nuevo D' con el largo de mesa 
 			nuevoVerticeD = lineAD.calculateValue(TABLE_LENGTH_AD / distanceAD);
 			cout << "El vertice D fue modificado" << endl;
-			distanceAD=pWorldA.distance(nuevoVerticeD);
 		}
+
+		//cout << "La mesa estimada mide: " << distanceAB << " x " << distanceAD << endl;
 
 		if (nuevoVerticeB != pWorldB || nuevoVerticeD != pWorldD ) 
 		{
@@ -176,14 +178,14 @@ namespace mapinect
 			int& correspondingMinDistanceIndex) {
 		// Comparar los nuevos vértices detectados con los vértices iniciales de la mesa
 		vector<float> distance;
-		distance.resize(4);
+		distance.resize(4,MAX_FLOAT);
 		vector<int> detectedVertexIndex;
-		detectedVertexIndex.resize(4);
+		detectedVertexIndex.resize(4,-1);
 
 		float minDistance, currentDistance;
 		for (int i = 0; i < initOrderedVertexs.size(); i++) 
 		{
-			minDistance = 100;
+			minDistance = MAX_FLOAT;
 			ofVec3f currentInitVertex = initOrderedVertexs.at(i);
 			for (int j = 0; j < detectedVertexs.size(); j++) 
 			{
@@ -193,12 +195,12 @@ namespace mapinect
 					minDistance = currentDistance;
 					distance.at(i) =  currentDistance;
 					detectedVertexIndex.at(i) = j;
-				}
+				} 
 			}
 		}
 
 		// Finalmente recorro la estructura para obtener la pareja de vértices con distancia mínima
-		minDistance = 100;
+		minDistance = MAX_FLOAT;
 		minDistanceIndex = -1;
 		for (int i = 0; i < 4; i ++) {
 			if (distance.at(i) < minDistance) {
