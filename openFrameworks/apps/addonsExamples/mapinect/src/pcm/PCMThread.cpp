@@ -215,12 +215,12 @@ namespace mapinect {
 		bool dif;
 		PCPtr occluders (new PC());
 		PCPtr objectsOnTableTopCloud = getObjectsOnTableTopCloud(occluders);
-		if(objectDetection)
+		if (IsFeatureActive(FEATURE_OBJECT_DETECTION) && objectDetection)
 			objectsThread.setClouds(objectsOnTableTopCloud);
 	
 		log(kLogFilePCMThread, "Starts Hand detection...");
 
-		if(IsFeatureActive(FEATURE_HAND_DETECTION) && touchDetection)
+		if(IsFeatureActive(FEATURE_TOUCH_DETECTION) && touchDetection)
 		{
 			// split the new cloud from the existing one
 			setPCMThreadStatus("Obtaining difference cloud from model...");
