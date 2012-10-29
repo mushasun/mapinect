@@ -170,6 +170,18 @@ namespace visualizer {
 	{
 		switch(key)
 		{
+			case '1':
+				armController->setArmPositionAndLookAt(ofVec3f(0.37,.45,0),ofVec3f(2,0.3,.45));
+				break;
+			case '2':
+				armController->setArmPositionAndLookAt(ofVec3f(0.37,0,0),ofVec3f(2,0.3,-.25));
+				break;
+			case '3':
+				armController->setArmPositionAndLookAt(ofVec3f(0.22,-.75,.22),ofVec3f(3,0.3,-.5));
+				break;
+			case '4':
+				armController->setArmPositionAndLookAt(ofVec3f(0.22,.5,.22),ofVec3f(3,0.3,-2.5));
+				break;
 			case '9': 
 				modeManager->disableObjectTracking();
 				break;
