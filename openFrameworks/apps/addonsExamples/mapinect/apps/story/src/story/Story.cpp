@@ -366,7 +366,11 @@ namespace story {
 		StoryStatus::setStoryMode(STORY_ARM_MOVING);
 
 		Camera cam = StoryConstants::CAMERAS.at(camera - 1);
-		this->armController->setArmPositionAndLookAt(cam.position,cam.lookAt);	
+		ofVec3f pos = this->armController->setArmPositionAndLookAt(cam.position,cam.lookAt);
+		if (pos == NULL) {
+			StoryStatus::setStoryMode(previousMode);
+			cout << "pos dio null, cambio al modo previo" << endl;
+		}
 	}
 
 	void Story::tableUpdated(const IObjectPtr& object) 
