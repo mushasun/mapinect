@@ -53,6 +53,8 @@ namespace drawing
 		virtual void		buttonPressed(const IButtonPtr&, const DataTouch&);
 		virtual void		buttonReleased(const IButtonPtr&, const DataTouch&);
 
+		virtual void		keyPressed(int key);
+
 	private:
 
 		void				setAppStatus(AppStatus);
