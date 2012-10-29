@@ -18,6 +18,7 @@ namespace mapinect
 		Canvas(int polygonId, const Polygon3D& polygon, int width, int height, const ofColor& backColor, const ofColor& foreColor, float lineWidth);
 		virtual ~Canvas();
 
+		void					reset();
 		void					update(const Polygon3D& polygon);
 		void					draw();
 		void					drawTexture(ofImage&, const vector<ofVec3f>&);
