@@ -14,7 +14,7 @@ namespace drawing
 	const int kButtons = 3;
 	const int kPaletteColors = 6;
 
-	const float kMenuTime = 10.0f;
+	const float kMenuTime = 5.0f;
 
 	Drawing::Drawing()
 		: canvas(NULL), menuTimer(0.0f), menuVisible(false), paletteVisible(false)
@@ -239,6 +239,17 @@ namespace drawing
 		}
 	}
 
+	void Drawing::keyPressed(int key)
+	{
+		if (key == ' ')
+		{
+			if (canvas != NULL)
+			{
+				canvas->reset();
+			}
+		}
+	}
+
 	void Drawing::setAppStatus(AppStatus newStatus)
 	{
 		if (status != newStatus)
@@ -420,7 +431,7 @@ namespace drawing
 		imageCounter = (imageCounter + 1) % 5;
 		ofImage* image = new ofImage(imagePath);
 		
-		const float kSize = 0.2f;
+		const float kSize = 0.3f;
 		vector<ofVec3f> vertexs(polygonOnTable(p, kSize, kSize, 0, 0, 0));
 
 		Polygon3D polygon(vertexs);
