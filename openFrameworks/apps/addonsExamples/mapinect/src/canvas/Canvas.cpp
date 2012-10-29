@@ -43,6 +43,11 @@ namespace mapinect
 		texture.setLineWidth(lineWidth);
 	}
 
+	void Canvas::reset()
+	{
+		texture.background(backColor);
+	}
+
 	void Canvas::update(const Polygon3D& polygon)
 	{
 		this->polygon = polygon;
@@ -112,7 +117,7 @@ namespace mapinect
 		{
 		case kTouchTypeStarted:
 			touchPoints[id] = touchPoint;
-			traces[id] = new Trace(mapped, foreColor);
+			traces[id] = new Trace(mapped, ofRandomColor());
 			break;
 		case kTouchTypeHolding:
 			if(pto.distanceSquared(touchPoints[id].getTouchPoint()) > 0.0001)
