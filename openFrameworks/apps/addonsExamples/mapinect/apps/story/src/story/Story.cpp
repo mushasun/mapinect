@@ -291,7 +291,8 @@ namespace story {
 					StoryStatus::setStoryMode(STORY_MOVE_MODE);
 					touchPoints.clear();
 				}
-				else if(!modeManager->objectTrackingEnabled())
+				else if(!modeManager->objectTrackingEnabled()
+					&& touchPoint.getPolygon()->getName() == kPolygonNameTop)
 				{
 					selectedBoxIdx = touchedIdx;
 					ofVec3f spotCenter = floor->getPolygons()[0]->getMathModel().getPlane().project(object->getCenter());
