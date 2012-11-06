@@ -46,6 +46,7 @@ namespace mapinect {
 				polygon = transformPolygon3D(polygon, getTranslationMatrix(translation));
 			}
 		
+			/*
 			if (leaderTouch != touch.getId())
 			{
 				ofVec3f leaderPostPos = postContacts.find(leaderTouch)->second.getTouchPoint();
@@ -76,9 +77,9 @@ namespace mapinect {
 						}
 						if (abs(rotation) > rotationLimit)
 						{
-							/*transformation = transformation * getRotationMatrix(
+							transformation = transformation * getRotationMatrix(
 								resizePolygonBase.getPlane().getNormal(),
-								ofDegToRad(-rotation));*/
+								ofDegToRad(-rotation));
 						}
 						transformation = transformation * getTranslationMatrix(-resizePolygonBase.getCentroid());
 
@@ -90,6 +91,7 @@ namespace mapinect {
 					// nothing to do here
 				}
 			}
+			*/
 		}
 		return evnt;
 	}
