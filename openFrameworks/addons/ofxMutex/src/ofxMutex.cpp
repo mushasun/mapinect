@@ -67,12 +67,3 @@ void ofxMutex::unlock(){
 		printf("ofxMutex: we are out -- mutex is now unlocked \n"); 
 	}
 } 
-
-ofxScopedMutex::ofxScopedMutex(const ofxMutex& m) {
-	mutex = m;
-	mutex.lock();
-}
-
-ofxScopedMutex::~ofxScopedMutex() {
-	mutex.unlock();
-}
