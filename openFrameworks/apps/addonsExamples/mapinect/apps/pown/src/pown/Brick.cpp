@@ -152,25 +152,28 @@ namespace pown
 		if (beat == PownConstants::BEATS)
 			beat = 0;
 
-		for (map<int, Box*>::iterator box = boxes.begin(); box != boxes.end(); box++)
-			if (box->second->getNoteBeat().beat == beat)
-				box->second->doBeat();
-
 		for (map<int, Box*>::const_iterator box = boxes.begin(); box != boxes.end(); box++)
 		{
 			if (box->second->getNoteBeat().beat == beat)
 			{
-				const float kWavesPerBeat = (float)PownConstants::WAVES_PER_BEAT;
-
-				for (float i = 1.0f; i <= kWavesPerBeat; i += 1.0f)
-					waves.push_back(new Wave(
-						box->second->getNoteBeat(),
-						box->second->getColor(),
-						kWaveBaseIntensity * i / kWavesPerBeat,
-						PownConstants::WAVE_INTENSITY_DECREASE_FACTOR * i,
-						PownConstants::WAVE_RADIUS_INCREASE_TIME * i));
+				beatBox(box->second);
 			}
 		}
+	}
+
+	void BrickManager::beatBox(Box* box)
+	{
+		box->doBeat();
+
+		const float kWavesPerBeat = (float)PownConstants::WAVES_PER_BEAT;
+
+		for (float i = 1.0f; i <= kWavesPerBeat; i += 1.0f)
+			waves.push_back(new Wave(
+				box->getNoteBeat(),
+				box->getColor(),
+				kWaveBaseIntensity * i / kWavesPerBeat,
+				PownConstants::WAVE_INTENSITY_DECREASE_FACTOR * i,
+				PownConstants::WAVE_RADIUS_INCREASE_TIME * i));
 	}
 
 	bool removeWaveIfNotAlive(Wave* wave)

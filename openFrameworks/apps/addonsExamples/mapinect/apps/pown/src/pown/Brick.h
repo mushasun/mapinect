@@ -72,6 +72,7 @@ namespace pown
 		Brick*					getBrick(int note, int beat) const;
 
 		void					doBeat(map<int, Box*>& boxes);
+		void					beatBox(Box* box);
 
 		void					updateBox(Box* box) const;
 
