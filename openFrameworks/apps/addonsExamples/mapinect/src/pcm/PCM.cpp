@@ -160,6 +160,9 @@ namespace mapinect {
 		case 'o':
 			pcmThread.setObjectDetection(!pcmThread.getObjectDetection());
 			break;
+		case 'O':
+			pcmThread.setTouchDetection(!pcmThread.getTouchDetection());
+			break;
 		}
 		//case 't':
 		//	setTransformation();
