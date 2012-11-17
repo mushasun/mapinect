@@ -27,13 +27,4 @@ class ofxMutex {
 		bool		verbose;
 };
 
-class ofxScopedMutex {
-	public:
-		ofxScopedMutex(const ofxMutex&);
-		virtual ~ofxScopedMutex();
-
-	private:
-		ofxMutex		mutex;
-};
-
 #endif	// OFXMUTEX_H__
