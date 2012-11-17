@@ -274,7 +274,7 @@ namespace mapinect {
 					if(occludedFaces > 1)
 					{
 						occlusions[(*iter)->getTrackedObject()->getId()] = (*iter);
-						cout << "	occluded pol " << endl;
+						//cout << "	occluded pol " << endl;
 					}
 				}
 			}
