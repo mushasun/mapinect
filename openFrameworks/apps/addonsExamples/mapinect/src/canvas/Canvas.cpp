@@ -117,7 +117,7 @@ namespace mapinect
 		{
 		case kTouchTypeStarted:
 			touchPoints[id] = touchPoint;
-			traces[id] = new Trace(mapped, ofRandomColor());
+			traces[id] = new Trace(mapped, foreColor);
 			break;
 		case kTouchTypeHolding:
 			if(pto.distanceSquared(touchPoints[id].getTouchPoint()) > 0.0001)
