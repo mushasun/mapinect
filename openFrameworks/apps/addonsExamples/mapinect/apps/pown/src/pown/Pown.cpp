@@ -13,6 +13,8 @@ namespace pown
 	const ofFloatColor ambient(0.1f, 0.1f, 0.1f, 1.0f);
 	const ofFloatColor diffuse(0.5f, 0.5f, 0.5f, 1.0f);
 
+	static bool paused = false;
+
 	Pown::Pown()
 		: brickManager(NULL), light(ambient, diffuse, ofVec3f(lightRadius, lightHeight, 0))
 	{
@@ -85,7 +87,6 @@ namespace pown
 		
 		// update beats
 		updateBeat(elapsedTime);
-
 	}
 
 	void Pown::objectDetected(const IObjectPtr& object)
@@ -146,7 +147,11 @@ namespace pown
 		{
 			map<int, Box*>::iterator b = boxes.find(object->getId());
 			if (b != boxes.end())
+			{
 				b->second->objectTouched(object, touchPoint);
+				if (touchPoint.getType() == kTouchTypeStarted)
+					brickManager->beatBox(b->second);
+			}
 			if (touchPoint.getType() == kTouchTypeStarted)
 				SoundManager::setProgram(ofRandom(PROGRAMS));
 		}
@@ -166,5 +171,17 @@ namespace pown
 
 	void Pown::keyPressed(int key)
 	{
+		if (key == ' ')
+		{
+			paused = !paused;
+			if (paused)
+			{
+				modeManager->enableObjectTracking();
+			}
+			else
+			{
+				modeManager->disableObjectTracking();
+			}
+		}
 	}
 }
