@@ -1,12 +1,12 @@
 <VMConfig>
     <NEAR_PLANE>0.1</NEAR_PLANE>
     <FAR_PLANE>20.0</FAR_PLANE>
-    <PROJ_CALIB>
-        <![CDATA[data/calib/29Ago2012_kinect-proj-calib_1.yml]]>
-</PROJ_CALIB>
-    <KINECT_CALIB>
-        <![CDATA[data/calib/default-kinect-calib.yml]]>
-</KINECT_CALIB>
+	<PROJ_CALIB>
+		<![CDATA[data/calib/projector-calibration.yml]]>
+	</PROJ_CALIB>
+	<KINECT_CALIB>
+        <![CDATA[data/calib/kinect-calibration.yml]]>
+	</KINECT_CALIB>
     <PROJ_WIDTH>1280</PROJ_WIDTH>
     <PROJ_HEIGHT>768</PROJ_HEIGHT>
     <!-- If different calib parameters are needed -->
