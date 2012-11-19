@@ -4,10 +4,10 @@
     <FAR_PLANE>20.0</FAR_PLANE>
 	
 	<PROJ_CALIB>
-		<![CDATA[data/calib/projector-calib-27May.yml]]>
+		<![CDATA[data/calib/projector-calibration.yml]]>
 	</PROJ_CALIB>
 	<KINECT_CALIB>
-        <![CDATA[data/calib/default-kinect-calib.yml]]>
+        <![CDATA[data/calib/kinect-calibration.yml]]>
 	</KINECT_CALIB>
     <PROJ_WIDTH>1280</PROJ_WIDTH>
     <PROJ_HEIGHT>768</PROJ_HEIGHT>
