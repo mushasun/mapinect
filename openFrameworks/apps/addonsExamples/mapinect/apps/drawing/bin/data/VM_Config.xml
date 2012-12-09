@@ -3,17 +3,17 @@
     <FAR_PLANE>20.0</FAR_PLANE>
     <PROJ_CALIB>
         <![CDATA[data/calib/projector-calibration.yml]]>
-	</PROJ_CALIB>
+</PROJ_CALIB>
     <KINECT_CALIB>
-       <![CDATA[data/calib/kinect-calibration.yml]]>
-	</KINECT_CALIB>
+        <![CDATA[data/calib/kinect-calibration.yml]]>
+</KINECT_CALIB>
     <PROJ_WIDTH>1280</PROJ_WIDTH>
     <PROJ_HEIGHT>768</PROJ_HEIGHT>
     <!-- If different calib parameters are needed -->
     <PROJ_FX>1971.086670</PROJ_FX>
     <PROJ_FY>1570.243286</PROJ_FY>
-    <PROJ_CX>610.172241</PROJ_CX>
-    <PROJ_CY>532.969666</PROJ_CY>
+    <PROJ_CX>580.672241</PROJ_CX>
+    <PROJ_CY>505.469666</PROJ_CY>
     <TRANS_X>-0.006000</TRANS_X>
     <TRANS_Y>0.067000</TRANS_Y>
     <TRANS_Z>-0.032000</TRANS_Z>
