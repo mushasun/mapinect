@@ -1,6 +1,6 @@
 <StoryConfig>
 	<SPOT_ROTATION_PERIOD_TIME>3.0</SPOT_ROTATION_PERIOD_TIME>
-	<HOUSE_GARDEN_1_TIME>10</HOUSE_GARDEN_1_TIME>
+	<HOUSE_GARDEN_1_TIME>3</HOUSE_GARDEN_1_TIME>
 	<MENU_LIVE_TIME>10</MENU_LIVE_TIME>
 	<MENU_RADIUS>0.085</MENU_RADIUS>
 	
@@ -35,14 +35,14 @@
 	
 	<CAMERA>
 		<POSITION>
-			<X>0.22</X>
-			<Y>-0.05</Y>
-			<Z>0.22</Z>
+			<X>0.37</X>
+			<Y>0.0</Y>
+			<Z>0.0</Z>
 		</POSITION>
 		<LOOKAT>
-			<X>3.00</X>
+			<X>2.00</X>
 			<Y>0.30</Y>
-			<Z>-0.50</Z>
+			<Z>-0.25</Z>
 		</LOOKAT>
 	</CAMERA>
 

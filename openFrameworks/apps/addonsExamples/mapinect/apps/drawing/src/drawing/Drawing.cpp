@@ -8,13 +8,13 @@ namespace drawing
 {
 	const int kCanvasWidth = 512;
 	const int kCanvasHeight = 512;
-	const float kPenSize = 4.0f;
+	const float kPenSize = 6.0f;
 	
 	const float kButtonElevation = 0.001;
 	const int kButtons = 3;
 	const int kPaletteColors = 6;
 
-	const float kMenuTime = 5.0f;
+	const float kMenuTime = 3.0f;
 
 	Drawing::Drawing()
 		: canvas(NULL), menuTimer(0.0f), menuVisible(false), paletteVisible(false)
@@ -48,7 +48,7 @@ namespace drawing
 		paletteColors[c++] = kRGBBlack;
 		paletteColors[c++] = kRGBBlue;
 		paletteColors[c++] = kRGBRed;
-		paletteColors[c++] = kRGBGreen;
+		paletteColors[c++] = kRGBDarkGreen;
 		paletteColors[c++] = kRGBYellow;
 		paletteColors[c++] = kRGBWhite;
 
